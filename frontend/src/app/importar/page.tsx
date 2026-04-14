@@ -53,7 +53,7 @@ export default function ImportarPage() {
 
     try {
       // Step 1: Dry run to preview changes
-      const res = await axios.post('http://localhost:3000/funcionarios/importar?dryRun=true', formData, {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/funcionarios/importar?dryRun=true`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setPreviewData(res.data);
@@ -79,7 +79,7 @@ export default function ImportarPage() {
 
     try {
       // Step 2: Final sync
-      await axios.post('http://localhost:3000/funcionarios/importar?dryRun=false', formData, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/funcionarios/importar?dryRun=false`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setStep('success');

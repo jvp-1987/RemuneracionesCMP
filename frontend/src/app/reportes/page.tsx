@@ -42,8 +42,8 @@ export default function ReportesPage() {
     const fetchData = async () => {
       try {
         const [statsRes, centrosRes] = await Promise.all([
-          axios.get('http://localhost:3000/reportes/stats'),
-          axios.get('http://localhost:3000/reportes/centros'),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reportes/stats`),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reportes/centros`),
         ]);
         setStats(statsRes.data);
         setCentros(centrosRes.data);

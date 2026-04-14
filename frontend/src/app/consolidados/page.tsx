@@ -37,7 +37,7 @@ export default function ConsolidadosPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/consolidados');
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/consolidados`);
         setConsolidados(res.data);
       } catch (err) {
         console.error('Error fetching consolidados:', err);

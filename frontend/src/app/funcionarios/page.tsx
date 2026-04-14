@@ -24,7 +24,7 @@ export default function FuncionariosPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/funcionarios');
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/funcionarios`);
         setFuncionarios(res.data);
       } catch (err) {
         console.error('Error fetching funcionarios:', err);

@@ -53,7 +53,7 @@ export default function ConsolidadoDetailPage() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`http://localhost:3000/consolidados/${id}`);
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/consolidados/${id}`);
       setData(res.data);
     } catch (err) {
       console.error('Error fetching detail:', err);
@@ -69,7 +69,7 @@ export default function ConsolidadoDetailPage() {
   const handleUpdateStatus = async (type: string, transId: number, field: string, newStatus: EstadoValidacion) => {
     try {
       const endpoint = type === 'horas' ? 'horas-extras' : type === 'viaticos' ? 'viaticos' : 'atrasos';
-      await axios.patch(`http://localhost:3000/${endpoint}/${transId}`, { [field]: newStatus });
+      await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/${endpoint}/${transId}`, { [field]: newStatus });
       fetchData();
     } catch (err) { console.error('Error updating status:', err); }
   };
@@ -78,7 +78,7 @@ export default function ConsolidadoDetailPage() {
     try {
       const endpoint = type === 'horas' ? 'horas-extras' : type === 'viaticos' ? 'viaticos' : 'atrasos';
       const obsKey = type === 'horas' && subType ? `observaciones_${subType}` : 'observaciones';
-      await axios.patch(`http://localhost:3000/${endpoint}/${transId}`, { [obsKey]: text });
+      await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/${endpoint}/${transId}`, { [obsKey]: text });
       setData(prev => {
         if (!prev) return null;
         const key = type === 'horas' ? 'horas_extras' : type === 'viaticos' ? 'viaticos' : 'atrasos';
@@ -94,7 +94,7 @@ export default function ConsolidadoDetailPage() {
     try {
       const endpoint = activeTab === 'horas' ? 'horas-extras' : activeTab === 'viaticos' ? 'viaticos' : 'atrasos';
       const payload = activeTab === 'horas' ? { estado_25: status, estado_50: status } : { estado: status };
-      await axios.patch(`http://localhost:3000/${endpoint}/bulk/${id}`, payload);
+      await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/${endpoint}/bulk/${id}`, payload);
       fetchData();
     } catch (err) { console.error('Error in bulk update:', err); }
   };
@@ -105,14 +105,14 @@ export default function ConsolidadoDetailPage() {
       return;
     }
     try {
-      await axios.patch(`http://localhost:3000/consolidados/${id}`, { estado_actual_enum: 'Aprobado' });
+      await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/consolidados/${id}`, { estado_actual_enum: 'Aprobado' });
       router.push('/consolidados');
     } catch (err) { console.error('Error finalizing:', err); }
   };
 
   const handleToggleValidation = async (field: 'vb_control_interno' | 'vb_finanzas', value: boolean) => {
     try {
-      await axios.patch(`http://localhost:3000/consolidados/${id}`, { [field]: value });
+      await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/consolidados/${id}`, { [field]: value });
       fetchData();
     } catch (err) { console.error('Error toggling validation:', err); }
   };
