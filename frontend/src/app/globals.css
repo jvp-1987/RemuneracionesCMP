@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: var(--background);
+  --color-on-background: var(--on-background);
+  --color-surface: var(--surface);
+  --color-on-surface: var(--on-surface);
+  --color-surface-variant: var(--surface-variant);
+  --color-on-surface-variant: var(--on-surface-variant);
+  
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+  
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary-container: var(--on-secondary-container);
+  
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+}
+
+:root {
+  /* Remuneración Salud CMP - Azure Ledger Light Theme (Accessibility Hardened) */
+  --background: #f7f9fe;
+  --on-background: #001214; /* Much darker */
+  --surface: #f7f9fe;
+  --on-surface: #001214; /* Much darker */
+  --surface-variant: #dfe3e8;
+  --on-surface-variant: #1a2526; /* Hardened (Darker) */
+  
+  --primary: #005a61; /* Darkened for better contrast */
+  --on-primary: #ffffff;
+  --primary-container: #007b83;
+  --on-primary-container: #ffffff;
+  
+  --secondary: #2d3e46; /* Hardened (Darker) */
+  --on-secondary: #ffffff;
+  --secondary-container: #cfe6f2;
+  --on-secondary-container: #1b262c; /* Hardened (Darker) */
+  
+  --tertiary: #005f6c;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #007a89;
+  
+  --error: #ba1a1a;
+  --on-error: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
+  
+  --outline: #3d4a4b; /* Hardened (Darker for > 4.5:1 contrast) */
+  --outline-variant: #adb9ba; /* Hardened */
+  
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f1f4f9;
+  --surface-container: #ebeef3;
+  --surface-container-high: #e5e8ed;
+  --surface-container-highest: #dfe3e8;
+  --surface-bright: #f7f9fe;
+  --surface-dim: #d7dadf;
+  
+  --glass: rgba(255, 255, 255, 0.95); /* Increased opacity */
+  --border: rgba(0, 18, 20, 0.12); /* Based on on-surface */
+}
+
+
+body {
+  background-color: var(--background);
+  color: var(--on-surface);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-headline {
+  font-family: 'Manrope', sans-serif;
+}
+
+.font-label {
+  font-family: 'Inter', sans-serif;
+}
+
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(64, 206, 243, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* Material Symbols Integration Support - Bulletproof against Ligature Leakage */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: -1em; /* Collapses ligature characters to prevent leakage */
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  /* Hardened: Prevent text leakage if font fails to load */
+  overflow: hidden;
+  max-width: 1em;
+  max-height: 1em;
+  vertical-align: middle;
+}
