@@ -14,6 +14,11 @@ export class ConsolidadosController {
     return this.consolidadosService.create(dto);
   }
 
+  @Get('dashboard')
+  getDashboardKpis() {
+    return this.consolidadosService.getDashboardKpis();
+  }
+
   @Get()
   findAll() {
     return this.consolidadosService.findAll();

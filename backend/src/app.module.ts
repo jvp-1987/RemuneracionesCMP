@@ -15,9 +15,10 @@ import { AtrasosModule } from './atrasos/atrasos.module';
 import { ProcedimientosModule } from './procedimientos/procedimientos.module';
 import { AuditModule } from './audit/audit.module';
 import { ReportesModule } from './reportes/reportes.module';
+import { IngresosModule } from './ingresos/ingresos.module';
 
 @Module({
-  imports: [PrismaModule, CentrosSaludModule, UsuariosModule, ProgramasModule, FuncionariosModule, PeriodosModule, ConsolidadosModule, HorasExtrasModule, TurnosUrgenciaModule, ViaticosModule, AtrasosModule, ProcedimientosModule, AuditModule, ReportesModule],
+  imports: [PrismaModule, CentrosSaludModule, UsuariosModule, ProgramasModule, FuncionariosModule, PeriodosModule, ConsolidadosModule, HorasExtrasModule, TurnosUrgenciaModule, ViaticosModule, AtrasosModule, ProcedimientosModule, AuditModule, ReportesModule, IngresosModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -37,6 +37,12 @@ export class FuncionariosController {
     return this.funcionariosService.importarExcel(file.buffer, isDryRun);
   }
 
+  @Get('search')
+  search(@Query('q') query: string) {
+    if (!query || query.length < 2) return [];
+    return this.funcionariosService.search(query);
+  }
+
   @Get()
   findAll() {
     return this.funcionariosService.findAll();

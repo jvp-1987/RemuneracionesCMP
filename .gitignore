@@ -40,3 +40,9 @@ backend.log
 frontend.log
 backend/backend.log
 frontend/frontend.log
+
+# CPanel Deployment Artifacts
+DEPLOY_TO_CPANEL/
+deploy_api.zip
+deploy_web.zip
+deploy_database.zip

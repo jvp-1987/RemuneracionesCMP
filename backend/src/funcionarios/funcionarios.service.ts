@@ -203,6 +203,19 @@ export class FuncionariosService {
     return this.prisma.funcionario.update({ where: { rut }, data: dto });
   }
 
+  async search(query: string) {
+    return this.prisma.funcionario.findMany({
+      where: {
+        OR: [
+          { rut: { contains: query } },
+          { nombre_completo: { contains: query } }
+        ]
+      },
+      take: 5,
+      select: { rut: true, nombre_completo: true, categoria_aps: true, nivel_aps: true }
+    });
+  }
+
   async remove(rut: string) {
     return this.prisma.funcionario.delete({ where: { rut } });
   }

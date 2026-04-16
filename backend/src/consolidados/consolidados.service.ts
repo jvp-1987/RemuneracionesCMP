@@ -119,4 +119,68 @@ export class ConsolidadosService {
     await this.findOne(id);
     return this.prisma.consolidado.delete({ where: { id } });
   }
+
+  async getDashboardKpis() {
+    // Get the totals for each category across ALL active consolidados
+    const [heTotal, turnosTotal, viaticosTotal, atrasosTotal, centrosSalud, consolidados] = await Promise.all([
+      this.prisma.horasExtras.aggregate({
+        _sum: { monto_25: true, monto_50: true, cantidad_25: true, cantidad_50: true },
+      }),
+      this.prisma.turnosUrgencia.aggregate({
+        _sum: { monto_calculado: true, cant_turnos_habiles: true, cant_turnos_inhabiles: true },
+      }),
+      this.prisma.viaticos.aggregate({
+        _sum: { monto_calculado: true },
+        _count: true,
+      }),
+      this.prisma.atrasos.aggregate({
+        _sum: { monto_descuento: true },
+        _count: true,
+      }),
+      this.prisma.centroSalud.findMany({
+        include: {
+          consolidados: {
+            include: {
+              horas_extras: { select: { monto_25: true, monto_50: true } },
+              turnos_urgencia: { select: { monto_calculado: true } },
+              viaticos: { select: { monto_calculado: true } },
+            },
+          },
+        },
+      }),
+      this.prisma.consolidado.findMany({
+        include: { periodo: true, centro_salud: true },
+        orderBy: { id: 'desc' },
+        take: 5,
+      }),
+    ]);
+
+    // Build per-centro spend summary
+    const porCentro = centrosSalud.map(c => {
+      const gastoHE = c.consolidados.reduce((acc, con) => {
+        const he = con.horas_extras.reduce((s, h) => s + Number(h.monto_25) + Number(h.monto_50), 0);
+        const tur = con.turnos_urgencia.reduce((s, t) => s + Number(t.monto_calculado), 0);
+        const via = con.viaticos.reduce((s, v) => s + Number(v.monto_calculado), 0);
+        return acc + he + tur + via;
+      }, 0);
+      return { nombre: c.nombre, gasto_total: gastoHE };
+    }).sort((a, b) => b.gasto_total - a.gasto_total);
+
+    return {
+      kpis: {
+        total_he: Number(heTotal._sum.monto_25 ?? 0) + Number(heTotal._sum.monto_50 ?? 0),
+        total_turnos: Number(turnosTotal._sum.monto_calculado ?? 0),
+        total_viaticos: Number(viaticosTotal._sum.monto_calculado ?? 0),
+        total_atrasos_descuento: Number(atrasosTotal._sum.monto_descuento ?? 0),
+        cantidad_he_25: Number(heTotal._sum.cantidad_25 ?? 0),
+        cantidad_he_50: Number(heTotal._sum.cantidad_50 ?? 0),
+        cantidad_turnos_habiles: Number(turnosTotal._sum.cant_turnos_habiles ?? 0),
+        cantidad_turnos_inhabiles: Number(turnosTotal._sum.cant_turnos_inhabiles ?? 0),
+        cantidad_viaticos: viaticosTotal._count,
+        cantidad_atrasos: atrasosTotal._count,
+      },
+      por_centro: porCentro,
+      ultimos_consolidados: consolidados,
+    };
+  }
 }
