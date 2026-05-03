@@ -38,6 +38,9 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     const savedToken = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
 
+    // Configurar URL base global
+    axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://backend-production-7269.up.railway.app';
+
     if (savedToken && savedUser) {
       setToken(savedToken);
       setUser(JSON.parse(savedUser));
