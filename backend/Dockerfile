@@ -36,4 +36,5 @@ EXPOSE 3000
 
 # Required for Prisma Client to start in the alpine image. 
 # Also running db push to ensure DB schema is synchronized on start.
-CMD npx prisma db push && npm run start:prod
+# Using find to locate main.js in case NestJS nested it under dist/src/
+CMD npx prisma db push && node $(find dist -name main.js | head -n 1)
