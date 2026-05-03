@@ -138,6 +138,13 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+          
+          {/* Debug Info - Solo para nosotros ahora */}
+          <div className="mt-4 text-center">
+            <p className="text-[8px] text-slate-300 font-bold uppercase tracking-widest">
+              API Endpoint: {process.env.NEXT_PUBLIC_API_URL || 'No configurado'}
+            </p>
+          </div>
         </div>
 
         {/* Footer Meta */}
