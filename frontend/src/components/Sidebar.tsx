@@ -69,10 +69,10 @@ export default function Sidebar() {
       {/* Footer / Account Section */}
       <div className="p-6 mt-auto">
         <div className="p-6 bg-surface-container rounded-[3rem] border border-outline-variant/5">
-          <button className="flex items-center gap-4 w-full text-on-surface hover:text-primary transition-colors group mb-6">
+          <Link href="/configuracion" className="flex items-center gap-4 w-full text-on-surface hover:text-primary transition-colors group mb-6">
             <span className="material-symbols-outlined text-xl text-outline group-hover:text-primary select-none">&#xe8b8;</span>
             <span className="text-xs font-black uppercase tracking-widest">Configuración</span>
-          </button>
+          </Link>
           
           <div className="flex items-center gap-4 pt-6 border-t border-outline-variant/10">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-xs border border-primary/20 shadow-sm relative overflow-hidden group/avatar">
