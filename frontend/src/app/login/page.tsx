@@ -5,8 +5,10 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Fingerprint, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Building2 } from 'lucide-react';
+import { useAuth } from '@/components/AuthProvider';
 
 export default function LoginPage() {
+  const { setSession } = useAuth();
   const [rut, setRut] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -28,12 +30,8 @@ export default function LoginPage() {
 
       const { access_token, usuario } = response.data;
 
-      // Guardar en localStorage
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(usuario));
-
-      // Configurar axios para futuras peticiones
-      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+      // Usar el proveedor de autenticación para guardar la sesión
+      setSession(access_token, usuario);
 
       router.push('/');
     } catch (err: any) {
@@ -139,12 +137,6 @@ export default function LoginPage() {
             </button>
           </form>
           
-          {/* Debug Info - Solo para nosotros ahora */}
-          <div className="mt-4 text-center">
-            <p className="text-[8px] text-slate-300 font-bold uppercase tracking-widest">
-              API Endpoint: {process.env.NEXT_PUBLIC_API_URL || 'No configurado'}
-            </p>
-          </div>
         </div>
 
         {/* Footer Meta */}

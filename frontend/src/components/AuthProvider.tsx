@@ -14,6 +14,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
+  setSession: (token: string, user: User) => void;
   logout: () => void;
   loading: boolean;
 }
@@ -21,6 +22,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   token: null,
+  setSession: () => {},
   logout: () => {},
   loading: true,
 });
@@ -62,6 +64,14 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     }
   }, [loading, token, pathname, router]);
 
+  const setSession = (newToken: string, newUser: User) => {
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('user', JSON.stringify(newUser));
+    setToken(newToken);
+    setUser(newUser);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -72,7 +82,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, setSession, logout, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );
