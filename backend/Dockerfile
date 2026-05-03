@@ -35,5 +35,5 @@ COPY --from=builder /app/prisma ./prisma
 EXPOSE 3000
 
 # Required for Prisma Client to start in the alpine image. 
-# Also running migrate deploy to ensure DB is up to date on start.
-CMD npx prisma migrate deploy && npm run start:prod
+# Also running db push to ensure DB schema is synchronized on start.
+CMD npx prisma db push && npm run start:prod
