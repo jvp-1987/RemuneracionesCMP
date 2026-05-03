@@ -20,7 +20,8 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || '';
+      const response = await axios.post(`${baseUrl}/auth/login`, {
         rut,
         password,
       });
