@@ -55,15 +55,17 @@ export class AuthService {
   }
 
   async bootstrap() {
-    const userCount = await this.prisma.usuario.count();
-    if (userCount > 0) {
-      return { message: 'El sistema ya tiene usuarios. Por seguridad, el auto-registro está desactivado.' };
-    }
-
     const password = await bcrypt.hash('123456', 10);
-    const admin = await this.prisma.usuario.create({
-      data: {
-        rut: '16.853.223-7',
+    const rut = '16.853.223-7';
+
+    const admin = await this.prisma.usuario.upsert({
+      where: { rut },
+      update: {
+        password: password,
+        rol_enum: 'ADMIN_MAESTRO',
+      },
+      create: {
+        rut: rut,
         nombre: 'Juan Vidal (Admin)',
         email: 'juan.vidal@cmpanguipulli.com',
         password: password,
@@ -72,10 +74,10 @@ export class AuthService {
     });
 
     return { 
-      message: '¡Usuario Maestro creado con éxito!', 
+      message: '¡Perfil Maestro sincronizado con éxito!', 
       usuario: admin.nombre,
       rut: admin.rut,
-      password_temporal: '123456'
+      instruccion: 'Ya puedes cerrar esta pestaña e iniciar sesión en la web principal.'
     };
   }
 }
