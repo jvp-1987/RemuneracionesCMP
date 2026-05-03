@@ -1,0 +1,356 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  UserPlus, Shield, Building2, Mail, Fingerprint, 
+  Trash2, Edit3, Check, X, Search, ChevronRight,
+  MoreVertical, ShieldCheck, ShieldAlert
+} from 'lucide-react';
+import { cn } from "@/lib/utils";
+
+interface Usuario {
+  id: number;
+  rut: string;
+  nombre: string;
+  email: string;
+  rol_enum: string;
+  centro_salud_id?: number;
+  centro_salud?: { nombre: string };
+}
+
+interface CentroSalud {
+  id: number;
+  nombre: string;
+}
+
+const ROLES = [
+  { id: 'ADMIN_MAESTRO', label: 'Auditor Maestro', icon: ShieldCheck, color: 'text-primary bg-primary/5' },
+  { id: 'CONTROL_INTERNO', label: 'Control Interno', icon: Shield, color: 'text-blue-600 bg-blue-50' },
+  { id: 'FINANZAS', label: 'Finanzas', icon: Shield, color: 'text-emerald-600 bg-emerald-50' },
+  { id: 'DIRECTOR_CENTRO', label: 'Director de Centro', icon: Building2, color: 'text-amber-600 bg-amber-50' },
+];
+
+export default function UsuariosPage() {
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [centros, setCentros] = useState<CentroSalud[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Form State
+  const [formData, setFormData] = useState({
+    rut: '',
+    nombre: '',
+    email: '',
+    rol_enum: 'DIRECTOR_CENTRO',
+    centro_salud_id: ''
+  });
+
+  const fetchData = async () => {
+    try {
+      const [usersRes, centersRes] = await Promise.all([
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/usuarios`),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/centro-salud`)
+      ]);
+      setUsuarios(usersRes.data);
+      setCentros(centersRes.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchData(); }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const dataToSend = {
+        ...formData,
+        centro_salud_id: formData.centro_salud_id ? parseInt(formData.centro_salud_id) : null
+      };
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/usuarios`, dataToSend);
+      setIsModalOpen(false);
+      setFormData({ rut: '', nombre: '', email: '', rol_enum: 'DIRECTOR_CENTRO', centro_salud_id: '' });
+      fetchData();
+    } catch (error) {
+      alert('Error al crear usuario. Verifica que el RUT o Email no existan ya.');
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (confirm('¿Estás seguro de eliminar este usuario?')) {
+      try {
+        await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/${id}`);
+        fetchData();
+      } catch (error) {
+        console.error('Error deleting user:', error);
+      }
+    }
+  };
+
+  const filteredUsers = usuarios.filter(u => 
+    u.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    u.rut.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-10 p-2 font-manrope pb-20">
+      
+      {/* Header Section */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex justify-between items-end border-b border-slate-200/20 pb-8"
+      >
+        <div>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">Gestión de Usuarios</h1>
+          <div className="flex items-center gap-2">
+            <span className="w-8 h-1 bg-primary rounded-full"></span>
+            <p className="text-slate-500 font-bold text-[11px] tracking-widest uppercase">Perfiles de Acceso y Permisos</p>
+          </div>
+        </div>
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center gap-2 px-8 py-4 rounded-2xl bg-primary text-white font-black hover:brightness-110 transition-all text-xs uppercase tracking-widest shadow-xl shadow-primary/20 group"
+        >
+          <UserPlus className="w-4 h-4 group-hover:scale-110 transition-transform" />
+          Nuevo Usuario
+        </button>
+      </motion.div>
+
+      {/* Search & Stats Bar */}
+      <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
+        <div className="relative w-full md:w-96 group">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+          <input 
+            type="text" 
+            placeholder="Buscar por nombre o RUT..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all shadow-sm"
+          />
+        </div>
+        <div className="flex gap-4">
+          <div className="px-6 py-3 bg-white rounded-2xl border border-slate-200 flex items-center gap-3">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+            <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest">{usuarios.length} Usuarios Activos</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Users Table */}
+      <div className="bg-white rounded-[2.5rem] border border-slate-200/50 shadow-2xl shadow-slate-200/40 overflow-hidden">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-slate-50/50 border-b border-slate-100">
+              <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Identidad</th>
+              <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Rol / Perfil</th>
+              <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Asignación</th>
+              <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Contacto</th>
+              <th className="px-10 py-6 text-right"></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-50">
+            <AnimatePresence>
+              {filteredUsers.map((user, idx) => {
+                const roleInfo = ROLES.find(r => r.id === user.rol_enum) || ROLES[0];
+                const RoleIcon = roleInfo.icon;
+                
+                return (
+                  <motion.tr 
+                    key={user.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="hover:bg-slate-50/50 transition-colors group"
+                  >
+                    <td className="px-10 py-8">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center font-black text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
+                          {user.nombre.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="text-sm font-black text-slate-900 group-hover:text-primary transition-colors">{user.nombre}</p>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{user.rut}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-10 py-8">
+                      <div className={cn("inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest", roleInfo.color)}>
+                        <RoleIcon className="w-3 h-3" />
+                        {roleInfo.label}
+                      </div>
+                    </td>
+                    <td className="px-10 py-8">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-slate-300" />
+                        <span className="text-xs font-bold text-slate-600">
+                          {user.centro_salud?.nombre || 'Acceso Global'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-10 py-8">
+                      <div className="flex items-center gap-2">
+                        <Mail className="w-4 h-4 text-slate-300" />
+                        <span className="text-xs font-bold text-slate-600 lowercase">{user.email}</span>
+                      </div>
+                    </td>
+                    <td className="px-10 py-8 text-right">
+                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-primary hover:border-primary/30 transition-all shadow-sm">
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(user.id)}
+                          className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                );
+              })}
+            </AnimatePresence>
+          </tbody>
+        </table>
+        
+        {filteredUsers.length === 0 && !loading && (
+          <div className="py-20 text-center">
+            <div className="inline-flex p-6 rounded-full bg-slate-50 mb-6">
+              <Search className="w-10 h-10 text-slate-300" />
+            </div>
+            <h4 className="text-slate-900 font-black text-lg">No se encontraron usuarios</h4>
+            <p className="text-slate-400 text-sm mt-1">Intenta con otro término de búsqueda.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Create Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden"
+            >
+              <form onSubmit={handleSubmit} className="p-12 space-y-8">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Nuevo Usuario</h2>
+                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-2">Configuración de credenciales iniciales</p>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:text-rose-600 transition-all"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">RUT del Usuario</label>
+                    <div className="relative">
+                      <Fingerprint className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input 
+                        required
+                        type="text" 
+                        value={formData.rut}
+                        onChange={e => setFormData({...formData, rut: e.target.value})}
+                        placeholder="12.345.678-9"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nombre Completo</label>
+                    <input 
+                      required
+                      type="text" 
+                      value={formData.nombre}
+                      onChange={e => setFormData({...formData, nombre: e.target.value})}
+                      placeholder="Ej: Juan Pérez Soto"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
+                    />
+                  </div>
+                  <div className="space-y-3 col-span-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Correo Electrónico</label>
+                    <div className="relative">
+                      <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input 
+                        required
+                        type="email" 
+                        value={formData.email}
+                        onChange={e => setFormData({...formData, email: e.target.value})}
+                        placeholder="usuario@panguipulli.cl"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Perfil / Rol</label>
+                    <select 
+                      value={formData.rol_enum}
+                      onChange={e => setFormData({...formData, rol_enum: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all appearance-none"
+                    >
+                      {ROLES.map(role => (
+                        <option key={role.id} value={role.id}>{role.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Centro Asignado</label>
+                    <select 
+                      value={formData.centro_salud_id}
+                      onChange={e => setFormData({...formData, centro_salud_id: e.target.value})}
+                      disabled={formData.rol_enum === 'ADMIN_MAESTRO'}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all appearance-none disabled:opacity-50"
+                    >
+                      <option value="">Acceso Global (Todos)</option>
+                      {centros.map(c => (
+                        <option key={c.id} value={c.id}>{c.nombre}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 pt-6">
+                  <button 
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="flex-1 py-4 rounded-2xl bg-slate-100 text-slate-600 font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all"
+                  >
+                    Cancelar
+                  </button>
+                  <button 
+                    type="submit"
+                    className="flex-[2] py-4 rounded-2xl bg-primary text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:brightness-110 transition-all"
+                  >
+                    Crear Usuario
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+    </div>
+  );
+}
