@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
@@ -13,7 +13,7 @@ export class UsuariosController {
   @UseGuards(JwtAuthGuard)
   @Patch('change-password')
   @ApiOperation({ summary: 'Cambiar la contraseña del usuario autenticado' })
-  updatePassword(@Request() req, @Body('password') password: string) {
+  updatePassword(@Req() req, @Body('password') password: string) {
     return this.usuariosService.updatePassword(req.user.id, password);
   }
 
