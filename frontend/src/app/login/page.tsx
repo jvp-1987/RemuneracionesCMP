@@ -36,7 +36,9 @@ export default function LoginPage() {
 
       router.push('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al iniciar sesión. Verifica tus credenciales.');
+      const msg = err.response?.data?.message || err.message || 'Error desconocido';
+      const status = err.response?.status ? `[Error ${err.response.status}]` : '[Error de Red]';
+      setError(`${status}: ${msg}`);
     } finally {
       setLoading(false);
     }
