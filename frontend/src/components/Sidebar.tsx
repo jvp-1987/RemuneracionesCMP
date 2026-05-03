@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from "@/lib/utils";
+import { useAuth } from './AuthProvider';
 
 const navItems = [
   { name: 'Dashboard', href: '/', icon: '&#xe871;' },
@@ -16,6 +17,7 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   return (
     <aside className="fixed left-0 top-0 bottom-0 w-72 bg-surface-container-low border-r border-outline-variant/10 flex flex-col z-50">
@@ -74,14 +76,24 @@ export default function Sidebar() {
             <span className="text-xs font-black uppercase tracking-widest">Configuración</span>
           </Link>
           
-          <div className="flex items-center gap-4 pt-6 border-t border-outline-variant/10">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-xs border border-primary/20 shadow-sm relative overflow-hidden group/avatar">
-              <span className="material-symbols-outlined text-xl select-none">&#xe853;</span>
+          <div className="flex flex-col gap-4 pt-6 border-t border-outline-variant/10">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-xs border border-primary/20 shadow-sm relative overflow-hidden group/avatar">
+                <span className="material-symbols-outlined text-xl select-none">&#xe853;</span>
+              </div>
+              <div className="overflow-hidden flex-1">
+                <p className="text-[12px] font-black text-on-surface leading-none mb-1 truncate">{user?.nombre || 'Usuario'}</p>
+                <p className="text-[9px] font-bold text-outline uppercase tracking-tight truncate font-label">{user?.rol || 'Administrador'}</p>
+              </div>
             </div>
-            <div className="overflow-hidden">
-              <p className="text-[12px] font-black text-on-surface leading-none mb-1 truncate">Juan Vidal</p>
-              <p className="text-[9px] font-bold text-outline uppercase tracking-tight truncate font-label">Administrador Jefe</p>
-            </div>
+            
+            <button 
+              onClick={logout}
+              className="flex items-center justify-center gap-2 w-full py-2 bg-rose-50 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all border border-rose-100"
+            >
+              <span className="material-symbols-outlined text-sm">logout</span>
+              Cerrar Sesión
+            </button>
           </div>
         </div>
       </div>
