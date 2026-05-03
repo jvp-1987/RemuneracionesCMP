@@ -7,7 +7,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: process.env.CORS_ORIGIN ?? 'https://personal.cmpanguipulli.com',
+    origin: [
+      process.env.CORS_ORIGIN ?? 'https://personal.cmpanguipulli.com',
+      'https://remuneracionescmp.apscolab.com'
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
     optionsSuccessStatus: 204,
