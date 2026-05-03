@@ -1,58 +1,24 @@
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Seeding initial data...');
+  const password = await bcrypt.hash('123456', 10);
 
-  // 1. Centro de Salud
-  const centro = await prisma.centroSalud.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      id: 1,
-      nombre: 'CESFAM Panguipulli',
-    },
-  });
-  console.log('Centro de Salud created/found:', centro.nombre);
-
-  // 2. Usuario Administrador
   const admin = await prisma.usuario.upsert({
-    where: { email: 'admin@salud.cl' },
+    where: { rut: '16.853.223-7' }, // Cambia esto por tu RUT real
     update: {},
     create: {
-      rut: '1-9',
-      nombre: 'ADMIN CENTRAL',
-      email: 'admin@salud.cl',
-      rol_enum: 'Nivel 1',
-      centro_salud_id: centro.id,
+      rut: '16.853.223-7',
+      nombre: 'Administrador Inicial',
+      email: 'juan.vidal@cmpanguipulli.com',
+      password: password,
+      rol_enum: 'ADMIN_MAESTRO',
     },
   });
-  console.log('Admin user created/found:', admin.nombre);
 
-  // 3. Programas identificados en el Excel
-  const programas = [
-    { nombre: 'Presupuestaria', categoria: 'Presupuestaria' },
-    { nombre: 'SAR', categoria: 'Programas APS' },
-    { nombre: 'ECICEP', categoria: 'Programas APS' },
-    { nombre: 'Cirugía Menor', categoria: 'Programas APS' },
-    { nombre: 'Salud Mental', categoria: 'Programas APS' },
-  ];
-
-  for (const prog of programas) {
-    const p = await prisma.programa.upsert({
-      where: { id: programas.indexOf(prog) + 1 },
-      update: { nombre: prog.nombre, categoria_enum: prog.categoria },
-      create: {
-        id: programas.indexOf(prog) + 1,
-        nombre: prog.nombre,
-        categoria_enum: prog.categoria,
-      },
-    });
-    console.log('Programa created/found:', p.nombre);
-  }
-
-  console.log('Seeding finished.');
+  console.log('Usuario administrador creado:', admin);
 }
 
 main()
