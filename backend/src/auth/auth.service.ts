@@ -12,22 +12,22 @@ export class AuthService {
   ) {}
 
   async login(loginDto: LoginDto) {
-    const { rut, password } = loginDto;
+    const rut = loginDto.rut.trim();
+    const password = loginDto.password.trim();
     
     const usuario = await this.prisma.usuario.findUnique({
       where: { rut },
     });
 
     if (!usuario) {
-      throw new UnauthorizedException('Credenciales inválidas');
+      throw new UnauthorizedException('Usuario no encontrado');
     }
 
-    // Por ahora, si la contraseña es la default "123456", permitimos entrar
-    // En una segunda fase, deberíamos usar bcrypt.compare
-    const isPasswordValid = await bcrypt.compare(password, usuario.password) || password === usuario.password;
+    const isPasswordValid = await bcrypt.compare(password, usuario.password);
+    const isPlainValid = password === usuario.password;
 
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Credenciales inválidas');
+    if (!isPasswordValid && !isPlainValid) {
+      throw new UnauthorizedException('Contraseña incorrecta');
     }
 
     const payload = { 
