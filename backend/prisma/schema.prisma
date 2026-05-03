@@ -13,6 +13,7 @@ model Usuario {
   rut             String        @unique
   nombre          String
   email           String        @unique
+  password        String        @default("123456")
   rol_enum        String
   centro_salud_id Int?
   consolidados    Consolidado[]
