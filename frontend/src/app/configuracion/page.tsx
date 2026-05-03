@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
+import ChangePasswordForm from "@/components/ChangePasswordForm";
 
 export default function ConfigurationPage() {
   return (
@@ -137,6 +138,8 @@ export default function ConfigurationPage() {
                </Link>
             </div>
           </div>
+
+          <ChangePasswordForm />
         </motion.div>
 
         {/* APS Rates - Full Width Widget */}
