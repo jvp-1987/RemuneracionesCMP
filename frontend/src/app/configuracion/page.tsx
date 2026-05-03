@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { cn } from "@/lib/utils";
 
 export default function ConfigurationPage() {
