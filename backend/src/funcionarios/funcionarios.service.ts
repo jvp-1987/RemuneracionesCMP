@@ -64,13 +64,14 @@ export class FuncionariosService {
 
     const rutIdx = headers.findIndex((h: string) => h && (h === 'run' || h === 'rut'));
     console.log(`rutIdx: ${rutIdx}`);
-    const nomIdx = headers.findIndex((h: string) => h === 'nombre');
-    const apeIdx = headers.findIndex((h: string) => h === 'apellido');
+    const nomIdx = headers.findIndex((h: string) => h === 'nombres' || h === 'nombre');
+    const apeIdx = headers.findIndex((h: string) => h === 'apellidos' || h === 'apellido');
     const fullNomIdx = headers.findIndex((h: string) => h && (h.includes('nombre completo') || h === 'nombre'));
     const catIdx = headers.findIndex((h: string) => h === 'categoria' || h === 'categoria_aps');
     const nivIdx = headers.findIndex((h: string) => h === 'nivel' || h === 'nivel_aps');
     const estIdx = headers.findIndex((h: string) => h === 'establecimiento');
-    const profIdx = headers.findIndex((h: string) => h && (h === 'titulo / especialidad' || h === 'profesion' || h === 'titulo_profesion'));
+    const profIdx = headers.findIndex((h: string) => h && (h.includes('especialidad') || h.includes('profesion') || h === 'escalafon' || h === 'cargo'));
+    const horasIdx = headers.findIndex((h: string) => h && (h === 'n°horas' || h === 'horas' || h === 'jornada'));
 
     const previewData: any[] = [];
     const existingFuncionarios = await this.prisma.funcionario.findMany();
@@ -97,16 +98,22 @@ export class FuncionariosService {
 
     for (const row of dataRows) {
       if (!row[rutIdx]) continue;
-      const rawRut = String(row[rutIdx]).trim().replace(/\./g, '');
-      const rut = rawRut.includes('-') ? rawRut.split('-')[0] : rawRut; // Store without DV for consistency if needed, or keep full
+      const rawRut = String(row[rutIdx]).trim();
+      const rut = rawRut; // Mantenemos el RUT completo con guión y dígito verificador
       
       let nombre = '';
-      if (fullNomIdx !== -1) nombre = String(row[fullNomIdx] || '');
-      else nombre = `${String(row[nomIdx] || '')} ${String(row[apeIdx] || '')}`.trim();
+      if (apeIdx !== -1 && nomIdx !== -1 && row[apeIdx] && row[nomIdx]) {
+        // En tu planilla, primero están apellidos y luego nombres
+        nombre = `${String(row[nomIdx])} ${String(row[apeIdx])}`.trim();
+      } else if (fullNomIdx !== -1) {
+        nombre = String(row[fullNomIdx] || '').trim();
+      }
 
       const categoria = String(row[catIdx] || '').trim();
       const nivel = parseInt(row[nivIdx]) || null;
       const profesion = String(row[profIdx] || '').trim();
+      const horas = horasIdx !== -1 ? parseInt(row[horasIdx]) || 44 : 44;
+      
       const rawEst = String(row[estIdx] || '');
       const estNormalizado = this.normalizeEstablishment(rawEst);
       const centroId = centerMap.get(estNormalizado);
@@ -142,7 +149,8 @@ export class FuncionariosService {
             categoria_aps: categoria,
             nivel_aps: nivel,
             profesion_enum: profesion || 'No Especificado',
-            centro_salud_id: centroId
+            centro_salud_id: centroId,
+            jornada_horas: horas
           },
           create: {
             rut,
@@ -150,7 +158,8 @@ export class FuncionariosService {
             profesion_enum: profesion || 'No Especificado',
             categoria_aps: categoria,
             nivel_aps: nivel,
-            centro_salud_id: centroId
+            centro_salud_id: centroId,
+            jornada_horas: horas
           }
         });
       }

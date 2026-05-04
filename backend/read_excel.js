@@ -1,0 +1,12 @@
+const XLSX = require('xlsx');
+const workbook = XLSX.readFile('../Planilla Global CAS SALUD MARZO.xlsx');
+const sheetName = workbook.SheetNames[0];
+const sheet = workbook.Sheets[sheetName];
+const data = XLSX.utils.sheet_to_json(sheet, { header: 1, range: 0 });
+console.log("Sheet Name:", sheetName);
+console.log("Row 0:", data[0]);
+console.log("Row 1:", data[1]);
+console.log("Row 2:", data[2]);
+console.log("Row 3:", data[3]);
+console.log("Row 4:", data[4]);
+console.log("Row 5:", data[5]);
