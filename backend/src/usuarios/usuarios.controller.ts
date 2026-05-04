@@ -13,7 +13,7 @@ export class UsuariosController {
   @UseGuards(JwtAuthGuard)
   @Patch('change-password')
   @ApiOperation({ summary: 'Cambiar la contraseña del usuario autenticado' })
-  updatePassword(@Req() req, @Body('password') password: string) {
+  updatePassword(@Req() req: any, @Body('password') password: string) {
     return this.usuariosService.updatePassword(req.user.id, password);
   }
 
