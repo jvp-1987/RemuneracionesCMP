@@ -84,8 +84,19 @@ export class FuncionariosService {
     for (const row of dataRows) {
       if (!row[rutIdx]) continue;
       const rawRut = String(row[rutIdx]).trim();
-      const rut = rawRut; // Mantenemos el RUT completo con guión y dígito verificador
+      // Estandarizamos el RUT: sin puntos y siempre en mayúscula
+      const rut = rawRut.replace(/\./g, '').toUpperCase(); 
       
+      // Autocorrección: Eliminar el registro antiguo (el que se guardó sin guión por el bug anterior)
+      const oldRutBuggy = rut.includes('-') ? rut.split('-')[0] : null;
+      if (oldRutBuggy && !dryRun) {
+        try {
+          await this.prisma.funcionario.deleteMany({ where: { rut: oldRutBuggy } });
+        } catch (e) {
+          // Ignorar si no existe
+        }
+      }
+
       let nombre = '';
       if (apeIdx !== -1 && nomIdx !== -1 && row[apeIdx] && row[nomIdx]) {
         nombre = `${String(row[nomIdx])} ${String(row[apeIdx])}`.trim();
