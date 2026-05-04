@@ -14,6 +14,10 @@ interface Funcionario {
   nivel_aps: number;
   jornada_horas: number;
   sueldo_base?: number;
+  centro_salud?: {
+    id: number;
+    nombre: string;
+  };
 }
 
 export default function FuncionarioDetailPage() {
@@ -107,7 +111,7 @@ export default function FuncionarioDetailPage() {
             </div>
 
             <div className="mt-12 space-y-6 pt-8 border-t border-outline-variant/5">
-              <HeroField label="Establecimiento" value="Centro APS Central" />
+              <HeroField label="Establecimiento" value={funcionario.centro_salud?.nombre || 'No Asignado'} />
               <HeroField label="Sueldo Base" value={`$${(funcionario.sueldo_base || 1250000).toLocaleString('es-CL')}`} />
               <HeroField label="Ley Médica" value={`Cat. ${funcionario.categoria_aps} • Niv. ${funcionario.nivel_aps}`} />
               <HeroField label="Jornada" value={`${funcionario.jornada_horas} hrs / Semanal`} border={false} />
