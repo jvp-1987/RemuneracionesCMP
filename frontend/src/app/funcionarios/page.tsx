@@ -40,6 +40,29 @@ export default function FuncionariosPage() {
     f.rut.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      setLoading(true);
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/funcionarios/importar`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      alert('¡Importación completada con éxito!');
+      // Recargar datos
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/funcionarios`);
+      setFuncionarios(res.data);
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error al importar el archivo.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-surface p-12 pb-32">
       {/* Page Header */}
@@ -50,10 +73,26 @@ export default function FuncionariosPage() {
             Registro Centralizado • <span className="text-primary">{funcionarios.length}</span> Colaboradores APS
           </p>
         </div>
-        <button className="px-8 py-4 rounded-2xl bg-primary text-white font-black hover:brightness-110 active:scale-95 transition-all flex items-center gap-3 shadow-2xl shadow-primary/20 text-[11px] uppercase tracking-widest group">
-          <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">person_add</span>
-          Incorporar Nuevo Registro
-        </button>
+        <div className="flex items-center gap-4">
+          <input 
+            type="file" 
+            id="excel-upload" 
+            className="hidden" 
+            accept=".xlsx, .xls"
+            onChange={handleFileUpload}
+          />
+          <label 
+            htmlFor="excel-upload"
+            className="px-8 py-4 rounded-2xl bg-white border-2 border-primary/20 text-primary font-black hover:bg-primary/5 active:scale-95 transition-all flex items-center gap-3 shadow-xl text-[11px] uppercase tracking-widest cursor-pointer group"
+          >
+            <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">upload_file</span>
+            Importar Maestro
+          </label>
+          <button className="px-8 py-4 rounded-2xl bg-primary text-white font-black hover:brightness-110 active:scale-95 transition-all flex items-center gap-3 shadow-2xl shadow-primary/20 text-[11px] uppercase tracking-widest group">
+            <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">person_add</span>
+            Incorporar Nuevo
+          </button>
+        </div>
       </div>
 
       {/* Control Bar */}
