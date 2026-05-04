@@ -24,7 +24,7 @@ export default function FuncionariosPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/funcionarios`);
+        const res = await axios.get('/funcionarios');
         setFuncionarios(res.data);
       } catch (err) {
         console.error('Error fetching funcionarios:', err);
@@ -49,12 +49,12 @@ export default function FuncionariosPage() {
 
     try {
       setLoading(true);
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/funcionarios/importar`, formData, {
+      await axios.post('/funcionarios/importar', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       alert('¡Importación completada con éxito!');
       // Recargar datos
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/funcionarios`);
+      const res = await axios.get('/funcionarios');
       setFuncionarios(res.data);
     } catch (err: any) {
       alert(err.response?.data?.message || 'Error al importar el archivo.');
@@ -62,6 +62,7 @@ export default function FuncionariosPage() {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="flex flex-col min-h-screen bg-surface p-12 pb-32">
