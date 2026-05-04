@@ -21,12 +21,6 @@ export class FuncionariosService {
       .trim();
   }
 
-  private normalizeEstablishment(name: string): string {
-    const norm = this.normalizeString(name);
-    if (norm.includes('choshuenco')) return 'CESFAM Choshuenco';
-    if (norm.includes('conaripe')) return 'CESFAM Coñaripe';
-    return 'CESFAM Panguipulli'; // Default or if panguipulli is found
-  }
 
   async importarExcel(buffer: Buffer, dryRun: boolean = false) {
     const workbook = xlsx.read(buffer, { type: 'buffer' });
@@ -63,38 +57,29 @@ export class FuncionariosService {
     console.log(`Processing ${dataRows.length} data rows...`);
 
     const rutIdx = headers.findIndex((h: string) => h && (h === 'run' || h === 'rut'));
-    console.log(`rutIdx: ${rutIdx}`);
     const nomIdx = headers.findIndex((h: string) => h === 'nombres' || h === 'nombre');
     const apeIdx = headers.findIndex((h: string) => h === 'apellidos' || h === 'apellido');
     const fullNomIdx = headers.findIndex((h: string) => h && (h.includes('nombre completo') || h === 'nombre'));
     const catIdx = headers.findIndex((h: string) => h === 'categoria' || h === 'categoria_aps');
     const nivIdx = headers.findIndex((h: string) => h === 'nivel' || h === 'nivel_aps');
     const estIdx = headers.findIndex((h: string) => h === 'establecimiento');
-    const profIdx = headers.findIndex((h: string) => h && (h.includes('especialidad') || h.includes('profesion') || h === 'escalafon' || h === 'cargo'));
+    
+    // Priorizar columna CARGO exacta
+    let profIdx = headers.findIndex((h: string) => h === 'cargo');
+    if (profIdx === -1) {
+      profIdx = headers.findIndex((h: string) => h && (h.includes('especialidad') || h.includes('profesion') || h === 'escalafon'));
+    }
+
     const horasIdx = headers.findIndex((h: string) => h && (h === 'n°horas' || h === 'horas' || h === 'jornada'));
 
     const previewData: any[] = [];
     const existingFuncionarios = await this.prisma.funcionario.findMany();
     const existingMap = new Map(existingFuncionarios.map(f => [f.rut, f]));
 
-    // Ensure main centers exist if not dryRun
+    // Cargar Centros de Salud existentes desde la DB
+    const existingCentros = await this.prisma.centroSalud.findMany();
     const centerMap = new Map<string, number>();
-    if (!dryRun) {
-      const mainNames = ['CESFAM Panguipulli', 'CESFAM Choshuenco', 'CESFAM Coñaripe'];
-      for (const name of mainNames) {
-        const c = await this.prisma.centroSalud.upsert({
-          where: { id: mainNames.indexOf(name) + 1 },
-          update: {},
-          create: { id: mainNames.indexOf(name) + 1, nombre: name }
-        });
-        centerMap.set(name, c.id);
-      }
-    } else {
-       // Just fake IDs for preview
-       centerMap.set('CESFAM Panguipulli', 1);
-       centerMap.set('CESFAM Choshuenco', 2);
-       centerMap.set('CESFAM Coñaripe', 3);
-    }
+    existingCentros.forEach(c => centerMap.set(c.nombre.trim().toLowerCase(), c.id));
 
     for (const row of dataRows) {
       if (!row[rutIdx]) continue;
@@ -103,7 +88,6 @@ export class FuncionariosService {
       
       let nombre = '';
       if (apeIdx !== -1 && nomIdx !== -1 && row[apeIdx] && row[nomIdx]) {
-        // En tu planilla, primero están apellidos y luego nombres
         nombre = `${String(row[nomIdx])} ${String(row[apeIdx])}`.trim();
       } else if (fullNomIdx !== -1) {
         nombre = String(row[fullNomIdx] || '').trim();
@@ -114,9 +98,18 @@ export class FuncionariosService {
       const profesion = String(row[profIdx] || '').trim();
       const horas = horasIdx !== -1 ? parseInt(row[horasIdx]) || 44 : 44;
       
-      const rawEst = String(row[estIdx] || '');
-      const estNormalizado = this.normalizeEstablishment(rawEst);
-      const centroId = centerMap.get(estNormalizado);
+      const rawEst = String(row[estIdx] || '').trim();
+      let centroId = centerMap.get(rawEst.toLowerCase());
+
+      // Crear centro si no existe y no es dryRun
+      if (!centroId && rawEst && !dryRun) {
+        const newCentro = await this.prisma.centroSalud.create({ data: { nombre: rawEst } });
+        centroId = newCentro.id;
+        centerMap.set(rawEst.toLowerCase(), newCentro.id);
+      } else if (!centroId && rawEst && dryRun) {
+        // ID ficticio para preview
+        centroId = 999;
+      }
 
       const existing = existingMap.get(rut);
       const status = existing ? 'ACTUALIZADO' : 'NUEVO';
@@ -126,7 +119,7 @@ export class FuncionariosService {
         if (existing.nombre_completo !== nombre) diff.nombre_completo = { old: existing.nombre_completo, new: nombre };
         if (existing.categoria_aps !== categoria) diff.categoria_aps = { old: existing.categoria_aps, new: categoria };
         if (existing.nivel_aps !== nivel) diff.nivel_aps = { old: existing.nivel_aps, new: nivel };
-        if (existing.centro_salud_id !== centroId) diff.centro_salud_id = { old: existing.centro_salud_id, new: centroId, name: estNormalizado };
+        if (existing.centro_salud_id !== centroId) diff.centro_salud_id = { old: existing.centro_salud_id, new: centroId, name: rawEst };
       }
 
       if (dryRun) {
@@ -136,7 +129,7 @@ export class FuncionariosService {
           categoria,
           nivel,
           profesion,
-          establecimiento: estNormalizado,
+          establecimiento: rawEst,
           status,
           hasChanges: Object.keys(diff).length > 0,
           diff
