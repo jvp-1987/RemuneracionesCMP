@@ -14,6 +14,16 @@ export class PeriodosController {
     return this.periodosService.create(dto);
   }
 
+  @Get('status/detailed')
+  getDetailedStatus() {
+    return this.periodosService.getDetailedStatus();
+  }
+
+  @Post('seed/:year')
+  seedYear(@Param('year') year: string) {
+    return this.periodosService.seedYear(+year);
+  }
+
   @Get()
   findAll() {
     return this.periodosService.findAll();

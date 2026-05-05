@@ -5,42 +5,92 @@ import { PrismaService } from '../prisma/prisma.service';
 export class CalculosService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async calcularValorHora(rut: string): Promise<number> {
+  async obtenerDesgloseSueldo(rut: string) {
     const funcionario = await this.prisma.funcionario.findUnique({
       where: { rut },
       include: { centro_salud: true }
     });
 
     if (!funcionario || !funcionario.categoria_aps || !funcionario.nivel_aps) {
-      return 0;
+      return null;
     }
 
-    const escala = await this.prisma.escalaSueldo.findUnique({
+    // PRIORIDAD: Intentar obtener datos reales del último Maestro cargado
+    const latestLiq = await this.prisma.liquidacionMensual.findFirst({
+      where: { funcionario_rut: rut },
+      orderBy: [
+        { periodo: { anio: 'desc' } },
+        { periodo: { mes: 'desc' } }
+      ]
+    });
+
+    const detail = latestLiq?.detalle_json as any;
+    
+    // Si tenemos datos reales en el detalle_json (cargados vía RemuneracionesService.importarMaestroMensual)
+    if (detail?.calculated_monto_aps !== undefined) {
+      const sueldoBaseReal = Number(latestLiq?.sueldo_base || 0);
+      const montoAPS = Number(detail.calculated_monto_aps || 0);
+      const montoZona = Number(detail.calculated_monto_zona || 0);
+      const montoDificil = Number(detail.calculated_monto_dificil || 0);
+      
+      const totalBaseMensual = sueldoBaseReal + montoAPS + montoZona + montoDificil;
+      const baseParaHoraExtra = sueldoBaseReal + montoAPS;
+
+      return {
+        escala_base: sueldoBaseReal,
+        asignacion_aps: montoAPS,
+        asignacion_zona: montoZona,
+        desempeno_dificil: montoDificil,
+        porcentaje_zona: Number(funcionario.centro_salud?.porcentaje_zona || 0),
+        porcentaje_dificil: Number(funcionario.centro_salud?.porcentaje_dificil || 0),
+        total_base_mensual: totalBaseMensual,
+        valor_hora: baseParaHoraExtra / 190,
+        is_real_data: true
+      };
+    }
+
+    // FALLBACK: Cálculo teórico basado en escala
+    console.log(`Buscando escala para: ${funcionario.categoria_aps} ${funcionario.nivel_aps}`);
+    const escala = await this.prisma.escalaSueldo.findFirst({
       where: {
-        categoria_nivel: {
-          categoria: funcionario.categoria_aps,
-          nivel: funcionario.nivel_aps,
-        },
+        categoria: funcionario.categoria_aps,
+        nivel: funcionario.nivel_aps,
       },
     });
 
-    if (!escala) return 0;
+    if (!escala) {
+      console.log('Escala no encontrada');
+      return null;
+    }
 
     const sueldoBase = Number(escala.sueldo_base);
-    const asignacionAPS = sueldoBase; 
-    const sumaBaseAPS = sueldoBase + asignacionAPS;
+    const asignacionAPS = sueldoBase; // 100%
+    const subtotalBaseAps = sueldoBase + asignacionAPS;
 
-    // Obtener porcentajes del centro vinculado
-    const porZona = Number(funcionario.centro_salud?.porcentaje_zona || 0) / 100;
-    const porDificil = Number(funcionario.centro_salud?.porcentaje_dificil || 0) / 100;
+    const porZona = Number(funcionario.centro_salud?.porcentaje_zona || 0);
+    const porDificil = Number(funcionario.centro_salud?.porcentaje_dificil || 0);
 
-    const montoZona = sumaBaseAPS * porZona;
-    const montoDificil = sumaBaseAPS * porDificil;
+    const montoZona = sueldoBase * (porZona / 100);
+    const montoDificil = subtotalBaseAps * (porDificil / 100);
 
-    const sueldoTotal = sumaBaseAPS + montoZona + montoDificil;
-    
-    // Divisor fijo = 176
-    return sueldoTotal / 176;
+    const sueldoTotal = subtotalBaseAps + montoZona + montoDificil;
+
+    return {
+      escala_base: sueldoBase,
+      asignacion_aps: asignacionAPS,
+      asignacion_zona: montoZona,
+      desempeno_dificil: montoDificil,
+      porcentaje_zona: porZona,
+      porcentaje_dificil: porDificil,
+      total_base_mensual: sueldoTotal,
+      valor_hora: subtotalBaseAps / 190,
+      is_real_data: false
+    };
+  }
+
+  async calcularValorHora(rut: string): Promise<number> {
+    const desglose = await this.obtenerDesgloseSueldo(rut);
+    return desglose?.valor_hora || 0;
   }
 
   async calcularMontoExtra(rut: string, horas25: number, horas50: number) {

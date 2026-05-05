@@ -17,9 +17,38 @@ import { AuditModule } from './audit/audit.module';
 import { ReportesModule } from './reportes/reportes.module';
 import { IngresosModule } from './ingresos/ingresos.module';
 import { AuthModule } from './auth/auth.module';
+import { RemuneracionesModule } from './remuneraciones/remuneraciones.module';
+import { CalculosModule } from './calculos/calculos.module';
+import { ContratosModule } from './contratos/contratos.module';
+import { AusentismosModule } from './ausentismos/ausentismos.module';
+import { AsignacionesEspecialesModule } from './asignaciones-especiales/asignaciones-especiales.module';
+import { AlertasRrhhModule } from './alertas-rrhh/alertas-rrhh.module';
 
 @Module({
-  imports: [AuthModule, PrismaModule, CentrosSaludModule, UsuariosModule, ProgramasModule, FuncionariosModule, PeriodosModule, ConsolidadosModule, HorasExtrasModule, TurnosUrgenciaModule, ViaticosModule, AtrasosModule, ProcedimientosModule, AuditModule, ReportesModule, IngresosModule],
+  imports: [
+    AuthModule, 
+    PrismaModule, 
+    CentrosSaludModule, 
+    UsuariosModule, 
+    ProgramasModule, 
+    FuncionariosModule, 
+    PeriodosModule, 
+    ConsolidadosModule, 
+    HorasExtrasModule, 
+    TurnosUrgenciaModule, 
+    ViaticosModule, 
+    AtrasosModule, 
+    ProcedimientosModule, 
+    AuditModule, 
+    ReportesModule, 
+    IngresosModule, 
+    RemuneracionesModule, 
+    CalculosModule, 
+    ContratosModule, 
+    AusentismosModule, 
+    AsignacionesEspecialesModule, 
+    AlertasRrhhModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

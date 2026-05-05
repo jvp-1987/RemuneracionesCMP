@@ -12,7 +12,9 @@ const navItems = [
   { name: 'Consolidados', href: '/consolidados', icon: '&#xea17;' },
   { name: 'Funcionarios', href: '/funcionarios', icon: '&#xe7ef;' },
   { name: 'Importar', href: '/importar', icon: '&#xe2c3;' },
+  { name: 'Alertas RRHH', href: '/alertas-rrhh', icon: '&#xe002;' },
   { name: 'Reportes', href: '/reportes', icon: '&#xe873;' },
+  { name: 'Control Períodos', href: '/configuracion/periodos', icon: '&#xeb93;' },
 ];
 
 export default function Sidebar() {

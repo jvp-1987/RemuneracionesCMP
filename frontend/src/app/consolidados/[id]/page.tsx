@@ -20,6 +20,7 @@ interface Transaction {
   cantidad_50?: number;
   monto_calculado?: number;
   monto_descuento?: number;
+  minutos_atraso?: number;
   tipo_destino?: string;
   tiempo_descuento?: string;
   estado_25?: EstadoValidacion;
@@ -28,6 +29,7 @@ interface Transaction {
   observaciones?: string;
   observaciones_25?: string;
   observaciones_50?: string;
+  concept?: string;
 }
 
 interface ConsolidadoDetail {
@@ -121,7 +123,22 @@ export default function ConsolidadoDetailPage() {
   if (!data) return <div className="p-20 text-center text-error font-extrabold">ERROR DE CARGA</div>;
 
   const filteredData = () => {
-    const list = activeTab === 'horas' ? data.horas_extras : activeTab === 'viaticos' ? data.viaticos : data.atrasos;
+    let list = activeTab === 'horas' ? data.horas_extras : activeTab === 'viaticos' ? data.viaticos : data.atrasos;
+    
+    // Filtro para excluir registros con valores en cero
+    list = list.filter(item => {
+      if (activeTab === 'horas') {
+        return (Number(item.cantidad_25 || 0) > 0 || Number(item.cantidad_50 || 0) > 0);
+      }
+      if (activeTab === 'viaticos') {
+        return Number(item.monto_calculado || 0) > 0;
+      }
+      if (activeTab === 'atrasos') {
+        return Number(item.minutos_atraso || 0) > 0 || (item.tiempo_descuento && item.tiempo_descuento !== '0 min');
+      }
+      return true;
+    });
+
     if (!searchQuery) return list;
     return list.filter(t => 
       t.funcionario.nombre_completo.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -141,6 +158,35 @@ export default function ConsolidadoDetailPage() {
     const reviewed = list.filter(t => activeTab === 'horas' ? (t.estado_25 !== 'PENDIENTE' && t.estado_50 !== 'PENDIENTE') : t.estado !== 'PENDIENTE').length;
     return Math.round((reviewed / list.length) * 100);
   };
+
+  const getTabStats = () => {
+    if (!data) return { 
+        horas: { count: 0, complete: false }, 
+        viaticos: { count: 0, complete: false }, 
+        atrasos: { count: 0, complete: false } 
+    };
+
+    const horasList = data.horas_extras.filter(item => Number(item.cantidad_25 || 0) > 0 || Number(item.cantidad_50 || 0) > 0);
+    const viaticosList = data.viaticos.filter(item => Number(item.monto_calculado || 0) > 0);
+    const atrasosList = data.atrasos.filter(item => Number(item.minutos_atraso || 0) > 0 || (item.tiempo_descuento && item.tiempo_descuento !== '0 min'));
+
+    return {
+      horas: { 
+        count: horasList.length, 
+        complete: horasList.length > 0 && horasList.every(t => t.estado_25 !== 'PENDIENTE' && t.estado_50 !== 'PENDIENTE') 
+      },
+      viaticos: { 
+        count: viaticosList.length, 
+        complete: viaticosList.length > 0 && viaticosList.every(t => t.estado !== 'PENDIENTE') 
+      },
+      atrasos: { 
+        count: atrasosList.length, 
+        complete: atrasosList.length > 0 && atrasosList.every(t => t.estado !== 'PENDIENTE') 
+      },
+    };
+  };
+
+  const stats = getTabStats();
 
   return (
     <div className="flex flex-col min-h-screen bg-surface">
@@ -260,13 +306,26 @@ export default function ConsolidadoDetailPage() {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  "px-8 py-3.5 text-xs font-black rounded-[1.5rem] tracking-widest uppercase transition-all duration-300",
+                  "px-8 py-3.5 text-xs font-black rounded-[1.5rem] tracking-widest uppercase transition-all duration-300 flex items-center gap-3",
                   activeTab === tab 
                     ? "bg-white text-primary shadow-lg shadow-slate-200/50" 
                     : "text-secondary hover:text-primary hover:bg-white/40"
                 )}
               >
                 {tab === 'horas' ? 'Horas Extras' : tab === 'viaticos' ? 'Viáticos' : 'Atrasos'}
+                <span className={cn(
+                  "px-2.5 py-1 rounded-lg text-[10px] font-black transition-all",
+                  stats[tab].complete 
+                    ? "bg-green-500 text-white shadow-lg shadow-green-200" 
+                    : activeTab === tab ? "bg-primary/10 text-primary" : "bg-outline-variant/10 text-outline px-1.5"
+                )}>
+                  {stats[tab].complete ? (
+                    <div className="flex items-center gap-1">
+                      <span>{stats[tab].count}</span>
+                      <span className="material-symbols-outlined text-[12px]" dangerouslySetInnerHTML={{ __html: '&#xe876;' }} />
+                    </div>
+                  ) : stats[tab].count}
+                </span>
               </button>
             ))}
           </div>
@@ -301,9 +360,15 @@ export default function ConsolidadoDetailPage() {
                 <tr className="bg-surface-container-low/50">
                   <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">Funcionario Clínico</th>
                   <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">RUT / Clasificación</th>
-                  <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">Tramo 25%</th>
-                  <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">Tramo 50%</th>
-                  <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">Liquidación Bruta</th>
+                  <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">
+                    {activeTab === 'horas' ? 'Horas 25%' : activeTab === 'atrasos' ? 'N/A' : 'Destino'}
+                  </th>
+                  <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">
+                    {activeTab === 'horas' ? 'Horas 50%' : activeTab === 'atrasos' ? 'Concepto' : 'Estado'}
+                  </th>
+                  <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">
+                    {activeTab === 'atrasos' ? 'Total Tiempo' : 'Total Validado'}
+                  </th>
                   <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Acciones</th>
                 </tr>
               </thead>
@@ -409,18 +474,36 @@ function EmployeeTableRow({
           <div className="text-[14px] font-black text-on-surface tracking-tighter mb-1">{item.funcionario.rut}</div>
           <div className="text-[10px] font-black uppercase text-primary tracking-widest bg-primary/5 px-2 py-0.5 rounded-md w-fit">Cat. {item.funcionario.categoria_aps || '-'} • Niv. {item.funcionario.nivel_aps || '-'}</div>
         </td>
-        <td className="px-10 py-7">
-          <div className="flex justify-center">
-            {activeTab === 'horas' ? <StatusBadge status={item.estado_25} /> : <span className="text-outline/30 font-black text-[10px] uppercase">No Aplica</span>}
+        <td className="px-10 py-7 text-center">
+          <div className="flex flex-col items-center gap-2">
+            {activeTab === 'horas' ? (
+              <>
+                <div className="text-[16px] font-black text-primary tracking-tighter">{item.cantidad_25 || 0} <span className="text-[10px] text-secondary">HRS</span></div>
+                <StatusBadge status={item.estado_25} />
+              </>
+            ) : activeTab === 'viaticos' ? (
+              <div className="text-[12px] font-black text-on-surface uppercase tracking-widest">{item.tipo_destino || 'NACIONAL'}</div>
+            ) : <span className="text-outline/30 font-black text-[10px] uppercase">N/A</span>}
           </div>
         </td>
-        <td className="px-10 py-7">
-          <div className="flex justify-center">
-             {activeTab === 'horas' ? <StatusBadge status={item.estado_50} /> : <StatusBadge status={item.estado} />}
+        <td className="px-10 py-7 text-center">
+          <div className="flex flex-col items-center gap-2">
+             {activeTab === 'horas' ? (
+               <>
+                <div className="text-[16px] font-black text-primary tracking-tighter">{item.cantidad_50 || 0} <span className="text-[10px] text-secondary">HRS</span></div>
+                <StatusBadge status={item.estado_50} />
+               </>
+             ) : activeTab === 'atrasos' ? (
+                <div className="text-[11px] font-black text-secondary tracking-widest uppercase">{item.concept || 'General'}</div>
+             ) : (
+                <StatusBadge status={item.estado} />
+             )}
           </div>
         </td>
         <td className="px-10 py-7 font-black text-[16px] text-on-surface tracking-tighter">
-          ${totalAmount.toLocaleString('es-CL')}
+          {activeTab === 'horas' 
+            ? `${(Number(item.cantidad_25 || 0) + Number(item.cantidad_50 || 0)).toFixed(1)} HRS`
+            : activeTab === 'atrasos' ? item.tiempo_descuento : `$${totalAmount.toLocaleString('es-CL')}`}
         </td>
         <td className="px-10 py-7 text-right">
           <div className="flex justify-end gap-4 items-center">
@@ -453,8 +536,11 @@ function EmployeeTableRow({
                     <div className="grid grid-cols-2 gap-16 relative z-10">
                       <div className="space-y-8">
                         <div className="flex items-center justify-between pb-4 border-b border-outline-variant/5">
-                          <h4 className="text-[11px] font-black text-outline uppercase tracking-[0.2em]">Cálculo Tramo Diurno (25%)</h4>
-                          <span className="font-manrope font-black text-on-surface text-2xl tracking-tighter">${Number(item.monto_25).toLocaleString('es-CL')}</span>
+                          <div>
+                            <h4 className="text-[11px] font-black text-outline uppercase tracking-[0.2em]">Tramo Diurno (25%)</h4>
+                            <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mt-1">Ref. Monto: ${Number(item.monto_25 || 0).toLocaleString('es-CL')}</p>
+                          </div>
+                          <span className="font-manrope font-black text-primary text-4xl tracking-tighter">{item.cantidad_25 || 0} <span className="text-xl">HRS</span></span>
                         </div>
                         <div className="space-y-4">
                           <p className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Observaciones del Auditor</p>
@@ -472,8 +558,11 @@ function EmployeeTableRow({
                       </div>
                       <div className="space-y-8">
                         <div className="flex items-center justify-between pb-4 border-b border-outline-variant/5">
-                          <h4 className="text-[11px] font-black text-outline uppercase tracking-[0.2em]">Cálculo Tramo Nocturno (50%)</h4>
-                          <span className="font-manrope font-black text-on-surface text-2xl tracking-tighter">${Number(item.monto_50).toLocaleString('es-CL')}</span>
+                          <div>
+                            <h4 className="text-[11px] font-black text-outline uppercase tracking-[0.2em]">Tramo Nocturno (50%)</h4>
+                            <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mt-1">Ref. Monto: ${Number(item.monto_50 || 0).toLocaleString('es-CL')}</p>
+                          </div>
+                          <span className="font-manrope font-black text-primary text-4xl tracking-tighter">{item.cantidad_50 || 0} <span className="text-xl">HRS</span></span>
                         </div>
                         <div className="space-y-4">
                           <p className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Observaciones del Auditor</p>
@@ -494,21 +583,28 @@ function EmployeeTableRow({
                     <div className="space-y-10 relative z-10 max-w-4xl mx-auto">
                        <div className="flex justify-between items-center pb-6 border-b border-outline-variant/10">
                           <div>
-                            <h4 className="text-[13px] font-black text-on-surface uppercase tracking-[0.2em] mb-2">Detalle Integral de {activeTab === 'viaticos' ? 'Viático' : 'Atraso'}</h4>
-                            <p className="text-[10px] font-bold text-outline uppercase tracking-widest">Validación de monto automático por sistema ERP</p>
+                            <h4 className="text-[13px] font-black text-on-surface uppercase tracking-[0.2em] mb-2">{activeTab === 'viaticos' ? 'Detalle de Viático' : 'Referencia de Atraso'}</h4>
+                            <p className="text-[10px] font-bold text-outline uppercase tracking-widest">Validación de {activeTab === 'viaticos' ? 'asignación monetaria' : 'tiempo reloj control'}</p>
                           </div>
-                          <span className="font-manrope font-black text-primary text-5xl tracking-tighter">${totalAmount.toLocaleString('es-CL')}</span>
+                          <div className="text-right">
+                             <div className="font-manrope font-black text-primary text-5xl tracking-tighter">
+                               {activeTab === 'viaticos' ? `$${totalAmount.toLocaleString('es-CL')}` : item.tiempo_descuento || '0 min'}
+                             </div>
+                             {activeTab === 'atrasos' && <div className="text-[10px] font-black text-secondary tracking-widest uppercase mt-2">Equivalente: ${totalAmount.toLocaleString('es-CL')}</div>}
+                          </div>
                        </div>
                         <textarea 
                           className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold min-h-[120px]" 
-                          placeholder="Notas de auditoría para este registro..."
+                          placeholder={activeTab === 'atrasos' ? 'Justificación del atraso...' : 'Notas de auditoría para este registro...'}
                           value={item.observaciones || ''}
                           onChange={(e) => onObs(e.target.value)}
                         />
-                        <div className="flex gap-6">
-                          <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado === 'RECHAZADO' ? "bg-error text-white" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Rechazar Haberes</button>
-                          <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-primary/20", item.estado === 'APROBADO' ? "bg-primary text-white" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Aprobar Haberes</button>
-                        </div>
+                        {activeTab === 'viaticos' && (
+                          <div className="flex gap-6 pt-4 pb-8">
+                            <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado === 'RECHAZADO' ? "bg-error text-white" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Rechazar Haberes</button>
+                            <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-primary/20", item.estado === 'APROBADO' ? "bg-primary text-white" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Aprobar Haberes</button>
+                          </div>
+                        )}
                     </div>
                   )}
                 </div>

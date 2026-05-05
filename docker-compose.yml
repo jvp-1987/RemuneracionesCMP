@@ -2,30 +2,31 @@ version: '3.8'
 
 services:
   database:
-    image: postgres:15-alpine
+    image: mysql:8.0
     restart: always
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: password123
-      POSTGRES_DB: remuneraciones_aps
+      MYSQL_ROOT_PASSWORD: password123
+      MYSQL_DATABASE: remuneraciones_aps
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root -d remuneraciones_aps"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
       timeout: 5s
       retries: 5
 
+  # Estos servicios son opcionales si prefieres correr 'npm run dev' localmente
+  # pero los mantengo actualizados por consistencia.
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     restart: always
     environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://root:password123@database:5432/remuneraciones_aps?schema=public
+      - NODE_ENV=development
+      - DATABASE_URL=mysql://root:password123@database:3306/remuneraciones_aps
       - PORT=3000
     ports:
       - "3000:3000"
@@ -39,12 +40,12 @@ services:
       dockerfile: Dockerfile
     restart: always
     environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=https://api.personal.cmpanguipulli.com
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
     ports:
-      - "3002:3000" # Expose frontend on 3002, internal next server is 3000
+      - "3001:3000"
     depends_on:
       - backend
 
 volumes:
-  postgres_data:
+  mysql_data:

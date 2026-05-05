@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateConsolidadoDto } from './dto/create-consolidado.dto';
 import { UpdateConsolidadoDto } from './dto/update-consolidado.dto';
@@ -88,8 +88,12 @@ export class ConsolidadosService {
   }
 
   async update(id: number, dto: UpdateConsolidadoDto) {
-    await this.findOne(id);
+    const consolidado = await this.findOne(id);
     
+    if (consolidado.periodo.estado === 'Cerrado') {
+      throw new BadRequestException(`No se puede modificar un consolidado de un periodo CERRADO.`);
+    }
+
     // Auto-fill certification metadata if V°B° is being changed to true
     const updateData: any = { ...dto };
     

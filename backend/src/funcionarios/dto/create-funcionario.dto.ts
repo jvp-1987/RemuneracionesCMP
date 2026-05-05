@@ -16,4 +16,17 @@ export class CreateFuncionarioDto {
   @IsString()
   @IsNotEmpty()
   profesion_enum: string;
+
+  @ApiProperty({ example: 'A', required: false })
+  @IsString()
+  categoria_aps?: string;
+
+  @ApiProperty({ example: 1, required: false })
+  nivel_aps?: number;
+
+  @ApiProperty({ example: 44, required: false })
+  jornada_horas?: number;
+
+  @ApiProperty({ example: 1, required: false })
+  centro_salud_id?: number;
 }

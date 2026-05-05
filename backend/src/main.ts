@@ -9,11 +9,15 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       process.env.CORS_ORIGIN ?? 'https://personal.cmpanguipulli.com',
-      'https://remuneracionescmp.apscolab.com'
+      'https://remuneracionescmp.apscolab.com',
+      'http://localhost:3000', 
+      'http://localhost:3001', 
+      'http://localhost:3005', 
+      'http://localhost:4000', 
+      'http://localhost:4001'
     ],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
@@ -26,7 +30,7 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
 
-  const port = process.env.PORT ?? 3000;
+  const port = process.env.PORT ?? 3001;
   await app.listen(port);
   console.log(`Backend running on port: ${port}`);
 }
