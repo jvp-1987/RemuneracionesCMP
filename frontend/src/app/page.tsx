@@ -42,24 +42,25 @@ function KpiCard({
     <motion.div
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.5, ease: 'easeOut' }}
-      className="bg-white rounded-[2rem] p-8 border border-outline-variant/10 shadow-sm hover:shadow-lg transition-all group hover:-translate-y-1 cursor-default"
+      transition={{ delay, duration: 0.6, type: 'spring', bounce: 0.4 }}
+      className="bg-white/80 backdrop-blur-2xl rounded-[2.5rem] p-8 border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:border-primary/20 transition-all duration-500 group hover:-translate-y-2 cursor-default relative overflow-hidden"
     >
-      <div className="flex justify-between items-start mb-6">
-        <span className="text-[10px] font-black uppercase tracking-[0.25em] text-secondary">{label}</span>
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
-          <Icon className="w-5 h-5" />
+      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-white/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+      <div className="flex justify-between items-start mb-6 relative z-10">
+        <span className="text-[10px] font-black uppercase tracking-[0.25em] text-secondary/70">{label}</span>
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${color} shadow-inner transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}>
+          <Icon className="w-6 h-6" />
         </div>
       </div>
-      <div className="text-4xl font-black text-on-surface tracking-tighter mb-2">{value}</div>
-      <div className="flex items-center justify-between mt-4 pt-4 border-t border-outline-variant/5">
-        <p className="text-[11px] text-secondary font-bold">{sub}</p>
+      <div className="text-4xl font-black text-slate-800 tracking-tighter mb-2 relative z-10">{value}</div>
+      <div className="flex items-center justify-between mt-6 pt-5 border-t border-slate-100 relative z-10">
+        <p className="text-[11px] text-slate-500 font-bold">{sub}</p>
         {trend && (
-          <span className={`flex items-center gap-1 text-[10px] font-black rounded-full px-2 py-1 ${
-            trend === 'up' ? 'bg-emerald-50 text-emerald-600' : 'bg-error/10 text-error'
+          <span className={`flex items-center gap-1.5 text-[10px] font-black rounded-full px-3 py-1.5 shadow-sm ${
+            trend === 'up' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'
           }`}>
-            {trend === 'up' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-            {trend === 'up' ? 'Al día' : 'Revisar'}
+            {trend === 'up' ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+            {trend === 'up' ? 'Óptimo' : 'Revisar'}
           </span>
         )}
       </div>
@@ -93,27 +94,27 @@ export default function Dashboard() {
   const max_centro = data?.por_centro[0]?.gasto_total ?? 1;
 
   return (
-    <div className="flex flex-col min-h-screen bg-surface font-body overflow-x-hidden pb-28">
+    <div className="flex flex-col min-h-screen bg-[#f8fafc] font-body overflow-x-hidden pb-28">
 
       {/* Top Bar */}
-      <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md flex justify-between items-center w-full px-12 py-5 border-b border-outline-variant/10">
+      <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl flex justify-between items-center w-full px-12 py-5 border-b border-white/50 shadow-sm">
         <div>
-          <h2 className="text-2xl font-black text-primary tracking-tight font-headline uppercase">
-            Remuneraciones CMP
+          <h2 className="text-2xl font-black text-slate-800 tracking-tight font-headline uppercase">
+            Remuneraciones <span className="text-primary">CMP</span>
           </h2>
-          <p className="text-[10px] font-black text-secondary uppercase tracking-[0.3em] opacity-60">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
             Panel Financiero • Actualizado {lastRefresh.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
           </p>
         </div>
         <div className="flex items-center gap-4">
           <button
             onClick={fetchData}
-            className="flex items-center gap-2 px-5 py-2.5 bg-surface-container-low rounded-xl text-[10px] font-black uppercase tracking-widest text-secondary hover:text-primary hover:bg-white transition-all border border-outline-variant/10"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-primary hover:shadow-md hover:-translate-y-0.5 transition-all border border-slate-100"
           >
             <RefreshCcw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-primary' : ''}`} />
             Actualizar
           </button>
-          <Link href="/ingreso" className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md shadow-primary/20 hover:brightness-110 transition-all">
+          <Link href="/ingreso" className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:-translate-y-0.5 transition-all">
             <Activity className="w-3.5 h-3.5" />
             Ingresar Novedades
           </Link>
@@ -124,37 +125,59 @@ export default function Dashboard() {
 
         {/* Hero total */}
         <motion.div 
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative bg-gradient-to-br from-primary via-primary to-blue-700 rounded-[3rem] p-12 overflow-hidden shadow-2xl shadow-primary/30"
+          initial={{ opacity: 0, y: -20, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="relative bg-slate-900 rounded-[3rem] p-12 overflow-hidden shadow-2xl shadow-slate-900/20"
         >
-          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+          {/* Animated Background Gradients */}
+          <motion.div 
+            animate={{ 
+              backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-0 opacity-40"
+            style={{
+              backgroundImage: 'radial-gradient(circle at center, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.1) 40%, transparent 70%)',
+              backgroundSize: '200% 200%'
+            }}
+          />
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/20 rounded-full -translate-y-1/2 translate-x-1/3 blur-[100px] mix-blend-screen" />
+          <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-indigo-500/20 rounded-full translate-y-1/2 blur-[80px] mix-blend-screen" />
+
+          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-12">
             <div>
-              <p className="text-white/60 text-[10px] font-black uppercase tracking-[0.4em] mb-3">Gasto Total Remuneracional</p>
-              <div className="text-6xl font-black text-white tracking-tighter mb-3">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10 mb-6">
+                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                 <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/90">Gasto Remuneracional Activo</span>
+              </div>
+              <div className="text-7xl font-black text-white tracking-tighter mb-4 drop-shadow-sm">
                 {loading ? '—' : formatCLP(gasto_total)}
               </div>
-              <p className="text-white/70 text-sm font-bold">Suma acumulada: H.E. + Programas + Viáticos</p>
+              <p className="text-white/60 text-xs font-bold tracking-wide uppercase">Consolidado Mensual: H.E. + Programas + Viáticos</p>
             </div>
-            <div className="grid grid-cols-2 gap-4 min-w-[320px]">
+            <div className="grid grid-cols-2 gap-4 min-w-[360px]">
               {[
                 { l: 'H.E. Presup.', v: data?.kpis.total_he ?? 0 },
                 { l: 'Prog. Turno', v: data?.kpis.total_turnos ?? 0 },
                 { l: 'Viáticos', v: data?.kpis.total_viaticos ?? 0 },
                 { l: 'Desc. Atrasos', v: data?.kpis.total_atrasos_descuento ?? 0, neg: true },
-              ].map(item => (
-                <div key={item.l} className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm">
-                  <p className="text-white/60 text-[9px] font-black uppercase tracking-widest mb-1">{item.l}</p>
-                  <p className={`text-lg font-black ${item.neg ? 'text-rose-300' : 'text-white'} tracking-tighter`}>
+              ].map((item, i) => (
+                <motion.div 
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 + (i * 0.1) }}
+                  key={item.l} 
+                  className="bg-white/5 border border-white/10 rounded-3xl p-5 backdrop-blur-xl hover:bg-white/10 transition-colors"
+                >
+                  <p className="text-white/50 text-[9px] font-black uppercase tracking-widest mb-2">{item.l}</p>
+                  <p className={`text-xl font-black ${item.neg ? 'text-rose-400' : 'text-white'} tracking-tighter`}>
                     {loading ? '—' : formatCLP(item.v)}
                   </p>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
-          {/* Decorativo */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3 blur-[60px]" />
-          <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-blue-400/10 rounded-full translate-y-1/2 blur-[80px]" />
         </motion.div>
 
         {/* KPI Grid */}

@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { useAuth } from './AuthProvider';
 
@@ -37,7 +38,7 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 px-6 space-y-1.5 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 px-6 space-y-1.5 overflow-y-auto custom-scrollbar relative">
         <p className="px-4 mb-4 text-[10px] font-black text-outline uppercase tracking-[0.3em]">Menú Principal</p>
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
@@ -46,12 +47,19 @@ export default function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "group flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all duration-300 relative",
+                "group flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all duration-300 relative z-10",
                 isActive 
-                  ? "bg-primary text-white shadow-xl shadow-primary/20" 
+                  ? "text-white" 
                   : "text-on-surface hover:text-primary hover:bg-primary/5"
               )}
             >
+              {isActive && (
+                <motion.div
+                  layoutId="sidebar-active-pill"
+                  className="absolute inset-0 bg-gradient-to-r from-primary to-primary/80 rounded-2xl -z-10 shadow-lg shadow-primary/20"
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                />
+              )}
               <div className="flex items-center gap-4">
                 <span className={cn(
                   "material-symbols-outlined text-xl transition-transform", 
@@ -63,7 +71,7 @@ export default function Sidebar() {
                 </span>
               </div>
               {isActive && (
-                <span className="material-symbols-outlined text-sm text-white select-none">&#xe5cc;</span>
+                <span className="material-symbols-outlined text-sm text-white/80 select-none">&#xe5cc;</span>
               )}
             </Link>
           );

@@ -165,14 +165,51 @@ export default function FuncionarioDetailPage() {
         )}
 
         {activeTab === 'contratos' && (
-          <div className="bg-white rounded-[3rem] shadow-2xl border border-outline-variant/5 p-10 space-y-4">
-             <h3 className="text-2xl font-black uppercase mb-8">Contratos</h3>
-             {funcionario.contratos?.map((c: any) => (
-                <div key={c.id} className="p-6 bg-slate-50 rounded-2xl border border-outline-variant/10 flex justify-between items-center">
-                   <div><span className="text-[10px] font-black bg-primary/10 text-primary px-3 py-1 rounded-full">{c.tipo_contrato}</span><h4 className="text-lg font-black mt-3">{c.cargo}</h4></div>
-                   <span className="px-4 py-1.5 text-[10px] font-black bg-emerald-50 text-emerald-600 rounded-full">{c.estado}</span>
+          <div className="bg-white rounded-[3rem] shadow-2xl border border-outline-variant/5 p-10 space-y-6">
+             <h3 className="text-2xl font-black uppercase mb-8">Historial de Contratos</h3>
+             {!funcionario.contratos || funcionario.contratos.length === 0 ? (
+                <div className="p-20 text-center border-2 border-dashed border-outline-variant/20 rounded-[2rem]">
+                  <p className="text-[10px] font-black text-outline uppercase tracking-widest italic">No se registran contratos en el sistema</p>
                 </div>
-             ))}
+             ) : (
+               funcionario.contratos.map((c: any) => {
+                  const isExpired = c.fecha_termino && new Date(c.fecha_termino) < new Date();
+                  return (
+                    <div key={c.id} className="p-8 bg-slate-50 rounded-[2rem] border border-outline-variant/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 group hover:border-primary/20 transition-all">
+                       <div className="space-y-3">
+                          <div className="flex items-center gap-3">
+                            <span className="text-[10px] font-black bg-primary/10 text-primary px-3 py-1 rounded-full uppercase tracking-widest">{c.tipo_contrato}</span>
+                            <span className={cn(
+                              "px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest",
+                              c.estado === 'Vigente' 
+                                ? (isExpired ? "bg-rose-600 text-white animate-pulse shadow-lg shadow-rose-600/20" : "bg-emerald-500 text-white") 
+                                : "bg-slate-200 text-slate-500"
+                            )}>
+                              {c.estado === 'Vigente' && isExpired ? 'Vigente (VENCIDO)' : c.estado}
+                            </span>
+                          </div>
+                          <h4 className="text-xl font-black text-slate-900 group-hover:text-primary transition-colors">{c.cargo || 'Cargo no especificado'}</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-8">
+                             <div className="space-y-1">
+                                <p className="text-[9px] font-black text-outline uppercase tracking-tighter">Desde</p>
+                                <p className="text-[11px] font-bold text-secondary">{new Date(c.fecha_inicio).toLocaleDateString()}</p>
+                             </div>
+                             <div className="space-y-1">
+                                <p className="text-[9px] font-black text-outline uppercase tracking-tighter">Hasta</p>
+                                <p className={cn("text-[11px] font-bold", isExpired && c.estado === 'Vigente' ? "text-rose-600" : "text-secondary")}>
+                                  {c.fecha_termino ? new Date(c.fecha_termino).toLocaleDateString() : 'Indefinido'}
+                                </p>
+                             </div>
+                             <div className="space-y-1">
+                                <p className="text-[9px] font-black text-outline uppercase tracking-tighter">Jornada</p>
+                                <p className="text-[11px] font-bold text-secondary">{c.jornada_horas || 44} Horas</p>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+                  );
+               })
+             )}
           </div>
         )}
 

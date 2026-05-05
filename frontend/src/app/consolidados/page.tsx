@@ -125,7 +125,7 @@ export default function ConsolidadosPage() {
                 </td>
               </tr>
             ) : filtered.map((c) => (
-              <tr key={c.id} className="group hover:bg-surface-container-lowest/50 transition-colors cursor-pointer" onClick={() => router.push(`/consolidados/${c.id}`)}>
+              <tr key={c.id} className="group hover:bg-white hover:scale-[1.01] hover:shadow-lg transition-all duration-300 cursor-pointer relative z-0 hover:z-10" onClick={() => router.push(`/consolidados/${c.id}`)}>
                 <td className="px-8 py-6">
                   <div className="flex items-center gap-4">
                     <HealthCenterLogo name={c.centro_salud.nombre} className="group-hover:border-primary/30" />
@@ -176,7 +176,7 @@ export default function ConsolidadosPage() {
       </div>
 
       {/* Floating Status Bar Overlay */}
-      <div className="fixed bottom-12 left-1/2 -translate-x-1/2 bg-on-background/90 backdrop-blur-md text-white px-8 py-4 rounded-3xl flex items-center gap-12 shadow-2xl z-50 animate-in slide-in-from-bottom-8 duration-500">
+      <div className="fixed bottom-12 left-1/2 -translate-x-1/2 bg-slate-900/80 backdrop-blur-2xl text-white px-8 py-5 rounded-[2.5rem] flex items-center gap-12 shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10 z-50 animate-in slide-in-from-bottom-8 duration-700">
         <div className="flex items-center gap-4 border-r border-white/10 pr-12">
           <div className="text-right">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Progreso Global Mayo</p>
@@ -191,8 +191,9 @@ export default function ConsolidadosPage() {
             <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Total Auditoría</p>
             <p className="text-xl font-bold">$24.8M</p>
           </div>
-          <button className="px-6 py-2.5 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20">
-            Aprobar Lote
+          <button className="relative px-8 py-3 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/30 overflow-hidden group">
+            <span className="relative z-10">Aprobar Lote</span>
+            <div className="absolute inset-0 w-full h-full bg-white/20 -translate-x-full group-hover:animate-[shimmer_1s_forwards] skew-x-12" />
           </button>
         </div>
       </div>

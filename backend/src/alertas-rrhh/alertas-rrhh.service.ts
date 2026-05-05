@@ -10,12 +10,13 @@ export class AlertasRrhhService {
     const threshold60 = new Date(today);
     threshold60.setDate(today.getDate() + 60);
 
+    // Contratos Vigentes que vencen pronto O ya vencieron
     const contratosPorVencer = await this.prisma.contrato.findMany({
       where: {
         estado: 'Vigente',
         fecha_termino: {
           lte: threshold60,
-          gte: today
+          not: null
         }
       },
       include: {
@@ -31,12 +32,13 @@ export class AlertasRrhhService {
       }
     });
 
+    // Asignaciones Vigentes que vencen pronto O ya vencieron
     const asignacionesPorExpirar = await this.prisma.asignacionEspecial.findMany({
       where: {
         estado_validacion: 'APROBADO',
         fecha_termino: {
           lte: threshold60,
-          gte: today
+          not: null
         }
       },
       include: {
@@ -50,6 +52,41 @@ export class AlertasRrhhService {
       orderBy: {
         fecha_termino: 'asc'
       }
+    });
+
+    // Auditoría de Calidad de Datos
+    const funcionariosInconsistentes = await this.prisma.funcionario.findMany({
+      where: {
+        OR: [
+          { categoria_aps: null },
+          { categoria_aps: '' },
+          { nivel_aps: null },
+          { jornada_horas: null },
+          { jornada_horas: 0 }
+        ]
+      },
+      select: {
+        rut: true,
+        nombre_completo: true,
+        categoria_aps: true,
+        nivel_aps: true,
+        jornada_horas: true
+      }
+    });
+
+    const auditoria = funcionariosInconsistentes.map(f => {
+      const faltantes = [];
+      if (!f.categoria_aps) faltantes.push('Categoría');
+      if (!f.nivel_aps) faltantes.push('Nivel');
+      if (!f.jornada_horas) faltantes.push('Jornada');
+      
+      return {
+        id: f.rut,
+        funcionario: f.nombre_completo,
+        rut: f.rut,
+        detalle: `Falta: ${faltantes.join(', ')}`,
+        severidad: 'CRITICO'
+      };
     });
 
     return {
@@ -70,7 +107,8 @@ export class AlertasRrhhService {
         detalle: `${a.tipo_asignacion} (Res N° ${a.nro_resolucion})`,
         fecha_termino: a.fecha_termino,
         dias_restantes: Math.ceil((new Date(a.fecha_termino!).getTime() - today.getTime()) / (1000 * 3600 * 24))
-      }))
+      })),
+      auditoria
     };
   }
 }

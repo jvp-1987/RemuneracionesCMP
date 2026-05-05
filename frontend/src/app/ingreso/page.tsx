@@ -638,17 +638,17 @@ export default function IngresoPage() {
             {rows.map((row, index) => {
               const outOfPeriod = isOutOfPeriod(row.fecha_inicio, row.fecha_termino);
               return (
-                <motion.div
-                  key={row.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9, y: -20, transition: { duration: 0.2 } }}
-                  className={cn(
-                    "group bg-white rounded-[2.5rem] p-8 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] border transition-all relative",
-                    outOfPeriod ? "border-amber-200" : "border-slate-100 hover:border-slate-300 hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)]"
-                  )}
-                >
+                  <motion.div
+                    key={row.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: -20, transition: { duration: 0.2 } }}
+                    className={cn(
+                      "group bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] border transition-all duration-500 relative",
+                      outOfPeriod ? "border-amber-200" : "border-white hover:border-primary/20"
+                    )}
+                  >
                   {/* Badge desfase */}
                   {outOfPeriod && (
                     <div className="absolute top-6 right-6 flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-600 rounded-full px-3 py-1.5 text-[9px] font-black uppercase tracking-widest">
@@ -756,11 +756,11 @@ export default function IngresoPage() {
                         <div className="space-y-4">
                           <div className="bg-blue-50/50 p-6 rounded-[2rem] border border-blue-100/50 relative overflow-hidden group/he">
                             <label className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] mb-2 block">Total Horas 25%</label>
-                            <input type="number" step="0.01" value={row.cantidad_25} onChange={e => updateRow(row.id, 'cantidad_25', e.target.value)} className="w-full bg-transparent text-4xl font-black text-slate-800 outline-none" placeholder="0.00" />
+                            <input type="number" step="0.01" value={row.cantidad_25} onChange={e => updateRow(row.id, 'cantidad_25', e.target.value)} className="w-full bg-transparent text-4xl font-black text-slate-800 outline-none focus:ring-2 focus:ring-blue-400/50 rounded-xl transition-all" placeholder="0.00" />
                           </div>
                           <div className="bg-indigo-50/50 p-6 rounded-[2rem] border border-indigo-100/50 relative overflow-hidden group/he50">
                             <label className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-2 block">Total Horas 50%</label>
-                            <input type="number" step="0.01" value={row.cantidad_50} onChange={e => updateRow(row.id, 'cantidad_50', e.target.value)} className="w-full bg-transparent text-4xl font-black text-slate-800 outline-none" placeholder="0.00" />
+                            <input type="number" step="0.01" value={row.cantidad_50} onChange={e => updateRow(row.id, 'cantidad_50', e.target.value)} className="w-full bg-transparent text-4xl font-black text-slate-800 outline-none focus:ring-2 focus:ring-indigo-400/50 rounded-xl transition-all" placeholder="0.00" />
                           </div>
                         </div>
                       )}
@@ -769,18 +769,18 @@ export default function IngresoPage() {
                         <div className="space-y-4">
                           <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
                             <label className="text-[10px] font-black text-slate-400 uppercase mb-2 block">Programa (Convenio)</label>
-                            <select value={row.programa_nombre} onChange={e => updateRow(row.id, 'programa_nombre', e.target.value)} className="w-full bg-white rounded-2xl px-4 py-3 text-xs font-black text-slate-700 outline-none uppercase shadow-sm border border-slate-100">
+                            <select value={row.programa_nombre} onChange={e => updateRow(row.id, 'programa_nombre', e.target.value)} className="w-full bg-white rounded-2xl px-4 py-3 text-xs font-black text-slate-700 outline-none focus:ring-2 focus:ring-slate-300 uppercase shadow-sm border border-slate-100 transition-all cursor-pointer hover:border-slate-300">
                               {PROGRAMAS_HE_LIST.map(p => <option key={p} value={p}>{p}</option>)}
                             </select>
                           </div>
                           <div className="grid grid-cols-2 gap-4">
                             <div className="bg-teal-50/50 p-5 rounded-[2rem] border border-teal-100/50">
                               <label className="text-[9px] font-black text-teal-500 uppercase mb-1 block">Total 25%</label>
-                              <input type="number" step="0.01" value={row.cantidad_25} onChange={e => updateRow(row.id, 'cantidad_25', e.target.value)} className="w-full bg-transparent text-2xl font-black text-slate-800 outline-none" placeholder="0.00" />
+                              <input type="number" step="0.01" value={row.cantidad_25} onChange={e => updateRow(row.id, 'cantidad_25', e.target.value)} className="w-full bg-transparent text-2xl font-black text-slate-800 outline-none focus:ring-2 focus:ring-teal-400/50 rounded-lg transition-all" placeholder="0.00" />
                             </div>
                             <div className="bg-emerald-50/50 p-5 rounded-[2rem] border border-emerald-100/50">
                               <label className="text-[9px] font-black text-emerald-500 uppercase mb-1 block">Total 50%</label>
-                              <input type="number" step="0.01" value={row.cantidad_50} onChange={e => updateRow(row.id, 'cantidad_50', e.target.value)} className="w-full bg-transparent text-2xl font-black text-slate-800 outline-none" placeholder="0.00" />
+                              <input type="number" step="0.01" value={row.cantidad_50} onChange={e => updateRow(row.id, 'cantidad_50', e.target.value)} className="w-full bg-transparent text-2xl font-black text-slate-800 outline-none focus:ring-2 focus:ring-emerald-400/50 rounded-lg transition-all" placeholder="0.00" />
                             </div>
                           </div>
                         </div>
@@ -790,7 +790,7 @@ export default function IngresoPage() {
                         <div className="space-y-4">
                           <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
                             <label className="text-[10px] font-black text-slate-400 uppercase mb-2 block">Programa / Sector</label>
-                            <select value={row.programa_nombre} onChange={e => updateRow(row.id, 'programa_nombre', e.target.value)} className="w-full bg-white rounded-2xl px-4 py-3 text-xs font-black text-slate-700 outline-none uppercase shadow-sm border border-slate-100">
+                            <select value={row.programa_nombre} onChange={e => updateRow(row.id, 'programa_nombre', e.target.value)} className="w-full bg-white rounded-2xl px-4 py-3 text-xs font-black text-slate-700 outline-none focus:ring-2 focus:ring-slate-300 uppercase shadow-sm border border-slate-100 transition-all cursor-pointer hover:border-slate-300">
                               {PROGRAMAS_TURNO_LIST.map(p => <option key={p} value={p}>{p}</option>)}
                             </select>
                           </div>
@@ -800,11 +800,11 @@ export default function IngresoPage() {
                               <div className="flex gap-4">
                                 <div className="flex-1">
                                   <span className="text-[8px] font-bold text-slate-300 block mb-1">CANT</span>
-                                  <input type="number" value={row.cant_habil} onChange={e => updateRow(row.id, 'cant_habil', e.target.value)} className="w-full bg-white rounded-xl px-4 py-2 font-black text-center" />
+                                  <input type="number" value={row.cant_habil} onChange={e => updateRow(row.id, 'cant_habil', e.target.value)} className="w-full bg-white rounded-xl px-4 py-2 font-black text-center outline-none focus:ring-2 focus:ring-blue-400/50 transition-all shadow-sm" />
                                 </div>
                                 <div className="flex-1">
                                   <span className="text-[8px] font-bold text-slate-300 block mb-1">VALOR $</span>
-                                  <input type="number" value={row.valor_habil} onChange={e => updateRow(row.id, 'valor_habil', e.target.value)} className="w-full bg-white rounded-xl px-4 py-2 font-black text-center text-blue-600" />
+                                  <input type="number" value={row.valor_habil} onChange={e => updateRow(row.id, 'valor_habil', e.target.value)} className="w-full bg-white rounded-xl px-4 py-2 font-black text-center text-blue-600 outline-none focus:ring-2 focus:ring-blue-400/50 transition-all shadow-sm" />
                                 </div>
                               </div>
                             </div>
@@ -813,11 +813,11 @@ export default function IngresoPage() {
                               <div className="flex gap-4">
                                 <div className="flex-1">
                                   <span className="text-[8px] font-bold text-slate-300 block mb-1">CANT</span>
-                                  <input type="number" value={row.cant_inhabil} onChange={e => updateRow(row.id, 'cant_inhabil', e.target.value)} className="w-full bg-white rounded-xl px-4 py-2 font-black text-center" />
+                                  <input type="number" value={row.cant_inhabil} onChange={e => updateRow(row.id, 'cant_inhabil', e.target.value)} className="w-full bg-white rounded-xl px-4 py-2 font-black text-center outline-none focus:ring-2 focus:ring-purple-400/50 transition-all shadow-sm" />
                                 </div>
                                 <div className="flex-1">
                                   <span className="text-[8px] font-bold text-slate-300 block mb-1">VALOR $</span>
-                                  <input type="number" value={row.valor_inhabil} onChange={e => updateRow(row.id, 'valor_inhabil', e.target.value)} className="w-full bg-white rounded-xl px-4 py-2 font-black text-center text-purple-600" />
+                                  <input type="number" value={row.valor_inhabil} onChange={e => updateRow(row.id, 'valor_inhabil', e.target.value)} className="w-full bg-white rounded-xl px-4 py-2 font-black text-center text-purple-600 outline-none focus:ring-2 focus:ring-purple-400/50 transition-all shadow-sm" />
                                 </div>
                               </div>
                             </div>
