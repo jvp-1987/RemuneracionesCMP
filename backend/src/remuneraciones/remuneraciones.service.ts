@@ -32,19 +32,55 @@ export class RemuneracionesService {
       return actualName ? workbook.Sheets[actualName] : null;
     };
 
-    const sheetHaberes = findSheet('Haberes');
-    const sheetDescuentos = findSheet('Descuentos');
+    const sheetGenerales = findSheet('datos generales');
+    const sheetHaberes = findSheet('haberes');
+    const sheetDescuentos = findSheet('descuentos') || findSheet('descuento');
 
     if (!sheetHaberes || !sheetDescuentos) {
-      throw new BadRequestException(`El archivo Maestro debe contener las hojas "Haberes" y "Descuentos". Se detectaron: ${sheetNames.join(', ')}`);
+      throw new BadRequestException(`El archivo Maestro debe contener al menos las hojas "Haberes" y "Descuentos" (o "Descuento"). Se detectaron: ${sheetNames.join(', ')}`);
     }
 
+    const dataGenerales = sheetGenerales ? xlsx.utils.sheet_to_json(sheetGenerales) : [];
     const dataHaberes = xlsx.utils.sheet_to_json(sheetHaberes);
     const dataDescuentos = xlsx.utils.sheet_to_json(sheetDescuentos);
     
     const consolidadoMap = new Map<string, any>();
 
-    // Procesar Haberes y sincronizar datos básicos de funcionario
+    // 1. Procesar Datos Generales (Metadata Maestra)
+    for (const row of dataGenerales as any[]) {
+      const rut = this.normalizeRut(row['RUT'] || row['RUN']);
+      if (!rut) continue;
+
+      const nombreLargo = row['NOMBRE COMPLETO'] || `${row['NOMBRES'] || ''} ${row['APELLIDOS'] || ''}`.trim();
+      
+      if (!dryRun) {
+        await this.prisma.funcionario.upsert({
+          where: { rut },
+          update: {
+            nombre_completo: nombreLargo || undefined,
+            categoria_aps: row['CATEGORIA APS'] || row['CATEGORIA'] || undefined,
+            nivel_aps: row['NIVEL APS'] || row['NIVEL'] ? +(row['NIVEL APS'] || row['NIVEL']) : undefined,
+            jornada_horas: row['JORNADA HRS'] || row['JORNADA'] ? +(row['JORNADA HRS'] || row['JORNADA']) : undefined,
+            fecha_nacimiento: row['FECHA NACIMIENTO'] ? new Date(row['FECHA NACIMIENTO']) : undefined,
+          },
+          create: {
+            rut,
+            nombre_completo: nombreLargo || 'Sin Nombre',
+            categoria_aps: row['CATEGORIA APS'] || row['CATEGORIA'] || 'Z',
+            nivel_aps: row['NIVEL APS'] || row['NIVEL'] ? +(row['NIVEL APS'] || row['NIVEL']) : 15,
+            profesion_enum: 'OTROS',
+          }
+        });
+      }
+
+      consolidadoMap.set(rut, {
+        rut,
+        nombre: nombreLargo,
+        detalle: { ...row }
+      });
+    }
+
+    // 2. Procesar Haberes (Sincronizar datos si no estaban en Generales)
     for (const row of dataHaberes as any[]) {
       const rawRut = row['RUT'];
       const rut = this.normalizeRut(rawRut);
@@ -52,8 +88,7 @@ export class RemuneracionesService {
 
       const nombreLargo = `${row['NOMBRES'] || ''} ${row['APELLIDOS'] || ''}`.trim();
       
-      // Sincronizar datos de funcionario si no estamos en dryRun
-      if (!dryRun) {
+      if (!dryRun && !consolidadoMap.has(rut)) {
         await this.prisma.funcionario.upsert({
           where: { rut },
           update: {
@@ -72,28 +107,29 @@ export class RemuneracionesService {
         });
       }
 
+      const existing = consolidadoMap.get(rut) || { rut, nombre: nombreLargo, detalle: {} };
+      
       consolidadoMap.set(rut, {
-        rut,
+        ...existing,
         originalRut: rawRut,
-        nombre: nombreLargo,
         sueldo_base: Number(row['SUELDO BASE'] || 0),
         total_haberes: Number(row['TOTAL HABERES'] || 0),
         monto_he_pagado: Number(row['HORAS EXTRAS 25%'] || 0) + Number(row['HORAS EXTRAS 50%'] || 0),
         monto_aps: Number(row['ASIGNACION APS'] || row['ASIG. APS'] || row['APS'] || 0),
         monto_zona: Number(row['ASIGNACION ZONA'] || row['ASIG. ZONA'] || row['ZONA'] || 0),
         monto_dificil: Number(row['DESEMPEÑO DIFICIL'] || row['ASIG. DIFICIL'] || row['DIFICIL'] || 0),
-        detalle: { ...row }
+        detalle: { ...existing.detalle, ...row }
       });
     }
 
-    // Procesar Descuentos
+    // 3. Procesar Descuentos
     dataDescuentos.forEach((row: any) => {
       const rut = this.normalizeRut(row['RUT']);
       if (!rut || !consolidadoMap.has(rut)) return;
 
       const current = consolidadoMap.get(rut);
       current.total_descuentos = Number(row['TOTAL DESCUENTOS LEGALES'] || 0) + Number(row['TOTAL DESCUENTOS VARIOS'] || 0);
-      current.monto_liquido = current.total_haberes - current.total_descuentos;
+      current.monto_liquido = (current.total_haberes || 0) - (current.total_descuentos || 0);
       current.monto_atrasos_pagado = Number(row['5-HORAS DE ATRASOS'] || 0);
       current.detalle = { ...current.detalle, ...row };
     });

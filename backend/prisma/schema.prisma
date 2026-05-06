@@ -37,6 +37,7 @@ model Funcionario {
   categoria_aps   String?
   nivel_aps       Int?
   jornada_horas   Int?
+  fecha_nacimiento DateTime?
   centro_salud_id Int?
   atrasos         Atrasos[]
   centro_salud    CentroSalud?         @relation(fields: [centro_salud_id], references: [id])
