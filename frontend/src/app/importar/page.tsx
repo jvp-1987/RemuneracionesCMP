@@ -46,7 +46,8 @@ export default function ImportarPage() {
 
   const fetchPeriods = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/periodos`);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      const res = await axios.get(`${apiUrl}/periodos`);
       setPeriods(res.data);
       if (res.data.length > 0) {
         setPeriodoId(String(res.data[0].id));
@@ -83,7 +84,8 @@ export default function ImportarPage() {
 
     try {
       const endpoint = importType === 'maestro' ? 'importar-maestro-mensual' : 'importar-validacion';
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/remuneraciones/${endpoint}?dryRun=true`, formData, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      const res = await axios.post(`${apiUrl}/remuneraciones/${endpoint}?dryRun=true`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setPreviewData(res.data);
@@ -107,7 +109,8 @@ export default function ImportarPage() {
 
     try {
       const endpoint = importType === 'maestro' ? 'importar-maestro-mensual' : 'importar-validacion';
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/remuneraciones/${endpoint}?dryRun=false`, formData, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      await axios.post(`${apiUrl}/remuneraciones/${endpoint}?dryRun=false`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setStep('success');
