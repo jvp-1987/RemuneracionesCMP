@@ -8,7 +8,8 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      process.env.CORS_ORIGIN ?? 'https://personal.cmpanguipulli.com',
+      process.env.CORS_ORIGIN ?? 'https://remuneracion.apscolab.com',
+      'https://api-remuneracion.apscolab.com',
       'https://remuneracionescmp.apscolab.com',
       'http://localhost:3000', 
       'http://localhost:3001', 
