@@ -13,42 +13,46 @@ model Usuario {
   rut             String        @unique
   nombre          String
   email           String        @unique
-  password        String        @default("123456")
   rol_enum        String
   centro_salud_id Int?
+  password        String        @default("123456")
   consolidados    Consolidado[]
   centro_salud    CentroSalud?  @relation(fields: [centro_salud_id], references: [id])
+
+  @@index([centro_salud_id], map: "Usuario_centro_salud_id_fkey")
 }
 
 model CentroSalud {
   id                 Int           @id @default(autoincrement())
   nombre             String
-  porcentaje_zona    Decimal       @default(0) @db.Decimal(5, 2)
-  porcentaje_dificil Decimal       @default(0) @db.Decimal(5, 2)
+  porcentaje_zona    Decimal       @default(0.00) @db.Decimal(5, 2)
+  porcentaje_dificil Decimal       @default(0.00) @db.Decimal(5, 2)
   consolidados       Consolidado[]
   funcionarios       Funcionario[]
   usuarios           Usuario[]
 }
 
 model Funcionario {
-  rut             String               @id
-  nombre_completo String
-  profesion_enum  String
-  categoria_aps   String?
-  nivel_aps       Int?
-  jornada_horas   Int?
+  rut              String               @id
+  nombre_completo  String
+  profesion_enum   String
+  categoria_aps    String?
+  nivel_aps        Int?
+  jornada_horas    Int?
+  centro_salud_id  Int?
   fecha_nacimiento DateTime?
-  centro_salud_id Int?
-  atrasos         Atrasos[]
-  centro_salud    CentroSalud?         @relation(fields: [centro_salud_id], references: [id])
-  horas_extras    HorasExtras[]
-  procedimientos  Procedimientos[]
-  turnos          TurnosUrgencia[]
-  viaticos        Viaticos[]
-  liquidaciones   LiquidacionMensual[]
-  contratos       Contrato[]
-  ausentismos     Ausentismo[]
-  asignaciones    AsignacionEspecial[]
+  asignaciones     AsignacionEspecial[]
+  atrasos          Atrasos[]
+  ausentismos      Ausentismo[]
+  contratos        Contrato[]
+  centro_salud     CentroSalud?         @relation(fields: [centro_salud_id], references: [id])
+  horas_extras     HorasExtras[]
+  liquidaciones    LiquidacionMensual[]
+  procedimientos   Procedimientos[]
+  turnos           TurnosUrgencia[]
+  viaticos         Viaticos[]
+
+  @@index([centro_salud_id], map: "Funcionario_centro_salud_id_fkey")
 }
 
 model EscalaSueldo {
@@ -96,6 +100,10 @@ model Consolidado {
   procedimientos           Procedimientos[]
   turnos_urgencia          TurnosUrgencia[]
   viaticos                 Viaticos[]
+
+  @@index([centro_salud_id], map: "Consolidado_centro_salud_id_fkey")
+  @@index([periodo_id], map: "Consolidado_periodo_id_fkey")
+  @@index([usuario_gestor_id], map: "Consolidado_usuario_gestor_id_fkey")
 }
 
 model HorasExtras {
@@ -105,8 +113,8 @@ model HorasExtras {
   programa_id      Int
   cantidad_25      Decimal          @db.Decimal(10, 2)
   cantidad_50      Decimal          @db.Decimal(10, 2)
-  monto_25         Decimal          @default(0) @db.Decimal(12, 2)
-  monto_50         Decimal          @default(0) @db.Decimal(12, 2)
+  monto_25         Decimal          @default(0.00) @db.Decimal(12, 2)
+  monto_50         Decimal          @default(0.00) @db.Decimal(12, 2)
   estado_25        EstadoValidacion @default(PENDIENTE)
   estado_50        EstadoValidacion @default(PENDIENTE)
   fecha_inicio     DateTime
@@ -116,6 +124,10 @@ model HorasExtras {
   consolidado      Consolidado      @relation(fields: [consolidado_id], references: [id])
   funcionario      Funcionario      @relation(fields: [funcionario_rut], references: [rut])
   programa         Programa         @relation(fields: [programa_id], references: [id])
+
+  @@index([consolidado_id], map: "HorasExtras_consolidado_id_fkey")
+  @@index([funcionario_rut], map: "HorasExtras_funcionario_rut_fkey")
+  @@index([programa_id], map: "HorasExtras_programa_id_fkey")
 }
 
 model TurnosUrgencia {
@@ -123,15 +135,18 @@ model TurnosUrgencia {
   consolidado_id        Int
   funcionario_rut       String
   cant_turnos_habiles   Int
-  valor_habil           Decimal?         @db.Decimal(12, 2)
   cant_turnos_inhabiles Int
-  valor_inhabil         Decimal?         @db.Decimal(12, 2)
   fecha_inicio          DateTime
   fecha_termino         DateTime
   monto_calculado       Decimal          @db.Decimal(12, 2)
   estado                EstadoValidacion @default(PENDIENTE)
+  valor_habil           Decimal?         @db.Decimal(12, 2)
+  valor_inhabil         Decimal?         @db.Decimal(12, 2)
   consolidado           Consolidado      @relation(fields: [consolidado_id], references: [id])
   funcionario           Funcionario      @relation(fields: [funcionario_rut], references: [rut])
+
+  @@index([consolidado_id], map: "TurnosUrgencia_consolidado_id_fkey")
+  @@index([funcionario_rut], map: "TurnosUrgencia_funcionario_rut_fkey")
 }
 
 model Viaticos {
@@ -147,6 +162,9 @@ model Viaticos {
   concepto        String?
   consolidado     Consolidado      @relation(fields: [consolidado_id], references: [id])
   funcionario     Funcionario      @relation(fields: [funcionario_rut], references: [rut])
+
+  @@index([consolidado_id], map: "Viaticos_consolidado_id_fkey")
+  @@index([funcionario_rut], map: "Viaticos_funcionario_rut_fkey")
 }
 
 model Atrasos {
@@ -155,13 +173,16 @@ model Atrasos {
   funcionario_rut  String
   fecha_inicio     DateTime?
   fecha_termino    DateTime?
-  minutos          Int              @default(0)
   tiempo_descuento String
-  monto_descuento  Decimal          @default(0) @db.Decimal(12, 2)
-  concepto         String?
+  monto_descuento  Decimal          @default(0.00) @db.Decimal(12, 2)
   estado           EstadoValidacion @default(PENDIENTE)
+  concepto         String?
+  minutos          Int              @default(0)
   consolidado      Consolidado      @relation(fields: [consolidado_id], references: [id])
   funcionario      Funcionario      @relation(fields: [funcionario_rut], references: [rut])
+
+  @@index([consolidado_id], map: "Atrasos_consolidado_id_fkey")
+  @@index([funcionario_rut], map: "Atrasos_funcionario_rut_fkey")
 }
 
 model Procedimientos {
@@ -175,6 +196,9 @@ model Procedimientos {
   estado               EstadoValidacion @default(PENDIENTE)
   consolidado          Consolidado      @relation(fields: [consolidado_id], references: [id])
   funcionario          Funcionario      @relation(fields: [funcionario_rut], references: [rut])
+
+  @@index([consolidado_id], map: "Procedimientos_consolidado_id_fkey")
+  @@index([funcionario_rut], map: "Procedimientos_funcionario_rut_fkey")
 }
 
 model HistorialAuditoria {
@@ -200,53 +224,46 @@ model EscalaHorasExtras {
 }
 
 model LiquidacionMensual {
-  id                   Int     @id @default(autoincrement())
+  id                   Int         @id @default(autoincrement())
   funcionario_rut      String
   periodo_id           Int
-  sueldo_base          Decimal @db.Decimal(12, 2)
-  total_haberes        Decimal @db.Decimal(12, 2)
-  total_descuentos     Decimal @db.Decimal(12, 2)
-  monto_liquido        Decimal @db.Decimal(12, 2)
-  monto_he_pagado      Decimal @default(0) @db.Decimal(12, 2)
-  monto_atrasos_pagado Decimal @default(0) @db.Decimal(12, 2)
-
-  // Datos granulares de validación
-  cantidad_he_25_real Decimal @default(0) @db.Decimal(10, 2)
-  cantidad_he_50_real Decimal @default(0) @db.Decimal(10, 2)
-  monto_viaticos_real Decimal @default(0) @db.Decimal(12, 2)
-  minutos_atraso_real Int     @default(0)
-
-  detalle_json      Json
-  fecha_importacion DateTime @default(now())
-
-  funcionario Funcionario @relation(fields: [funcionario_rut], references: [rut])
-  periodo     Periodo     @relation(fields: [periodo_id], references: [id])
+  sueldo_base          Decimal     @db.Decimal(12, 2)
+  total_haberes        Decimal     @db.Decimal(12, 2)
+  total_descuentos     Decimal     @db.Decimal(12, 2)
+  monto_liquido        Decimal     @db.Decimal(12, 2)
+  monto_he_pagado      Decimal     @default(0.00) @db.Decimal(12, 2)
+  monto_atrasos_pagado Decimal     @default(0.00) @db.Decimal(12, 2)
+  cantidad_he_25_real  Decimal     @default(0.00) @db.Decimal(10, 2)
+  cantidad_he_50_real  Decimal     @default(0.00) @db.Decimal(10, 2)
+  monto_viaticos_real  Decimal     @default(0.00) @db.Decimal(12, 2)
+  minutos_atraso_real  Int         @default(0)
+  detalle_json         Json
+  fecha_importacion    DateTime    @default(now())
+  funcionario          Funcionario @relation(fields: [funcionario_rut], references: [rut])
+  periodo              Periodo     @relation(fields: [periodo_id], references: [id])
 
   @@unique([funcionario_rut, periodo_id])
-}
-
-enum EstadoValidacion {
-  PENDIENTE
-  APROBADO
-  RECHAZADO
+  @@index([periodo_id], map: "LiquidacionMensual_periodo_id_fkey")
 }
 
 model Contrato {
   id              Int         @id @default(autoincrement())
   funcionario_rut String
-  tipo_contrato   String // Plazo Fijo, Indefinido, Honorarios, Reemplazo
+  tipo_contrato   String
   fecha_inicio    DateTime
   fecha_termino   DateTime?
   cargo           String?
   jornada_horas   Int?
-  estado          String // Vigente, Terminado
+  estado          String
   funcionario     Funcionario @relation(fields: [funcionario_rut], references: [rut])
+
+  @@index([funcionario_rut], map: "Contrato_funcionario_rut_fkey")
 }
 
 model Ausentismo {
   id                        Int              @id @default(autoincrement())
   funcionario_rut           String
-  tipo_ausentismo           String // Permiso Sin Goce Sueldo, Licencia Médica, Administrativo
+  tipo_ausentismo           String
   fecha_inicio              DateTime
   fecha_termino             DateTime
   dias_habiles              Int
@@ -254,16 +271,26 @@ model Ausentismo {
   monto_descuento_calculado Decimal?         @db.Decimal(12, 2)
   estado_validacion         EstadoValidacion @default(PENDIENTE)
   funcionario               Funcionario      @relation(fields: [funcionario_rut], references: [rut])
+
+  @@index([funcionario_rut], map: "Ausentismo_funcionario_rut_fkey")
 }
 
 model AsignacionEspecial {
   id                 Int              @id @default(autoincrement())
   funcionario_rut    String
-  tipo_asignacion    String // Responsabilidad, Desempeño, Zona, etc.
+  tipo_asignacion    String
   nro_resolucion     String
   fecha_inicio       DateTime
   fecha_termino      DateTime?
   monto_o_porcentaje Decimal          @db.Decimal(12, 2)
   estado_validacion  EstadoValidacion @default(PENDIENTE)
   funcionario        Funcionario      @relation(fields: [funcionario_rut], references: [rut])
+
+  @@index([funcionario_rut], map: "AsignacionEspecial_funcionario_rut_fkey")
+}
+
+enum EstadoValidacion {
+  PENDIENTE
+  APROBADO
+  RECHAZADO
 }

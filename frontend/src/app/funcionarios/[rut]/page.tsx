@@ -32,6 +32,8 @@ interface Funcionario {
     total_atrasos: number;
     total_viaticos: number;
     monto_he_real: number;
+    monto_he_25_maestro: number;
+    monto_he_50_maestro: number;
     monto_he_presupuesto: number;
     monto_atrasos_real: number;
     monto_atrasos_presupuesto: number;
@@ -133,7 +135,26 @@ export default function FuncionarioDetailPage() {
              </div>
              
              <div className="w-full lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-8">
-                <BentoCard title="Actividad" icon="schedule" value={`${funcionario.stats?.total_he || 0}`} unit="H.Extras" />
+                {funcionario.stats?.monto_he_real ? (
+                  <div className="bg-white rounded-[3rem] p-10 shadow-2xl border border-outline-variant/5 flex flex-col justify-between group overflow-hidden relative transition-all">
+                    <div>
+                      <div className="flex justify-between items-start mb-4">
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60">Horas Extras</h3>
+                        <span className="material-symbols-outlined text-3xl text-primary">schedule</span>
+                      </div>
+                      <div className="flex flex-col gap-1 mb-4">
+                        <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-outline">HE 25%</span><span className="text-sm font-black">${Math.round(funcionario.stats.monto_he_25_maestro || 0).toLocaleString('es-CL')}</span></div>
+                        <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-outline">HE 50%</span><span className="text-sm font-black">${Math.round(funcionario.stats.monto_he_50_maestro || 0).toLocaleString('es-CL')}</span></div>
+                      </div>
+                      <div className="flex items-baseline gap-2 pt-4 border-t border-outline-variant/10">
+                        <span className="text-[10px] font-black uppercase text-primary">Total Pagado:</span>
+                        <span className="text-xl font-black">${Math.round(funcionario.stats.monto_he_real).toLocaleString('es-CL')}</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <BentoCard title="Actividad" icon="schedule" value={`${funcionario.stats?.total_he || 0}`} unit="H.Extras" />
+                )}
                 <BentoCard title="Líquido Real" icon="payments" value={`$${(funcionario.stats?.monto_liquido_real || 0).toLocaleString('es-CL')}`} />
                 {funcionario.remuneracion_presupuesto && (
                   <div className="md:col-span-2 bg-gradient-to-br from-indigo-50 to-white rounded-[3rem] p-10 shadow-2xl border border-indigo-100/20">

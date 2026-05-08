@@ -115,7 +115,7 @@ export class RemuneracionesService {
         sueldo_base: Number(row['SUELDO BASE'] || 0),
         total_haberes: Number(row['TOTAL HABERES'] || 0),
         monto_he_pagado: Number(row['HORAS EXTRAS 25%'] || 0) + Number(row['HORAS EXTRAS 50%'] || 0),
-        monto_aps: Number(row['ASIGNACION APS'] || row['ASIG. APS'] || row['APS'] || 0),
+        monto_aps: Number(row['ASIGNACION APS'] || row['ASIG. APS'] || row['APS'] || row['ATENCION PRIMARIA'] || row['ATEN. PRIMARIA'] || 0),
         monto_zona: Number(row['ASIGNACION ZONA'] || row['ASIG. ZONA'] || row['ZONA'] || 0),
         monto_dificil: Number(row['DESEMPEÑO DIFICIL'] || row['ASIG. DIFICIL'] || row['DIFICIL'] || 0),
         detalle: { ...existing.detalle, ...row }

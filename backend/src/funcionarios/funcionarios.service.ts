@@ -221,7 +221,18 @@ export class FuncionariosService {
     }
 
     const latestLiq = funcionario.liquidaciones[0];
-    const remuneracion_presupuesto = await this.calculosService.obtenerDesgloseSueldo(rut);
+    let remuneracion_presupuesto = await this.calculosService.obtenerDesgloseSueldo(rut);
+
+    if (latestLiq && latestLiq.detalle_json) {
+      const d = latestLiq.detalle_json as any;
+      remuneracion_presupuesto = {
+        ...remuneracion_presupuesto,
+        escala_base: Number(latestLiq.sueldo_base),
+        asignacion_aps: Number(d['ASIGNACION APS'] || d['ASIG. APS'] || d['APS'] || d['ATENCION PRIMARIA'] || d['ATEN. PRIMARIA'] || remuneracion_presupuesto?.asignacion_aps || 0),
+        asignacion_zona: Number(d['ASIGNACION ZONA'] || d['ASIG. ZONA'] || d['ZONA'] || remuneracion_presupuesto?.asignacion_zona || 0),
+        desempeno_dificil: Number(d['DESEMPEÑO DIFICIL'] || d['ASIG. DIFICIL'] || d['DIFICIL'] || remuneracion_presupuesto?.desempeno_dificil || 0),
+      };
+    }
 
     return {
       ...funcionario,
@@ -237,6 +248,8 @@ export class FuncionariosService {
         monto_he_presupuesto: Number(heBudget._sum.monto_25 || 0) + Number(heBudget._sum.monto_50 || 0),
         monto_atrasos_presupuesto: Number(atrasosBudget._sum.monto_descuento || 0),
         monto_he_real: latestLiq ? Number(latestLiq.monto_he_pagado) : 0,
+        monto_he_25_maestro: latestLiq ? Number((latestLiq.detalle_json as any)['HORAS EXTRAS 25%'] || 0) : 0,
+        monto_he_50_maestro: latestLiq ? Number((latestLiq.detalle_json as any)['HORAS EXTRAS 50%'] || 0) : 0,
         monto_atrasos_real: latestLiq ? Number(latestLiq.monto_atrasos_pagado) : 0,
         total_haberes_real: latestLiq ? Number(latestLiq.total_haberes) : 0,
         total_descuentos_real: latestLiq ? Number(latestLiq.total_descuentos) : 0,
