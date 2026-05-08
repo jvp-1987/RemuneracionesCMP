@@ -62,6 +62,7 @@ export default function FuncionarioDetailPage() {
   const [funcionario, setFuncionario] = useState<Funcionario | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'perfil' | 'historial' | 'contratos' | 'ausentismos' | 'resoluciones'>('perfil');
+  const [selectedRawData, setSelectedRawData] = useState<any | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -207,7 +208,7 @@ export default function FuncionarioDetailPage() {
                        
                        <div className="mt-6 pt-6 border-t border-outline-variant/10 flex justify-end">
                          <button 
-                           onClick={() => alert(`Detalle completo del Maestro:\n${JSON.stringify(liq.detalle_json, null, 2)}`)}
+                           onClick={() => setSelectedRawData(liq.detalle_json)}
                            className="text-[9px] font-black text-primary uppercase tracking-widest hover:underline"
                          >
                            Ver Datos Brutos del Excel
@@ -293,6 +294,54 @@ export default function FuncionarioDetailPage() {
           </div>
         )}
       </div>
+
+      {selectedRawData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-[2rem] w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden"
+          >
+            <div className="p-6 border-b border-outline-variant/10 flex justify-between items-center bg-slate-50">
+              <h3 className="text-sm font-black uppercase tracking-widest text-primary">Detalle Completo del Maestro</h3>
+              <button 
+                onClick={() => setSelectedRawData(null)}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200 hover:bg-slate-300 transition-colors"
+              >
+                <span className="material-symbols-outlined text-sm">close</span>
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto bg-slate-50/50 flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                {Object.entries(selectedRawData)
+                  .filter(([k]) => !k.startsWith('calculated_') && k !== 'originalRut')
+                  .map(([key, value]) => {
+                    const strValue = String(value);
+                    if (!strValue || strValue === '0' || strValue === 'null' || strValue === 'undefined') return null;
+                    return (
+                      <div key={key} className="flex flex-col py-2 border-b border-outline-variant/5">
+                        <span className="text-[9px] font-bold text-outline uppercase tracking-wider">{key}</span>
+                        <span className="text-xs font-black text-slate-800 break-words mt-1">
+                          {typeof value === 'number' && value > 1000 ? `$${value.toLocaleString('es-CL')}` : strValue}
+                        </span>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+            
+            <div className="p-4 border-t border-outline-variant/10 bg-white flex justify-end">
+              <button 
+                onClick={() => setSelectedRawData(null)}
+                className="px-6 py-2 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-full hover:brightness-110 active:scale-95 transition-all"
+              >
+                Cerrar
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
