@@ -40,6 +40,15 @@ interface Funcionario {
     monto_liquido_real: number;
     periodo_maestro?: string;
   };
+  liquidaciones?: {
+    id: number;
+    periodo: { mes: number; anio: number };
+    sueldo_base: number;
+    total_haberes: number;
+    total_descuentos: number;
+    monto_liquido: number;
+    detalle_json: any;
+  }[];
   contratos?: any[];
   ausentismos?: any[];
   asignaciones?: any[];
@@ -142,25 +151,51 @@ export default function FuncionarioDetailPage() {
         )}
 
         {activeTab === 'historial' && (
-          <div className="bg-white rounded-[3rem] shadow-2xl border border-outline-variant/5 overflow-hidden">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="bg-slate-50 border-b border-outline-variant/10">
-                  <th className="px-10 py-6 text-[10px] font-black uppercase">Periodo</th>
-                  <th className="px-10 py-6 text-[10px] font-black uppercase text-center">Líquido</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-outline-variant/5">
-                {funcionario.stats?.periodo_maestro ? (
-                  <tr>
-                    <td className="px-10 py-7 font-black">{funcionario.stats.periodo_maestro}</td>
-                    <td className="px-10 py-7 text-center font-black text-rose-600">${Math.round(funcionario.stats.monto_liquido_real).toLocaleString('es-CL')}</td>
-                  </tr>
-                ) : (
-                  <tr><td colSpan={2} className="px-10 py-20 text-center text-outline uppercase text-[10px]">Sin historial registrado</td></tr>
-                )}
-              </tbody>
-            </table>
+          <div className="bg-white rounded-[3rem] shadow-2xl border border-outline-variant/5 p-10 space-y-6">
+             <div className="flex justify-between items-center mb-4">
+               <h3 className="text-2xl font-black uppercase">Historial de Pagos</h3>
+               <span className="text-[10px] font-black uppercase text-outline tracking-[0.2em]">Cargados desde Maestro</span>
+             </div>
+             
+             {!funcionario.liquidaciones || funcionario.liquidaciones.length === 0 ? (
+                <div className="p-20 text-center border-2 border-dashed border-outline-variant/20 rounded-[2rem]">
+                  <p className="text-[10px] font-black text-outline uppercase tracking-widest italic">Aún no se ha sincronizado el maestro de este funcionario.</p>
+                </div>
+             ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {funcionario.liquidaciones.map((liq) => (
+                    <div key={liq.id} className="bg-slate-50 p-8 rounded-[2rem] border border-outline-variant/10 hover:border-primary/30 transition-all group relative overflow-hidden">
+                       <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-[100px] -z-10 group-hover:scale-150 transition-transform"></div>
+                       <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.25em] mb-6">
+                         {new Date(liq.periodo.anio, liq.periodo.mes - 1).toLocaleString('es-CL', { month: 'long' })} {liq.periodo.anio}
+                       </h4>
+                       <div className="space-y-4">
+                         <div className="flex justify-between items-center border-b border-outline-variant/5 pb-3">
+                           <span className="text-[10px] font-bold text-outline uppercase tracking-widest">Total Haberes</span>
+                           <span className="text-sm font-black text-slate-700">${Math.round(liq.total_haberes || 0).toLocaleString('es-CL')}</span>
+                         </div>
+                         <div className="flex justify-between items-center border-b border-outline-variant/5 pb-3">
+                           <span className="text-[10px] font-bold text-outline uppercase tracking-widest">Total Descuentos</span>
+                           <span className="text-sm font-black text-slate-700">${Math.round(liq.total_descuentos || 0).toLocaleString('es-CL')}</span>
+                         </div>
+                         <div className="flex justify-between items-center pt-2">
+                           <span className="text-xs font-black text-slate-900 uppercase tracking-widest">Líquido Pagado</span>
+                           <span className="text-xl font-black text-emerald-600">${Math.round(liq.monto_liquido || 0).toLocaleString('es-CL')}</span>
+                         </div>
+                       </div>
+                       
+                       <div className="mt-6 pt-6 border-t border-outline-variant/10 flex justify-end">
+                         <button 
+                           onClick={() => alert(`Detalle completo del Maestro:\n${JSON.stringify(liq.detalle_json, null, 2)}`)}
+                           className="text-[9px] font-black text-primary uppercase tracking-widest hover:underline"
+                         >
+                           Ver Datos Brutos del Excel
+                         </button>
+                       </div>
+                    </div>
+                  ))}
+                </div>
+             )}
           </div>
         )}
 
