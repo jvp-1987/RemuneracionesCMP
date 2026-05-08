@@ -145,8 +145,8 @@ export class RemuneracionesService {
 
     const entriesArray = Array.from(consolidadoMap.entries());
     const batchSize = 100;
-    let count = 0;
-    const previewData = [];
+    let countTotal = 0;
+    const maestroPreviewBatch = [];
 
     for (let i = 0; i < entriesArray.length; i += batchSize) {
       const batch = entriesArray.slice(i, i + batchSize);
@@ -187,18 +187,17 @@ export class RemuneracionesService {
           })
         );
       } else {
-        // En dryRun solo poblamos la previsualización
         batch.forEach(([rut, data]) => {
-           if (previewData.length < 50) previewData.push(data);
+           if (maestroPreviewBatch.length < 50) maestroPreviewBatch.push(data);
         });
       }
-      count += batch.length;
+      countTotal += batch.length;
     }
 
     return {
       message: dryRun ? 'Previsualización de Maestro' : 'Maestro Mensual cargado con éxito',
-      totalProcesados: count,
-      preview: dryRun ? previewData : undefined
+      totalProcesados: countTotal,
+      preview: dryRun ? maestroPreviewBatch : undefined
     };
   }
 
