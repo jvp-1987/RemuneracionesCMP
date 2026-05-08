@@ -134,70 +134,59 @@ export class RemuneracionesService {
       current.detalle = { ...current.detalle, ...row };
     });
 
-    const ruts = Array.from(consolidadoMap.keys());
-    const existingLiquidaciones = await this.prisma.liquidacionMensual.findMany({
-      where: {
-        funcionario_rut: { in: ruts },
-        periodo_id: +periodoId
-      }
-    });
-    const existingMap = new Map(existingLiquidaciones.map(l => [l.funcionario_rut, l.id]));
+    let count = 0;
+    const previewData = [];
 
-    const entriesArrayMaestro = Array.from(consolidadoMap.entries());
-    const batchSizeMaestro = 100;
-    let totalProcesadosMaestro = 0;
-    const maestroPreviewFinal: any[] = [];
-
-    for (let i = 0; i < entriesArrayMaestro.length; i += batchSizeMaestro) {
-      const batch = entriesArrayMaestro.slice(i, i + batchSizeMaestro);
-      
-      if (!dryRun) {
-        await this.prisma.$transaction(
-          batch.map(([rut, data]) => {
-            const liquidacionId = existingMap.get(rut);
-            const payload = {
-              sueldo_base: data.sueldo_base,
-              total_haberes: data.total_haberes,
-              total_descuentos: data.total_descuentos || 0,
-              monto_liquido: data.monto_liquido || 0,
-              monto_he_pagado: data.monto_he_pagado,
-              monto_atrasos_pagado: data.monto_atrasos_pagado || 0,
-              detalle_json: {
-                ...data.detalle,
-                calculated_monto_aps: data.monto_aps,
-                calculated_monto_zona: data.monto_zona,
-                calculated_monto_dificil: data.monto_dificil
-              }
-            };
-
-            if (liquidacionId) {
-              return this.prisma.liquidacionMensual.update({
-                where: { id: liquidacionId },
-                data: payload
-              });
-            } else {
-              return this.prisma.liquidacionMensual.create({
-                data: {
-                  funcionario_rut: rut,
-                  periodo_id: +periodoId,
-                  ...payload
-                }
-              });
-            }
-          })
-        );
+    for (const [rut, data] of Array.from(consolidadoMap.entries())) {
+      if (dryRun) {
+        previewData.push(data);
       } else {
-        batch.forEach(([rut, data]) => {
-           if (maestroPreviewFinal.length < 50) maestroPreviewFinal.push(data);
+        await this.prisma.liquidacionMensual.upsert({
+          where: {
+            funcionario_rut_periodo_id: {
+              funcionario_rut: rut,
+              periodo_id: +periodoId
+            }
+          },
+          update: {
+            sueldo_base: data.sueldo_base,
+            total_haberes: data.total_haberes,
+            total_descuentos: data.total_descuentos || 0,
+            monto_liquido: data.monto_liquido || 0,
+            monto_he_pagado: data.monto_he_pagado,
+            monto_atrasos_pagado: data.monto_atrasos_pagado || 0,
+            detalle_json: {
+              ...data.detalle,
+              calculated_monto_aps: data.monto_aps,
+              calculated_monto_zona: data.monto_zona,
+              calculated_monto_dificil: data.monto_dificil
+            }
+          },
+          create: {
+            funcionario_rut: rut,
+            periodo_id: +periodoId,
+            sueldo_base: data.sueldo_base,
+            total_haberes: data.total_haberes,
+            total_descuentos: data.total_descuentos || 0,
+            monto_liquido: data.monto_liquido || 0,
+            monto_he_pagado: data.monto_he_pagado,
+            monto_atrasos_pagado: data.monto_atrasos_pagado || 0,
+            detalle_json: {
+              ...data.detalle,
+              calculated_monto_aps: data.monto_aps,
+              calculated_monto_zona: data.monto_zona,
+              calculated_monto_dificil: data.monto_dificil
+            }
+          }
         });
       }
-      totalProcesadosMaestro += batch.length;
+      count++;
     }
 
     return {
       message: dryRun ? 'Previsualización de Maestro' : 'Maestro Mensual cargado con éxito',
-      totalProcesados: totalProcesadosMaestro,
-      preview: dryRun ? maestroPreviewFinal : undefined
+      totalProcesados: count,
+      preview: dryRun ? previewData.slice(0, 50) : undefined
     };
   }
 
@@ -426,12 +415,12 @@ export class RemuneracionesService {
     ]);
 
     // 4. Ingesta Masiva de Datos (Batch Mode)
-    const CONCURRENCY_VAL = 20;
-    const entriesArrayValidacion = Array.from(finalEntries.entries());
-    let totalProcesadosValidacion = 0;
+    const CONCURRENCY = 20;
+    const entriesArray = Array.from(finalEntries.entries());
+    let count = 0;
 
-    for (let i = 0; i < entriesArrayValidacion.length; i += CONCURRENCY_VAL) {
-      const chunk = entriesArrayValidacion.slice(i, i + CONCURRENCY_VAL);
+    for (let i = 0; i < entriesArray.length; i += CONCURRENCY) {
+      const chunk = entriesArray.slice(i, i + CONCURRENCY);
       
       await Promise.all(chunk.map(async ([rut, entries]) => {
         const total25 = entries.reduce((acc, curr) => acc + (curr.cant_25 || 0), 0);
@@ -452,61 +441,58 @@ export class RemuneracionesService {
         });
 
         // B. Poblar Tablas de Detalle (Workflow Finanzas/Control)
-        // B. Poblar Tablas de Detalle en Batch
-        const horasExtrasData = [];
-        const viaticosData = [];
-        const atrasosData = [];
-        const turnosData = [];
-
         for (const entry of entries) {
           if (entry.category === 'PRESUPUESTARIA' || entry.category === 'PROGRAMA_HE') {
-            horasExtrasData.push({
-              consolidado_id: consolidado.id,
-              funcionario_rut: rut,
-              programa_id: entry.category === 'PRESUPUESTARIA' ? 1 : parseInt(entry.concept.split(' ')[0]) || 1,
-              cantidad_25: entry.cant_25 || 0,
-              cantidad_50: entry.cant_50 || 0,
-              fecha_inicio: new Date(),
-              fecha_termino: new Date(),
+            await this.prisma.horasExtras.create({
+              data: {
+                consolidado_id: consolidado.id,
+                funcionario_rut: rut,
+                programa_id: entry.category === 'PRESUPUESTARIA' ? 1 : parseInt(entry.concept.split(' ')[0]) || 1,
+                cantidad_25: entry.cant_25 || 0,
+                cantidad_50: entry.cant_50 || 0,
+                fecha_inicio: new Date(),
+                fecha_termino: new Date(),
+              }
             });
           } else if (entry.category === 'VIATICOS') {
-            viaticosData.push({
-              consolidado_id: consolidado.id,
-              funcionario_rut: rut,
-              tipo_destino: 'NACIONAL' as any,
-              fecha_inicio: new Date(),
-              fecha_termino: new Date(),
-              monto_calculado: entry.viaticos || 0,
-              concepto: entry.concept,
+            await this.prisma.viaticos.create({
+              data: {
+                consolidado_id: consolidado.id,
+                funcionario_rut: rut,
+                tipo_destino: 'NACIONAL',
+                fecha_inicio: new Date(),
+                fecha_termino: new Date(),
+                monto_calculado: entry.viaticos || 0,
+                concepto: entry.concept,
+              }
             });
           } else if (entry.category === 'ATRASOS') {
-            atrasosData.push({
-              consolidado_id: consolidado.id,
-              funcionario_rut: rut,
-              minutos: entry.minutos_atraso || 0,
-              tiempo_descuento: `${entry.minutos_atraso} min`,
-              monto_descuento: 0,
-              concepto: entry.concept,
+             await this.prisma.atrasos.create({
+              data: {
+                consolidado_id: consolidado.id,
+                funcionario_rut: rut,
+                fecha_inicio: null,
+                fecha_termino: null,
+                minutos: entry.minutos_atraso || 0,
+                tiempo_descuento: `${entry.minutos_atraso} min`,
+                monto_descuento: 0,
+                concepto: entry.concept,
+              }
             });
           } else if (entry.category === 'PROGRAMA_TURNO') {
-            turnosData.push({
-              consolidado_id: consolidado.id,
-              funcionario_rut: rut,
-              cant_turnos_habiles: entry.cant_habil || 0,
-              cant_turnos_inhabiles: entry.cant_inhabil || 0,
-              fecha_inicio: new Date(),
-              fecha_termino: new Date(),
-              monto_calculado: 0,
+            await this.prisma.turnosUrgencia.create({
+              data: {
+                consolidado_id: consolidado.id,
+                funcionario_rut: rut,
+                cant_turnos_habiles: entry.cant_habil || 0,
+                cant_turnos_inhabiles: entry.cant_inhabil || 0,
+                fecha_inicio: new Date(),
+                fecha_termino: new Date(),
+                monto_calculado: 0,
+              }
             });
           }
         }
-
-        await Promise.all([
-          this.prisma.horasExtras.createMany({ data: horasExtrasData }),
-          this.prisma.viaticos.createMany({ data: viaticosData }),
-          this.prisma.atrasos.createMany({ data: atrasosData }),
-          this.prisma.turnosUrgencia.createMany({ data: turnosData }),
-        ]);
 
         // C. Actualizar Liquidación Mensual para KPI rápidos
         await this.prisma.liquidacionMensual.upsert({
@@ -530,12 +516,12 @@ export class RemuneracionesService {
           }
         });
       }));
-      totalProcesadosValidacion += chunk.length;
+      count += chunk.length;
     }
 
     return {
       message: 'Consolidación de Auditoría completada con éxito',
-      totalFuncionarios: totalProcesadosValidacion,
+      totalFuncionarios: count,
       consolidadoId: consolidado.id
     };
   }
