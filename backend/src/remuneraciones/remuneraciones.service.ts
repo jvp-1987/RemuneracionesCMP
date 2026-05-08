@@ -143,13 +143,13 @@ export class RemuneracionesService {
     });
     const existingMap = new Map(existingLiquidaciones.map(l => [l.funcionario_rut, l.id]));
 
-    const entriesArray = Array.from(consolidadoMap.entries());
-    const batchSize = 100;
-    let countTotal = 0;
-    const maestroPreviewBatch = [];
+    const entriesArrayMaestro = Array.from(consolidadoMap.entries());
+    const batchSizeMaestro = 100;
+    let totalProcesadosMaestro = 0;
+    const maestroPreviewFinal = [];
 
-    for (let i = 0; i < entriesArray.length; i += batchSize) {
-      const batch = entriesArray.slice(i, i + batchSize);
+    for (let i = 0; i < entriesArrayMaestro.length; i += batchSizeMaestro) {
+      const batch = entriesArrayMaestro.slice(i, i + batchSizeMaestro);
       
       if (!dryRun) {
         await this.prisma.$transaction(
@@ -188,16 +188,16 @@ export class RemuneracionesService {
         );
       } else {
         batch.forEach(([rut, data]) => {
-           if (maestroPreviewBatch.length < 50) maestroPreviewBatch.push(data);
+           if (maestroPreviewFinal.length < 50) maestroPreviewFinal.push(data);
         });
       }
-      countTotal += batch.length;
+      totalProcesadosMaestro += batch.length;
     }
 
     return {
       message: dryRun ? 'Previsualización de Maestro' : 'Maestro Mensual cargado con éxito',
-      totalProcesados: countTotal,
-      preview: dryRun ? maestroPreviewBatch : undefined
+      totalProcesados: totalProcesadosMaestro,
+      preview: dryRun ? maestroPreviewFinal : undefined
     };
   }
 
@@ -426,12 +426,12 @@ export class RemuneracionesService {
     ]);
 
     // 4. Ingesta Masiva de Datos (Batch Mode)
-    const CONCURRENCY = 20;
-    const entriesArray = Array.from(finalEntries.entries());
-    let count = 0;
+    const CONCURRENCY_VAL = 20;
+    const entriesArrayValidacion = Array.from(finalEntries.entries());
+    let totalProcesadosValidacion = 0;
 
-    for (let i = 0; i < entriesArray.length; i += CONCURRENCY) {
-      const chunk = entriesArray.slice(i, i + CONCURRENCY);
+    for (let i = 0; i < entriesArrayValidacion.length; i += CONCURRENCY_VAL) {
+      const chunk = entriesArrayValidacion.slice(i, i + CONCURRENCY_VAL);
       
       await Promise.all(chunk.map(async ([rut, entries]) => {
         const total25 = entries.reduce((acc, curr) => acc + (curr.cant_25 || 0), 0);
@@ -530,12 +530,12 @@ export class RemuneracionesService {
           }
         });
       }));
-      count += chunk.length;
+      totalProcesadosValidacion += chunk.length;
     }
 
     return {
       message: 'Consolidación de Auditoría completada con éxito',
-      totalFuncionarios: count,
+      totalFuncionarios: totalProcesadosValidacion,
       consolidadoId: consolidado.id
     };
   }
