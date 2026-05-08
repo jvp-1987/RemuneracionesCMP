@@ -140,7 +140,10 @@ export default function FuncionarioDetailPage() {
                   <div className="bg-white rounded-[3rem] p-10 shadow-2xl border border-outline-variant/5 flex flex-col justify-between group overflow-hidden relative transition-all">
                     <div>
                       <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60">Horas Extras</h3>
+                        <div className="flex flex-col">
+                          <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60">Horas Extras</h3>
+                          {funcionario.stats?.periodo_maestro && <span className="text-[9px] font-bold text-primary uppercase mt-1">({funcionario.stats.periodo_maestro})</span>}
+                        </div>
                         <span className="material-symbols-outlined text-3xl text-primary">schedule</span>
                       </div>
                       <div className="flex flex-col gap-1 mb-4">
@@ -156,10 +159,24 @@ export default function FuncionarioDetailPage() {
                 ) : (
                   <BentoCard title="Actividad" icon="schedule" value={`${funcionario.stats?.total_he || 0}`} unit="H.Extras" />
                 )}
-                <BentoCard title="Líquido Real" icon="payments" value={`$${(funcionario.stats?.monto_liquido_real || 0).toLocaleString('es-CL')}`} />
+                <div className="bg-white rounded-[3rem] p-10 shadow-2xl border border-outline-variant/5 flex flex-col justify-between group overflow-hidden relative transition-all">
+                  <div>
+                    <div className="flex justify-between items-start mb-8">
+                      <div className="flex flex-col">
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60">Líquido Real</h3>
+                        {funcionario.stats?.periodo_maestro && <span className="text-[9px] font-bold text-emerald-600 uppercase mt-1">({funcionario.stats.periodo_maestro})</span>}
+                      </div>
+                      <span className="material-symbols-outlined text-3xl text-primary">payments</span>
+                    </div>
+                    <div className="flex items-baseline gap-3"><span className="text-5xl font-black tracking-tighter">${(funcionario.stats?.monto_liquido_real || 0).toLocaleString('es-CL')}</span></div>
+                  </div>
+                </div>
                 {funcionario.remuneracion_presupuesto && (
                   <div className="md:col-span-2 bg-gradient-to-br from-indigo-50 to-white rounded-[3rem] p-10 shadow-2xl border border-indigo-100/20">
-                     <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-indigo-900/60 mb-6">Estructura Remunerativa</h3>
+                     <div className="flex justify-between items-center mb-6">
+                       <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-indigo-900/60">Estructura Remunerativa</h3>
+                       {funcionario.stats?.periodo_maestro && <span className="text-[9px] font-black bg-indigo-900/10 text-indigo-900 px-3 py-1 rounded-full uppercase">{funcionario.stats.periodo_maestro}</span>}
+                     </div>
                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                         <div className="bg-white/60 p-6 rounded-[2rem] shadow-sm"><p className="text-[9px] font-black uppercase mb-2">Base Escala</p><p className="text-lg font-black">${Math.round(funcionario.remuneracion_presupuesto.escala_base).toLocaleString('es-CL')}</p></div>
                         <div className="bg-white/60 p-6 rounded-[2rem] shadow-sm"><p className="text-[9px] font-black uppercase mb-2">Asig. APS</p><p className="text-lg font-black">${Math.round(funcionario.remuneracion_presupuesto.asignacion_aps).toLocaleString('es-CL')}</p></div>
