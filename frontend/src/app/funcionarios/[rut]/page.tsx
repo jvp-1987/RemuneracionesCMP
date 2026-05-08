@@ -323,7 +323,7 @@ export default function FuncionarioDetailPage() {
                       <div key={key} className="flex flex-col py-2 border-b border-outline-variant/5">
                         <span className="text-[9px] font-bold text-outline uppercase tracking-wider">{key}</span>
                         <span className="text-xs font-black text-slate-800 break-words mt-1">
-                          {typeof value === 'number' && value > 1000 ? `$${value.toLocaleString('es-CL')}` : strValue}
+                          {typeof value === 'number' && value > 1000 && key !== 'AÑO' ? `$${value.toLocaleString('es-CL')}` : strValue}
                         </span>
                       </div>
                     );
