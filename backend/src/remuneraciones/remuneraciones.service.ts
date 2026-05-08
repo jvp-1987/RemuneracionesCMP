@@ -134,10 +134,6 @@ export class RemuneracionesService {
       current.detalle = { ...current.detalle, ...row };
     });
 
-    let count = 0;
-    const previewData = [];
-
-    // 4. Ingesta Masiva de Datos con Optimización de Transacciones
     const ruts = Array.from(consolidadoMap.keys());
     const existingLiquidaciones = await this.prisma.liquidacionMensual.findMany({
       where: {
@@ -150,51 +146,59 @@ export class RemuneracionesService {
     const entriesArray = Array.from(consolidadoMap.entries());
     const batchSize = 100;
     let count = 0;
+    const previewData = [];
 
     for (let i = 0; i < entriesArray.length; i += batchSize) {
       const batch = entriesArray.slice(i, i + batchSize);
       
-      await this.prisma.$transaction(
-        batch.map(([rut, data]) => {
-          const liquidacionId = existingMap.get(rut);
-          const payload = {
-            sueldo_base: data.sueldo_base,
-            total_haberes: data.total_haberes,
-            total_descuentos: data.total_descuentos || 0,
-            monto_liquido: data.monto_liquido || 0,
-            monto_he_pagado: data.monto_he_pagado,
-            monto_atrasos_pagado: data.monto_atrasos_pagado || 0,
-            detalle_json: {
-              ...data.detalle,
-              calculated_monto_aps: data.monto_aps,
-              calculated_monto_zona: data.monto_zona,
-              calculated_monto_dificil: data.monto_dificil
-            }
-          };
-
-          if (liquidacionId) {
-            return this.prisma.liquidacionMensual.update({
-              where: { id: liquidacionId },
-              data: payload
-            });
-          } else {
-            return this.prisma.liquidacionMensual.create({
-              data: {
-                funcionario_rut: rut,
-                periodo_id: +periodoId,
-                ...payload
+      if (!dryRun) {
+        await this.prisma.$transaction(
+          batch.map(([rut, data]) => {
+            const liquidacionId = existingMap.get(rut);
+            const payload = {
+              sueldo_base: data.sueldo_base,
+              total_haberes: data.total_haberes,
+              total_descuentos: data.total_descuentos || 0,
+              monto_liquido: data.monto_liquido || 0,
+              monto_he_pagado: data.monto_he_pagado,
+              monto_atrasos_pagado: data.monto_atrasos_pagado || 0,
+              detalle_json: {
+                ...data.detalle,
+                calculated_monto_aps: data.monto_aps,
+                calculated_monto_zona: data.monto_zona,
+                calculated_monto_dificil: data.monto_dificil
               }
-            });
-          }
-        })
-      );
+            };
+
+            if (liquidacionId) {
+              return this.prisma.liquidacionMensual.update({
+                where: { id: liquidacionId },
+                data: payload
+              });
+            } else {
+              return this.prisma.liquidacionMensual.create({
+                data: {
+                  funcionario_rut: rut,
+                  periodo_id: +periodoId,
+                  ...payload
+                }
+              });
+            }
+          })
+        );
+      } else {
+        // En dryRun solo poblamos la previsualización
+        batch.forEach(([rut, data]) => {
+           if (previewData.length < 50) previewData.push(data);
+        });
+      }
       count += batch.length;
     }
 
     return {
       message: dryRun ? 'Previsualización de Maestro' : 'Maestro Mensual cargado con éxito',
       totalProcesados: count,
-      preview: dryRun ? previewData.slice(0, 50) : undefined
+      preview: dryRun ? previewData : undefined
     };
   }
 
