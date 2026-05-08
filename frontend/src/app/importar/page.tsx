@@ -290,30 +290,30 @@ export default function ImportarPage() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="bg-primary text-white p-8 rounded-3xl shadow-lg flex flex-col justify-between h-40">
                   <p className="text-[10px] font-black uppercase tracking-widest opacity-80">Funcionarios</p>
-                  <h4 className="text-5xl font-black">{previewData.totalFuncionarios}</h4>
-                  <p className="text-[10px] font-bold uppercase tracking-widest mt-1">Con novedades detectadas</p>
+                  <h4 className="text-5xl font-black">{importType === 'maestro' ? previewData.totalProcesados : previewData.totalFuncionarios}</h4>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mt-1">{importType === 'maestro' ? 'Registros Procesados' : 'Con novedades detectadas'}</p>
                 </div>
                 <div className="bg-white p-8 rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col justify-between h-40">
-                   <p className="text-[10px] font-black uppercase tracking-widest text-[#2563eb]">Registros de Auditoría</p>
-                   <h4 className="text-5xl font-black text-on-surface text-[#2563eb] font-mono">{previewData.totalRegistros}</h4>
+                   <p className="text-[10px] font-black uppercase tracking-widest text-[#2563eb]">{importType === 'maestro' ? 'Líneas Maestro' : 'Registros de Auditoría'}</p>
+                   <h4 className="text-5xl font-black text-on-surface text-[#2563eb] font-mono">{importType === 'maestro' ? (previewData.preview?.length || 0) : previewData.totalRegistros}</h4>
                    <p className="text-[10px] font-bold uppercase tracking-widest text-outline">Líneas analizadas</p>
                 </div>
                 <div className="bg-white p-8 rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col justify-between h-40 font-mono">
-                   <p className="text-[10px] font-black uppercase tracking-widest text-[#7c3aed]">Conceptos Detectados</p>
-                   <h4 className="text-4xl font-black text-on-surface text-[#7c3aed]">MULTI</h4>
-                   <p className="text-[10px] font-bold uppercase tracking-widest text-outline">HE / Turnos / Viáticos</p>
+                   <p className="text-[10px] font-black uppercase tracking-widest text-[#7c3aed]">{importType === 'maestro' ? 'Sueldo Base' : 'Conceptos Detectados'}</p>
+                   <h4 className="text-4xl font-black text-on-surface text-[#7c3aed]">{importType === 'maestro' ? 'OK' : 'MULTI'}</h4>
+                   <p className="text-[10px] font-bold uppercase tracking-widest text-outline">{importType === 'maestro' ? 'Análisis Estructural' : 'HE / Turnos / Viáticos'}</p>
                 </div>
                 <div className="bg-white p-8 rounded-3xl border border-outline-variant/10 shadow-sm flex flex-col justify-between h-40 font-mono">
-                   <p className="text-[10px] font-black uppercase tracking-widest text-rose-500">Auditoría de Horas</p>
+                   <p className="text-[10px] font-black uppercase tracking-widest text-rose-500">{importType === 'maestro' ? 'Sincronización' : 'Auditoría de Horas'}</p>
                    <h4 className="text-4xl font-black text-rose-500">ACTIVA</h4>
-                   <p className="text-[10px] font-bold text-outline uppercase tracking-widest">Validación de cantidades</p>
+                   <p className="text-[10px] font-bold text-outline uppercase tracking-widest">{importType === 'maestro' ? 'Validación de Columnas' : 'Validación de cantidades'}</p>
                 </div>
               </div>
 
               <div className="bg-white rounded-[2.5rem] border border-outline-variant/10 shadow-xl overflow-hidden">
                 <div className="px-8 py-6 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container/30">
                   <h3 className="text-sm font-black text-secondary uppercase tracking-widest">
-                    Análisis Desglosado por Programa ({periods.find(p => String(p.id) === periodoId) ? `${getMonthName(periods.find(p => String(p.id) === periodoId)!.mes)} ${periods.find(p => String(p.id) === periodoId)!.anio}` : '...'})
+                    {importType === 'maestro' ? 'Vista Previa de Funcionarios' : 'Análisis Desglosado por Programa'} ({periods.find(p => String(p.id) === periodoId) ? `${getMonthName(periods.find(p => String(p.id) === periodoId)!.mes)} ${periods.find(p => String(p.id) === periodoId)!.anio}` : '...'})
                   </h3>
                 </div>
 
@@ -322,54 +322,84 @@ export default function ImportarPage() {
                     <thead>
                       <tr className="text-[10px] font-black text-outline uppercase tracking-[0.2em]">
                         <th className="pb-4 pl-4">RUT</th>
-                        <th className="pb-4">CATEGORÍA</th>
-                        <th className="pb-4">CONCEPTO / PROGRAMA</th>
-                        <th className="pb-4 text-center">HE 25% / HÁBIL</th>
-                        <th className="pb-4 text-center">HE 50% / INHÁBIL</th>
-                        <th className="pb-4 text-right pr-4">OTROS (V/A)</th>
+                        {importType === 'maestro' ? (
+                          <>
+                            <th className="pb-4">NOMBRE</th>
+                            <th className="pb-4 text-right">SUELDO BASE</th>
+                            <th className="pb-4 text-right">TOTAL HABERES</th>
+                            <th className="pb-4 text-right pr-4">MONTO LÍQUIDO</th>
+                          </>
+                        ) : (
+                          <>
+                            <th className="pb-4">CATEGORÍA</th>
+                            <th className="pb-4">CONCEPTO / PROGRAMA</th>
+                            <th className="pb-4 text-center">HE 25% / HÁBIL</th>
+                            <th className="pb-4 text-center">HE 50% / INHÁBIL</th>
+                            <th className="pb-4 text-right pr-4">OTROS (V/A)</th>
+                          </>
+                        )}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-outline-variant/5">
-                      {previewData.preview.map((item: any, idx: number) => (
+                      {previewData.preview?.map((item: any, idx: number) => (
                         <tr key={`${item.rut}-${idx}`} className="group hover:bg-slate-50 transition-all">
                           <td className="py-4 pl-4">
                             <span className="text-xs font-black text-slate-400 group-hover:text-primary transition-colors font-mono">{item.rut}</span>
                           </td>
-                          <td className="py-4">
-                            <span className={cn(
-                              "text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-tighter",
-                              item.category === 'PRESUPUESTARIA' ? "bg-blue-100 text-blue-700" :
-                              item.category === 'PROGRAMA_HE' ? "bg-purple-100 text-purple-700" :
-                              item.category === 'PROGRAMA_TURNO' ? "bg-emerald-100 text-emerald-700" :
-                              "bg-slate-100 text-slate-600"
-                            )}>
-                              {item.category.replace('_', ' ')}
-                            </span>
-                          </td>
-                          <td className="py-4">
-                             <div className="flex items-center gap-2">
-                                <span className="text-xs font-black text-slate-700 uppercase tracking-tight leading-tight">{item.concept}</span>
-                             </div>
-                          </td>
-                          <td className="py-4 text-center">
-                            <span className="text-sm font-black text-slate-800">
-                              {item.cant_25 || item.cant_habil || '-'}
-                            </span>
-                          </td>
-                          <td className="py-4 text-center">
-                            <span className="text-sm font-black text-slate-800">
-                              {item.cant_50 || item.cant_inhabil || '-'}
-                            </span>
-                          </td>
-                          <td className="py-4 text-right pr-4">
-                            {item.viaticos ? (
-                              <span className="text-xs font-black text-emerald-600 font-mono">{formatCLP(item.viaticos)}</span>
-                            ) : item.minutos_atraso ? (
-                              <span className="text-xs font-black text-rose-600 font-mono">{item.minutos_atraso} min</span>
-                            ) : (
-                              <span className="text-slate-200">-</span>
-                            )}
-                          </td>
+                          {importType === 'maestro' ? (
+                            <>
+                              <td className="py-4">
+                                <span className="text-xs font-bold text-slate-700">{item.nombre || 'Sin Nombre'}</span>
+                              </td>
+                              <td className="py-4 text-right">
+                                <span className="text-sm font-black text-slate-800">{formatCLP(item.sueldo_base || 0)}</span>
+                              </td>
+                              <td className="py-4 text-right">
+                                <span className="text-sm font-black text-slate-800">{formatCLP(item.total_haberes || 0)}</span>
+                              </td>
+                              <td className="py-4 text-right pr-4">
+                                <span className="text-sm font-black text-primary">{formatCLP(item.monto_liquido || 0)}</span>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td className="py-4">
+                                <span className={cn(
+                                  "text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-tighter",
+                                  item.category === 'PRESUPUESTARIA' ? "bg-blue-100 text-blue-700" :
+                                  item.category === 'PROGRAMA_HE' ? "bg-purple-100 text-purple-700" :
+                                  item.category === 'PROGRAMA_TURNO' ? "bg-emerald-100 text-emerald-700" :
+                                  "bg-slate-100 text-slate-600"
+                                )}>
+                                  {item.category ? item.category.replace('_', ' ') : 'S/C'}
+                                </span>
+                              </td>
+                              <td className="py-4">
+                                 <div className="flex items-center gap-2">
+                                    <span className="text-xs font-black text-slate-700 uppercase tracking-tight leading-tight">{item.concept || 'N/A'}</span>
+                                 </div>
+                              </td>
+                              <td className="py-4 text-center">
+                                <span className="text-sm font-black text-slate-800">
+                                  {item.cant_25 || item.cant_habil || '-'}
+                                </span>
+                              </td>
+                              <td className="py-4 text-center">
+                                <span className="text-sm font-black text-slate-800">
+                                  {item.cant_50 || item.cant_inhabil || '-'}
+                                </span>
+                              </td>
+                              <td className="py-4 text-right pr-4">
+                                {item.viaticos ? (
+                                  <span className="text-xs font-black text-emerald-600 font-mono">{formatCLP(item.viaticos)}</span>
+                                ) : item.minutos_atraso ? (
+                                  <span className="text-xs font-black text-rose-600 font-mono">{item.minutos_atraso} min</span>
+                                ) : (
+                                  <span className="text-slate-200">-</span>
+                                )}
+                              </td>
+                            </>
+                          )}
                         </tr>
                       ))}
                     </tbody>
@@ -383,9 +413,9 @@ export default function ImportarPage() {
                       <ShieldCheck className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="text-xl font-black uppercase tracking-tight">Confirmar Integración Granular</h4>
+                      <h4 className="text-xl font-black uppercase tracking-tight">{importType === 'maestro' ? 'Confirmar Carga del Maestro' : 'Confirmar Integración Granular'}</h4>
                       <p className="text-[10px] font-medium opacity-70 italic uppercase tracking-widest">
-                        Se importarán los programas de {previewData.totalFuncionarios} funcionarios al periodo {periods.find(p => String(p.id) === periodoId) ? `${getMonthName(periods.find(p => String(p.id) === periodoId)!.mes)} ${periods.find(p => String(p.id) === periodoId)!.anio}` : '...'}
+                        {importType === 'maestro' ? `Se importarán los datos principales de ${previewData.totalProcesados} funcionarios al periodo` : `Se importarán los programas de ${previewData.totalFuncionarios} funcionarios al periodo`} {periods.find(p => String(p.id) === periodoId) ? `${getMonthName(periods.find(p => String(p.id) === periodoId)!.mes)} ${periods.find(p => String(p.id) === periodoId)!.anio}` : '...'}
                       </p>
                     </div>
                  </div>
@@ -396,7 +426,7 @@ export default function ImportarPage() {
                       className="px-10 py-4 bg-white text-primary rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center gap-2"
                     >
                       {loading ? <RefreshCcw className="w-3 h-3 animate-spin" /> : <ChevronRight className="w-4 h-4" />}
-                      Consolidar Auditoría Detallada
+                      {importType === 'maestro' ? 'Confirmar Carga' : 'Consolidar Auditoría Detallada'}
                     </button>
                  </div>
               </div>
