@@ -38,6 +38,7 @@ export default function ImportarPage() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [periods, setPeriods] = useState<PeriodoDB[]>([]);
   const [activeGroup, setActiveGroup] = useState<string>('TODOS');
+  const [periodsError, setPeriodsError] = useState<string | null>(null);
 
   React.useEffect(() => {
     setMounted(true);
@@ -45,15 +46,19 @@ export default function ImportarPage() {
   }, []);
 
   const fetchPeriods = async () => {
+    setPeriodsError(null);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-      const res = await axios.get(`${apiUrl}/periodos`);
-      setPeriods(res.data);
-      if (res.data.length > 0) {
+      const res = await axios.get(`${apiUrl}/periodos`, { timeout: 10000 });
+      if (res.data && res.data.length > 0) {
+        setPeriods(res.data);
         setPeriodoId(String(res.data[0].id));
+      } else {
+        setPeriodsError('No hay períodos disponibles. Inicialice los períodos en Configuración.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching periods:', err);
+      setPeriodsError('No se pudo conectar con el servidor. Verifique que el backend esté activo.');
     }
   };
 
@@ -207,13 +212,22 @@ export default function ImportarPage() {
             <span className="text-[10px] font-black text-outline uppercase tracking-widest mb-1 block">Período Seleccionado</span>
             <div className="flex items-center gap-3">
               <Calendar className="w-5 h-5 text-primary" />
-              <select 
-                value={periodoId} 
-                onChange={(e) => setPeriodoId(e.target.value)}
-                className="font-black text-on-surface text-sm outline-none bg-transparent appearance-none cursor-pointer w-full"
-              >
-                {periods.map(p => <option key={p.id} value={String(p.id)}>{getMonthName(p.mes)} {p.anio}</option>)}
-              </select>
+              {periodsError ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-rose-500">{periodsError}</span>
+                  <button onClick={fetchPeriods} className="text-[10px] font-black text-primary underline">Reintentar</button>
+                </div>
+              ) : periods.length === 0 ? (
+                <span className="text-xs text-outline italic">Cargando períodos...</span>
+              ) : (
+                <select 
+                  value={periodoId} 
+                  onChange={(e) => setPeriodoId(e.target.value)}
+                  className="font-black text-on-surface text-sm outline-none bg-transparent appearance-none cursor-pointer w-full"
+                >
+                  {periods.map(p => <option key={p.id} value={String(p.id)}>{getMonthName(p.mes)} {p.anio}</option>)}
+                </select>
+              )}
             </div>
           </div>
         )}
