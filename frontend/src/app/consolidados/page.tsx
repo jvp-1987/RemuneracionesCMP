@@ -22,15 +22,17 @@ interface Consolidado {
 }
 
 const MONTHS = [
-  { mes: 2, label: 'Febrero 2026' },
+  { mes: 1, label: 'Enero 2026' },
   { mes: 3, label: 'Marzo 2026' },
-  { mes: 5, label: 'Mayo 2024' },
+  { mes: 4, label: 'Abril 2026' },
+  { mes: 5, label: 'Mayo 2026' },
+  { mes: 6, label: 'Junio 2026' },
 ];
 
 export default function ConsolidadosPage() {
   const [consolidados, setConsolidados] = useState<Consolidado[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedMonth, setSelectedMonth] = useState(3);
+  const [selectedMonth, setSelectedMonth] = useState(4);
   const [search, setSearch] = useState('');
   const router = useRouter();
 

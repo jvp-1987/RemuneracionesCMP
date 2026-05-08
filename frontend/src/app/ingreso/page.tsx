@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from "@/lib/utils";
@@ -280,6 +281,7 @@ function MiniCalendar({ startDate, endDate, onChange, periodoInicio, periodoFin,
 
 // ─── Página Principal ──────────────────────────────────────────────────────────
 export default function IngresoPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>('fondos_presupuestarios');
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [rows, setRows] = useState<RowData[]>([]);
@@ -405,7 +407,11 @@ export default function IngresoPage() {
       setShowSuccess(true);
       setRows([]);
       addRow();
-      setTimeout(() => setShowSuccess(false), 3000);
+      // Redirigir a consolidados después de 1.5 segundos para que vean el éxito
+      setTimeout(() => {
+        setShowSuccess(false);
+        router.push('/consolidados');
+      }, 1500);
     } catch (error) {
       console.error('Error saving records:', error);
       alert('Error al guardar. Revise la consola del backend.');
