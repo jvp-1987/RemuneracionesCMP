@@ -288,6 +288,7 @@ export default function IngresoPage() {
   const [periodoId, setPeriodoId] = useState('2');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [activeRowId, setActiveRowId] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   
@@ -365,11 +366,15 @@ export default function IngresoPage() {
   // ─── Búsqueda Funcionarios ─────────────────────────────────────────────────
   useEffect(() => {
     const fetchSearch = async () => {
-      if (searchQuery.length < 2) { setSearchResults([]); return; }
+      if (searchQuery.length < 2) { setSearchResults([]); setSearchError(null); return; }
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/funcionarios/search?q=${searchQuery}`);
+        setSearchError(null);
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || ''}/funcionarios/search?q=${searchQuery}`);
         setSearchResults(res.data);
-      } catch (e) { console.error(e); }
+      } catch (e: any) { 
+        console.error(e);
+        setSearchError(e.message || "Error de red");
+      }
     };
     const delay = setTimeout(fetchSearch, 300);
     return () => clearTimeout(delay);
@@ -391,7 +396,7 @@ export default function IngresoPage() {
     setLoading(true);
     try {
       const transacciones = validRows.map(r => ({ ...r }));
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/ingresos/manual`, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL || ''}/ingresos/manual`, {
         centro_salud_id: centroId,
         periodo_id: periodoId,
         tipo: activeTab,
@@ -416,7 +421,7 @@ export default function IngresoPage() {
       const formData = new FormData();
       formData.append('file', maestroFile);
 
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/remuneraciones/importar-maestro-mensual?periodoId=${periodoId}`, formData, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL || ''}/remuneraciones/importar-maestro-mensual?periodoId=${periodoId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
@@ -668,7 +673,11 @@ export default function IngresoPage() {
                 </div>
               ) : searchQuery.length >= 2 ? (
                 <div className="py-8 text-center text-slate-400">
-                  <p className="text-[11px] font-bold uppercase tracking-widest">No se encontraron resultados</p>
+                  {searchError ? (
+                    <p className="text-[11px] font-bold text-rose-500 uppercase tracking-widest">{searchError}</p>
+                  ) : (
+                    <p className="text-[11px] font-bold uppercase tracking-widest">No se encontraron resultados</p>
+                  )}
                 </div>
               ) : null}
             </motion.div>
