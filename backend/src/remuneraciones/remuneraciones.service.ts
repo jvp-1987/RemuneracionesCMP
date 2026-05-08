@@ -146,7 +146,7 @@ export class RemuneracionesService {
     const entriesArrayMaestro = Array.from(consolidadoMap.entries());
     const batchSizeMaestro = 100;
     let totalProcesadosMaestro = 0;
-    const maestroPreviewFinal = [];
+    const maestroPreviewFinal: any[] = [];
 
     for (let i = 0; i < entriesArrayMaestro.length; i += batchSizeMaestro) {
       const batch = entriesArrayMaestro.slice(i, i + batchSizeMaestro);
