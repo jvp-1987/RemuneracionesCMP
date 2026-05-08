@@ -227,6 +227,11 @@ export class FuncionariosService {
       const d = latestLiq.detalle_json as any;
       remuneracion_presupuesto = {
         ...remuneracion_presupuesto,
+        porcentaje_zona: remuneracion_presupuesto?.porcentaje_zona || 0,
+        porcentaje_dificil: remuneracion_presupuesto?.porcentaje_dificil || 0,
+        total_base_mensual: remuneracion_presupuesto?.total_base_mensual || 0,
+        valor_hora: remuneracion_presupuesto?.valor_hora || 0,
+        is_real_data: true,
         escala_base: Number(latestLiq.sueldo_base),
         asignacion_aps: Number(d['ASIGNACION APS'] || d['ASIG. APS'] || d['APS'] || d['ATENCION PRIMARIA'] || d['ATEN. PRIMARIA'] || remuneracion_presupuesto?.asignacion_aps || 0),
         asignacion_zona: Number(d['ASIGNACION ZONA'] || d['ASIG. ZONA'] || d['ZONA'] || remuneracion_presupuesto?.asignacion_zona || 0),
