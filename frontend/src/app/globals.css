@@ -24,6 +24,9 @@
   --color-surface-container-low: var(--surface-container-low);
   --color-surface-container: var(--surface-container);
   --color-surface-container-high: var(--surface-container-high);
+  
+  --color-success: var(--success);
+  --color-on-success: var(--on-success);
 }
 
 :root {
@@ -64,6 +67,9 @@
   --surface-container-highest: #dfe3e8;
   --surface-bright: #f7f9fe;
   --surface-dim: #d7dadf;
+  
+  --success: #15803d;
+  --on-success: #ffffff;
   
   --glass: rgba(255, 255, 255, 0.95); /* Increased opacity */
   --border: rgba(0, 18, 20, 0.12); /* Based on on-surface */

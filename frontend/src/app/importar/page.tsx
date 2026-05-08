@@ -86,7 +86,8 @@ export default function ImportarPage() {
       const endpoint = importType === 'maestro' ? 'importar-maestro-mensual' : 'importar-validacion';
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       const res = await axios.post(`${apiUrl}/remuneraciones/${endpoint}?dryRun=true`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 120000 // 2 minutos para archivos grandes
       });
       setPreviewData(res.data);
       setStep('preview');
@@ -111,7 +112,8 @@ export default function ImportarPage() {
       const endpoint = importType === 'maestro' ? 'importar-maestro-mensual' : 'importar-validacion';
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       await axios.post(`${apiUrl}/remuneraciones/${endpoint}?dryRun=false`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 300000 // 5 minutos para la sincronización final
       });
       setStep('success');
     } catch (err: any) {
