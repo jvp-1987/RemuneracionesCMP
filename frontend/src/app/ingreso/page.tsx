@@ -602,6 +602,80 @@ export default function IngresoPage() {
         </div>
       </div>
 
+      {/* Modal Vincular Funcionario Global */}
+      <AnimatePresence>
+        {activeRowId && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-6"
+            onClick={() => setActiveRowId(null)}
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              onClick={e => e.stopPropagation()}
+              className="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-md border border-slate-100"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <Search className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Vincular Funcionario</h3>
+                    <p className="text-[10px] font-bold text-slate-400">Busque por RUT o Nombre</p>
+                  </div>
+                </div>
+                <button onClick={() => setActiveRowId(null)} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200 transition-colors">
+                  <span className="text-sm font-black">X</span>
+                </button>
+              </div>
+
+              <div className="relative mb-4">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                <input 
+                  autoFocus
+                  className="w-full bg-slate-50 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold outline-none border border-slate-100 focus:border-primary focus:bg-white transition-all shadow-sm"
+                  placeholder="Ej: 15.123.456-7 o Juan Pérez..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  onKeyDown={e => {
+                      if (e.key === 'Escape') setActiveRowId(null);
+                  }}
+                />
+              </div>
+
+              {searchResults.length > 0 ? (
+                <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-2 no-scrollbar">
+                  {searchResults.map(f => (
+                    <button 
+                      key={f.rut}
+                      onClick={() => handleSelectFuncionario(f.rut, f.nombre_completo, f.categoria_aps, f.nivel_aps?.toString())}
+                      className="w-full text-left p-4 hover:bg-slate-50 rounded-2xl transition-all border border-transparent hover:border-slate-200 flex justify-between items-center group bg-white shadow-sm"
+                    >
+                      <div>
+                        <p className="text-xs font-black text-slate-700 group-hover:text-primary leading-tight mb-1">{f.nombre_completo}</p>
+                        <p className="text-[10px] font-bold text-slate-400 tracking-wide">{f.rut}</p>
+                      </div>
+                      <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                        Cat. {f.categoria_aps}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              ) : searchQuery.length >= 2 ? (
+                <div className="py-8 text-center text-slate-400">
+                  <p className="text-[11px] font-bold uppercase tracking-widest">No se encontraron resultados</p>
+                </div>
+              ) : null}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Tabs ─────────────────────────────────────────────────────────────── */}
       <div className="flex items-center p-1.5 bg-slate-200/50 rounded-[2.5rem] mb-12 self-start max-w-full overflow-x-auto no-scrollbar">
         {TABS.map(tab => {
@@ -698,56 +772,32 @@ export default function IngresoPage() {
                     
                     {/* Columna 1: Calendario de Referencia o Búsqueda Inline */}
                     <div className="relative">
-                      {!row.rut && activeRowId === row.id ? (
-                        <div className="bg-white rounded-3xl border border-primary/20 shadow-xl p-6 absolute inset-0 z-50">
-                          <div className="flex items-center gap-3 mb-4">
-                            <Search className="w-5 h-5 text-primary" />
-                            <span className="text-[11px] font-black uppercase text-primary">Buscar Funcionario</span>
+                        {activeTab !== 'atrasos' ? (
+                          <>
+                            <div className="flex items-center gap-2 mb-4">
+                              <Calendar className="w-4 h-4 text-slate-400" />
+                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Fecha de Registro</span>
+                            </div>
+                            <MiniCalendar
+                              startDate={row.fecha_inicio}
+                              endDate={row.fecha_termino}
+                              onChange={(s, e) => {
+                                setRows(prev => prev.map(r => r.id === row.id ? { ...r, fecha_inicio: s, fecha_termino: e } : r));
+                              }}
+                              periodoInicio={periodoActual.inicio}
+                              periodoFin={periodoActual.fin}
+                              tabColor={activeTabInfo.color}
+                            />
+                          </>
+                        ) : (
+                          <div className="h-full flex items-center justify-center bg-slate-50 rounded-3xl border border-slate-100 p-8 text-center">
+                             <div>
+                               <AlertTriangle className="w-8 h-8 text-slate-300 mx-auto mb-4" />
+                               <p className="text-[11px] font-black uppercase tracking-widest text-slate-400">Sumatoria del Período</p>
+                               <p className="text-[9px] font-bold text-slate-400 mt-2">Los atrasos y permisos no requieren especificar días exactos.</p>
+                             </div>
                           </div>
-                          <input 
-                            autoFocus
-                            className="w-full bg-slate-50 rounded-xl px-4 py-3 text-xs font-bold outline-none border border-slate-100 focus:border-primary transition-all"
-                            placeholder="RUT o Nombre..."
-                            value={searchQuery}
-                            onChange={e => setSearchQuery(e.target.value)}
-                            onKeyDown={e => {
-                                if (e.key === 'Escape') setActiveRowId(null);
-                            }}
-                          />
-                          <div className="mt-4 space-y-2 max-h-48 overflow-y-auto">
-                            {searchResults.map(f => (
-                              <button 
-                                key={f.rut}
-                                onClick={() => handleSelectFuncionario(f.rut, f.nombre_completo, f.categoria_aps, f.nivel_aps?.toString())}
-                                className="w-full text-left p-3 hover:bg-slate-50 rounded-xl transition-all border border-transparent hover:border-slate-100 flex justify-between items-center group"
-                              >
-                                <div>
-                                  <p className="text-[11px] font-black text-slate-700 group-hover:text-primary">{f.nombre_completo}</p>
-                                  <p className="text-[9px] font-bold text-slate-400">{f.rut}</p>
-                                </div>
-                                <span className="text-[8px] font-black bg-slate-100 px-2 py-1 rounded-md">{f.categoria_aps}</span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="flex items-center gap-2 mb-4">
-                            <Calendar className="w-4 h-4 text-slate-400" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Fecha de Registro</span>
-                          </div>
-                          <MiniCalendar
-                            startDate={row.fecha_inicio}
-                            endDate={row.fecha_termino}
-                            onChange={(s, e) => {
-                              setRows(prev => prev.map(r => r.id === row.id ? { ...r, fecha_inicio: s, fecha_termino: e } : r));
-                            }}
-                            periodoInicio={periodoActual.inicio}
-                            periodoFin={periodoActual.fin}
-                            tabColor={activeTabInfo.color}
-                          />
-                        </>
-                      )}
+                        )}
                     </div>
 
                     {/* Columna 2: Inputs de Totales */}
@@ -907,8 +957,12 @@ export default function IngresoPage() {
                 <tr className="bg-slate-50 border-b border-slate-100">
                   <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-16">#</th>
                   <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest w-64">Funcionario</th>
-                  <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Fecha Exacta</th>
-                  <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">⚠</th>
+                  {activeTab !== 'atrasos' && (
+                    <>
+                      <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Fecha Exacta</th>
+                      <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">⚠</th>
+                    </>
+                  )}
 
                   {activeTab === 'fondos_presupuestarios' && (<>
                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">25%</th>
@@ -966,77 +1020,44 @@ export default function IngresoPage() {
                             >
                                 <Plus className="w-3 h-3" /> Vincular
                             </button>
-                            
-                            {activeRowId === row.id && (
-                                <motion.div 
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="absolute left-0 top-full mt-2 w-[350px] bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 z-50"
-                                >
-                                    <div className="relative mb-3">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                                        <input 
-                                            autoFocus
-                                            className="w-full bg-slate-50 rounded-xl pl-9 pr-4 py-2.5 text-xs font-bold outline-none border border-slate-100 focus:border-primary transition-all"
-                                            placeholder="Buscar funcionario..."
-                                            value={searchQuery}
-                                            onChange={e => setSearchQuery(e.target.value)}
-                                            onKeyDown={e => {
-                                                if (e.key === 'Escape') setActiveRowId(null);
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="space-y-1 max-h-60 overflow-y-auto">
-                                        {searchResults.map(f => (
-                                            <button 
-                                                key={f.rut}
-                                                onClick={() => handleSelectFuncionario(f.rut, f.nombre_completo, f.categoria_aps, f.nivel_aps?.toString())}
-                                                className="w-full text-left p-2.5 hover:bg-slate-50 rounded-lg transition-all flex justify-between items-center group"
-                                            >
-                                                <div>
-                                                    <p className="text-xs font-black text-slate-700 group-hover:text-primary leading-tight">{f.nombre_completo}</p>
-                                                    <p className="text-[9px] font-bold text-slate-400">{f.rut}</p>
-                                                </div>
-                                                <span className="text-[9px] font-black text-slate-400 bg-slate-100 px-2 py-1 rounded">{f.categoria_aps}</span>
-                                            </button>
-                                        ))}
-                                    </div>
-                                </motion.div>
-                            )}
                           </div>
                         )}
                       </td>
                       {/* Rango de Fechas */}
-                      <td className="px-4 py-3">
-                        <div className="flex flex-col gap-1">
-                          <input
-                            type="date"
-                            value={row.fecha_inicio}
-                            onChange={e => updateRow(row.id, 'fecha_inicio', e.target.value)}
-                            className={cn(
-                              "bg-slate-50 rounded-lg py-1 px-2 text-[9px] font-bold text-slate-600 outline-none border",
-                              isOutOfPeriod(row.fecha_inicio, row.fecha_termino) ? "border-amber-300 bg-amber-50" : "border-slate-200"
-                            )}
-                          />
-                          <input
-                            type="date"
-                            value={row.fecha_termino}
-                            onChange={e => updateRow(row.id, 'fecha_termino', e.target.value)}
-                            className={cn(
-                              "bg-slate-50 rounded-lg py-1 px-2 text-[9px] font-bold text-slate-600 outline-none border",
-                              isOutOfPeriod(row.fecha_inicio, row.fecha_termino) ? "border-amber-300 bg-amber-50" : "border-slate-200"
-                            )}
-                          />
-                        </div>
-                      </td>
-                      {/* Indicador desfase */}
-                      <td className="px-4 py-3 text-center">
-                        {outOfPeriod ? (
-                          <span title="Fecha fuera del período de medición">
-                            <AlertTriangle className="w-4 h-4 text-amber-500 mx-auto" />
-                          </span>
-                        ) : <span className="text-slate-200 text-xs">—</span>}
-                      </td>
+                      {activeTab !== 'atrasos' && (
+                        <>
+                          <td className="px-4 py-3">
+                            <div className="flex flex-col gap-1">
+                              <input
+                                type="date"
+                                value={row.fecha_inicio}
+                                onChange={e => updateRow(row.id, 'fecha_inicio', e.target.value)}
+                                className={cn(
+                                  "bg-slate-50 rounded-lg py-1 px-2 text-[9px] font-bold text-slate-600 outline-none border",
+                                  isOutOfPeriod(row.fecha_inicio, row.fecha_termino) ? "border-amber-300 bg-amber-50" : "border-slate-200"
+                                )}
+                              />
+                              <input
+                                type="date"
+                                value={row.fecha_termino}
+                                onChange={e => updateRow(row.id, 'fecha_termino', e.target.value)}
+                                className={cn(
+                                  "bg-slate-50 rounded-lg py-1 px-2 text-[9px] font-bold text-slate-600 outline-none border",
+                                  isOutOfPeriod(row.fecha_inicio, row.fecha_termino) ? "border-amber-300 bg-amber-50" : "border-slate-200"
+                                )}
+                              />
+                            </div>
+                          </td>
+                          {/* Indicador desfase */}
+                          <td className="px-4 py-3 text-center">
+                            {outOfPeriod ? (
+                              <span title="Fecha fuera del período de medición">
+                                <AlertTriangle className="w-4 h-4 text-amber-500 mx-auto" />
+                              </span>
+                            ) : <span className="text-slate-200 text-xs">—</span>}
+                          </td>
+                        </>
+                      )}
 
                       {activeTab === 'fondos_presupuestarios' && (<>
                         <td className="px-4 py-3"><input type="number" step="0.01" value={row.cantidad_25} onChange={e => updateRow(row.id, 'cantidad_25', e.target.value)} className="w-16 bg-slate-50 rounded-lg py-2 text-center text-[11px] font-black border border-slate-200" /></td>
