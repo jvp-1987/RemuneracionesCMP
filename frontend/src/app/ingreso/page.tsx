@@ -377,7 +377,7 @@ export default function IngresoPage() {
 
   const handleSelectFuncionario = (rut: string, nombre: string, cat: string, niv: string) => {
     if (activeRowId) {
-      setRows(prev => prev.map(r => r.id === activeRowId ? { ...r, rut, nombre, categoria_aps: cat, nivel_aps: niv } : r));
+      setRows(prev => prev.map(r => r.id === activeRowId ? { ...r, rut, nombre, categoria_aps: cat || '', nivel_aps: niv || '' } : r));
     }
     setSearchQuery('');
     setSearchResults([]);
@@ -653,7 +653,7 @@ export default function IngresoPage() {
                   {searchResults.map(f => (
                     <button 
                       key={f.rut}
-                      onClick={() => handleSelectFuncionario(f.rut, f.nombre_completo, f.categoria_aps, f.nivel_aps?.toString())}
+                      onClick={() => handleSelectFuncionario(f.rut, f.nombre_completo, f.categoria_aps || '', f.nivel_aps?.toString() || '')}
                       className="w-full text-left p-4 hover:bg-slate-50 rounded-2xl transition-all border border-transparent hover:border-slate-200 flex justify-between items-center group bg-white shadow-sm"
                     >
                       <div>
