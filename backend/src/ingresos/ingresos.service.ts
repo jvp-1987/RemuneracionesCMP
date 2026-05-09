@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class IngresosService {
   constructor(private prisma: PrismaService) {}
 
-  async guardarIngresos(data: any) {
+  async guardarIngresos(data: any, file?: any) {
     const { centro_salud_id, periodo_id, tipo, transacciones } = data;
 
     if (!centro_salud_id || !periodo_id || !tipo || !transacciones || !Array.isArray(transacciones)) {
