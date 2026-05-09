@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class IngresosService {
   constructor(private prisma: PrismaService) {}
 
-  async guardarIngresos(data: any, file?: any) {
+  async guardarIngresos(data: any) {
     const { centro_salud_id, periodo_id, tipo, transacciones } = data;
 
     if (!centro_salud_id || !periodo_id || !tipo || !transacciones || !Array.isArray(transacciones)) {
@@ -54,16 +54,6 @@ export class IngresosService {
           periodo_id: periodo.id,
           estado_actual_enum: 'En Proceso',
         }
-      });
-    }
-
-    // Si viene un archivo de respaldo, guardarlo en el consolidado
-    if (file) {
-      const base64 = file.buffer.toString('base64');
-      const dataUri = `data:${file.mimetype};base64,${base64}`;
-      await this.prisma.consolidado.update({
-        where: { id: consolidado.id },
-        data: { url_respaldo: dataUri }
       });
     }
 

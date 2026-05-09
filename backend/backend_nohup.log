@@ -2763,70 +2763,139 @@ Node.js v25.9.0
 
 [[90m10:11:08 PM[0m] Found 3 errors. Watching for file changes.
 
-] [39m[32mAsignacionesEspecialesController {/asignaciones-especiales}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63366  - [39m05/08/2026, 10:10:42 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/asignaciones-especiales, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63366  - [39m05/08/2026, 10:10:42 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/asignaciones-especiales, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63366  - [39m05/08/2026, 10:10:42 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/asignaciones-especiales/funcionario/:rut, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63366  - [39m05/08/2026, 10:10:42 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/asignaciones-especiales/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63366  - [39m05/08/2026, 10:10:42 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/asignaciones-especiales/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63366  - [39m05/08/2026, 10:10:42 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAlertasRrhhController {/alertas-rrhh}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63366  - [39m05/08/2026, 10:10:42 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/alertas-rrhh, GET} route[39m[38;5;3m +0ms[39m
-[2J[3J[H[[90m10:10:42 PM[0m] File change detected. Starting incremental compilation...
+[2J[3J[H[[90m10:51:30 PM[0m] File change detected. Starting incremental compilation...
 
-[[90m10:10:43 PM[0m] Found 0 errors. Watching for file changes.
+[96msrc/ingresos/ingresos.service.ts[0m:[93m104[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput> & HorasExtrasUncheckedCreateInput'.
 
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPrismaModule dependencies initialized[39m[38;5;3m +9ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPassportModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +2ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCalculosModule dependencies initialized[39m[38;5;3m +1ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mReportesModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCentrosSaludModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mProgramasModule dependencies initialized[39m[38;5;3m +1ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPeriodosModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTurnosUrgenciaModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mViaticosModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAtrasosModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mProcedimientosModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mContratosModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAusentismosModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAsignacionesEspecialesModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAlertasRrhhModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mHorasExtrasModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mRemuneracionesModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConsolidadosModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuditModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mIngresosModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUsuariosModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mFuncionariosModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAppController {/}:[39m[38;5;3m +3ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/debug-routes, GET} route[39m[38;5;3m +1ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/auth}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/login, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/bootstrap, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mCentrosSaludController {/centros-salud}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/centros-salud, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/centros-salud, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/centros-salud/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/centros-salud/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/centros-salud/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUsuariosController {/usuarios}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/usuarios/change-password, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/usuarios, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/usuarios, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/usuarios/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/usuarios/:id, PATCH} route[39m[38;5;3m +1ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/usuarios/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mProgramasController {/programas}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/programas, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/programas, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/programas/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/programas/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/programas/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mFuncionariosController {/funcionarios}:[39m[38;5;3m +0ms[39m
+[7m104[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m10525[0m:[93m5[0m
+    [7m10525[0m     data: XOR<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: HorasExtrasSelect<DefaultArgs> | null | undefined; include?: HorasExtrasInclude<DefaultArgs> | null | undefined; data: (Without<...> & HorasExtrasUncheckedCreateInput) | (Without<...> & HorasExtrasCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m126[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput> & TurnosUrgenciaUncheckedCreateInput'.
+
+[7m126[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m11532[0m:[93m5[0m
+    [7m11532[0m     data: XOR<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: TurnosUrgenciaSelect<DefaultArgs> | null | undefined; include?: TurnosUrgenciaInclude<DefaultArgs> | null | undefined; data: (Without<...> & TurnosUrgenciaUncheckedCreateInput) | (Without<...> & TurnosUrgenciaCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m141[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<ViaticosCreateInput, ViaticosUncheckedCreateInput> & ViaticosUncheckedCreateInput'.
+
+[7m141[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m12512[0m:[93m5[0m
+    [7m12512[0m     data: XOR<ViaticosCreateInput, ViaticosUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: ViaticosSelect<DefaultArgs> | null | undefined; include?: ViaticosInclude<DefaultArgs> | null | undefined; data: (Without<...> & ViaticosUncheckedCreateInput) | (Without<...> & ViaticosCreateInput); }'
+
+[[90m10:51:30 PM[0m] Found 3 errors. Watching for file changes.
+
+[2J[3J[H[[90m10:51:42 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m61[0m:[93m9[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m61[0m     if (file) {
+[7m  [0m [91m        ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m62[0m:[93m22[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m62[0m       const base64 = file.buffer.toString('base64');
+[7m  [0m [91m                     ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m63[0m:[93m31[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m63[0m       const dataUri = `data:${file.mimetype};base64,${base64}`;
+[7m  [0m [91m                              ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m104[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput> & HorasExtrasUncheckedCreateInput'.
+
+[7m104[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m10525[0m:[93m5[0m
+    [7m10525[0m     data: XOR<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: HorasExtrasSelect<DefaultArgs> | null | undefined; include?: HorasExtrasInclude<DefaultArgs> | null | undefined; data: (Without<...> & HorasExtrasUncheckedCreateInput) | (Without<...> & HorasExtrasCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m126[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput> & TurnosUrgenciaUncheckedCreateInput'.
+
+[7m126[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m11532[0m:[93m5[0m
+    [7m11532[0m     data: XOR<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: TurnosUrgenciaSelect<DefaultArgs> | null | undefined; include?: TurnosUrgenciaInclude<DefaultArgs> | null | undefined; data: (Without<...> & TurnosUrgenciaUncheckedCreateInput) | (Without<...> & TurnosUrgenciaCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m141[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<ViaticosCreateInput, ViaticosUncheckedCreateInput> & ViaticosUncheckedCreateInput'.
+
+[7m141[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m12512[0m:[93m5[0m
+    [7m12512[0m     data: XOR<ViaticosCreateInput, ViaticosUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: ViaticosSelect<DefaultArgs> | null | undefined; include?: ViaticosInclude<DefaultArgs> | null | undefined; data: (Without<...> & ViaticosUncheckedCreateInput) | (Without<...> & ViaticosCreateInput); }'
+
+[[90m10:51:42 PM[0m] Found 6 errors. Watching for file changes.
+
+[2J[3J[H[[90m10:52:09 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m94[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput> & HorasExtrasUncheckedCreateInput'.
+
+[7m94[0m             url_respaldo: tx.url_respaldo || null
+[7m  [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m10525[0m:[93m5[0m
+    [7m10525[0m     data: XOR<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: HorasExtrasSelect<DefaultArgs> | null | undefined; include?: HorasExtrasInclude<DefaultArgs> | null | undefined; data: (Without<...> & HorasExtrasUncheckedCreateInput) | (Without<...> & HorasExtrasCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m116[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput> & TurnosUrgenciaUncheckedCreateInput'.
+
+[7m116[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m11532[0m:[93m5[0m
+    [7m11532[0m     data: XOR<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: TurnosUrgenciaSelect<DefaultArgs> | null | undefined; include?: TurnosUrgenciaInclude<DefaultArgs> | null | undefined; data: (Without<...> & TurnosUrgenciaUncheckedCreateInput) | (Without<...> & TurnosUrgenciaCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m131[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<ViaticosCreateInput, ViaticosUncheckedCreateInput> & ViaticosUncheckedCreateInput'.
+
+[7m131[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m12512[0m:[93m5[0m
+    [7m12512[0m     data: XOR<ViaticosCreateInput, ViaticosUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: ViaticosSelect<DefaultArgs> | null | undefined; include?: ViaticosInclude<DefaultArgs> | null | undefined; data: (Without<...> & ViaticosUncheckedCreateInput) | (Without<...> & ViaticosCreateInput); }'
+
+[[90m10:52:09 PM[0m] Found 3 errors. Watching for file changes.
+
+32mFuncionariosController {/funcionarios}:[39m[38;5;3m +0ms[39m
 [32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios, POST} route[39m[38;5;3m +0ms[39m
 [32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios/importar, POST} route[39m[38;5;3m +0ms[39m
 [32m[Nest] 63422  - [39m05/08/2026, 10:10:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios/search, GET} route[39m[38;5;3m +0ms[39m
@@ -3112,47 +3181,7 @@ Backend running on port: 3001
 
 [[90m10:11:08 PM[0m] Found 3 errors. Watching for file changes.
 
-+0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/contratos, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/contratos, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/contratos/funcionario/:rut, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/contratos/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/contratos/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAusentismosController {/ausentismos}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/ausentismos, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/ausentismos/webhook, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/ausentismos, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/ausentismos/funcionario/:rut, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/ausentismos/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/ausentismos/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAsignacionesEspecialesController {/asignaciones-especiales}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/asignaciones-especiales, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/asignaciones-especiales, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/asignaciones-especiales/funcionario/:rut, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/asignaciones-especiales/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/asignaciones-especiales/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAlertasRrhhController {/alertas-rrhh}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/alertas-rrhh, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63442  - [39m05/08/2026, 10:10:50 PM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +843ms[39m
-[31m[Nest] 63442  - [39m05/08/2026, 10:10:50 PM [31m  ERROR[39m [38;5;3m[NestApplication] [39m[31mError: listen EADDRINUSE: address already in use 0.0.0.0:3001[39m[38;5;3m +9ms[39m
-node:net:2008
-    const ex = new UVExceptionWithHostPort(err, 'listen', address, port);
-               ^
-
-Error: listen EADDRINUSE: address already in use 0.0.0.0:3001
-    at Server.setupListenHandle [as _listen2] (node:net:2008:16)
-    at listenInCluster (node:net:2065:12)
-    at node:net:2274:7
-    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
-  code: 'EADDRINUSE',
-  errno: -48,
-  syscall: 'listen',
-  address: '0.0.0.0',
-  port: 3001
-}
-
-Node.js v25.9.0
-[2J[3J[H[[90m10:11:08 PM[0m] File change detected. Starting incremental compilation...
+[2J[3J[H[[90m10:51:30 PM[0m] File change detected. Starting incremental compilation...
 
 [96msrc/ingresos/ingresos.service.ts[0m:[93m104[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput> & HorasExtrasUncheckedCreateInput'.
 
@@ -3184,69 +3213,207 @@ Node.js v25.9.0
     [7m     [0m [96m    ~~~~[0m
     The expected type comes from property 'data' which is declared here on type '{ select?: ViaticosSelect<DefaultArgs> | null | undefined; include?: ViaticosInclude<DefaultArgs> | null | undefined; data: (Without<...> & ViaticosUncheckedCreateInput) | (Without<...> & ViaticosCreateInput); }'
 
-[[90m10:11:08 PM[0m] Found 3 errors. Watching for file changes.
+[[90m10:51:30 PM[0m] Found 3 errors. Watching for file changes.
 
-423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAppController {/}:[39m[38;5;3m +5ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/, GET} route[39m[38;5;3m +4ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/debug-routes, GET} route[39m[38;5;3m +3ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/auth}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/login, POST} route[39m[38;5;3m +1ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/bootstrap, GET} route[39m[38;5;3m +1ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mCentrosSaludController {/centros-salud}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/centros-salud, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/centros-salud, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/centros-salud/:id, GET} route[39m[38;5;3m +1ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/centros-salud/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/centros-salud/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mUsuariosController {/usuarios}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/usuarios/change-password, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/usuarios, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/usuarios, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/usuarios/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/usuarios/:id, PATCH} route[39m[38;5;3m +1ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/usuarios/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mProgramasController {/programas}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/programas, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/programas, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/programas/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/programas/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/programas/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mFuncionariosController {/funcionarios}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios/importar, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios/search, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios/:rut, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios/:rut, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios/:rut, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mPeriodosController {/periodos}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/periodos, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/periodos/status/detailed, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/periodos/seed/:year, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/periodos, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/periodos/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/periodos/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/periodos/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mConsolidadosController {/consolidados}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/consolidados, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/consolidados/dashboard, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/consolidados, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/consolidados/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/consolidados/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/consolidados/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/consolidados/:id/respaldo, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mHorasExtrasController {/horas-extras}:[39m[38;5;3m +1ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/horas-extras, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/horas-extras, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/horas-extras/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/horas-extras/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/horas-extras/bulk/:consolidadoId, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/horas-extras/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuditController {/audit}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/audit, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mTurnosUrgenciaController {/turnos-urgencia}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/turnos-urgencia, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/turnos-urgencia, GET} route[39m[38;5;3m +0ms[39m
+[2J[3J[H[[90m10:51:42 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m61[0m:[93m9[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m61[0m     if (file) {
+[7m  [0m [91m        ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m62[0m:[93m22[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m62[0m       const base64 = file.buffer.toString('base64');
+[7m  [0m [91m                     ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m63[0m:[93m31[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m63[0m       const dataUri = `data:${file.mimetype};base64,${base64}`;
+[7m  [0m [91m                              ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m104[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput> & HorasExtrasUncheckedCreateInput'.
+
+[7m104[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m10525[0m:[93m5[0m
+    [7m10525[0m     data: XOR<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: HorasExtrasSelect<DefaultArgs> | null | undefined; include?: HorasExtrasInclude<DefaultArgs> | null | undefined; data: (Without<...> & HorasExtrasUncheckedCreateInput) | (Without<...> & HorasExtrasCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m126[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput> & TurnosUrgenciaUncheckedCreateInput'.
+
+[7m126[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m11532[0m:[93m5[0m
+    [7m11532[0m     data: XOR<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: TurnosUrgenciaSelect<DefaultArgs> | null | undefined; include?: TurnosUrgenciaInclude<DefaultArgs> | null | undefined; data: (Without<...> & TurnosUrgenciaUncheckedCreateInput) | (Without<...> & TurnosUrgenciaCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m141[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<ViaticosCreateInput, ViaticosUncheckedCreateInput> & ViaticosUncheckedCreateInput'.
+
+[7m141[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m12512[0m:[93m5[0m
+    [7m12512[0m     data: XOR<ViaticosCreateInput, ViaticosUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: ViaticosSelect<DefaultArgs> | null | undefined; include?: ViaticosInclude<DefaultArgs> | null | undefined; data: (Without<...> & ViaticosUncheckedCreateInput) | (Without<...> & ViaticosCreateInput); }'
+
+[[90m10:51:42 PM[0m] Found 6 errors. Watching for file changes.
+
+[2J[3J[H[[90m10:52:09 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m94[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput> & HorasExtrasUncheckedCreateInput'.
+
+[7m94[0m             url_respaldo: tx.url_respaldo || null
+[7m  [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m10525[0m:[93m5[0m
+    [7m10525[0m     data: XOR<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: HorasExtrasSelect<DefaultArgs> | null | undefined; include?: HorasExtrasInclude<DefaultArgs> | null | undefined; data: (Without<...> & HorasExtrasUncheckedCreateInput) | (Without<...> & HorasExtrasCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m116[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput> & TurnosUrgenciaUncheckedCreateInput'.
+
+[7m116[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m11532[0m:[93m5[0m
+    [7m11532[0m     data: XOR<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: TurnosUrgenciaSelect<DefaultArgs> | null | undefined; include?: TurnosUrgenciaInclude<DefaultArgs> | null | undefined; data: (Without<...> & TurnosUrgenciaUncheckedCreateInput) | (Without<...> & TurnosUrgenciaCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m131[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<ViaticosCreateInput, ViaticosUncheckedCreateInput> & ViaticosUncheckedCreateInput'.
+
+[7m131[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m12512[0m:[93m5[0m
+    [7m12512[0m     data: XOR<ViaticosCreateInput, ViaticosUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: ViaticosSelect<DefaultArgs> | null | undefined; include?: ViaticosInclude<DefaultArgs> | null | undefined; data: (Without<...> & ViaticosUncheckedCreateInput) | (Without<...> & ViaticosCreateInput); }'
+
+[[90m10:52:09 PM[0m] Found 3 errors. Watching for file changes.
+
+90m10:51:30 PM[0m] Found 3 errors. Watching for file changes.
+
+[2J[3J[H[[90m10:51:42 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m61[0m:[93m9[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m61[0m     if (file) {
+[7m  [0m [91m        ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m62[0m:[93m22[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m62[0m       const base64 = file.buffer.toString('base64');
+[7m  [0m [91m                     ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m63[0m:[93m31[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m63[0m       const dataUri = `data:${file.mimetype};base64,${base64}`;
+[7m  [0m [91m                              ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m104[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput> & HorasExtrasUncheckedCreateInput'.
+
+[7m104[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m10525[0m:[93m5[0m
+    [7m10525[0m     data: XOR<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: HorasExtrasSelect<DefaultArgs> | null | undefined; include?: HorasExtrasInclude<DefaultArgs> | null | undefined; data: (Without<...> & HorasExtrasUncheckedCreateInput) | (Without<...> & HorasExtrasCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m126[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput> & TurnosUrgenciaUncheckedCreateInput'.
+
+[7m126[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m11532[0m:[93m5[0m
+    [7m11532[0m     data: XOR<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: TurnosUrgenciaSelect<DefaultArgs> | null | undefined; include?: TurnosUrgenciaInclude<DefaultArgs> | null | undefined; data: (Without<...> & TurnosUrgenciaUncheckedCreateInput) | (Without<...> & TurnosUrgenciaCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m141[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<ViaticosCreateInput, ViaticosUncheckedCreateInput> & ViaticosUncheckedCreateInput'.
+
+[7m141[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m12512[0m:[93m5[0m
+    [7m12512[0m     data: XOR<ViaticosCreateInput, ViaticosUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: ViaticosSelect<DefaultArgs> | null | undefined; include?: ViaticosInclude<DefaultArgs> | null | undefined; data: (Without<...> & ViaticosUncheckedCreateInput) | (Without<...> & ViaticosCreateInput); }'
+
+[[90m10:51:42 PM[0m] Found 6 errors. Watching for file changes.
+
+[2J[3J[H[[90m10:52:09 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m94[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput> & HorasExtrasUncheckedCreateInput'.
+
+[7m94[0m             url_respaldo: tx.url_respaldo || null
+[7m  [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m10525[0m:[93m5[0m
+    [7m10525[0m     data: XOR<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: HorasExtrasSelect<DefaultArgs> | null | undefined; include?: HorasExtrasInclude<DefaultArgs> | null | undefined; data: (Without<...> & HorasExtrasUncheckedCreateInput) | (Without<...> & HorasExtrasCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m116[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput> & TurnosUrgenciaUncheckedCreateInput'.
+
+[7m116[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m11532[0m:[93m5[0m
+    [7m11532[0m     data: XOR<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: TurnosUrgenciaSelect<DefaultArgs> | null | undefined; include?: TurnosUrgenciaInclude<DefaultArgs> | null | undefined; data: (Without<...> & TurnosUrgenciaUncheckedCreateInput) | (Without<...> & TurnosUrgenciaCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m131[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<ViaticosCreateInput, ViaticosUncheckedCreateInput> & ViaticosUncheckedCreateInput'.
+
+[7m131[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m12512[0m:[93m5[0m
+    [7m12512[0m     data: XOR<ViaticosCreateInput, ViaticosUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: ViaticosSelect<DefaultArgs> | null | undefined; include?: ViaticosInclude<DefaultArgs> | null | undefined; data: (Without<...> & ViaticosUncheckedCreateInput) | (Without<...> & ViaticosCreateInput); }'
+
+[[90m10:52:09 PM[0m] Found 3 errors. Watching for file changes.
+
+m[38;5;3m +0ms[39m
 [32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/turnos-urgencia/:id, GET} route[39m[38;5;3m +0ms[39m
 [32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/turnos-urgencia/:id, PATCH} route[39m[38;5;3m +2ms[39m
 [32m[Nest] 63423  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/turnos-urgencia/:id, DELETE} route[39m[38;5;3m +0ms[39m
@@ -3352,68 +3519,139 @@ Node.js v25.9.0
 
 [[90m10:11:08 PM[0m] Found 3 errors. Watching for file changes.
 
-apped {/programas, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/programas/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/programas/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/programas/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mFuncionariosController {/funcionarios}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios/importar, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios/search, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios/:rut, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios/:rut, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/funcionarios/:rut, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mPeriodosController {/periodos}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/periodos, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/periodos/status/detailed, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/periodos/seed/:year, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/periodos, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/periodos/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/periodos/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/periodos/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mConsolidadosController {/consolidados}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/consolidados, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/consolidados/dashboard, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/consolidados, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/consolidados/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/consolidados/:id, PATCH} route[39m[38;5;3m +1ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/consolidados/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/consolidados/:id/respaldo, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mHorasExtrasController {/horas-extras}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/horas-extras, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/horas-extras, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/horas-extras/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/horas-extras/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/horas-extras/bulk/:consolidadoId, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/horas-extras/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuditController {/audit}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/audit, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mTurnosUrgenciaController {/turnos-urgencia}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/turnos-urgencia, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/turnos-urgencia, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/turnos-urgencia/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/turnos-urgencia/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/turnos-urgencia/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mViaticosController {/viaticos}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/viaticos, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/viaticos, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/viaticos/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/viaticos/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/viaticos/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAtrasosController {/atrasos}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/atrasos, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/atrasos, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/atrasos/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/atrasos/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/atrasos/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mProcedimientosController {/procedimientos}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/procedimientos, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/procedimientos, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/procedimientos/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/procedimientos/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/procedimientos/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mReportesController {/reportes}:[39m[38;5;3m +0ms[39m
+[2J[3J[H[[90m10:51:30 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m104[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput> & HorasExtrasUncheckedCreateInput'.
+
+[7m104[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m10525[0m:[93m5[0m
+    [7m10525[0m     data: XOR<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: HorasExtrasSelect<DefaultArgs> | null | undefined; include?: HorasExtrasInclude<DefaultArgs> | null | undefined; data: (Without<...> & HorasExtrasUncheckedCreateInput) | (Without<...> & HorasExtrasCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m126[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput> & TurnosUrgenciaUncheckedCreateInput'.
+
+[7m126[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m11532[0m:[93m5[0m
+    [7m11532[0m     data: XOR<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: TurnosUrgenciaSelect<DefaultArgs> | null | undefined; include?: TurnosUrgenciaInclude<DefaultArgs> | null | undefined; data: (Without<...> & TurnosUrgenciaUncheckedCreateInput) | (Without<...> & TurnosUrgenciaCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m141[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<ViaticosCreateInput, ViaticosUncheckedCreateInput> & ViaticosUncheckedCreateInput'.
+
+[7m141[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m12512[0m:[93m5[0m
+    [7m12512[0m     data: XOR<ViaticosCreateInput, ViaticosUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: ViaticosSelect<DefaultArgs> | null | undefined; include?: ViaticosInclude<DefaultArgs> | null | undefined; data: (Without<...> & ViaticosUncheckedCreateInput) | (Without<...> & ViaticosCreateInput); }'
+
+[[90m10:51:30 PM[0m] Found 3 errors. Watching for file changes.
+
+[2J[3J[H[[90m10:51:42 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m61[0m:[93m9[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m61[0m     if (file) {
+[7m  [0m [91m        ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m62[0m:[93m22[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m62[0m       const base64 = file.buffer.toString('base64');
+[7m  [0m [91m                     ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m63[0m:[93m31[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m63[0m       const dataUri = `data:${file.mimetype};base64,${base64}`;
+[7m  [0m [91m                              ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m104[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput> & HorasExtrasUncheckedCreateInput'.
+
+[7m104[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m10525[0m:[93m5[0m
+    [7m10525[0m     data: XOR<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: HorasExtrasSelect<DefaultArgs> | null | undefined; include?: HorasExtrasInclude<DefaultArgs> | null | undefined; data: (Without<...> & HorasExtrasUncheckedCreateInput) | (Without<...> & HorasExtrasCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m126[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput> & TurnosUrgenciaUncheckedCreateInput'.
+
+[7m126[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m11532[0m:[93m5[0m
+    [7m11532[0m     data: XOR<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: TurnosUrgenciaSelect<DefaultArgs> | null | undefined; include?: TurnosUrgenciaInclude<DefaultArgs> | null | undefined; data: (Without<...> & TurnosUrgenciaUncheckedCreateInput) | (Without<...> & TurnosUrgenciaCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m141[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<ViaticosCreateInput, ViaticosUncheckedCreateInput> & ViaticosUncheckedCreateInput'.
+
+[7m141[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m12512[0m:[93m5[0m
+    [7m12512[0m     data: XOR<ViaticosCreateInput, ViaticosUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: ViaticosSelect<DefaultArgs> | null | undefined; include?: ViaticosInclude<DefaultArgs> | null | undefined; data: (Without<...> & ViaticosUncheckedCreateInput) | (Without<...> & ViaticosCreateInput); }'
+
+[[90m10:51:42 PM[0m] Found 6 errors. Watching for file changes.
+
+[2J[3J[H[[90m10:52:09 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m94[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput> & HorasExtrasUncheckedCreateInput'.
+
+[7m94[0m             url_respaldo: tx.url_respaldo || null
+[7m  [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m10525[0m:[93m5[0m
+    [7m10525[0m     data: XOR<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: HorasExtrasSelect<DefaultArgs> | null | undefined; include?: HorasExtrasInclude<DefaultArgs> | null | undefined; data: (Without<...> & HorasExtrasUncheckedCreateInput) | (Without<...> & HorasExtrasCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m116[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput> & TurnosUrgenciaUncheckedCreateInput'.
+
+[7m116[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m11532[0m:[93m5[0m
+    [7m11532[0m     data: XOR<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: TurnosUrgenciaSelect<DefaultArgs> | null | undefined; include?: TurnosUrgenciaInclude<DefaultArgs> | null | undefined; data: (Without<...> & TurnosUrgenciaUncheckedCreateInput) | (Without<...> & TurnosUrgenciaCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m131[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<ViaticosCreateInput, ViaticosUncheckedCreateInput> & ViaticosUncheckedCreateInput'.
+
+[7m131[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m12512[0m:[93m5[0m
+    [7m12512[0m     data: XOR<ViaticosCreateInput, ViaticosUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: ViaticosSelect<DefaultArgs> | null | undefined; include?: ViaticosInclude<DefaultArgs> | null | undefined; data: (Without<...> & ViaticosUncheckedCreateInput) | (Without<...> & ViaticosCreateInput); }'
+
+[[90m10:52:09 PM[0m] Found 3 errors. Watching for file changes.
+
+39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mReportesController {/reportes}:[39m[38;5;3m +0ms[39m
 [32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/reportes/stats, GET} route[39m[38;5;3m +0ms[39m
 [32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/reportes/centros, GET} route[39m[38;5;3m +1ms[39m
 [32m[Nest] 63440  - [39m05/08/2026, 10:10:49 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mIngresosController {/ingresos}:[39m[38;5;3m +0ms[39m
@@ -3498,5 +3736,127 @@ Node.js v25.9.0
 
 [[90m10:11:08 PM[0m] Found 3 errors. Watching for file changes.
 
-.
+[2[2J[3J[[[[90m10:51:30 PM[0m] File change detected. Starting incremental compilation..[9[96msrc/ingresos/ingresos.service.ts[0m:[93m104[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput> & HorasExtrasUncheckedCreateInput'.
+
+[7m104[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m10525[0m:[93m5[0m
+    [7m10525[0m     data: XOR<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: HorasExtrasSelect<DefaultArgs> | null | undefined; include?: HorasExtrasInclude<DefaultArgs> | null | undefined; data: (Without<...> & HorasExtrasUncheckedCreateInput) | (Without<...> & HorasExtrasCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m126[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput> & TurnosUrgenciaUncheckedCreateInput'.
+
+[7m126[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m11532[0m:[93m5[0m
+    [7m11532[0m     data: XOR<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: TurnosUrgenciaSelect<DefaultArgs> | null | undefined; include?: TurnosUrgenciaInclude<DefaultArgs> | null | undefined; data: (Without<...> & TurnosUrgenciaUncheckedCreateInput) | (Without<...> & TurnosUrgenciaCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m141[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<ViaticosCreateInput, ViaticosUncheckedCreateInput> & ViaticosUncheckedCreateInput'.
+
+[7m141[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m12512[0m:[93m5[0m
+    [7m12512[0m     data: XOR<ViaticosCreateInput, ViaticosUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: ViaticosSelect<DefaultArgs> | null | undefined; include?: ViaticosInclude<DefaultArgs> | null | undefined; data: (Without<...> & ViaticosUncheckedCreateInput) | (Without<...> & ViaticosCreateInput); }'
+
+[[90m10:51:30 PM[0m] Found 3 errors. Watching for file changes[2J[3J[H[[90m10:51:42 PM[0m] File change detected. Starting incremental compilation...
+
+[9[96msrc/ingresos/ingresos.service.ts[0m:[93m61[0m:[93m9[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m61[0m     if (file) {
+[7m  [0m [91m        ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m62[0m:[93m22[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m62[0m       const base64 = file.buffer.toString('base64');
+[7m  [0m [91m                     ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m63[0m:[93m31[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m63[0m       const dataUri = `data:${file.mimetype};base64,${base64}`;
+[7m  [0m [91m                              ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m104[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput> & HorasExtrasUncheckedCreateInput'.
+
+[7m104[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m10525[0m:[93m5[0m
+    [7m10525[0m     data: XOR<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: HorasExtrasSelect<DefaultArgs> | null | undefined; include?: HorasExtrasInclude<DefaultArgs> | null | undefined; data: (Without<...> & HorasExtrasUncheckedCreateInput) | (Without<...> & HorasExtrasCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m126[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput> & TurnosUrgenciaUncheckedCreateInput'.
+
+[7m126[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m11532[0m:[93m5[0m
+    [7m11532[0m     data: XOR<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: TurnosUrgenciaSelect<DefaultArgs> | null | undefined; include?: TurnosUrgenciaInclude<DefaultArgs> | null | undefined; data: (Without<...> & TurnosUrgenciaUncheckedCreateInput) | (Without<...> & TurnosUrgenciaCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m141[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<ViaticosCreateInput, ViaticosUncheckedCreateInput> & ViaticosUncheckedCreateInput'.
+
+[7m141[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m12512[0m:[93m5[0m
+    [7m12512[0m     data: XOR<ViaticosCreateInput, ViaticosUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: ViaticosSelect<DefaultArgs> | null | undefined; include?: ViaticosInclude<DefaultArgs> | null | undefined; data: (Without<...> & ViaticosUncheckedCreateInput) | (Without<...> & ViaticosCreateInput); }'
+
+[[90m10:51:42 PM[0m] Found 6 errors. Watching for file changes[2J[3J[H[[[[90m10:52:09 PM[0m] File change detected. Starting incremental compilation..[9[96msrc/ingresos/ingresos.service.ts[0m:[93m94[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput> & HorasExtrasUncheckedCreateInput'.
+
+[7m94[0m             url_respaldo: tx.url_respaldo || null
+[7m  [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m10525[0m:[93m5[0m
+    [7m10525[0m     data: XOR<HorasExtrasCreateInput, HorasExtrasUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: HorasExtrasSelect<DefaultArgs> | null | undefined; include?: HorasExtrasInclude<DefaultArgs> | null | undefined; data: (Without<...> & HorasExtrasUncheckedCreateInput) | (Without<...> & HorasExtrasCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m116[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput> & TurnosUrgenciaUncheckedCreateInput'.
+
+[7m116[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m11532[0m:[93m5[0m
+    [7m11532[0m     data: XOR<TurnosUrgenciaCreateInput, TurnosUrgenciaUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: TurnosUrgenciaSelect<DefaultArgs> | null | undefined; include?: TurnosUrgenciaInclude<DefaultArgs> | null | undefined; data: (Without<...> & TurnosUrgenciaUncheckedCreateInput) | (Without<...> & TurnosUrgenciaCreateInput); }'
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m131[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'url_respaldo' does not exist in type 'Without<ViaticosCreateInput, ViaticosUncheckedCreateInput> & ViaticosUncheckedCreateInput'.
+
+[7m131[0m             url_respaldo: tx.url_respaldo || null
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m12512[0m:[93m5[0m
+    [7m12512[0m     data: XOR<ViaticosCreateInput, ViaticosUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: ViaticosSelect<DefaultArgs> | null | undefined; include?: ViaticosInclude<DefaultArgs> | null | undefined; data: (Without<...> & ViaticosUncheckedCreateInput) | (Without<...> & ViaticosCreateInput); }'
+
+[[90m10:52:09 PM[0m] Found 3 errors. Watching for file changes.
 

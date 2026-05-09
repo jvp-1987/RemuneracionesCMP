@@ -417,13 +417,7 @@ export default function IngresoPage() {
         transacciones,
       };
 
-      const formData = new FormData();
-      formData.append('payload', JSON.stringify(payload));
-      // No mandamos el archivo global, ahora es granular por fila dentro del payload base64
-      
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL || ''}/ingresos/manual`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL || ''}/ingresos/manual`, payload);
 
       setShowSuccess(true);
       setRows([]);
