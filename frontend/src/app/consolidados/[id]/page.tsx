@@ -71,21 +71,35 @@ export default function ConsolidadoDetailPage() {
     fetchData();
   }, [id]);
 
-  const handleUpdateStatus = async (type: string, transId: number, field: string, newStatus: EstadoValidacion) => {
+  const handleUpdateStatus = React.useCallback(async (type: string, transId: number, field: string, newStatus: EstadoValidacion) => {
+    console.log(`[StatusUpdate] ${type} ID:${transId} ${field}=>${newStatus}`);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       const endpoint = type === 'horas' ? 'horas-extras' : type === 'viaticos' ? 'viaticos' : 'atrasos';
-      await axios.patch(`${apiUrl}/${endpoint}/${transId}`, { [field]: newStatus });
-      fetchData();
-    } catch (err) { console.error('Error updating status:', err); }
-  };
+      
+      setData(prev => {
+        if (!prev) return null;
+        const key = type === 'horas' ? 'horas_extras' : type === 'viaticos' ? 'viaticos' : 'atrasos';
+        return {
+          ...prev,
+          [key]: (prev as any)[key].map((t: any) => t.id === transId ? { ...t, [field]: newStatus } : t)
+        };
+      });
 
-  const handleUpdateObservation = async (type: string, transId: number, text: string, subType?: '25' | '50') => {
+      await axios.patch(`${apiUrl}/${endpoint}/${transId}`, { [field]: newStatus });
+    } catch (err) { 
+      console.error('Error updating status:', err);
+      fetchData();
+    }
+  }, [fetchData]);
+
+  const handleUpdateObservation = React.useCallback(async (type: string, transId: number, text: string, subType?: '25' | '50') => {
+    console.log(`[ObsUpdate] ${type} ID:${transId} text:${text.slice(0,10)}...`);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       const endpoint = type === 'horas' ? 'horas-extras' : type === 'viaticos' ? 'viaticos' : 'atrasos';
       const obsKey = type === 'horas' && subType ? `observaciones_${subType}` : 'observaciones';
-      await axios.patch(`${apiUrl}/${endpoint}/${transId}`, { [obsKey]: text });
+      
       setData(prev => {
         if (!prev) return null;
         const key = type === 'horas' ? 'horas_extras' : type === 'viaticos' ? 'viaticos' : 'atrasos';
@@ -94,8 +108,13 @@ export default function ConsolidadoDetailPage() {
           [key]: (prev as any)[key].map((t: any) => t.id === transId ? { ...t, [obsKey]: text } : t)
         };
       });
-    } catch (err) { console.error('Error updating observation:', err); }
-  };
+
+      await axios.patch(`${apiUrl}/${endpoint}/${transId}`, { [obsKey]: text });
+    } catch (err) { 
+      console.error('Error updating observation:', err);
+      fetchData();
+    }
+  }, [fetchData]);
 
   const handleBulkUpdate = async (status: EstadoValidacion) => {
     try {
@@ -485,7 +504,7 @@ function StatusBadge({ status }: { status?: EstadoValidacion }) {
   );
 }
 
-function EmployeeTableRow({ 
+const EmployeeTableRow = React.memo(({ 
   item, 
   activeTab, 
   onUpdateStatus,
@@ -499,7 +518,11 @@ function EmployeeTableRow({
   expanded: boolean,
   onToggle: () => void,
   onObs: (t: string, sub?: '25' | '50') => void
-}) {
+}) => {
+  const [obs25, setObs25] = useState(item.observaciones_25 || '');
+  const [obs50, setObs50] = useState(item.observaciones_50 || '');
+  const [obs, setObs] = useState(item.observaciones || '');
+
   const initials = item.funcionario.nombre_completo.split(' ').map(n => n[0]).join('').slice(0, 2);
   const totalAmount = activeTab === 'horas' ? (Number(item.monto_25) + Number(item.monto_50)) : Number(item.monto_calculado || item.monto_descuento || 0);
 
@@ -603,8 +626,9 @@ function EmployeeTableRow({
                           <textarea 
                             className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold min-h-[120px]" 
                             placeholder="Ingrese hallazgos clínicos o discrepancias..."
-                            value={item.observaciones_25 || ''}
-                            onChange={(e) => onObs(e.target.value, '25')}
+                            value={obs25}
+                            onChange={(e) => setObs25(e.target.value)}
+                            onBlur={() => onObs(obs25, '25')}
                           />
                         </div>
                         <div className="flex gap-4">
@@ -625,8 +649,9 @@ function EmployeeTableRow({
                           <textarea 
                             className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold min-h-[120px]" 
                             placeholder="Ingrese hallazgos clínicos o discrepancias..."
-                            value={item.observaciones_50 || ''}
-                            onChange={(e) => onObs(e.target.value, '50')}
+                            value={obs50}
+                            onChange={(e) => setObs50(e.target.value)}
+                            onBlur={() => onObs(obs50, '50')}
                           />
                         </div>
                         <div className="flex gap-4">
@@ -652,13 +677,14 @@ function EmployeeTableRow({
                         <textarea 
                           className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold min-h-[120px]" 
                           placeholder={activeTab === 'atrasos' ? 'Justificación del atraso...' : 'Notas de auditoría para este registro...'}
-                          value={item.observaciones || ''}
-                          onChange={(e) => onObs(e.target.value)}
+                          value={obs}
+                          onChange={(e) => setObs(e.target.value)}
+                          onBlur={() => onObs(obs)}
                         />
-                        {activeTab === 'viaticos' && (
+                        {(activeTab === 'viaticos' || activeTab === 'atrasos') && (
                           <div className="flex gap-6 pt-4 pb-8">
-                            <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado === 'RECHAZADO' ? "bg-error text-white" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Rechazar Haberes</button>
-                            <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-primary/20", item.estado === 'APROBADO' ? "bg-primary text-white" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Aprobar Haberes</button>
+                            <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado === 'RECHAZADO' ? "bg-error text-white" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo Crítico</button>
+                            <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-primary/20", item.estado === 'APROBADO' ? "bg-primary text-white" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validación Conforme</button>
                           </div>
                         )}
                     </div>
@@ -671,5 +697,5 @@ function EmployeeTableRow({
       </AnimatePresence>
     </>
   );
-}
+});
 
