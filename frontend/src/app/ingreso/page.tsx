@@ -293,6 +293,7 @@ export default function IngresoPage() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const [activeRowId, setActiveRowId] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [respaldoFile, setRespaldoFile] = useState<File | null>(null);
   
   // Maestro Upload States
   const [showMaestroModal, setShowMaestroModal] = useState(false);
@@ -398,14 +399,26 @@ export default function IngresoPage() {
     setLoading(true);
     try {
       const transacciones = validRows.map(r => ({ ...r }));
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL || ''}/ingresos/manual`, {
+      const payload = {
         centro_salud_id: centroId,
         periodo_id: periodoId,
         tipo: activeTab,
         transacciones,
+      };
+
+      const formData = new FormData();
+      formData.append('payload', JSON.stringify(payload));
+      if (respaldoFile) {
+        formData.append('file', respaldoFile);
+      }
+
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL || ''}/ingresos/manual`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
+
       setShowSuccess(true);
       setRows([]);
+      setRespaldoFile(null); // Reset file after save
       addRow();
       // Redirigir a consolidados después de 1.5 segundos para que vean el éxito
       setTimeout(() => {
@@ -597,6 +610,31 @@ export default function IngresoPage() {
               {' → '}
               {new Date(periodoActual.fin + 'T00:00:00').toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' })}
             </p>
+          </div>
+
+          {/* Adjuntar Respaldo Lote */}
+          <div className="flex items-center">
+            <label className={cn(
+              "flex flex-col items-center justify-center h-[72px] px-8 rounded-2xl border-2 border-dashed transition-all cursor-pointer group",
+              respaldoFile ? "bg-emerald-50 border-emerald-200" : "bg-white border-slate-100 hover:border-primary/40 hover:bg-slate-50"
+            )}>
+               <input type="file" className="hidden" onChange={(e) => setRespaldoFile(e.target.files?.[0] || null)} accept=".pdf,.jpg,.jpeg,.png" />
+               <div className="flex items-center gap-3">
+                 {respaldoFile ? (
+                   <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                 ) : (
+                   <LayoutGrid className="w-5 h-5 text-slate-300 group-hover:text-primary transition-colors" />
+                 )}
+                 <div className="text-left">
+                   <p className={cn("text-[10px] font-black uppercase tracking-widest", respaldoFile ? "text-emerald-700" : "text-slate-500 group-hover:text-primary")}>
+                     {respaldoFile ? "Respaldo Listo" : "Adjuntar Respaldo"}
+                   </p>
+                   <p className="text-[8px] font-bold text-slate-400 mt-0.5 truncate max-w-[120px]">
+                     {respaldoFile ? respaldoFile.name : "PDF, JPG o PNG"}
+                   </p>
+                 </div>
+               </div>
+            </label>
           </div>
 
           {/* Toggle vista */}

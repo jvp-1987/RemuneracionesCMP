@@ -2052,20 +2052,55 @@ Error: listen EADDRINUSE: address already in use 0.0.0.0:3001
 }
 
 Node.js v25.9.0
-mMapped {/reportes/centros, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62724  - [39m05/08/2026, 9:55:43 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mIngresosController {/ingresos}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 62724  - [39m05/08/2026, 9:55:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/ingresos/manual, POST} route[39m[38;5;3m +1ms[39m
-[32m[Nest] 62724  - [39m05/08/2026, 9:55:43 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mRemuneracionesController {/remuneraciones}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 62724  - [39m05/08/2026, 9:55:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/remuneraciones/importar-maestro-mensual, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62724  - [39m05/08/2026, 9:55:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/remuneraciones/importar-validacion, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62724  - [39m05/08/2026, 9:55:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/remuneraciones/historial/:rut, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62724  - [39m05/08/2026, 9:55:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/remuneraciones/detalle/:rut/:periodoId, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62724  - [39m05/08/2026, 9:55:43 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mContratosController {/contratos}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 62724  - [39m05/08/2026, 9:55:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/contratos, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62724  - [39m05/08/2026, 9:55:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/contratos, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62724  - [39m05/08/2026, 9:55:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/contratos/funcionario/:rut, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62724  - [39m05/08/2026, 9:55:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/contratos/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62724  - [39m05/08/2026, 9:55:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/contratos/:id, DELETE} route[39m[38;5;3m +0ms[39m
+[2J[3J[H[[90m10:00:52 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/ingresos/ingresos.controller.ts[0m:[93m14[0m:[93m58[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 2.
+
+[7m14[0m     return this.ingresosService.guardarIngresos(payload, file);
+[7m  [0m [91m                                                         ~~~~[0m
+
+[[90m10:00:52 PM[0m] Found 1 error. Watching for file changes.
+
+[2J[3J[H[[90m10:01:04 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/ingresos/ingresos.controller.ts[0m:[93m14[0m:[93m58[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 2.
+
+[7m14[0m     return this.ingresosService.guardarIngresos(payload, file);
+[7m  [0m [91m                                                         ~~~~[0m
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m61[0m:[93m9[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m61[0m     if (file) {
+[7m  [0m [91m        ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m62[0m:[93m22[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m62[0m       const base64 = file.buffer.toString('base64');
+[7m  [0m [91m                     ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m63[0m:[93m31[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m63[0m       const dataUri = `data:${file.mimetype};base64,${base64}`;
+[7m  [0m [91m                              ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[[90m10:01:05 PM[0m] Found 4 errors. Watching for file changes.
+
+contratos/:id, DELETE} route[39m[38;5;3m +0ms[39m
 [32m[Nest] 62724  - [39m05/08/2026, 9:55:43 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAusentismosController {/ausentismos}:[39m[38;5;3m +0ms[39m
 [32m[Nest] 62724  - [39m05/08/2026, 9:55:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/ausentismos, POST} route[39m[38;5;3m +0ms[39m
 [32m[Nest] 62724  - [39m05/08/2026, 9:55:43 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/ausentismos/webhook, POST} route[39m[38;5;3m +0ms[39m
@@ -2396,26 +2431,55 @@ Error: listen EADDRINUSE: address already in use 0.0.0.0:3001
 }
 
 Node.js v25.9.0
-            ~~~~~~~~~~~~~~[0m
+[2J[3J[H[[90m10:00:52 PM[0m] File change detected. Starting incremental compilation...
 
-[[90m9:55:47 PM[0m] Found 1 error. Watching for file changes.
+[96msrc/ingresos/ingresos.controller.ts[0m:[93m14[0m:[93m58[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 2.
 
-[2J[3J[H[[90m9:55:56 PM[0m] File change detected. Starting incremental compilation...
+[7m14[0m     return this.ingresosService.guardarIngresos(payload, file);
+[7m  [0m [91m                                                         ~~~~[0m
 
-[[90m9:55:56 PM[0m] Found 0 errors. Watching for file changes.
+[[90m10:00:52 PM[0m] Found 1 error. Watching for file changes.
 
-[32m[Nest] 62818  - [39m05/08/2026, 9:55:57 PM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
-[32m[Nest] 62818  - [39m05/08/2026, 9:55:57 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPrismaModule dependencies initialized[39m[38;5;3m +11ms[39m
-[32m[Nest] 62818  - [39m05/08/2026, 9:55:57 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPassportModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62818  - [39m05/08/2026, 9:55:57 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +5ms[39m
-[32m[Nest] 62818  - [39m05/08/2026, 9:55:57 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCalculosModule dependencies initialized[39m[38;5;3m +1ms[39m
-[32m[Nest] 62818  - [39m05/08/2026, 9:55:57 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +1ms[39m
-[32m[Nest] 62818  - [39m05/08/2026, 9:55:57 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mReportesModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62818  - [39m05/08/2026, 9:55:57 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCentrosSaludModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62818  - [39m05/08/2026, 9:55:57 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mProgramasModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62818  - [39m05/08/2026, 9:55:57 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPeriodosModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62818  - [39m05/08/2026, 9:55:57 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTurnosUrgenciaModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62818  - [39m05/08/2026, 9:55:57 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mViaticosModule dependencies initialized[39m[38;5;3m +0ms[39m
+[2J[3J[H[[90m10:01:04 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/ingresos/ingresos.controller.ts[0m:[93m14[0m:[93m58[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 2.
+
+[7m14[0m     return this.ingresosService.guardarIngresos(payload, file);
+[7m  [0m [91m                                                         ~~~~[0m
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m61[0m:[93m9[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m61[0m     if (file) {
+[7m  [0m [91m        ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m62[0m:[93m22[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m62[0m       const base64 = file.buffer.toString('base64');
+[7m  [0m [91m                     ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m63[0m:[93m31[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m63[0m       const dataUri = `data:${file.mimetype};base64,${base64}`;
+[7m  [0m [91m                              ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[[90m10:01:05 PM[0m] Found 4 errors. Watching for file changes.
+
+
 [32m[Nest] 62818  - [39m05/08/2026, 9:55:57 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAtrasosModule dependencies initialized[39m[38;5;3m +0ms[39m
 [32m[Nest] 62818  - [39m05/08/2026, 9:55:57 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mProcedimientosModule dependencies initialized[39m[38;5;3m +1ms[39m
 [32m[Nest] 62818  - [39m05/08/2026, 9:55:57 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mIngresosModule dependencies initialized[39m[38;5;3m +0ms[39m
@@ -2556,22 +2620,68 @@ Please make sure your database server is running at `localhost:3306`.
     at async callModuleInitHook (/Users/juanvidalp/Documents/GitHub/RemuneracionesCMP/backend/node_modules/@nestjs/core/hooks/on-module-init.hook.js:43:5)
     at async NestApplication.callInitHook (/Users/juanvidalp/Documents/GitHub/RemuneracionesCMP/backend/node_modules/@nestjs/core/nest-application-context.js:252:13)
     at async NestApplication.init (/Users/juanvidalp/Documents/GitHub[32m[Nest] 62816  - [39m05/08/2026, 9:55:57 PM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully sta[32m[Nest] 62815  - [39m05/08Backend running on port: 3001
-[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +866ms[39m
-[31m[Nest] 62815  - [39m05/08/2026, 9:55:57 PM [31m  ERROR[39m [38;5;3m[NestApplication] [39m[31mError: listen EADDRINUSE: address already in use 0.0.0.0:3001[39m[38;5;3m +12ms[39m
-node:net:2008
-    const ex = new UVExceptionWithHostPort(err, 'listen', address, port);
-               ^
+[2J[3J[H[[90m10:00:52 PM[0m] File change detected. Starting incremental compilation...
 
-Error: listen EADDRINUSE: address already in use 0.0.0.0:3001
-    at Server.setupListenHandle [as _listen2] (node:net:2008:16)
-    at listenInCluster (node:net:2065:12)
-    at node:net:2274:7
-    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
-  code: 'EADDRINUSE',
-  errno: -48,
-  syscall: 'listen',
-  address: '0.0.0.0',
-  port: 3001
-}
+[96msrc/ingresos/ingresos.controller.ts[0m:[93m14[0m:[93m58[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 2.
 
-Node.js v25.9.0
+[7m14[0m     return this.ingresosService.guardarIngresos(payload, file);
+[7m  [0m [91m                                                         ~~~~[0m
+
+[[90m10:00:52 PM[0m] Found 1 error. Watching for file changes.
+
+[2J[3J[H[[90m10:01:04 PM[0m] File change detected. Starting incremental compilation...
+
+[96msrc/ingresos/ingresos.controller.ts[0m:[93m14[0m:[93m58[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 2.
+
+[7m14[0m     return this.ingresosService.guardarIngresos(payload, f[96msrc/ingresos/ingresos.controller.ts[0m:[93m14[0m:[93m58[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 2.
+
+[7m14[0m     return this.ingresosService.guardarIngresos(payload, file);
+[7m  [0m [91m                                                         ~~~~[0m
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m61[0m:[93m9[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m61[0m     if (file) {
+[7m  [0m [91m        ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m62[0m:[93m22[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m62[0m       const base64 = file.buffer.toString('base64');
+[7m  [0m [91m                     ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m63[0m:[93m31[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m63[0m       const dataUri = `data:${file.mimetype};base64,${base64}`;
+[7m  [0m [91m                              ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[[90m10:01:05 PM[0m] Found 4 errors. Watching for file changes.
+
+           ~~~~[0m
+    'File' is declared here.
+
+[96msrc/ingresos/ingresos.service.ts[0m:[93m63[0m:[93m31[0m - [91merror[0m[90m TS2552: [0mCannot find name 'file'. Did you mean 'File'?
+
+[7m63[0m       const dataUri = `data:${file.mimetype};base64,${base64}`;
+[7m  [0m [91m                              ~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m11629[0m:[93m13[0m
+    [7m11629[0m declare var File: {
+    [7m     [0m [96m            ~~~~[0m
+    'File' is declared here.
+
+[[90m10:01:05 PM[0m] Found 4 errors. Watching for file changes.
+

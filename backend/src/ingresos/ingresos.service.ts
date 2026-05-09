@@ -57,6 +57,16 @@ export class IngresosService {
       });
     }
 
+    // Si viene un archivo de respaldo, guardarlo en el consolidado
+    if (file) {
+      const base64 = file.buffer.toString('base64');
+      const dataUri = `data:${file.mimetype};base64,${base64}`;
+      await this.prisma.consolidado.update({
+        where: { id: consolidado.id },
+        data: { url_respaldo: dataUri }
+      });
+    }
+
     let count = 0;
 
     // Procesar según tipo
