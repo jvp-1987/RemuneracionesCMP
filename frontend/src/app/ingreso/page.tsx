@@ -64,11 +64,18 @@ interface PeriodoConfig {
 
 // ─── Períodos ──────────────────────────────────────────────────────────────────
 const PERIODOS: PeriodoConfig[] = [
-  { id: '0', label: 'Enero 2026',  mes: 1,  anio: 2026, inicio: '2025-12-16', fin: '2026-01-15' },
-  { id: '1', label: 'Marzo 2026',  mes: 3,  anio: 2026, inicio: '2026-02-16', fin: '2026-03-15' },
-  { id: '2', label: 'Abril 2026',  mes: 4,  anio: 2026, inicio: '2026-03-16', fin: '2026-04-15' },
-  { id: '3', label: 'Mayo 2026',   mes: 5,  anio: 2026, inicio: '2026-04-16', fin: '2026-05-15' },
-  { id: '4', label: 'Junio 2026',  mes: 6,  anio: 2026, inicio: '2026-05-16', fin: '2026-06-15' },
+  { id: '1', label: 'Enero 2026',      mes: 1,  anio: 2026, inicio: '2025-12-16', fin: '2026-01-15' },
+  { id: '2', label: 'Febrero 2026',    mes: 2,  anio: 2026, inicio: '2026-01-16', fin: '2026-02-15' },
+  { id: '3', label: 'Marzo 2026',      mes: 3,  anio: 2026, inicio: '2026-02-16', fin: '2026-03-15' },
+  { id: '4', label: 'Abril 2026',      mes: 4,  anio: 2026, inicio: '2026-03-16', fin: '2026-04-15' },
+  { id: '5', label: 'Mayo 2026',       mes: 5,  anio: 2026, inicio: '2026-04-16', fin: '2026-05-15' },
+  { id: '6', label: 'Junio 2026',      mes: 6,  anio: 2026, inicio: '2026-05-16', fin: '2026-06-15' },
+  { id: '7', label: 'Julio 2026',      mes: 7,  anio: 2026, inicio: '2026-06-16', fin: '2026-07-15' },
+  { id: '8', label: 'Agosto 2026',     mes: 8,  anio: 2026, inicio: '2026-07-16', fin: '2026-08-15' },
+  { id: '9', label: 'Septiembre 2026', mes: 9,  anio: 2026, inicio: '2026-08-16', fin: '2026-09-15' },
+  { id: '10', label: 'Octubre 2026',   mes: 10, anio: 2026, inicio: '2026-09-16', fin: '2026-10-15' },
+  { id: '11', label: 'Noviembre 2026', mes: 11, anio: 2026, inicio: '2026-10-16', fin: '2026-11-15' },
+  { id: '12', label: 'Diciembre 2026', mes: 12, anio: 2026, inicio: '2026-11-16', fin: '2026-12-15' },
 ];
 
 // ─── Listas ────────────────────────────────────────────────────────────────────
@@ -288,7 +295,7 @@ export default function IngresoPage() {
   const [rows, setRows] = useState<RowData[]>([]);
   const [loading, setLoading] = useState(false);
   const [centroId, setCentroId] = useState('1');
-  const [periodoId, setPeriodoId] = useState('2');
+  const [periodoId, setPeriodoId] = useState('5');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
