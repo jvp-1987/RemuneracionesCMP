@@ -413,7 +413,10 @@ export default function IngresoPage() {
   // ─── Guardar ───────────────────────────────────────────────────────────────
   const handleSave = async () => {
     const validRows = rows.filter(r => r.rut);
-    if (validRows.length === 0) return;
+    if (validRows.length === 0) {
+      alert('Agregue al menos un funcionario antes de guardar.');
+      return;
+    }
     setLoading(true);
     try {
       const transacciones = validRows.map(r => ({ ...r }));
@@ -424,19 +427,28 @@ export default function IngresoPage() {
         transacciones,
       };
 
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL || ''}/ingresos/manual`, payload);
+      console.log('[Guardar] Enviando payload:', payload);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com'}/ingresos/manual`, payload);
+      console.log('[Guardar] Respuesta:', response.data);
+
+      const { consolidado_id } = response.data;
 
       setShowSuccess(true);
       setRows([]);
       addRow();
-      // Redirigir a consolidados después de 1.5 segundos para que vean el éxito
+      // Redirigir al consolidado específico después de 1.5 segundos
       setTimeout(() => {
         setShowSuccess(false);
-        router.push('/consolidados');
+        if (consolidado_id) {
+          router.push(`/consolidados/${consolidado_id}`);
+        } else {
+          router.push('/consolidados');
+        }
       }, 1500);
-    } catch (error) {
-      console.error('Error saving records:', error);
-      alert('Error al guardar. Revise la consola del backend.');
+    } catch (error: any) {
+      console.error('[Guardar] Error completo:', error);
+      const msg = error?.response?.data?.message || error?.message || 'Error desconocido';
+      alert(`Error al guardar: ${msg}`);
     } finally {
       setLoading(false);
     }
