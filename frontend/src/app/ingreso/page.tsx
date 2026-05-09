@@ -50,6 +50,7 @@ interface RowData {
   valor_habil: string;
   cant_inhabil: string;
   valor_inhabil: string;
+  url_respaldo?: string;
 }
 
 interface PeriodoConfig {
@@ -408,10 +409,8 @@ export default function IngresoPage() {
 
       const formData = new FormData();
       formData.append('payload', JSON.stringify(payload));
-      if (respaldoFile) {
-        formData.append('file', respaldoFile);
-      }
-
+      // No mandamos el archivo global, ahora es granular por fila dentro del payload base64
+      
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL || ''}/ingresos/manual`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
@@ -609,36 +608,9 @@ export default function IngresoPage() {
               {new Date(periodoActual.inicio + 'T00:00:00').toLocaleDateString('es-CL', { day: '2-digit', month: 'short' })}
               {' → '}
               {new Date(periodoActual.fin + 'T00:00:00').toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' })}
-            </p>
           </div>
-
-          {/* Adjuntar Respaldo Lote */}
-          <div className="flex items-center">
-            <label className={cn(
-              "flex flex-col items-center justify-center h-[72px] px-8 rounded-2xl border-2 border-dashed transition-all cursor-pointer group",
-              respaldoFile ? "bg-emerald-50 border-emerald-200" : "bg-white border-slate-100 hover:border-primary/40 hover:bg-slate-50"
-            )}>
-               <input type="file" className="hidden" onChange={(e) => setRespaldoFile(e.target.files?.[0] || null)} accept=".pdf,.jpg,.jpeg,.png" />
-               <div className="flex items-center gap-3">
-                 {respaldoFile ? (
-                   <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                 ) : (
-                   <LayoutGrid className="w-5 h-5 text-slate-300 group-hover:text-primary transition-colors" />
-                 )}
-                 <div className="text-left">
-                   <p className={cn("text-[10px] font-black uppercase tracking-widest", respaldoFile ? "text-emerald-700" : "text-slate-500 group-hover:text-primary")}>
-                     {respaldoFile ? "Respaldo Listo" : "Adjuntar Respaldo"}
-                   </p>
-                   <p className="text-[8px] font-bold text-slate-400 mt-0.5 truncate max-w-[120px]">
-                     {respaldoFile ? respaldoFile.name : "PDF, JPG o PNG"}
-                   </p>
-                 </div>
-               </div>
-            </label>
-          </div>
-
-          {/* Toggle vista */}
-          <div className="flex items-center bg-white border border-slate-100 rounded-2xl p-1.5 shadow-sm">
+        </div>
+      </div>
             <button
               onClick={() => setViewMode('cards')}
               className={cn("p-3 rounded-xl transition-all", viewMode === 'cards' ? "bg-slate-900 text-white" : "text-slate-400 hover:text-slate-600")}
@@ -963,12 +935,34 @@ export default function IngresoPage() {
 
                   {/* Observaciones */}
                   <div className="mt-8 relative">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Observaciones</label>
                     <textarea
                       value={row.observaciones}
                       onChange={e => updateRow(row.id, 'observaciones', e.target.value)}
                       className="w-full bg-slate-50/50 rounded-[2rem] p-6 text-xs font-bold text-slate-600 outline-none border border-slate-100 focus:border-slate-300 transition-all min-h-[100px] resize-none"
                       placeholder="Observaciones adicionales..."
                     />
+                  </div>
+
+                  {/* Respaldo Per-Row (Granular) */}
+                  <div className="mt-4 flex justify-end">
+                    <label className={cn(
+                      "flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer transition-all",
+                      row.url_respaldo ? "bg-emerald-50 text-emerald-600 border border-emerald-200" : "bg-slate-50 text-slate-400 hover:bg-slate-100 border border-slate-100"
+                    )}>
+                      <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => handleFilePerRow(row.id, e.target.files?.[0] || null)} />
+                      {row.url_respaldo ? (
+                        <>
+                          <CheckCircle2 className="w-4 h-4" />
+                          Respaldo OK
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-4 h-4" />
+                          Adjuntar Respaldo
+                        </>
+                      )}
+                    </label>
                   </div>
 
                   {/* Número de tarjeta */}
@@ -1045,6 +1039,7 @@ export default function IngresoPage() {
                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tiempo</th>
                   )}
 
+                  <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Respaldo</th>
                   <th className="px-4 py-5 w-12"></th>
                 </tr>
               </thead>
@@ -1139,6 +1134,17 @@ export default function IngresoPage() {
                       {activeTab === 'atrasos' && (
                         <td className="px-4 py-3"><input type="text" value={row.tiempo} onChange={e => updateRow(row.id, 'tiempo', e.target.value)} onKeyDown={e => e.key === 'Enter' && addRow()} className="w-20 bg-slate-50 rounded-lg py-2 text-center text-[11px] font-black border border-slate-200" /></td>
                       )}
+
+                      <td className="px-4 py-3 text-center">
+                        <label className="cursor-pointer">
+                          <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => handleFilePerRow(row.id, e.target.files?.[0] || null)} />
+                          {row.url_respaldo ? (
+                            <CheckCircle2 className="w-5 h-5 text-emerald-500 mx-auto" />
+                          ) : (
+                            <Plus className="w-4 h-4 text-slate-300 hover:text-primary mx-auto" />
+                          )}
+                        </label>
+                      </td>
 
                       <td className="px-4 py-3">
                         <button onClick={() => removeRow(row.id)} className="p-2 text-slate-200 hover:text-rose-500 transition-colors">

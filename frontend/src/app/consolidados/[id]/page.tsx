@@ -553,6 +553,15 @@ function EmployeeTableRow({
         </td>
         <td className="px-10 py-7 text-right">
           <div className="flex justify-end gap-4 items-center">
+            {item.url_respaldo && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); window.open(item.url_respaldo, '_blank'); }}
+                className="flex items-center gap-2 text-[10px] font-black text-emerald-600 hover:text-emerald-700 transition-all uppercase tracking-widest overflow-hidden"
+              >
+                Respaldo
+                <span className="material-symbols-outlined text-[18px] select-none" dangerouslySetInnerHTML={{ __html: '&#xe873;' }} />
+              </button>
+            )}
             <button className="flex items-center gap-2 text-[10px] font-black text-outline hover:text-primary transition-all uppercase tracking-widest overflow-hidden">
               Ficha
               <span className="material-symbols-outlined text-[18px] select-none" dangerouslySetInnerHTML={{ __html: '&#xf22e;' }} />

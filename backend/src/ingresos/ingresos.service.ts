@@ -101,6 +101,7 @@ export class IngresosService {
             fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
             fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
             observaciones_25: tx.observaciones || tx.programa_nombre || '',
+            url_respaldo: tx.url_respaldo || null
           }
         });
         count++;
@@ -122,6 +123,7 @@ export class IngresosService {
             monto_calculado: parseFloat(subtotal.toString()),
             fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
             fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
+            url_respaldo: tx.url_respaldo || null
           }
         });
         count++;
@@ -136,6 +138,7 @@ export class IngresosService {
             fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
             fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
             justificacion: tx.observaciones || '',
+            url_respaldo: tx.url_respaldo || null
           }
         });
         count++;
