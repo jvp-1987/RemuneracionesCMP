@@ -294,7 +294,6 @@ export default function IngresoPage() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const [activeRowId, setActiveRowId] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [respaldoFile, setRespaldoFile] = useState<File | null>(null);
   
   // Maestro Upload States
   const [showMaestroModal, setShowMaestroModal] = useState(false);
@@ -417,7 +416,6 @@ export default function IngresoPage() {
 
       setShowSuccess(true);
       setRows([]);
-      setRespaldoFile(null); // Reset file after save
       addRow();
       // Redirigir a consolidados después de 1.5 segundos para que vean el éxito
       setTimeout(() => {
