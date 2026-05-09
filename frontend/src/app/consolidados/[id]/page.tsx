@@ -30,6 +30,7 @@ interface Transaction {
   observaciones_25?: string;
   observaciones_50?: string;
   concept?: string;
+  url_respaldo?: string;
 }
 
 interface ConsolidadoDetail {
