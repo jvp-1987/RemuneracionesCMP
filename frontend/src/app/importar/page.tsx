@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from "@/lib/utils";
@@ -27,6 +28,7 @@ interface PeriodoDB {
 }
 
 export default function ImportarPage() {
+  const router = useRouter();
   const [mounted, setMounted] = React.useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -116,11 +118,19 @@ export default function ImportarPage() {
     try {
       const endpoint = importType === 'maestro' ? 'importar-maestro-mensual' : 'importar-validacion';
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-      await axios.post(`${apiUrl}/remuneraciones/${endpoint}?dryRun=false`, formData, {
+      const res = await axios.post(`${apiUrl}/remuneraciones/${endpoint}?dryRun=false`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 300000 // 5 minutos para la sincronización final
       });
+      
       setStep('success');
+      
+      // Si tenemos un ID de consolidado, redirigir después de un momento
+      if (res.data.consolidadoId) {
+        setTimeout(() => {
+          router.push(`/consolidados/${res.data.consolidadoId}`);
+        }, 2000);
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Falló la sincronización final. Intente nuevamente.');
       window.scrollTo({ top: 0, behavior: 'smooth' });
