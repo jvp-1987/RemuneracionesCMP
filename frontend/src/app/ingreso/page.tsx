@@ -392,6 +392,17 @@ export default function IngresoPage() {
     setActiveRowId(null);
   };
 
+  // ─── Respaldo por Fila ─────────────────────────────────────────────────────
+  const handleFilePerRow = (id: string, file: File | null) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setRows(prev => prev.map(r => r.id === id ? { ...r, url_respaldo: base64String } : r));
+    };
+    reader.readAsDataURL(file);
+  };
+
   // ─── Guardar ───────────────────────────────────────────────────────────────
   const handleSave = async () => {
     const validRows = rows.filter(r => r.rut);
