@@ -59,19 +59,18 @@ export class IngresosService {
 
     let count = 0;
 
-    // Procesar según tipo
+    // Procesar según tipo — UPSERT: actualizar si ya existe, crear si no
     for (const tx of transacciones) {
       if (!tx.rut) continue;
 
       if (tipo === 'fondos_presupuestarios' || tipo === 'programas_he') {
-        let programa_id = 1; // 1 = PRESUPUESTARIO por defecto
-        
-        // ASEGURAR que el programa 1 existe (Fondos Presupuestarios)
+        let programa_id = 1;
+
         const checkProg = await this.prisma.programa.findUnique({ where: { id: 1 } });
         if (!checkProg) {
-           await this.prisma.programa.create({ 
-             data: { id: 1, nombre: 'PRESUPUESTARIO', categoria_enum: 'PRESUPUESTARIO' } 
-           });
+          await this.prisma.programa.create({
+            data: { id: 1, nombre: 'PRESUPUESTARIO', categoria_enum: 'PRESUPUESTARIO' }
+          });
         }
 
         if (tipo === 'programas_he' && tx.programa_nombre) {
@@ -81,20 +80,28 @@ export class IngresosService {
           if (prog) programa_id = prog.id;
         }
 
-        await this.prisma.horasExtras.create({
-          data: {
-            consolidado_id: consolidado.id,
-            funcionario_rut: tx.rut,
-            programa_id: programa_id,
-            cantidad_25: parseFloat(tx.cantidad_25 || 0) || 0,
-            cantidad_50: parseFloat(tx.cantidad_50 || 0) || 0,
-            fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
-            fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
-            observaciones_25: tx.observaciones || tx.programa_nombre || '',
-            url_respaldo: tx.url_respaldo || null
-          }
+        const existingHE = await this.prisma.horasExtras.findFirst({
+          where: { consolidado_id: consolidado.id, funcionario_rut: tx.rut, programa_id }
         });
+
+        const heData = {
+          cantidad_25: parseFloat(tx.cantidad_25 || 0) || 0,
+          cantidad_50: parseFloat(tx.cantidad_50 || 0) || 0,
+          fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
+          fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
+          observaciones_25: tx.observaciones || tx.programa_nombre || '',
+          url_respaldo: tx.url_respaldo || null,
+        };
+
+        if (existingHE) {
+          await this.prisma.horasExtras.update({ where: { id: existingHE.id }, data: heData });
+        } else {
+          await this.prisma.horasExtras.create({
+            data: { consolidado_id: consolidado.id, funcionario_rut: tx.rut, programa_id, ...heData }
+          });
+        }
         count++;
+
       } else if (tipo === 'programas_turno') {
         const valHab = parseFloat(tx.valor_habil || 0) || 0;
         const valInh = parseFloat(tx.valor_inhabil || 0) || 0;
@@ -102,46 +109,71 @@ export class IngresosService {
         const cantInh = parseInt(tx.cant_inhabil || 0) || 0;
         const subtotal = (cantHab * valHab) + (cantInh * valInh);
 
-        await this.prisma.turnosUrgencia.create({
-          data: {
-            consolidado_id: consolidado.id,
-            funcionario_rut: tx.rut,
-            cant_turnos_habiles: cantHab,
-            valor_habil: valHab,
-            cant_turnos_inhabiles: cantInh,
-            valor_inhabil: valInh,
-            monto_calculado: parseFloat(subtotal.toString()),
-            fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
-            fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
-            url_respaldo: tx.url_respaldo || null
-          }
+        const existingTurno = await this.prisma.turnosUrgencia.findFirst({
+          where: { consolidado_id: consolidado.id, funcionario_rut: tx.rut }
         });
+
+        const turnoData = {
+          cant_turnos_habiles: cantHab,
+          valor_habil: valHab,
+          cant_turnos_inhabiles: cantInh,
+          valor_inhabil: valInh,
+          monto_calculado: parseFloat(subtotal.toString()),
+          fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
+          fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
+          url_respaldo: tx.url_respaldo || null,
+        };
+
+        if (existingTurno) {
+          await this.prisma.turnosUrgencia.update({ where: { id: existingTurno.id }, data: turnoData });
+        } else {
+          await this.prisma.turnosUrgencia.create({
+            data: { consolidado_id: consolidado.id, funcionario_rut: tx.rut, ...turnoData }
+          });
+        }
         count++;
-      }
- else if (tipo === 'viaticos') {
-        await this.prisma.viaticos.create({
-          data: {
-            consolidado_id: consolidado.id,
-            funcionario_rut: tx.rut,
-            tipo_destino: tx.tipo_destino || 'DENTRO COMUNA',
-            monto_calculado: parseFloat(tx.monto || 0),
-            fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
-            fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
-            justificacion: tx.observaciones || '',
-            url_respaldo: tx.url_respaldo || null
-          }
+
+      } else if (tipo === 'viaticos') {
+        const existingViatico = await this.prisma.viaticos.findFirst({
+          where: { consolidado_id: consolidado.id, funcionario_rut: tx.rut }
         });
+
+        const viaticoData = {
+          tipo_destino: tx.tipo_destino || 'DENTRO COMUNA',
+          monto_calculado: parseFloat(tx.monto || 0),
+          fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
+          fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
+          justificacion: tx.observaciones || '',
+          url_respaldo: tx.url_respaldo || null,
+        };
+
+        if (existingViatico) {
+          await this.prisma.viaticos.update({ where: { id: existingViatico.id }, data: viaticoData });
+        } else {
+          await this.prisma.viaticos.create({
+            data: { consolidado_id: consolidado.id, funcionario_rut: tx.rut, ...viaticoData }
+          });
+        }
         count++;
+
       } else if (tipo === 'atrasos') {
-        await this.prisma.atrasos.create({
-          data: {
-            consolidado_id: consolidado.id,
-            funcionario_rut: tx.rut,
-            tiempo_descuento: tx.tiempo || '0',
-            fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
-            fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
-          }
+        const existingAtraso = await this.prisma.atrasos.findFirst({
+          where: { consolidado_id: consolidado.id, funcionario_rut: tx.rut }
         });
+
+        const atrasoData = {
+          tiempo_descuento: tx.tiempo || '0',
+          fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
+          fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
+        };
+
+        if (existingAtraso) {
+          await this.prisma.atrasos.update({ where: { id: existingAtraso.id }, data: atrasoData });
+        } else {
+          await this.prisma.atrasos.create({
+            data: { consolidado_id: consolidado.id, funcionario_rut: tx.rut, ...atrasoData }
+          });
+        }
         count++;
       }
     }
