@@ -55,7 +55,8 @@ export default function ConsolidadoDetailPage() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/consolidados/${id}`);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      const res = await axios.get(`${apiUrl}/consolidados/${id}`);
       setData(res.data);
     } catch (err) {
       console.error('Error fetching detail:', err);
@@ -70,17 +71,19 @@ export default function ConsolidadoDetailPage() {
 
   const handleUpdateStatus = async (type: string, transId: number, field: string, newStatus: EstadoValidacion) => {
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       const endpoint = type === 'horas' ? 'horas-extras' : type === 'viaticos' ? 'viaticos' : 'atrasos';
-      await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/${endpoint}/${transId}`, { [field]: newStatus });
+      await axios.patch(`${apiUrl}/${endpoint}/${transId}`, { [field]: newStatus });
       fetchData();
     } catch (err) { console.error('Error updating status:', err); }
   };
 
   const handleUpdateObservation = async (type: string, transId: number, text: string, subType?: '25' | '50') => {
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       const endpoint = type === 'horas' ? 'horas-extras' : type === 'viaticos' ? 'viaticos' : 'atrasos';
       const obsKey = type === 'horas' && subType ? `observaciones_${subType}` : 'observaciones';
-      await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/${endpoint}/${transId}`, { [obsKey]: text });
+      await axios.patch(`${apiUrl}/${endpoint}/${transId}`, { [obsKey]: text });
       setData(prev => {
         if (!prev) return null;
         const key = type === 'horas' ? 'horas_extras' : type === 'viaticos' ? 'viaticos' : 'atrasos';
@@ -94,9 +97,10 @@ export default function ConsolidadoDetailPage() {
 
   const handleBulkUpdate = async (status: EstadoValidacion) => {
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       const endpoint = activeTab === 'horas' ? 'horas-extras' : activeTab === 'viaticos' ? 'viaticos' : 'atrasos';
       const payload = activeTab === 'horas' ? { estado_25: status, estado_50: status } : { estado: status };
-      await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/${endpoint}/bulk/${id}`, payload);
+      await axios.patch(`${apiUrl}/${endpoint}/bulk/${id}`, payload);
       fetchData();
     } catch (err) { console.error('Error in bulk update:', err); }
   };
@@ -107,14 +111,16 @@ export default function ConsolidadoDetailPage() {
       return;
     }
     try {
-      await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/consolidados/${id}`, { estado_actual_enum: 'Aprobado' });
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      await axios.patch(`${apiUrl}/consolidados/${id}`, { estado_actual_enum: 'Aprobado' });
       router.push('/consolidados');
     } catch (err) { console.error('Error finalizing:', err); }
   };
 
   const handleToggleValidation = async (field: 'vb_control_interno' | 'vb_finanzas', value: boolean) => {
     try {
-      await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/consolidados/${id}`, { [field]: value });
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      await axios.patch(`${apiUrl}/consolidados/${id}`, { [field]: value });
       fetchData();
     } catch (err) { console.error('Error toggling validation:', err); }
   };
@@ -248,7 +254,7 @@ export default function ConsolidadoDetailPage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="space-y-4">
             <h1 className="text-5xl font-black text-on-surface tracking-tighter uppercase font-headline">Validador Pro</h1>
-            <p className="text-secondary font-black text-xs tracking-[0.2em] uppercase">Consolidación de Haberes • Ciclo Mensual Mayo 2024</p>
+            <p className="text-secondary font-black text-xs tracking-[0.2em] uppercase">Consolidación de Haberes • Ciclo Mensual {new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(new Date(2026, data.periodo.mes - 1))} {data.periodo.anio}</p>
           </div>
           <div className="w-full md:w-[400px] space-y-4">
             <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-[0.2em] text-on-surface">
