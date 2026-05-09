@@ -124,6 +124,19 @@ export class ConsolidadosService {
     return this.prisma.consolidado.delete({ where: { id } });
   }
 
+  async uploadRespaldo(id: number, file: any) {
+    if (!file) throw new BadRequestException('Archivo no proporcionado');
+    
+    // Convertir a base64 para persistencia simple sin S3
+    const base64 = file.buffer.toString('base64');
+    const dataUri = `data:${file.mimetype};base64,${base64}`;
+    
+    return this.prisma.consolidado.update({
+      where: { id },
+      data: { url_respaldo: dataUri }
+    });
+  }
+
   async getDashboardKpis() {
     // Get the totals for each category across ALL active consolidados
     const [heTotal, turnosTotal, viaticosTotal, atrasosTotal, centrosSalud, consolidados] = await Promise.all([

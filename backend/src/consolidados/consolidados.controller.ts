@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { ConsolidadosService } from './consolidados.service';
 import { CreateConsolidadoDto } from './dto/create-consolidado.dto';
@@ -37,5 +38,11 @@ export class ConsolidadosController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.consolidadosService.remove(+id);
+  }
+  
+  @Post(':id/respaldo')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadRespaldo(@Param('id') id: string, @UploadedFile() file: any) {
+    return this.consolidadosService.uploadRespaldo(+id, file);
   }
 }

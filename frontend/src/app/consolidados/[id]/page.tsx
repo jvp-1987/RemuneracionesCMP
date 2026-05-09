@@ -42,6 +42,7 @@ interface ConsolidadoDetail {
   horas_extras: Transaction[];
   viaticos: Transaction[];
   atrasos: Transaction[];
+  url_respaldo?: string;
 }
 
 export default function ConsolidadoDetailPage() {
@@ -123,6 +124,25 @@ export default function ConsolidadoDetailPage() {
       await axios.patch(`${apiUrl}/consolidados/${id}`, { [field]: value });
       fetchData();
     } catch (err) { console.error('Error toggling validation:', err); }
+  };
+
+  const handleRespaldoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.[0]) return;
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      await axios.post(`${apiUrl}/consolidados/${id}/respaldo`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      fetchData();
+      alert('Respaldo adjuntado con éxito');
+    } catch (err) {
+      console.error('Error uploading respaldo:', err);
+      alert('Error al subir el respaldo');
+    }
   };
 
   if (loading) return <div className="p-20 text-center animate-pulse text-primary font-black uppercase tracking-widest text-xs">Sincronizando Validator Pro...</div>;
@@ -245,6 +265,26 @@ export default function ConsolidadoDetailPage() {
             >
               V°B° FINANZAS
             </button>
+            
+            <div className="h-8 w-[1px] bg-outline-variant/15 mx-2" />
+            
+            {data.url_respaldo ? (
+              <a 
+                href={data.url_respaldo} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-200 transition-all hover:scale-105"
+              >
+                <span className="material-symbols-outlined text-sm">visibility</span>
+                Ver Respaldo
+              </a>
+            ) : (
+              <label className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-700 transition-all shadow-lg">
+                <span className="material-symbols-outlined text-sm">attach_file</span>
+                Adjuntar Respaldo
+                <input type="file" className="hidden" onChange={handleRespaldoUpload} accept=".pdf,.jpg,.jpeg,.png" />
+              </label>
+            )}
           </div>
         </div>
       </header>
