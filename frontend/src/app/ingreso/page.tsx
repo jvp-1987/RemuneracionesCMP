@@ -608,9 +608,11 @@ export default function IngresoPage() {
               {new Date(periodoActual.inicio + 'T00:00:00').toLocaleDateString('es-CL', { day: '2-digit', month: 'short' })}
               {' → '}
               {new Date(periodoActual.fin + 'T00:00:00').toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' })}
+            </p>
           </div>
-        </div>
-      </div>
+
+          {/* Toggle vista */}
+          <div className="flex items-center bg-white border border-slate-100 rounded-2xl p-1.5 shadow-sm">
             <button
               onClick={() => setViewMode('cards')}
               className={cn("p-3 rounded-xl transition-all", viewMode === 'cards' ? "bg-slate-900 text-white" : "text-slate-400 hover:text-slate-600")}
