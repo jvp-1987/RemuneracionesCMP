@@ -487,7 +487,13 @@ export default function IngresoPage() {
 
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col min-h-screen bg-[#f8fafc] p-6 lg:p-12 pb-40">
+    <div className="flex flex-col min-h-screen bg-[#f1f5f9] p-6 lg:p-10 pb-44 selection:bg-primary/20">
+      
+      {/* Background Decorative Elements */}
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
+        <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-5%] right-[-5%] w-[30%] h-[30%] bg-blue-500/5 rounded-full blur-[100px]" />
+      </div>
 
       {/* Modal — Carga Maestro */}
       <AnimatePresence>
@@ -496,29 +502,29 @@ export default function IngresoPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-6"
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xl z-[200] flex items-center justify-center p-6"
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 30 }}
+              initial={{ scale: 0.9, opacity: 0, y: 40 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 30 }}
-              className="bg-white rounded-[3rem] p-10 w-full max-w-2xl shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] border border-white/20"
+              exit={{ scale: 0.9, opacity: 0, y: 40 }}
+              className="bg-white/90 backdrop-blur-2xl rounded-[3.5rem] p-12 w-full max-w-2xl shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] border border-white"
             >
-              <div className="flex items-center gap-6 mb-10">
-                <div className="w-16 h-16 rounded-3xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-                  <Activity className="w-8 h-8" />
+              <div className="flex items-center gap-8 mb-12">
+                <div className="w-20 h-20 rounded-[2rem] bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white shadow-2xl shadow-primary/30">
+                  <RefreshCcw className="w-10 h-10" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-slate-800 tracking-tighter uppercase">Sincronizar Maestro Funcionarios</h3>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Capital Humano — Categorías y Niveles</p>
+                  <h3 className="text-3xl font-black text-slate-800 tracking-tighter uppercase leading-none">Sincronizar Maestro</h3>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-3">Base de Datos de Funcionarios APS</p>
                 </div>
               </div>
 
               <div className="space-y-8">
                 <div 
                   className={cn(
-                    "border-4 border-dashed rounded-[2.5rem] p-12 transition-all group flex flex-col items-center justify-center text-center cursor-pointer",
-                    maestroFile ? "border-emerald-200 bg-emerald-50/30" : "border-slate-100 hover:border-primary/30 hover:bg-slate-50/50"
+                    "border-4 border-dashed rounded-[3rem] p-16 transition-all group flex flex-col items-center justify-center text-center cursor-pointer relative overflow-hidden",
+                    maestroFile ? "border-emerald-200 bg-emerald-50/50" : "border-slate-100 hover:border-primary/20 hover:bg-slate-50/80"
                   )}
                   onClick={() => document.getElementById('maestro-upload')?.click()}
                 >
@@ -530,44 +536,41 @@ export default function IngresoPage() {
                     accept=".xls,.xlsx"
                   />
                   {maestroFile ? (
-                    <>
-                      <CheckCircle2 className="w-16 h-16 text-emerald-500 mb-4" />
-                      <p className="text-lg font-black text-slate-800">{maestroFile.name}</p>
-                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-2">Archivo seleccionado listo para procesar</p>
-                    </>
+                    <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex flex-col items-center">
+                      <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center shadow-xl shadow-emerald-200 mb-6">
+                        <CheckCircle2 className="w-10 h-10 text-white" />
+                      </div>
+                      <p className="text-xl font-black text-slate-800 tracking-tight">{maestroFile.name}</p>
+                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-3 bg-emerald-100 px-4 py-1 rounded-full">Listo para importar</p>
+                    </motion.div>
                   ) : (
                     <>
-                      <RefreshCcw className="w-16 h-16 text-slate-200 mb-4 group-hover:rotate-180 transition-transform duration-700" />
-                      <p className="text-sm font-black text-slate-400 uppercase tracking-widest">Haz click para seleccionar el archivo .xls</p>
-                      <p className="text-[10px] font-bold text-slate-300 mt-2 italic px-8">Asegúrese que contenga las columnas de RUN, Nombre, Categoría y Nivel</p>
+                      <div className="w-20 h-20 bg-slate-50 rounded-[1.5rem] flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                        <Users className="w-10 h-10 text-slate-200" />
+                      </div>
+                      <p className="text-base font-black text-slate-400 uppercase tracking-widest mb-2">Selecciona el archivo Excel</p>
+                      <p className="text-[10px] font-bold text-slate-300 italic max-w-sm">El sistema actualizará automáticamente categorías y niveles de todo el personal.</p>
                     </>
                   )}
                 </div>
-
-                <div className="bg-amber-50 rounded-3xl p-6 border border-amber-100 flex gap-4">
-                   <Users className="w-6 h-6 text-amber-500 shrink-0" />
-                   <p className="text-[11px] font-bold text-amber-800 leading-relaxed uppercase">
-                     Esta acción actualizará la información base de todos los funcionarios. Es recomendable hacerlo antes de ingresar novedades mensuales.
-                   </p>
-                </div>
               </div>
 
-              <div className="flex gap-4 mt-12">
+              <div className="flex gap-6 mt-14">
                 <button 
                   onClick={() => setShowMaestroModal(false)}
-                  className="flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all border border-transparent"
+                  className="flex-1 py-6 rounded-3xl text-[11px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-100 transition-all"
                 >
-                  Cerrar
+                  Cancelar
                 </button>
                 <button 
                   disabled={!maestroFile || uploadingMaestro}
                   onClick={handleMaestroUpload}
                   className={cn(
-                    "flex-[2] py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-white shadow-xl shadow-primary/20 transition-all active:scale-95",
-                    maestroFile ? "bg-primary" : "bg-slate-200 cursor-not-allowed"
+                    "flex-[2] py-6 rounded-3xl text-[11px] font-black uppercase tracking-widest text-white shadow-2xl transition-all active:scale-95",
+                    maestroFile ? "bg-primary shadow-primary/30 hover:brightness-110" : "bg-slate-200 cursor-not-allowed"
                   )}
                 >
-                  {uploadingMaestro ? "Sincronizando..." : "Actualizar Maestro"}
+                  {uploadingMaestro ? "Procesando Datos..." : "Iniciar Sincronización"}
                 </button>
               </div>
             </motion.div>
@@ -577,35 +580,42 @@ export default function IngresoPage() {
 
 
       {/* ── Header ───────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-12">
-        <div className="relative">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3 mb-3"
+      <header className="relative z-10 flex flex-col xl:flex-row justify-between items-start xl:items-end gap-10 mb-16">
+        <div>
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }} 
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-4 mb-6"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white shadow-sm border border-slate-100">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ingreso de Novedades</span>
+            <div className="flex items-center gap-3 px-5 py-2 rounded-full bg-white shadow-sm border border-slate-200/50 backdrop-blur-md">
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse" />
+              <span className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Registro Centralizado de Haberes</span>
             </div>
             
             <button 
               onClick={() => setShowMaestroModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all group"
+              className="flex items-center gap-2 px-5 py-2 rounded-full bg-slate-900 text-white hover:bg-primary transition-all shadow-xl shadow-slate-200 group"
             >
-              <RefreshCcw className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500" />
-              <span className="text-[10px] font-black uppercase tracking-widest">Sincronizar Maestro</span>
+              <RefreshCcw className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-700" />
+              <span className="text-[9px] font-black uppercase tracking-widest">Sincronizar Maestro</span>
             </button>
           </motion.div>
-          <h1 className="text-4xl xl:text-5xl font-black text-slate-900 leading-none tracking-tighter">
-            Editor de <span className="text-primary">Novedades</span>
+          <h1 className="text-5xl xl:text-7xl font-black text-slate-900 leading-[0.9] tracking-tighter">
+            Editor de <br/><span className="text-primary italic">Novedades</span>
           </h1>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full xl:w-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full xl:w-auto">
           {/* Selector Centro */}
-          <div className="bg-white border border-slate-100 rounded-2xl px-6 py-4 min-w-[180px] shadow-sm">
-            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Centro de Salud</span>
+          <div className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
+                <Stethoscope className="w-4 h-4" />
+              </div>
+              <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Unidad de Salud</span>
+            </div>
             <select value={centroId} onChange={(e) => setCentroId(e.target.value)}
-              className="font-black text-slate-800 text-sm outline-none bg-transparent appearance-none cursor-pointer w-full"
+              className="font-black text-slate-800 text-base outline-none bg-transparent appearance-none cursor-pointer w-full"
             >
               <option value="1">CESFAM Panguipulli</option>
               <option value="2">CESFAM Choshuenco</option>
@@ -614,38 +624,52 @@ export default function IngresoPage() {
           </div>
 
           {/* Selector Período */}
-          <div className="bg-white border border-slate-100 rounded-2xl px-6 py-4 min-w-[200px] shadow-sm">
-            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Período de Pago</span>
+          <div className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
+                <Calendar className="w-4 h-4" />
+              </div>
+              <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Período de Nómina</span>
+            </div>
             <select value={periodoId} onChange={(e) => setPeriodoId(e.target.value)}
-              className="font-black text-slate-800 text-sm outline-none bg-transparent appearance-none cursor-pointer w-full"
+              className="font-black text-slate-800 text-base outline-none bg-transparent appearance-none cursor-pointer w-full"
             >
               {PERIODOS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
             </select>
           </div>
 
           {/* Info del período de medición */}
-          <div className="bg-slate-900 text-white rounded-2xl px-6 py-4 shadow-xl min-w-[240px]">
-            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-white/40 mb-1">Ventana de Medición</p>
-            <p className="text-xs font-black tracking-tight">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-[2rem] p-6 shadow-2xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:scale-150 transition-transform duration-700" />
+            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-white/40 mb-3 flex items-center gap-2">
+              <Clock className="w-3 h-3" /> Ventana de Medición
+            </p>
+            <p className="text-sm font-black tracking-tight flex items-center gap-2">
               {new Date(periodoActual.inicio + 'T00:00:00').toLocaleDateString('es-CL', { day: '2-digit', month: 'short' })}
-              {' → '}
+              <ChevronRight className="w-4 h-4 text-primary" />
               {new Date(periodoActual.fin + 'T00:00:00').toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' })}
             </p>
           </div>
 
           {/* Toggle vista */}
-          <div className="flex items-center bg-white border border-slate-100 rounded-2xl p-1.5 shadow-sm">
+          <div className="flex items-center justify-center bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-2 shadow-sm">
             <button
               onClick={() => setViewMode('cards')}
-              className={cn("p-3 rounded-xl transition-all", viewMode === 'cards' ? "bg-slate-900 text-white" : "text-slate-400 hover:text-slate-600")}
-            ><LayoutGrid className="w-4 h-4" /></button>
+              className={cn("flex-1 h-full rounded-[1.5rem] flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-widest", viewMode === 'cards' ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-slate-600")}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              <span className="hidden sm:inline">Tarjetas</span>
+            </button>
             <button
               onClick={() => setViewMode('table')}
-              className={cn("p-3 rounded-xl transition-all", viewMode === 'table' ? "bg-slate-900 text-white" : "text-slate-400 hover:text-slate-600")}
-            ><Table2 className="w-4 h-4" /></button>
+              className={cn("flex-1 h-full rounded-[1.5rem] flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-widest", viewMode === 'table' ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-slate-600")}
+            >
+              <Table2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Tabla</span>
+            </button>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Modal Vincular Funcionario Global */}
       <AnimatePresence>
@@ -654,79 +678,84 @@ export default function IngresoPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-6"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[200] flex items-center justify-center p-6"
             onClick={() => setActiveRowId(null)}
           >
             <motion.div 
-              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
               onClick={e => e.stopPropagation()}
-              className="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-md border border-slate-100"
+              className="bg-white rounded-[3rem] shadow-2xl p-8 w-full max-w-lg border border-white"
             >
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                    <Search className="w-5 h-5" />
+              <div className="flex justify-between items-center mb-8">
+                <div className="flex items-center gap-5">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/10 shadow-inner">
+                    <Search className="w-7 h-7" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Vincular Funcionario</h3>
-                    <p className="text-[10px] font-bold text-slate-400">Busque por RUT o Nombre</p>
+                    <h3 className="text-xl font-black text-slate-800 tracking-tighter uppercase">Buscar Funcionario</h3>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Nómina Clínica APS</p>
                   </div>
                 </div>
-                <button onClick={() => setActiveRowId(null)} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200 transition-colors">
-                  <span className="text-sm font-black">X</span>
+                <button onClick={() => setActiveRowId(null)} className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200 transition-all active:scale-90">
+                  <Plus className="w-6 h-6 rotate-45" />
                 </button>
               </div>
 
-              <div className="relative mb-4">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <div className="relative mb-6">
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5" />
                 <input 
                   autoFocus
-                  className="w-full bg-slate-50 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold outline-none border border-slate-100 focus:border-primary focus:bg-white transition-all shadow-sm"
-                  placeholder="Ej: 15.123.456-7 o Juan Pérez..."
+                  className="w-full bg-slate-50 rounded-3xl pl-16 pr-6 py-6 text-base font-black outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all shadow-inner"
+                  placeholder="Ej: 15.123.456-7..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  onKeyDown={e => {
-                      if (e.key === 'Escape') setActiveRowId(null);
-                  }}
                 />
               </div>
 
-              {searchResults.length > 0 ? (
-                <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-2 no-scrollbar">
-                  {searchResults.map(f => (
+              <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-3 custom-scrollbar">
+                {searchResults.length > 0 ? (
+                  searchResults.map(f => (
                     <button 
                       key={f.rut}
                       onClick={() => handleSelectFuncionario(f.rut, f.nombre_completo, f.categoria_aps || '', f.nivel_aps?.toString() || '')}
-                      className="w-full text-left p-4 hover:bg-slate-50 rounded-2xl transition-all border border-transparent hover:border-slate-200 flex justify-between items-center group bg-white shadow-sm"
+                      className="w-full text-left p-5 bg-white hover:bg-slate-50 rounded-[2rem] transition-all border border-slate-100 hover:border-primary/20 flex justify-between items-center group shadow-sm hover:shadow-md"
                     >
-                      <div>
-                        <p className="text-xs font-black text-slate-700 group-hover:text-primary leading-tight mb-1">{f.nombre_completo}</p>
-                        <p className="text-[10px] font-bold text-slate-400 tracking-wide">{f.rut}</p>
+                      <div className="flex items-center gap-4">
+                         <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 font-black text-xs group-hover:bg-primary group-hover:text-white transition-all">
+                            {f.nombre_completo.split(' ').map((n:any)=>n[0]).join('').slice(0,2)}
+                         </div>
+                         <div>
+                          <p className="text-sm font-black text-slate-800 leading-tight mb-1 group-hover:text-primary transition-colors">{f.nombre_completo}</p>
+                          <p className="text-[10px] font-black text-slate-400 tracking-widest uppercase">{f.rut}</p>
+                        </div>
                       </div>
-                      <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                        Cat. {f.categoria_aps}
-                      </span>
+                      <div className="text-right">
+                        <span className="text-[9px] font-black text-primary bg-primary/5 px-3 py-1.5 rounded-full border border-primary/10">
+                          Cat. {f.categoria_aps}
+                        </span>
+                      </div>
                     </button>
-                  ))}
-                </div>
-              ) : searchQuery.length >= 2 ? (
-                <div className="py-8 text-center text-slate-400">
-                  {searchError ? (
-                    <p className="text-[11px] font-bold text-rose-500 uppercase tracking-widest">{searchError}</p>
-                  ) : (
-                    <p className="text-[11px] font-bold uppercase tracking-widest">No se encontraron resultados</p>
-                  )}
-                </div>
-              ) : null}
+                  ))
+                ) : searchQuery.length >= 2 ? (
+                  <div className="py-12 text-center">
+                    <p className="text-[11px] font-black text-slate-300 uppercase tracking-widest">No se encontraron registros</p>
+                  </div>
+                ) : (
+                  <div className="py-12 text-center opacity-30">
+                    <Users className="w-16 h-16 mx-auto mb-4 text-slate-200" />
+                    <p className="text-[11px] font-black uppercase tracking-[0.2em]">Inicie la búsqueda</p>
+                  </div>
+                )}
+              </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* ── Tabs ─────────────────────────────────────────────────────────────── */}
-      <div className="flex items-center p-1.5 bg-slate-200/50 rounded-[2.5rem] mb-12 self-start max-w-full overflow-x-auto no-scrollbar">
+      <nav className="relative z-10 flex items-center p-2 bg-white/60 backdrop-blur-md rounded-[3rem] border border-white mb-12 self-start max-w-full overflow-x-auto no-scrollbar shadow-sm">
         {TABS.map(tab => {
           const isActive = activeTab === tab.id;
           return (
@@ -734,76 +763,92 @@ export default function IngresoPage() {
               key={tab.id}
               onClick={() => { setActiveTab(tab.id as TabType); setRows([]); addRow(); }}
               className={cn(
-                "relative flex items-center gap-3 px-8 py-4 rounded-full transition-all duration-300 whitespace-nowrap",
-                isActive ? "text-white shadow-xl" : "text-slate-500 hover:text-slate-700"
+                "relative flex items-center gap-4 px-10 py-5 rounded-full transition-all duration-500 whitespace-nowrap group",
+                isActive ? "text-white" : "text-slate-400 hover:text-slate-600"
               )}
             >
-              <tab.icon className={cn("w-5 h-5", isActive ? "opacity-100" : "opacity-60")} />
-              <span className="text-[11px] font-black uppercase tracking-widest leading-none">{tab.label}</span>
+              <tab.icon className={cn("w-5 h-5 transition-all", isActive ? "scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" : "group-hover:scale-110")} />
+              <span className="text-[11px] font-black uppercase tracking-[0.15em] leading-none">{tab.label}</span>
               {isActive && (
                 <motion.div
                   layoutId="activeTabBg"
-                  className={cn("absolute inset-0 bg-gradient-to-br rounded-full -z-10", tab.color)}
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  className={cn("absolute inset-0 bg-gradient-to-br rounded-full -z-10 shadow-2xl", tab.color)}
+                  transition={{ type: "spring", bounce: 0.15, duration: 0.8 }}
                 />
               )}
             </button>
           );
         })}
-      </div>
+      </nav>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          VISTA TARJETAS
+          VISTA TARJETAS — REDISEÑADA "PREMIUM"
        ══════════════════════════════════════════════════════════════════════ */}
       {viewMode === 'cards' ? (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-10 items-start relative z-10">
           <AnimatePresence mode="popLayout">
             {rows.map((row, index) => {
               const outOfPeriod = isOutOfPeriod(row.fecha_inicio, row.fecha_termino);
+              const isSelected = !!row.rut;
+
               return (
                   <motion.div
                     key={row.id}
                     layout
-                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                    initial={{ opacity: 0, scale: 0.95, y: 30 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: -20, transition: { duration: 0.2 } }}
+                    exit={{ opacity: 0, scale: 0.9, y: -30, transition: { duration: 0.3 } }}
                     className={cn(
-                      "group bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] border transition-all duration-500 relative",
-                      outOfPeriod ? "border-amber-200" : "border-white hover:border-primary/20"
+                      "group bg-white/95 backdrop-blur-2xl rounded-[3.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.04)] hover:shadow-[0_40px_80px_rgba(0,0,0,0.08)] border transition-all duration-700 relative overflow-hidden",
+                      outOfPeriod ? "border-amber-200 ring-2 ring-amber-100/20" : "border-white hover:border-primary/10"
                     )}
                   >
+                  {/* Numero de Registro sutil */}
+                  <div className="absolute top-10 left-10 text-[60px] font-black text-slate-50 select-none -z-0 pointer-events-none">
+                    {String(index + 1).padStart(2, '0')}
+                  </div>
+
                   {/* Badge desfase */}
                   {outOfPeriod && (
-                    <div className="absolute top-6 right-6 flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-600 rounded-full px-3 py-1.5 text-[9px] font-black uppercase tracking-widest">
-                      <AlertTriangle className="w-3 h-3" />
+                    <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
+                      className="absolute top-10 right-10 flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-600 rounded-full px-5 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] shadow-sm z-20"
+                    >
+                      <AlertTriangle className="w-3.5 h-3.5" />
                       Desfase Documentario
-                    </div>
+                    </motion.div>
                   )}
 
                   {/* Card Header — Funcionario */}
-                  <div className="flex justify-between items-start mb-8">
-                    <div className="flex items-center gap-4">
-                      <div className={cn("w-14 h-14 rounded-3xl bg-gradient-to-br flex items-center justify-center text-white shadow-lg", activeTabInfo.color)}>
-                        <User className="w-6 h-6" />
+                  <div className="flex justify-between items-start mb-12 relative z-10">
+                    <div className="flex items-center gap-6">
+                      <div className={cn(
+                        "w-20 h-20 rounded-[2rem] bg-gradient-to-br flex items-center justify-center text-white shadow-2xl transition-all duration-700 group-hover:scale-110 group-hover:rotate-3", 
+                        isSelected ? activeTabInfo.color : "from-slate-100 to-slate-200 text-slate-300"
+                      )}>
+                        {isSelected ? (
+                           <div className="font-black text-xl">{row.nombre.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+                        ) : (
+                           <User className="w-10 h-10" />
+                        )}
                       </div>
                       <div>
                         {row.rut ? (
-                          <>
-                            <h4 className="text-lg font-black text-slate-800 leading-none mb-2">{row.nombre}</h4>
-                            <div className="flex gap-2">
-                              <span className="text-[9px] font-black bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md uppercase tracking-tighter">{row.rut}</span>
-                              <span className={cn("text-[9px] font-black bg-gradient-to-r text-white px-2 py-0.5 rounded-md uppercase tracking-tighter opacity-80", activeTabInfo.color)}>
-                                Cat {row.categoria_aps} / Niv {row.nivel_aps}
+                          <div className="space-y-3">
+                            <h4 className="text-2xl font-black text-slate-800 leading-none tracking-tighter">{row.nombre}</h4>
+                            <div className="flex items-center gap-3">
+                              <span className="text-[10px] font-black bg-slate-100 text-slate-500 px-3 py-1.5 rounded-xl uppercase tracking-widest">{row.rut}</span>
+                              <span className={cn("text-[10px] font-black text-white px-3 py-1.5 rounded-xl uppercase tracking-widest shadow-lg", activeTabInfo.color)}>
+                                Cat {row.categoria_aps} • Niv {row.nivel_aps}
                               </span>
                             </div>
-                          </>
+                          </div>
                         ) : (
-                          <button
+                          <button 
                             onClick={() => setActiveRowId(row.id)}
-                            className="flex items-center gap-2 text-slate-400 font-black uppercase tracking-widest text-[11px] hover:text-primary transition-colors bg-slate-50 px-4 py-2 rounded-xl group/btn border border-dashed border-slate-200"
+                            className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-slate-50 border border-slate-100 text-slate-400 hover:text-primary hover:border-primary/20 hover:bg-white transition-all group"
                           >
-                            <Plus className="w-4 h-4 group-hover/btn:scale-125 transition-transform" />
-                            Vincular Funcionario
+                            <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Vincular Funcionario</span>
                           </button>
                         )}
                       </div>
