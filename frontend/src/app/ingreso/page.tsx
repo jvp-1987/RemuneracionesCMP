@@ -194,7 +194,7 @@ function MiniCalendar({ startDate, endDate, onChange, periodoInicio, periodoFin,
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-100 shadow-lg p-4 w-full max-w-[320px]">
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-lg p-3 w-full max-w-[280px]">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <button onClick={prevMonth} className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors">
@@ -508,15 +508,15 @@ export default function IngresoPage() {
               initial={{ scale: 0.9, opacity: 0, y: 40 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 40 }}
-              className="bg-white/90 backdrop-blur-2xl rounded-[3.5rem] p-12 w-full max-w-2xl shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] border border-white"
+              className="bg-white/90 backdrop-blur-2xl rounded-[2.5rem] p-10 w-full max-w-xl shadow-[0_40px_80px_-10px_rgba(0,0,0,0.25)] border border-white"
             >
               <div className="flex items-center gap-8 mb-12">
-                <div className="w-20 h-20 rounded-[2rem] bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white shadow-2xl shadow-primary/30">
-                  <RefreshCcw className="w-10 h-10" />
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white shadow-xl shadow-primary/20">
+                  <RefreshCcw className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="text-3xl font-black text-slate-800 tracking-tighter uppercase leading-none">Sincronizar Maestro</h3>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-3">Base de Datos de Funcionarios APS</p>
+                  <h3 className="text-2xl font-black text-slate-800 tracking-tighter uppercase leading-none">Sincronizar Maestro</h3>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-2">Base de Datos de Funcionarios APS</p>
                 </div>
               </div>
 
@@ -600,7 +600,7 @@ export default function IngresoPage() {
               <span className="text-[9px] font-black uppercase tracking-widest">Sincronizar Maestro</span>
             </button>
           </motion.div>
-          <h1 className="text-5xl xl:text-7xl font-black text-slate-900 leading-[0.9] tracking-tighter">
+          <h1 className="text-3xl xl:text-5xl font-black text-slate-900 leading-[0.9] tracking-tighter">
             Editor de <br/><span className="text-primary italic">Novedades</span>
           </h1>
         </div>
@@ -686,7 +686,7 @@ export default function IngresoPage() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               onClick={e => e.stopPropagation()}
-              className="bg-white rounded-[3rem] shadow-2xl p-8 w-full max-w-lg border border-white"
+              className="bg-white rounded-[2.5rem] shadow-2xl p-6 w-full max-w-md border border-white"
             >
               <div className="flex justify-between items-center mb-8">
                 <div className="flex items-center gap-5">
@@ -694,20 +694,20 @@ export default function IngresoPage() {
                     <Search className="w-7 h-7" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-black text-slate-800 tracking-tighter uppercase">Buscar Funcionario</h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Nómina Clínica APS</p>
+                    <h3 className="text-base font-black text-slate-800 tracking-tighter uppercase">Buscar Funcionario</h3>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Nómina Clínica APS</p>
                   </div>
                 </div>
-                <button onClick={() => setActiveRowId(null)} className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200 transition-all active:scale-90">
-                  <Plus className="w-6 h-6 rotate-45" />
+                <button onClick={() => setActiveRowId(null)} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200 transition-all active:scale-90">
+                  <Plus className="w-5 h-5 rotate-45" />
                 </button>
               </div>
 
               <div className="relative mb-6">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
                 <input 
                   autoFocus
-                  className="w-full bg-slate-50 rounded-3xl pl-16 pr-6 py-6 text-base font-black outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all shadow-inner"
+                  className="w-full bg-slate-50 rounded-xl pl-11 pr-4 py-3 text-xs font-black outline-none border-2 border-transparent focus:border-primary/20 focus:bg-white transition-all shadow-inner"
                   placeholder="Ej: 15.123.456-7..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
@@ -755,7 +755,7 @@ export default function IngresoPage() {
       </AnimatePresence>
 
       {/* ── Tabs ─────────────────────────────────────────────────────────────── */}
-      <nav className="relative z-10 flex items-center p-2 bg-white/60 backdrop-blur-md rounded-[3rem] border border-white mb-12 self-start max-w-full overflow-x-auto no-scrollbar shadow-sm">
+      <nav className="relative z-10 flex items-center p-1.5 bg-white/60 backdrop-blur-md rounded-3xl border border-white mb-8 self-start max-w-full overflow-x-auto no-scrollbar shadow-sm">
         {TABS.map(tab => {
           const isActive = activeTab === tab.id;
           return (
@@ -763,12 +763,12 @@ export default function IngresoPage() {
               key={tab.id}
               onClick={() => { setActiveTab(tab.id as TabType); setRows([]); addRow(); }}
               className={cn(
-                "relative flex items-center gap-4 px-10 py-5 rounded-full transition-all duration-500 whitespace-nowrap group",
+                "relative flex items-center gap-3 px-6 py-3 rounded-full transition-all duration-500 whitespace-nowrap group",
                 isActive ? "text-white" : "text-slate-400 hover:text-slate-600"
               )}
             >
-              <tab.icon className={cn("w-5 h-5 transition-all", isActive ? "scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" : "group-hover:scale-110")} />
-              <span className="text-[11px] font-black uppercase tracking-[0.15em] leading-none">{tab.label}</span>
+              <tab.icon className={cn("w-4 h-4 transition-all", isActive ? "scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]" : "group-hover:scale-110")} />
+              <span className="text-[10px] font-black uppercase tracking-[0.1em] leading-none">{tab.label}</span>
               {isActive && (
                 <motion.div
                   layoutId="activeTabBg"
@@ -799,45 +799,45 @@ export default function IngresoPage() {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9, y: -30, transition: { duration: 0.3 } }}
                     className={cn(
-                      "group bg-white/95 backdrop-blur-2xl rounded-[3.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.04)] hover:shadow-[0_40px_80px_rgba(0,0,0,0.08)] border transition-all duration-700 relative overflow-hidden",
-                      outOfPeriod ? "border-amber-200 ring-2 ring-amber-100/20" : "border-white hover:border-primary/10"
+                      "group bg-white/95 backdrop-blur-2xl rounded-[2.5rem] p-6 shadow-[0_15px_40px_rgba(0,0,0,0.03)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.06)] border transition-all duration-700 relative overflow-hidden",
+                      outOfPeriod ? "border-amber-200 ring-1 ring-amber-100/20" : "border-white hover:border-primary/10"
                     )}
                   >
                   {/* Numero de Registro sutil */}
-                  <div className="absolute top-10 left-10 text-[60px] font-black text-slate-50 select-none -z-0 pointer-events-none">
+                  <div className="absolute top-6 left-6 text-[40px] font-black text-slate-50 select-none -z-0 pointer-events-none">
                     {String(index + 1).padStart(2, '0')}
                   </div>
 
                   {/* Badge desfase */}
                   {outOfPeriod && (
                     <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }}
-                      className="absolute top-10 right-10 flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-600 rounded-full px-5 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] shadow-sm z-20"
+                      className="absolute top-6 right-6 flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-600 rounded-full px-4 py-2 text-[8px] font-black uppercase tracking-[0.2em] shadow-sm z-20"
                     >
-                      <AlertTriangle className="w-3.5 h-3.5" />
+                      <AlertTriangle className="w-3 h-3" />
                       Desfase Documentario
                     </motion.div>
                   )}
 
                   {/* Card Header — Funcionario */}
-                  <div className="flex justify-between items-start mb-12 relative z-10">
-                    <div className="flex items-center gap-6">
+                    <div className="flex justify-between items-start mb-8 relative z-10">
+                    <div className="flex items-center gap-5">
                       <div className={cn(
-                        "w-20 h-20 rounded-[2rem] bg-gradient-to-br flex items-center justify-center text-white shadow-2xl transition-all duration-700 group-hover:scale-110 group-hover:rotate-3", 
+                        "w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center text-white shadow-xl transition-all duration-700 group-hover:scale-105 group-hover:rotate-2", 
                         isSelected ? activeTabInfo.color : "from-slate-100 to-slate-200 text-slate-300"
                       )}>
                         {isSelected ? (
-                           <div className="font-black text-xl">{row.nombre.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+                           <div className="font-black text-lg">{row.nombre.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
                         ) : (
-                           <User className="w-10 h-10" />
+                           <User className="w-7 h-7" />
                         )}
                       </div>
                       <div>
                         {row.rut ? (
-                          <div className="space-y-3">
-                            <h4 className="text-2xl font-black text-slate-800 leading-none tracking-tighter">{row.nombre}</h4>
-                            <div className="flex items-center gap-3">
-                              <span className="text-[10px] font-black bg-slate-100 text-slate-500 px-3 py-1.5 rounded-xl uppercase tracking-widest">{row.rut}</span>
-                              <span className={cn("text-[10px] font-black text-white px-3 py-1.5 rounded-xl uppercase tracking-widest shadow-lg", activeTabInfo.color)}>
+                          <div className="space-y-2">
+                            <h4 className="text-lg font-black text-slate-800 leading-none tracking-tighter">{row.nombre}</h4>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[9px] font-black bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg uppercase tracking-widest">{row.rut}</span>
+                              <span className={cn("text-[9px] font-black text-white px-2.5 py-1 rounded-lg uppercase tracking-widest shadow-md", activeTabInfo.color)}>
                                 Cat {row.categoria_aps} • Niv {row.nivel_aps}
                               </span>
                             </div>
@@ -1235,11 +1235,11 @@ export default function IngresoPage() {
       )}
 
       {/* ── Floating Save Bar ────────────────────────────────────────────────── */}
-      <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg px-6">
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-6">
         <motion.div
           initial={{ y: 100 }}
           animate={{ y: 0 }}
-          className="glass p-3 rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] border border-white/20 flex items-center justify-between"
+          className="glass p-2 rounded-full shadow-[0_20px_50px_-12px_rgba(0,0,0,0.2)] border border-white/20 flex items-center justify-between"
         >
           <div className="flex items-center gap-4 pl-6">
             <div>
@@ -1280,11 +1280,11 @@ export default function IngresoPage() {
               onClick={handleSave}
               disabled={loading || rows.every(r => !r.rut)}
               className={cn(
-                "flex items-center gap-3 bg-gradient-to-br from-slate-800 to-slate-900 text-white px-10 py-5 rounded-full font-black uppercase tracking-widest shadow-xl hover:shadow-primary/20 transition-all text-xs disabled:opacity-50",
+                "flex items-center gap-2 bg-gradient-to-br from-slate-800 to-slate-900 text-white px-6 py-3.5 rounded-full font-black uppercase tracking-widest shadow-lg hover:shadow-primary/20 transition-all text-[10px] disabled:opacity-50",
                 !loading && "hover:from-primary hover:to-indigo-600"
               )}
             >
-              {loading ? <RefreshCcw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+              {loading ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Guardar Lote
             </button>
           </div>
