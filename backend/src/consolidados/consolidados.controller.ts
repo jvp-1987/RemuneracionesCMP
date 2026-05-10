@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { ConsolidadosService } from './consolidados.service';
@@ -16,8 +16,8 @@ export class ConsolidadosController {
   }
 
   @Get('dashboard')
-  getDashboardKpis() {
-    return this.consolidadosService.getDashboardKpis();
+  getDashboardKpis(@Query('periodoId') periodoId?: string) {
+    return this.consolidadosService.getDashboardKpis(periodoId ? +periodoId : undefined);
   }
 
   @Get()

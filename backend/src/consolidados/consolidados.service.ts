@@ -137,67 +137,124 @@ export class ConsolidadosService {
     });
   }
 
-  async getDashboardKpis() {
-    // Get the totals for each category across ALL active consolidados
-    const [heTotal, turnosTotal, viaticosTotal, atrasosTotal, centrosSalud, consolidados] = await Promise.all([
-      this.prisma.horasExtras.aggregate({
-        _sum: { monto_25: true, monto_50: true, cantidad_25: true, cantidad_50: true },
+  async getDashboardKpis(periodoId?: number) {
+    // ── Paso 1: Determinar el período a usar ───────────────────────────────────
+    // Si se pasa un periodoId, se filtra por ese. Si no, se usa el más reciente
+    // que tenga al menos una liquidación cargada.
+    let targetPeriodoId = periodoId;
+
+    if (!targetPeriodoId) {
+      const ultimaLiq = await this.prisma.liquidacionMensual.findFirst({
+        orderBy: { fecha_importacion: 'desc' },
+        select: { periodo_id: true },
+      });
+      targetPeriodoId = ultimaLiq?.periodo_id ?? undefined;
+    }
+
+    // ── Paso 2: Agregar totales desde el Maestro de Remuneraciones ─────────────
+    // LiquidacionMensual es la fuente de verdad financiera mensual.
+    const whereClause = targetPeriodoId ? { periodo_id: targetPeriodoId } : {};
+
+    const [totalesMaestro, porCentroRaw, cantidades, ultimosConsolidados, periodoActual] = await Promise.all([
+      // KPIs financieros principales desde el maestro
+      this.prisma.liquidacionMensual.aggregate({
+        where: whereClause,
+        _sum: {
+          sueldo_base: true,
+          total_haberes: true,
+          total_descuentos: true,
+          monto_liquido: true,
+          monto_he_pagado: true,
+          monto_atrasos_pagado: true,
+          monto_viaticos_real: true,
+          cantidad_he_25_real: true,
+          cantidad_he_50_real: true,
+        },
+        _count: { funcionario_rut: true },
       }),
-      this.prisma.turnosUrgencia.aggregate({
-        _sum: { monto_calculado: true, cant_turnos_habiles: true, cant_turnos_inhabiles: true },
-      }),
-      this.prisma.viaticos.aggregate({
-        _sum: { monto_calculado: true },
-        _count: true,
-      }),
-      this.prisma.atrasos.aggregate({
-        _sum: { monto_descuento: true },
-        _count: true,
-      }),
-      this.prisma.centroSalud.findMany({
-        include: {
-          consolidados: {
-            include: {
-              horas_extras: { select: { monto_25: true, monto_50: true } },
-              turnos_urgencia: { select: { monto_calculado: true } },
-              viaticos: { select: { monto_calculado: true } },
-            },
-          },
+
+      // Gasto total por Centro de Salud desde el maestro
+      this.prisma.liquidacionMensual.groupBy({
+        by: ['funcionario_rut'],
+        where: whereClause,
+        _sum: {
+          total_haberes: true,
+          monto_liquido: true,
         },
       }),
+
+      // Contadores operativos (atrasos, viáticos registrados en maestro)
+      this.prisma.liquidacionMensual.aggregate({
+        where: whereClause,
+        _sum: {
+          minutos_atraso_real: true,
+        },
+        _count: { funcionario_rut: true },
+      }),
+
+      // Últimos 5 consolidados (sólo para contexto operativo del proceso de validación)
       this.prisma.consolidado.findMany({
         include: { periodo: true, centro_salud: true },
         orderBy: { id: 'desc' },
         take: 5,
       }),
+
+      // Info del período actual
+      targetPeriodoId
+        ? this.prisma.periodo.findUnique({ where: { id: targetPeriodoId } })
+        : null,
     ]);
 
-    // Build per-centro spend summary
-    const porCentro = centrosSalud.map(c => {
-      const gastoHE = c.consolidados.reduce((acc, con) => {
-        const he = con.horas_extras.reduce((s, h) => s + Number(h.monto_25) + Number(h.monto_50), 0);
-        const tur = con.turnos_urgencia.reduce((s, t) => s + Number(t.monto_calculado), 0);
-        const via = con.viaticos.reduce((s, v) => s + Number(v.monto_calculado), 0);
-        return acc + he + tur + via;
-      }, 0);
-      return { nombre: c.nombre, gasto_total: gastoHE };
-    }).sort((a, b) => b.gasto_total - a.gasto_total);
+    // ── Paso 3: Construir gasto por centro ────────────────────────────────────
+    // Necesitamos cruzar funcionario_rut con su centro_salud para agrupar
+    const rutsList = porCentroRaw.map(r => r.funcionario_rut);
+    const funcionariosCentro = await this.prisma.funcionario.findMany({
+      where: { rut: { in: rutsList } },
+      select: { rut: true, centro_salud_id: true, centro_salud: { select: { nombre: true } } },
+    });
 
+    const centroMap: Record<string, { nombre: string; gasto_total: number }> = {};
+    for (const fRow of porCentroRaw) {
+      const func = funcionariosCentro.find(f => f.rut === fRow.funcionario_rut);
+      const centrNombre = func?.centro_salud?.nombre ?? 'Sin Centro';
+      if (!centroMap[centrNombre]) centroMap[centrNombre] = { nombre: centrNombre, gasto_total: 0 };
+      centroMap[centrNombre].gasto_total += Number(fRow._sum.monto_liquido ?? 0);
+    }
+    const porCentro = Object.values(centroMap).sort((a, b) => b.gasto_total - a.gasto_total);
+
+    // ── Paso 4: Retornar KPIs desde el Maestro ────────────────────────────────
     return {
+      periodo: periodoActual,
+      fuente: 'maestro_remuneraciones', // Flag para indicar origen de datos
       kpis: {
-        total_he: Number(heTotal._sum.monto_25 ?? 0) + Number(heTotal._sum.monto_50 ?? 0),
-        total_turnos: Number(turnosTotal._sum.monto_calculado ?? 0),
-        total_viaticos: Number(viaticosTotal._sum.monto_calculado ?? 0),
-        total_atrasos_descuento: Number(atrasosTotal._sum.monto_descuento ?? 0),
-        cantidad_he_25: Number(heTotal._sum.cantidad_25 ?? 0),
-        cantidad_he_50: Number(heTotal._sum.cantidad_50 ?? 0),
-        cantidad_turnos_habiles: Number(turnosTotal._sum.cant_turnos_habiles ?? 0),
-        cantidad_turnos_inhabiles: Number(turnosTotal._sum.cant_turnos_inhabiles ?? 0),
-        cantidad_viaticos: viaticosTotal._count,
-        cantidad_atrasos: atrasosTotal._count,
+        // Masa salarial real del maestro
+        total_sueldo_base: Number(totalesMaestro._sum.sueldo_base ?? 0),
+        total_haberes: Number(totalesMaestro._sum.total_haberes ?? 0),
+        total_descuentos: Number(totalesMaestro._sum.total_descuentos ?? 0),
+        total_liquido: Number(totalesMaestro._sum.monto_liquido ?? 0),
+        cantidad_funcionarios: totalesMaestro._count.funcionario_rut,
+
+        // Haberes extras (reales según maestro)
+        total_he: Number(totalesMaestro._sum.monto_he_pagado ?? 0),
+        cantidad_he_25: Number(totalesMaestro._sum.cantidad_he_25_real ?? 0),
+        cantidad_he_50: Number(totalesMaestro._sum.cantidad_he_50_real ?? 0),
+
+        // Viáticos reales
+        total_viaticos: Number(totalesMaestro._sum.monto_viaticos_real ?? 0),
+        cantidad_viaticos: 0, // Se puede cruzar con Viaticos si se requiere conteo exacto
+
+        // Descuentos por atrasos reales
+        total_atrasos_descuento: Number(totalesMaestro._sum.monto_atrasos_pagado ?? 0),
+        minutos_atraso_total: Number(cantidades._sum.minutos_atraso_real ?? 0),
+        cantidad_atrasos: 0, // Se puede cruzar con Atrasos si se requiere conteo exacto
+
+        // Legacy (por compatibilidad con frontend mientras se migra)
+        total_turnos: 0,
+        cantidad_turnos_habiles: 0,
+        cantidad_turnos_inhabiles: 0,
       },
       por_centro: porCentro,
-      ultimos_consolidados: consolidados,
+      ultimos_consolidados: ultimosConsolidados,
     };
   }
 }
