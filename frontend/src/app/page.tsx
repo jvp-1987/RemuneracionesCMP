@@ -79,15 +79,33 @@ function KpiCard({
 
 export default function Dashboard() {
   const [data, setData] = useState<KpiData | null>(null);
+  const [periods, setPeriods] = useState<any[]>([]);
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
-  const fetchData = async () => {
+  const fetchPeriods = async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      const res = await axios.get(`${apiUrl}/periodos`);
+      setPeriods(res.data);
+    } catch (err) {
+      console.error('Error fetching periods:', err);
+    }
+  };
+
+  const fetchData = async (periodId?: string) => {
     setLoading(true);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-      const res = await axios.get(`${apiUrl}/consolidados/dashboard`);
+      const url = periodId 
+        ? `${apiUrl}/consolidados/dashboard?periodoId=${periodId}`
+        : `${apiUrl}/consolidados/dashboard`;
+      const res = await axios.get(url);
       setData(res.data);
+      if (res.data.periodo && !selectedPeriodId) {
+        setSelectedPeriodId(String(res.data.periodo.id));
+      }
       setLastRefresh(new Date());
     } catch (err) {
       console.error('Error fetching dashboard KPIs:', err);
@@ -96,7 +114,16 @@ export default function Dashboard() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { 
+    fetchPeriods();
+    fetchData(); 
+  }, []);
+
+  const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const id = e.target.value;
+    setSelectedPeriodId(id);
+    fetchData(id);
+  };
 
   const totalLiquido = data?.kpis.total_liquido ?? 0;
   const totalHaberes = data?.kpis.total_haberes ?? 0;
@@ -112,17 +139,39 @@ export default function Dashboard() {
 
       {/* Top Bar */}
       <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl flex justify-between items-center w-full px-12 py-4 border-b border-white/50 shadow-sm">
-        <div>
-          <h2 className="text-xl font-black text-slate-800 tracking-tight font-headline uppercase">
-            Remuneraciones <span className="text-primary">CMP</span>
-          </h2>
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">
-            Panel Financiero • {periodoLabel} • Actualizado {lastRefresh.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
-          </p>
+        <div className="flex items-center gap-8">
+          <div>
+            <h2 className="text-xl font-black text-slate-800 tracking-tight font-headline uppercase">
+              Remuneraciones <span className="text-primary">CMP</span>
+            </h2>
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">
+              Panel Financiero • Maestro • {lastRefresh.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
+            </p>
+          </div>
+
+          <div className="h-8 w-[1px] bg-slate-200" />
+
+          {/* Period Selector */}
+          <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-2 shadow-sm hover:border-primary/30 transition-all group">
+            <Calendar className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
+            <select 
+              value={selectedPeriodId}
+              onChange={handlePeriodChange}
+              className="bg-transparent text-[11px] font-black uppercase tracking-widest text-slate-700 outline-none cursor-pointer pr-4"
+            >
+              <option value="">Cargando período...</option>
+              {periods.map(p => (
+                <option key={p.id} value={p.id}>
+                  {MESES[p.mes - 1]} {p.anio}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+
         <div className="flex items-center gap-3">
           <button
-            onClick={fetchData}
+            onClick={() => fetchData(selectedPeriodId)}
             className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-primary hover:shadow-md hover:-translate-y-0.5 transition-all border border-slate-100"
           >
             <RefreshCcw className={`w-3 h-3 ${loading ? 'animate-spin text-primary' : ''}`} />
