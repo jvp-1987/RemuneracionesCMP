@@ -22,6 +22,21 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
+  const filteredNavItems = navItems.filter(item => {
+    if (!user) return false;
+    if (user.rol === 'ADMIN') return true;
+    
+    if (user.rol === 'CENTRO_SALUD') {
+      return ['Dashboard', 'Ingresar Novedades', 'Consolidados', 'Funcionarios'].includes(item.name);
+    }
+    
+    if (user.rol === 'CONTROL' || user.rol === 'FINANZAS') {
+      return ['Dashboard', 'Consolidados', 'Funcionarios', 'Reportes'].includes(item.name);
+    }
+    
+    return false;
+  });
+
   return (
     <aside className="fixed left-0 top-0 bottom-0 w-72 bg-surface-container-low border-r border-outline-variant/10 flex flex-col z-50">
       {/* Branding Section */}
@@ -40,7 +55,7 @@ export default function Sidebar() {
       {/* Navigation Menu */}
       <nav className="flex-1 px-6 space-y-1.5 overflow-y-auto custom-scrollbar relative">
         <p className="px-4 mb-4 text-[10px] font-black text-outline uppercase tracking-[0.3em]">Menú Principal</p>
-        {navItems.map((item) => {
+        {filteredNavItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
           return (
             <Link
@@ -81,10 +96,12 @@ export default function Sidebar() {
       {/* Footer / Account Section */}
       <div className="p-6 mt-auto">
         <div className="p-6 bg-surface-container rounded-[3rem] border border-outline-variant/5">
-          <Link href="/configuracion" className="flex items-center gap-4 w-full text-on-surface hover:text-primary transition-colors group mb-6">
-            <span className="material-symbols-outlined text-xl text-outline group-hover:text-primary select-none">&#xe8b8;</span>
-            <span className="text-xs font-black uppercase tracking-widest">Configuración</span>
-          </Link>
+          {user?.rol === 'ADMIN' && (
+            <Link href="/configuracion" className="flex items-center gap-4 w-full text-on-surface hover:text-primary transition-colors group mb-6">
+              <span className="material-symbols-outlined text-xl text-outline group-hover:text-primary select-none">&#xe8b8;</span>
+              <span className="text-xs font-black uppercase tracking-widest">Configuración</span>
+            </Link>
+          )}
           
           <div className="flex flex-col gap-4 pt-6 border-t border-outline-variant/10">
             <div className="flex items-center gap-4">

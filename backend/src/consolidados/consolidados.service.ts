@@ -87,30 +87,51 @@ export class ConsolidadosService {
     };
   }
 
-  async update(id: number, dto: UpdateConsolidadoDto) {
+  async update(id: number, dto: UpdateConsolidadoDto, user: any) {
     const consolidado = await this.findOne(id);
     
     if (consolidado.periodo.estado === 'Cerrado') {
       throw new BadRequestException(`No se puede modificar un consolidado de un periodo CERRADO.`);
     }
 
-    // Auto-fill certification metadata if V°B° is being changed to true
-    const updateData: any = { ...dto };
-    
-    if (dto.vb_control_interno === true) {
-      updateData.fecha_vb_control_interno = new Date();
-      updateData.firma_vb_control_interno = 'Dpto. Auditoría Interna - Panguipulli';
-    } else if (dto.vb_control_interno === false) {
-      updateData.fecha_vb_control_interno = null;
-      updateData.firma_vb_control_interno = null;
+    const updateData: any = {};
+
+    // Logic for CONTROL role
+    if (user.rol_enum === 'CONTROL' || user.rol_enum === 'ADMIN') {
+      if (dto.vb_control_interno !== undefined) {
+        updateData.vb_control_interno = dto.vb_control_interno;
+        if (dto.vb_control_interno === true) {
+          updateData.fecha_vb_control_interno = new Date();
+          updateData.firma_vb_control_interno = `Validado por: ${user.nombre} (Control Interno)`;
+        } else {
+          updateData.fecha_vb_control_interno = null;
+          updateData.firma_vb_control_interno = null;
+        }
+      }
     }
 
-    if (dto.vb_finanzas === true) {
-      updateData.fecha_vb_finanzas = new Date();
-      updateData.firma_vb_finanzas = 'Dirección de Finanzas - Salud APS';
-    } else if (dto.vb_finanzas === false) {
-      updateData.fecha_vb_finanzas = null;
-      updateData.firma_vb_finanzas = null;
+    // Logic for FINANZAS role
+    if (user.rol_enum === 'FINANZAS' || user.rol_enum === 'ADMIN') {
+      if (dto.vb_finanzas !== undefined) {
+        updateData.vb_finanzas = dto.vb_finanzas;
+        if (dto.vb_finanzas === true) {
+          updateData.fecha_vb_finanzas = new Date();
+          updateData.firma_vb_finanzas = `Validado por: ${user.nombre} (Finanzas)`;
+        } else {
+          updateData.fecha_vb_finanzas = null;
+          updateData.firma_vb_finanzas = null;
+        }
+      }
+    }
+
+    // General updates (only for ADMIN)
+    if (user.rol_enum === 'ADMIN') {
+      if (dto.estado_actual_enum) updateData.estado_actual_enum = dto.estado_actual_enum;
+      if (dto.usuario_gestor_id) updateData.usuario_gestor_id = dto.usuario_gestor_id;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      throw new BadRequestException('No tienes permisos para actualizar estos campos o no se enviaron datos válidos.');
     }
 
     return this.prisma.consolidado.update({ 
@@ -118,6 +139,8 @@ export class ConsolidadosService {
       data: updateData 
     });
   }
+
+
 
   async remove(id: number) {
     await this.findOne(id);

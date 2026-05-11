@@ -6,6 +6,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { HealthCenterLogo } from "@/components/HealthCenterLogo";
+import { useAuth } from '@/components/AuthProvider';
 
 // --- Types ---
 type EstadoValidacion = 'PENDIENTE' | 'APROBADO' | 'RECHAZADO';
@@ -38,7 +39,7 @@ interface ConsolidadoDetail {
   estado_actual_enum: string;
   vb_control_interno: boolean;
   vb_finanzas: boolean;
-  centro_salud: { nombre: string };
+  centro_salud: { nombre: string; id: number };
   periodo: { mes: number; anio: number };
   horas_extras: Transaction[];
   viaticos: Transaction[];
@@ -49,11 +50,16 @@ interface ConsolidadoDetail {
 export default function ConsolidadoDetailPage() {
   const { id } = useParams();
   const router = useRouter();
+  const { user } = useAuth();
   const [data, setData] = useState<ConsolidadoDetail | null>(null);
   const [activeTab, setActiveTab] = useState<'horas' | 'viaticos' | 'atrasos'>('horas');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  const canValidateControl = user?.rol === 'ADMIN' || user?.rol === 'CONTROL';
+  const canValidateFinanzas = user?.rol === 'ADMIN' || user?.rol === 'FINANZAS';
+  const canFinalize = user?.rol === 'ADMIN';
 
   const fetchData = async () => {
     try {
@@ -72,7 +78,6 @@ export default function ConsolidadoDetailPage() {
   }, [id]);
 
   const handleUpdateStatus = React.useCallback(async (type: string, transId: number, field: string, newStatus: EstadoValidacion) => {
-    console.log(`[StatusUpdate] ${type} ID:${transId} ${field}=>${newStatus}`);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       const endpoint = type === 'horas' ? 'horas-extras' : type === 'viaticos' ? 'viaticos' : 'atrasos';
@@ -94,7 +99,6 @@ export default function ConsolidadoDetailPage() {
   }, [fetchData]);
 
   const handleUpdateObservation = React.useCallback(async (type: string, transId: number, text: string, subType?: '25' | '50') => {
-    console.log(`[ObsUpdate] ${type} ID:${transId} text:${text.slice(0,10)}...`);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       const endpoint = type === 'horas' ? 'horas-extras' : type === 'viaticos' ? 'viaticos' : 'atrasos';
@@ -171,7 +175,6 @@ export default function ConsolidadoDetailPage() {
   const filteredData = () => {
     let list = activeTab === 'horas' ? data.horas_extras : activeTab === 'viaticos' ? data.viaticos : data.atrasos;
     
-    // Filtro para excluir registros con valores en cero
     list = list.filter(item => {
       if (activeTab === 'horas') {
         return (Number(item.cantidad_25 || 0) > 0 || Number(item.cantidad_50 || 0) > 0);
@@ -236,7 +239,6 @@ export default function ConsolidadoDetailPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-surface">
-      {/* TopAppBar - Redesigned */}
       <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl flex justify-between items-center w-full px-12 h-24 border-b border-outline-variant/10">
         <div className="flex items-center gap-8">
           <button onClick={() => router.push('/consolidados')} className="p-3 bg-surface-container-low hover:bg-surface-container rounded-2xl transition-all active:scale-95 group overflow-hidden">
@@ -268,20 +270,26 @@ export default function ConsolidadoDetailPage() {
           <div className="h-8 w-[1px] bg-outline-variant/15 mx-2" />
           <div className="flex gap-4">
             <button 
+              disabled={!canValidateControl}
               onClick={() => handleToggleValidation('vb_control_interno', !data.vb_control_interno)}
               className={cn(
                 "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all shadow-sm",
-                data.vb_control_interno ? "bg-primary text-white border-primary shadow-primary/20" : "bg-white border-outline-variant/20 text-outline hover:border-primary/50"
+                data.vb_control_interno ? "bg-primary text-white border-primary shadow-primary/20" : "bg-white border-outline-variant/20 text-outline hover:border-primary/50",
+                !canValidateControl && "opacity-40 cursor-not-allowed grayscale"
               )}
+              title={!canValidateControl ? "Solo perfil CONTROL puede validar" : ""}
             >
               V°B° CONTROL INTERNO
             </button>
             <button 
+              disabled={!canValidateFinanzas}
               onClick={() => handleToggleValidation('vb_finanzas', !data.vb_finanzas)}
               className={cn(
                 "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all shadow-sm",
-                data.vb_finanzas ? "bg-primary text-white border-primary shadow-primary/20" : "bg-white border-outline-variant/20 text-outline hover:border-primary/50"
+                data.vb_finanzas ? "bg-primary text-white border-primary shadow-primary/20" : "bg-white border-outline-variant/20 text-outline hover:border-primary/50",
+                !canValidateFinanzas && "opacity-40 cursor-not-allowed grayscale"
               )}
+              title={!canValidateFinanzas ? "Solo perfil FINANZAS puede validar" : ""}
             >
               V°B° FINANZAS
             </button>
@@ -299,7 +307,10 @@ export default function ConsolidadoDetailPage() {
                 Ver Respaldo
               </a>
             ) : (
-              <label className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-700 transition-all shadow-lg">
+              <label className={cn(
+                "flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-700 transition-all shadow-lg",
+                user?.rol === 'CENTRO_SALUD' || user?.rol === 'ADMIN' ? "" : "opacity-50 pointer-events-none"
+              )}>
                 <span className="material-symbols-outlined text-sm">attach_file</span>
                 Adjuntar Respaldo
                 <input type="file" className="hidden" onChange={handleRespaldoUpload} accept=".pdf,.jpg,.jpeg,.png" />
@@ -310,7 +321,6 @@ export default function ConsolidadoDetailPage() {
       </header>
 
       <section className="p-12 space-y-12">
-        {/* Audit Progress Bar Block */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="space-y-4">
             <h1 className="text-5xl font-black text-on-surface tracking-tighter uppercase font-headline">Validador Pro</h1>
@@ -331,7 +341,6 @@ export default function ConsolidadoDetailPage() {
           </div>
         </div>
 
-        {/* Impact Bento Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2 bg-surface-container-low p-10 rounded-[3rem] border border-outline-variant/10 flex flex-col justify-between group overflow-hidden relative shadow-sm hover:shadow-md transition-shadow">
             <div className="relative z-10">
@@ -364,7 +373,6 @@ export default function ConsolidadoDetailPage() {
           </div>
         </div>
 
-        {/* Tab & Bulk Controls */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-6 border-t border-outline-variant/10">
           <div className="flex gap-3 p-2 bg-surface-container rounded-[2rem] border border-outline-variant/5 shadow-inner">
             {(['horas', 'viaticos', 'atrasos'] as const).map(tab => (
@@ -397,8 +405,12 @@ export default function ConsolidadoDetailPage() {
           </div>
           <div className="flex gap-4">
             <button 
+              disabled={!canValidateControl && !canValidateFinanzas}
               onClick={() => handleBulkUpdate('APROBADO')}
-              className="group flex items-center gap-3 px-8 py-4 text-[11px] font-black bg-white text-primary border border-primary/20 shadow-xl shadow-slate-200/40 rounded-[2rem] hover:bg-primary hover:text-white transition-all uppercase tracking-widest active:scale-95 overflow-hidden"
+              className={cn(
+                "group flex items-center gap-3 px-8 py-4 text-[11px] font-black bg-white text-primary border border-primary/20 shadow-xl shadow-slate-200/40 rounded-[2rem] hover:bg-primary hover:text-white transition-all uppercase tracking-widest active:scale-95 overflow-hidden",
+                (!canValidateControl && !canValidateFinanzas) && "opacity-40 cursor-not-allowed"
+              )}
             >
               <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform select-none" dangerouslySetInnerHTML={{ __html: '&#xe877;' }} />
               Certificar Todo el Lote
@@ -406,22 +418,15 @@ export default function ConsolidadoDetailPage() {
           </div>
         </div>
 
-        {/* Professional Audit Table */}
         <div className="bg-white rounded-[3.5rem] shadow-2xl shadow-slate-200/40 overflow-hidden border border-outline-variant/5">
           <div className="p-10 border-b border-outline-variant/5 flex items-center justify-between bg-surface-container-lowest/30">
             <div className="flex items-center gap-4">
               <div className="w-2 h-8 bg-primary rounded-full" />
               <h3 className="font-black text-on-surface text-xl tracking-tight uppercase font-headline">Matriz de Validación Clínica</h3>
             </div>
-            <div className="flex gap-3">
-              <button className="flex items-center gap-2 px-6 py-2.5 bg-surface-container text-secondary text-[11px] font-black rounded-xl uppercase tracking-widest hover:text-primary border border-outline-variant/5 transition-all overflow-hidden">
-                <span className="material-symbols-outlined text-sm select-none" dangerouslySetInnerHTML={{ __html: '&#xef4f;' }} />
-                Filtrar Anomalías
-              </button>
-            </div>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-separate border-spacing-y-2">
               <thead>
                 <tr className="bg-surface-container-low/50">
                   <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">Funcionario Clínico</th>
@@ -448,36 +453,31 @@ export default function ConsolidadoDetailPage() {
                     expanded={expandedId === item.id}
                     onToggle={() => setExpandedId(expandedId === item.id ? null : item.id)}
                     onObs={(t, sub) => handleUpdateObservation(activeTab, item.id, t, sub)}
+                    canEdit={canValidateControl || canValidateFinanzas}
                   />
                 ))}
-                {filteredData().length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="px-10 py-48 text-center text-outline font-black uppercase tracking-widest text-[11px] italic opacity-40">
-                      Sincronizando registros para la consulta actual...
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
         </div>
       </section>
 
-      {/* Persistent Master Action Bar */}
       <footer className="fixed bottom-0 right-0 left-64 h-20 bg-on-background/95 backdrop-blur-2xl px-12 z-50 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
         <div className="flex flex-col">
           <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Auditoría Remuneración Salud CMP</span>
-          <span className="text-[9px] font-bold text-outline-variant uppercase tracking-widest mt-1">Estado: {auditProgress()}% Auditado • V°B° Requeridos: 2/2</span>
+          <span className="text-[9px] font-bold text-outline-variant uppercase tracking-widest mt-1">Estado: {auditProgress()}% Auditado</span>
         </div>
         <div className="flex gap-6">
           <button 
+            disabled={!canFinalize || !data.vb_control_interno || !data.vb_finanzas}
             onClick={handleFinalizeConsolidado}
             className={cn(
               "px-12 py-3.5 text-xs font-black rounded-2xl uppercase tracking-[0.15em] transition-all shadow-2xl",
-              data.vb_control_interno && data.vb_finanzas 
+              (canFinalize && data.vb_control_interno && data.vb_finanzas)
                 ? "bg-primary text-white hover:brightness-110 active:scale-95 shadow-primary/40" 
                 : "bg-surface-container text-white/20 cursor-not-allowed border border-white/5"
             )}
+            title={!canFinalize ? "Solo ADMIN puede cerrar el consolidado" : ""}
           >
             EJECUTAR CIERRE FINAL
           </button>
@@ -487,13 +487,11 @@ export default function ConsolidadoDetailPage() {
   );
 }
 
-// --- Internal Helper Components ---
-
 function StatusBadge({ status }: { status?: EstadoValidacion }) {
   const config = {
     PENDIENTE: { bg: 'bg-surface-container', text: 'text-secondary', icon: 'pending', label: 'Pendiente' },
     APROBADO: { bg: 'bg-primary/10', text: 'text-primary', icon: 'check_circle', label: 'Validado' },
-    RECHAZADO: { bg: 'bg-error-container', text: 'text-error', icon: 'cancel', label: 'Flagged' }
+    RECHAZADO: { bg: 'bg-error-container', text: 'text-error', icon: 'cancel', label: 'Hallazgo' }
   };
   const active = config[status || 'PENDIENTE'];
   return (
@@ -510,14 +508,16 @@ const EmployeeTableRow = React.memo(({
   onUpdateStatus,
   expanded,
   onToggle,
-  onObs
+  onObs,
+  canEdit
 }: { 
   item: Transaction, 
   activeTab: 'horas' | 'viaticos' | 'atrasos',
   onUpdateStatus: (type: string, id: number, field: string, s: EstadoValidacion) => void,
   expanded: boolean,
   onToggle: () => void,
-  onObs: (t: string, sub?: '25' | '50') => void
+  onObs: (t: string, sub?: '25' | '50') => void,
+  canEdit: boolean
 }) => {
   const [obs25, setObs25] = useState(item.observaciones_25 || '');
   const [obs50, setObs50] = useState(item.observaciones_50 || '');
@@ -586,10 +586,6 @@ const EmployeeTableRow = React.memo(({
                 <span className="material-symbols-outlined text-[18px] select-none" dangerouslySetInnerHTML={{ __html: '&#xe873;' }} />
               </button>
             )}
-            <button className="flex items-center gap-2 text-[10px] font-black text-outline hover:text-primary transition-all uppercase tracking-widest overflow-hidden">
-              Ficha
-              <span className="material-symbols-outlined text-[18px] select-none" dangerouslySetInnerHTML={{ __html: '&#xf22e;' }} />
-            </button>
             <div className="w-6 h-6 flex items-center justify-center overflow-hidden">
               <span className={cn("material-symbols-outlined text-outline group-hover:text-primary transition-all select-none", expanded && "rotate-180")} dangerouslySetInnerHTML={{ __html: '&#xe5cf;' }} />
             </div>
@@ -597,7 +593,6 @@ const EmployeeTableRow = React.memo(({
         </td>
       </tr>
       
-      {/* Expanded Controls - High Impact Validator */}
       <AnimatePresence>
         {expanded && (
           <tr>
@@ -608,83 +603,72 @@ const EmployeeTableRow = React.memo(({
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden"
               >
-                <div className="my-10 p-12 bg-surface-container-lowest border border-outline-variant/10 rounded-[3rem] shadow-2xl space-y-12 relative">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-[6rem] -z-0"></div>
-                  
+                <div className="my-10 p-12 bg-surface-container-low border border-outline-variant/10 rounded-[3rem] shadow-2xl space-y-12 relative">
                   {activeTab === 'horas' ? (
                     <div className="grid grid-cols-2 gap-16 relative z-10">
                       <div className="space-y-8">
                         <div className="flex items-center justify-between pb-4 border-b border-outline-variant/5">
                           <div>
                             <h4 className="text-[11px] font-black text-outline uppercase tracking-[0.2em]">Tramo Diurno (25%)</h4>
-                            <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mt-1">Ref. Monto: ${Number(item.monto_25 || 0).toLocaleString('es-CL')}</p>
                           </div>
                           <span className="font-manrope font-black text-primary text-4xl tracking-tighter">{item.cantidad_25 || 0} <span className="text-xl">HRS</span></span>
                         </div>
                         <div className="space-y-4">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Observaciones del Auditor</p>
                           <textarea 
+                            disabled={!canEdit}
                             className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold min-h-[120px]" 
-                            placeholder="Ingrese hallazgos clínicos o discrepancias..."
+                            placeholder="Ingrese hallazgos..."
                             value={obs25}
                             onChange={(e) => setObs25(e.target.value)}
                             onBlur={() => onObs(obs25, '25')}
                           />
                         </div>
-                        <div className="flex gap-4">
-                          <button onClick={() => onUpdateStatus('horas', item.id, 'estado_25', 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all", item.estado_25 === 'RECHAZADO' ? "bg-error text-white shadow-xl shadow-error/20" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo Crítico</button>
-                          <button onClick={() => onUpdateStatus('horas', item.id, 'estado_25', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado_25 === 'APROBADO' ? "bg-primary text-white shadow-primary/20" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validación Conforme</button>
-                        </div>
+                        {canEdit && (
+                          <div className="flex gap-4">
+                            <button onClick={() => onUpdateStatus('horas', item.id, 'estado_25', 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all", item.estado_25 === 'RECHAZADO' ? "bg-error text-white shadow-xl shadow-error/20" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
+                            <button onClick={() => onUpdateStatus('horas', item.id, 'estado_25', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado_25 === 'APROBADO' ? "bg-primary text-white shadow-primary/20" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
+                          </div>
+                        )}
                       </div>
                       <div className="space-y-8">
                         <div className="flex items-center justify-between pb-4 border-b border-outline-variant/5">
                           <div>
                             <h4 className="text-[11px] font-black text-outline uppercase tracking-[0.2em]">Tramo Nocturno (50%)</h4>
-                            <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mt-1">Ref. Monto: ${Number(item.monto_50 || 0).toLocaleString('es-CL')}</p>
                           </div>
                           <span className="font-manrope font-black text-primary text-4xl tracking-tighter">{item.cantidad_50 || 0} <span className="text-xl">HRS</span></span>
                         </div>
                         <div className="space-y-4">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Observaciones del Auditor</p>
                           <textarea 
+                            disabled={!canEdit}
                             className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold min-h-[120px]" 
-                            placeholder="Ingrese hallazgos clínicos o discrepancias..."
+                            placeholder="Ingrese hallazgos..."
                             value={obs50}
                             onChange={(e) => setObs50(e.target.value)}
                             onBlur={() => onObs(obs50, '50')}
                           />
                         </div>
-                        <div className="flex gap-4">
-                          <button onClick={() => onUpdateStatus('horas', item.id, 'estado_50', 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all", item.estado_50 === 'RECHAZADO' ? "bg-error text-white shadow-xl shadow-error/20" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo Crítico</button>
-                          <button onClick={() => onUpdateStatus('horas', item.id, 'estado_50', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado_50 === 'APROBADO' ? "bg-primary text-white shadow-primary/20" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validación Conforme</button>
-                        </div>
+                        {canEdit && (
+                          <div className="flex gap-4">
+                            <button onClick={() => onUpdateStatus('horas', item.id, 'estado_50', 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all", item.estado_50 === 'RECHAZADO' ? "bg-error text-white shadow-xl shadow-error/20" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
+                            <button onClick={() => onUpdateStatus('horas', item.id, 'estado_50', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado_50 === 'APROBADO' ? "bg-primary text-white shadow-primary/20" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ) : (
                     <div className="space-y-10 relative z-10 max-w-4xl mx-auto">
-                       <div className="flex justify-between items-center pb-6 border-b border-outline-variant/10">
-                          <div>
-                            <h4 className="text-[13px] font-black text-on-surface uppercase tracking-[0.2em] mb-2">{activeTab === 'viaticos' ? 'Detalle de Viático' : 'Referencia de Atraso'}</h4>
-                            <p className="text-[10px] font-bold text-outline uppercase tracking-widest">Validación de {activeTab === 'viaticos' ? 'asignación monetaria' : 'tiempo reloj control'}</p>
-                          </div>
-                          <div className="text-right">
-                             <div className="font-manrope font-black text-primary text-5xl tracking-tighter">
-                               {activeTab === 'viaticos' ? `$${totalAmount.toLocaleString('es-CL')}` : item.tiempo_descuento || '0 min'}
-                             </div>
-                             {activeTab === 'atrasos' && <div className="text-[10px] font-black text-secondary tracking-widest uppercase mt-2">Equivalente: ${totalAmount.toLocaleString('es-CL')}</div>}
-                          </div>
-                       </div>
                         <textarea 
+                          disabled={!canEdit}
                           className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold min-h-[120px]" 
-                          placeholder={activeTab === 'atrasos' ? 'Justificación del atraso...' : 'Notas de auditoría para este registro...'}
+                          placeholder="Notas de auditoría..."
                           value={obs}
                           onChange={(e) => setObs(e.target.value)}
                           onBlur={() => onObs(obs)}
                         />
-                        {(activeTab === 'viaticos' || activeTab === 'atrasos') && (
+                        {canEdit && (activeTab === 'viaticos' || activeTab === 'atrasos') && (
                           <div className="flex gap-6 pt-4 pb-8">
-                            <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado === 'RECHAZADO' ? "bg-error text-white" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo Crítico</button>
-                            <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-primary/20", item.estado === 'APROBADO' ? "bg-primary text-white" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validación Conforme</button>
+                            <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado === 'RECHAZADO' ? "bg-error text-white" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
+                            <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-primary/20", item.estado === 'APROBADO' ? "bg-primary text-white" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
                           </div>
                         )}
                     </div>
@@ -698,4 +682,3 @@ const EmployeeTableRow = React.memo(({
     </>
   );
 });
-

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from "@/lib/utils";
+import { useAuth } from '@/components/AuthProvider';
 import { 
   Search,
   Save,
@@ -290,6 +291,7 @@ function MiniCalendar({ startDate, endDate, onChange, periodoInicio, periodoFin,
 // ─── Página Principal ──────────────────────────────────────────────────────────
 export default function IngresoPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('fondos_presupuestarios');
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [rows, setRows] = useState<RowData[]>([]);
@@ -301,6 +303,13 @@ export default function IngresoPage() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const [activeRowId, setActiveRowId] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // Forzar centro si el usuario es de un centro específico
+  useEffect(() => {
+    if (user?.rol === 'CENTRO_SALUD' && user.centro_salud_id) {
+      setCentroId(String(user.centro_salud_id));
+    }
+  }, [user]);
   
   // Maestro Upload States
   const [showMaestroModal, setShowMaestroModal] = useState(false);
@@ -616,12 +625,24 @@ export default function IngresoPage() {
               </div>
               <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Unidad de Salud</span>
             </div>
-            <select value={centroId} onChange={(e) => setCentroId(e.target.value)}
-              className="font-black text-slate-800 text-base outline-none bg-transparent appearance-none cursor-pointer w-full"
+            <select 
+              disabled={user?.rol === 'CENTRO_SALUD'}
+              value={centroId} 
+              onChange={(e) => setCentroId(e.target.value)}
+              className={cn(
+                "font-black text-slate-800 text-base outline-none bg-transparent appearance-none w-full",
+                user?.rol === 'CENTRO_SALUD' ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+              )}
             >
-              <option value="1">CESFAM Panguipulli</option>
-              <option value="2">CESFAM Choshuenco</option>
-              <option value="3">CESFAM Coñaripe</option>
+              {centros.length > 0 ? centros.map(c => (
+                <option key={c.id} value={c.id}>{c.nombre}</option>
+              )) : (
+                <>
+                  <option value="1">CESFAM Panguipulli</option>
+                  <option value="2">CESFAM Choshuenco</option>
+                  <option value="3">CESFAM Coñaripe</option>
+                </>
+              )}
             </select>
           </div>
 

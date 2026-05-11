@@ -1,12 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Request, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { ConsolidadosService } from './consolidados.service';
 import { CreateConsolidadoDto } from './dto/create-consolidado.dto';
 import { UpdateConsolidadoDto } from './dto/update-consolidado.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Consolidados')
 @Controller('consolidados')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ConsolidadosController {
   constructor(private readonly consolidadosService: ConsolidadosService) {}
 
@@ -16,6 +20,7 @@ export class ConsolidadosController {
   }
 
   @Get('dashboard')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS')
   getDashboardKpis(@Query('periodoId') periodoId?: string) {
     return this.consolidadosService.getDashboardKpis(periodoId ? +periodoId : undefined);
   }
@@ -31,8 +36,9 @@ export class ConsolidadosController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateConsolidadoDto) {
-    return this.consolidadosService.update(+id, dto);
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS')
+  update(@Param('id') id: string, @Body() dto: UpdateConsolidadoDto, @Request() req: any) {
+    return this.consolidadosService.update(+id, dto, req.user);
   }
 
   @Delete(':id')

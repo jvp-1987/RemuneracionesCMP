@@ -34,7 +34,8 @@ export class AuthService {
       sub: usuario.id, 
       rut: usuario.rut, 
       nombre: usuario.nombre, 
-      rol: usuario.rol_enum 
+      rol: usuario.rol_enum,
+      centro_salud_id: usuario.centro_salud_id
     };
 
     return {
@@ -44,6 +45,7 @@ export class AuthService {
         nombre: usuario.nombre,
         rut: usuario.rut,
         rol: usuario.rol_enum,
+        centro_salud_id: usuario.centro_salud_id,
       }
     };
   }
@@ -62,14 +64,14 @@ export class AuthService {
       where: { rut },
       update: {
         password: password,
-        rol_enum: 'ADMIN_MAESTRO',
+        rol_enum: 'ADMIN',
       },
       create: {
         rut: rut,
         nombre: 'Juan Vidal (Admin)',
         email: 'juan.vidal@cmpanguipulli.com',
         password: password,
-        rol_enum: 'ADMIN_MAESTRO',
+        rol_enum: 'ADMIN',
       },
     });
 

@@ -8,7 +8,7 @@ import {
   Clock, Car, AlertTriangle, Stethoscope, TrendingUp,
   TrendingDown, Building2, RefreshCcw, ChevronRight,
   Activity, ArrowUpRight, BarChart3, Users, Wallet,
-  MinusCircle, DollarSign, FileText, Info
+  MinusCircle, DollarSign, FileText, Info, Calendar
 } from 'lucide-react';
 
 const formatCLP = (n: number) =>

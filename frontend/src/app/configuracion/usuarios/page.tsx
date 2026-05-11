@@ -26,10 +26,10 @@ interface CentroSalud {
 }
 
 const ROLES = [
-  { id: 'ADMIN_MAESTRO', label: 'Auditor Maestro', icon: ShieldCheck, color: 'text-primary bg-primary/5' },
-  { id: 'CONTROL_INTERNO', label: 'Control Interno', icon: Shield, color: 'text-blue-600 bg-blue-50' },
-  { id: 'FINANZAS', label: 'Finanzas', icon: Shield, color: 'text-emerald-600 bg-emerald-50' },
-  { id: 'DIRECTOR_CENTRO', label: 'Director de Centro', icon: Building2, color: 'text-amber-600 bg-amber-50' },
+  { id: 'ADMIN', label: 'Administrador Maestro', icon: ShieldCheck, color: 'text-primary bg-primary/5' },
+  { id: 'CONTROL', label: 'Unidad de Control', icon: Shield, color: 'text-blue-600 bg-blue-50' },
+  { id: 'FINANZAS', label: 'Finanzas / Remuneraciones', icon: Shield, color: 'text-emerald-600 bg-emerald-50' },
+  { id: 'CENTRO_SALUD', label: 'Gestor de Centro', icon: Building2, color: 'text-amber-600 bg-amber-50' },
 ];
 
 export default function UsuariosPage() {
@@ -44,7 +44,7 @@ export default function UsuariosPage() {
     rut: '',
     nombre: '',
     email: '',
-    rol_enum: 'DIRECTOR_CENTRO',
+    rol_enum: 'CENTRO_SALUD',
     centro_salud_id: ''
   });
 
@@ -319,7 +319,7 @@ export default function UsuariosPage() {
                     <select 
                       value={formData.centro_salud_id}
                       onChange={e => setFormData({...formData, centro_salud_id: e.target.value})}
-                      disabled={formData.rol_enum === 'ADMIN_MAESTRO'}
+                      disabled={formData.rol_enum === 'ADMIN' || formData.rol_enum === 'CONTROL' || formData.rol_enum === 'FINANZAS'}
                       className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all appearance-none disabled:opacity-50"
                     >
                       <option value="">Acceso Global (Todos)</option>

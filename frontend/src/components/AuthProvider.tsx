@@ -9,6 +9,7 @@ interface User {
   nombre: string;
   rut: string;
   rol: string;
+  centro_salud_id?: number | null;
 }
 
 interface AuthContextType {

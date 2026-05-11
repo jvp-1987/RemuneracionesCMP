@@ -1,11 +1,16 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { IngresosService } from './ingresos.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('ingresos')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class IngresosController {
   constructor(private readonly ingresosService: IngresosService) {}
 
   @Post('manual')
+  @Roles('ADMIN', 'CENTRO_SALUD')
   guardarIngresos(@Body() data: any) {
     return this.ingresosService.guardarIngresos(data);
   }
