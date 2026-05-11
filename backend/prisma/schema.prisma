@@ -181,8 +181,8 @@ model Atrasos {
   monto_descuento  Decimal          @default(0.00) @db.Decimal(12, 2)
   estado           EstadoValidacion @default(PENDIENTE)
   concepto         String?
-  url_respaldo     String?          @db.LongText
   minutos          Int              @default(0)
+  url_respaldo     String?          @db.LongText
   consolidado      Consolidado      @relation(fields: [consolidado_id], references: [id])
   funcionario      Funcionario      @relation(fields: [funcionario_rut], references: [rut])
 

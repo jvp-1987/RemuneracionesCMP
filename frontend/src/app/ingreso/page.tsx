@@ -379,7 +379,8 @@ export default function IngresoPage() {
       if (searchQuery.length < 2) { setSearchResults([]); setSearchError(null); return; }
       try {
         setSearchError(null);
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || ''}/funcionarios/search?q=${searchQuery}`);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+        const res = await axios.get(`${apiUrl}/funcionarios/search?q=${searchQuery}`);
         setSearchResults(res.data);
       } catch (e: any) { 
         console.error(e);
@@ -461,7 +462,8 @@ export default function IngresoPage() {
       const formData = new FormData();
       formData.append('file', maestroFile);
 
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL || ''}/remuneraciones/importar-maestro-mensual?periodoId=${periodoId}`, formData, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      await axios.post(`${apiUrl}/remuneraciones/importar-maestro-mensual?periodoId=${periodoId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 

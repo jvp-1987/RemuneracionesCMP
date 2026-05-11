@@ -67,7 +67,8 @@ export default function FuncionarioDetailPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || ''}/funcionarios/${rut}`);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+        const res = await axios.get(`${apiUrl}/funcionarios/${rut}`);
         setFuncionario(res.data);
       } catch (err) {
         console.error('Error fetching funcionario:', err);

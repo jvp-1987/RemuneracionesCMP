@@ -85,7 +85,8 @@ export default function Dashboard() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/consolidados/dashboard`);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      const res = await axios.get(`${apiUrl}/consolidados/dashboard`);
       setData(res.data);
       setLastRefresh(new Date());
     } catch (err) {

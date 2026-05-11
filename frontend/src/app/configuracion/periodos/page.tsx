@@ -46,7 +46,7 @@ export default function PeriodControlPage() {
   const fetchStatus = async () => {
     setLoading(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       const res = await axios.get(`${apiUrl}/periodos/status/detailed`);
       setPeriodos(res.data);
       
@@ -65,7 +65,7 @@ export default function PeriodControlPage() {
   const handleSeed = async () => {
     setSeeding(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       await axios.post(`${apiUrl}/periodos/seed/2026`);
       await fetchStatus();
     } catch (err) {
