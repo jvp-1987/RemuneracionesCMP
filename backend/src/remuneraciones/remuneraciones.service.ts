@@ -115,6 +115,8 @@ export class RemuneracionesService {
         sueldo_base: Number(row['SUELDO BASE'] || 0),
         total_haberes: Number(row['TOTAL HABERES'] || 0),
         monto_he_pagado: Number(row['HORAS EXTRAS 25%'] || 0) + Number(row['HORAS EXTRAS 50%'] || 0),
+        cantidad_he_25_real: Number(row['CANT. H.E. 25%'] || row['HORAS EXTRAS 25% (CANTIDAD)'] || row['CANT. 25%'] || 0),
+        cantidad_he_50_real: Number(row['CANT. H.E. 50%'] || row['HORAS EXTRAS 50% (CANTIDAD)'] || row['CANT. 50%'] || 0),
         monto_aps: Number(row['ASIGNACION APS'] || row['ASIG. APS'] || row['APS'] || row['ATENCION PRIMARIA'] || row['ATEN. PRIMARIA'] || 0),
         monto_zona: Number(row['ASIGNACION ZONA'] || row['ASIG. ZONA'] || row['ZONA'] || 0),
         monto_dificil: Number(row['DESEMPEÑO DIFICIL'] || row['ASIG. DIFICIL'] || row['DIFICIL'] || 0),
@@ -130,7 +132,8 @@ export class RemuneracionesService {
       const current = consolidadoMap.get(rut);
       current.total_descuentos = Number(row['TOTAL DESCUENTOS LEGALES'] || 0) + Number(row['TOTAL DESCUENTOS VARIOS'] || 0);
       current.monto_liquido = (current.total_haberes || 0) - (current.total_descuentos || 0);
-      current.monto_atrasos_pagado = Number(row['5-HORAS DE ATRASOS'] || 0);
+      current.monto_atrasos_pagado = Number(row['5-HORAS DE ATRASOS'] || row['HORAS DE ATRASO'] || 0);
+      current.minutos_atraso_real = parseInt(String(row['MINUTOS ATRASO'] || 0)) || 0;
       current.detalle = { ...current.detalle, ...row };
     });
 
@@ -155,6 +158,9 @@ export class RemuneracionesService {
             monto_liquido: data.monto_liquido || 0,
             monto_he_pagado: data.monto_he_pagado,
             monto_atrasos_pagado: data.monto_atrasos_pagado || 0,
+            cantidad_he_25_real: data.cantidad_he_25_real || 0,
+            cantidad_he_50_real: data.cantidad_he_50_real || 0,
+            minutos_atraso_real: data.minutos_atraso_real || 0,
             detalle_json: {
               ...data.detalle,
               calculated_monto_aps: data.monto_aps,
@@ -171,6 +177,9 @@ export class RemuneracionesService {
             monto_liquido: data.monto_liquido || 0,
             monto_he_pagado: data.monto_he_pagado,
             monto_atrasos_pagado: data.monto_atrasos_pagado || 0,
+            cantidad_he_25_real: data.cantidad_he_25_real || 0,
+            cantidad_he_50_real: data.cantidad_he_50_real || 0,
+            minutos_atraso_real: data.minutos_atraso_real || 0,
             detalle_json: {
               ...data.detalle,
               calculated_monto_aps: data.monto_aps,

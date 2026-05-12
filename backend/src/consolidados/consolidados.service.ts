@@ -250,37 +250,64 @@ export class ConsolidadosService {
     }
     const porCentro = Object.values(centroMap).sort((a, b) => b.gasto_total - a.gasto_total);
 
-    // ── Paso 4: Retornar KPIs desde el Maestro ────────────────────────────────
+    // ── Paso 4: Lógica Híbrida ────────────────────────────────────────────────
+    // Si el maestro está vacío (0.0), buscamos en el módulo de Novedades (Consolidados)
+    let kpis: any = {
+      total_sueldo_base: Number(totalesMaestro._sum.sueldo_base ?? 0),
+      total_haberes: Number(totalesMaestro._sum.total_haberes ?? 0),
+      total_descuentos: Number(totalesMaestro._sum.total_descuentos ?? 0),
+      total_liquido: Number(totalesMaestro._sum.monto_liquido ?? 0),
+      cantidad_funcionarios: totalesMaestro._count.funcionario_rut,
+      total_he: Number(totalesMaestro._sum.monto_he_pagado ?? 0),
+      cantidad_he_25: Number(totalesMaestro._sum.cantidad_he_25_real ?? 0),
+      cantidad_he_50: Number(totalesMaestro._sum.cantidad_he_50_real ?? 0),
+      total_viaticos: Number(totalesMaestro._sum.monto_viaticos_real ?? 0),
+      total_atrasos_descuento: Number(totalesMaestro._sum.monto_atrasos_pagado ?? 0),
+      minutos_atraso_total: Number(cantidades._sum.minutos_atraso_real ?? 0),
+      total_turnos: 0,
+    };
+
+    let fuente = 'maestro_remuneraciones';
+
+    // Si no hay datos en el maestro para el periodo seleccionado, consultamos Novedades
+    if (kpis.total_haberes === 0 && targetPeriodoId) {
+      fuente = 'novedades_en_proceso';
+      
+      const consolidadoId = ultimosConsolidados.find(c => c.periodo_id === targetPeriodoId)?.id;
+      
+      if (consolidadoId) {
+        const [he, viat, atrasos] = await Promise.all([
+          this.prisma.horasExtras.aggregate({
+            where: { consolidado_id: consolidadoId },
+            _sum: { cantidad_25: true, cantidad_50: true, monto_25: true, monto_50: true }
+          }),
+          this.prisma.viaticos.aggregate({
+            where: { consolidado_id: consolidadoId },
+            _sum: { monto_calculado: true }
+          }),
+          this.prisma.atrasos.aggregate({
+            where: { consolidado_id: consolidadoId },
+            _sum: { minutos: true, monto_descuento: true }
+          })
+        ]);
+
+        kpis = {
+          ...kpis,
+          total_he: Number(he._sum.monto_25 ?? 0) + Number(he._sum.monto_50 ?? 0),
+          cantidad_he_25: Number(he._sum.cantidad_25 ?? 0),
+          cantidad_he_50: Number(he._sum.cantidad_50 ?? 0),
+          total_viaticos: Number(viat._sum.monto_calculado ?? 0),
+          total_atrasos_descuento: Number(atrasos._sum.monto_descuento ?? 0),
+          minutos_atraso_total: Number(atrasos._sum.minutos ?? 0),
+          cantidad_funcionarios: await this.prisma.funcionario.count({ where: { centro_salud_id: user.centro_salud_id } }),
+        };
+      }
+    }
+
     return {
       periodo: periodoActual,
-      fuente: 'maestro_remuneraciones', // Flag para indicar origen de datos
-      kpis: {
-        // Masa salarial real del maestro
-        total_sueldo_base: Number(totalesMaestro._sum.sueldo_base ?? 0),
-        total_haberes: Number(totalesMaestro._sum.total_haberes ?? 0),
-        total_descuentos: Number(totalesMaestro._sum.total_descuentos ?? 0),
-        total_liquido: Number(totalesMaestro._sum.monto_liquido ?? 0),
-        cantidad_funcionarios: totalesMaestro._count.funcionario_rut,
-
-        // Haberes extras (reales según maestro)
-        total_he: Number(totalesMaestro._sum.monto_he_pagado ?? 0),
-        cantidad_he_25: Number(totalesMaestro._sum.cantidad_he_25_real ?? 0),
-        cantidad_he_50: Number(totalesMaestro._sum.cantidad_he_50_real ?? 0),
-
-        // Viáticos reales
-        total_viaticos: Number(totalesMaestro._sum.monto_viaticos_real ?? 0),
-        cantidad_viaticos: 0, // Se puede cruzar con Viaticos si se requiere conteo exacto
-
-        // Descuentos por atrasos reales
-        total_atrasos_descuento: Number(totalesMaestro._sum.monto_atrasos_pagado ?? 0),
-        minutos_atraso_total: Number(cantidades._sum.minutos_atraso_real ?? 0),
-        cantidad_atrasos: 0, // Se puede cruzar con Atrasos si se requiere conteo exacto
-
-        // Legacy (por compatibilidad con frontend mientras se migra)
-        total_turnos: 0,
-        cantidad_turnos_habiles: 0,
-        cantidad_turnos_inhabiles: 0,
-      },
+      fuente,
+      kpis,
       por_centro: porCentro,
       ultimos_consolidados: ultimosConsolidados,
     };

@@ -10,6 +10,7 @@ import {
   Activity, ArrowUpRight, BarChart3, Users, Wallet,
   MinusCircle, DollarSign, FileText, Info, Calendar
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const formatCLP = (n: number) =>
   new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n);
@@ -190,12 +191,20 @@ export default function Dashboard() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 px-5 py-3 bg-indigo-50 border border-indigo-100 rounded-2xl text-indigo-700 text-xs font-bold"
+          className={cn(
+            "flex items-center gap-3 px-5 py-3 rounded-2xl text-xs font-bold border",
+            data?.fuente === 'novedades_en_proceso' 
+              ? "bg-amber-50 border-amber-100 text-amber-700" 
+              : "bg-indigo-50 border-indigo-100 text-indigo-700"
+          )}
         >
           <Info className="w-4 h-4 flex-shrink-0" />
           <span>
-            Los datos financieros provienen del <strong>Maestro de Remuneraciones</strong> ({periodoLabel}).
-            El módulo de Novedades (Consolidados) es de uso administrativo previo al proceso de pago.
+            {data?.fuente === 'novedades_en_proceso' ? (
+              <>Mostrando <strong>Novedades en Proceso</strong> ({periodoLabel}). Estos datos corresponden a lo ingresado por los Centros de Salud en el mes vigente.</>
+            ) : (
+              <>Los datos financieros provienen del <strong>Maestro de Remuneraciones</strong> ({periodoLabel}). El módulo de Novedades es de uso administrativo previo al proceso de pago.</>
+            )}
           </span>
         </motion.div>
 
@@ -221,8 +230,13 @@ export default function Dashboard() {
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10 mb-5">
-                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                 <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/90">Masa Salarial Líquida · Maestro de Remuneraciones</span>
+                  <span className={cn(
+                    "w-2 h-2 rounded-full animate-pulse",
+                    data?.fuente === 'novedades_en_proceso' ? "bg-amber-400" : "bg-emerald-400"
+                  )} />
+                  <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/90">
+                    {data?.fuente === 'novedades_en_proceso' ? 'Masa Salarial Estimada · Novedades en Proceso' : 'Masa Salarial Líquida · Maestro de Remuneraciones'}
+                  </span>
               </div>
               <div className="text-6xl font-black text-white tracking-tighter mb-3 drop-shadow-sm">
                 {loading ? '—' : formatCLP(totalLiquido)}
@@ -290,7 +304,7 @@ export default function Dashboard() {
             icon={Users}
             color="bg-emerald-50 text-emerald-600"
             delay={0.2}
-            badge="Maestro"
+            badge={data?.fuente === 'novedades_en_proceso' ? 'Novedades' : 'Maestro'}
           />
         </div>
 
