@@ -81,6 +81,7 @@ function KpiCard({
 export default function Dashboard() {
   const [data, setData] = useState<KpiData | null>(null);
   const [periods, setPeriods] = useState<any[]>([]);
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string>('');
   const [activeSource, setActiveSource] = useState<'hybrid' | 'maestro_remuneraciones' | 'novedades_en_proceso'>('hybrid');
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(new Date());
