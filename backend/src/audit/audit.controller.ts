@@ -13,6 +13,6 @@ export class AuditController {
     @Query('tipo') tipo: string,
     @Query('id', ParseIntPipe) id: number,
   ) {
-    return this.auditService.getLogsByRegistro(tipo, id);
+    return this.auditService.getLogs(tipo, id);
   }
 }

@@ -25,6 +25,13 @@ export class AuditService {
     });
   }
 
+  async getLogs(tipoModulo: string, registroId: number) {
+    return this.prisma.historialAuditoria.findMany({
+      where: { tipo_modulo: tipoModulo, registro_id: registroId },
+      orderBy: { fecha: 'desc' },
+    });
+  }
+
   async record(
     usuarioNombre: string,
     tipoModulo: string,

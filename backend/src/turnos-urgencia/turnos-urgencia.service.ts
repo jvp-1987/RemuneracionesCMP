@@ -32,7 +32,7 @@ export class TurnosUrgenciaService {
     const oldData = await this.findOne(id);
 
     // Lock check
-    if (oldData.consolidado?.vb_control_interno && user?.rol === 'CENTRO_SALUD') {
+    if ((oldData.consolidado as any)?.vb_control_interno && user?.rol === 'CENTRO_SALUD') {
       throw new ForbiddenException('Edición bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 
@@ -40,16 +40,17 @@ export class TurnosUrgenciaService {
 
     // Audit Log
     for (const key of Object.keys(dto)) {
-      if (oldData[key] !== dto[key]) {
-        await this.audit.createLog(
-          user?.sub || 0,
-          user?.nombre || 'Sistema',
-          'TURNO_URGENCIA',
-          id,
-          key,
-          String(oldData[key]),
-          String(dto[key]),
-        );
+      const oldVal = (oldData as any)[key];
+      const newVal = (dto as any)[key];
+      if (oldVal !== newVal) {
+        await this.audit.createLog({
+          tipo_modulo: 'TURNO_URGENCIA',
+          registro_id: id,
+          usuario_nombre: user?.nombre || user?.sub || 'Sistema',
+          campo_afectado: key,
+          valor_anterior: String(oldVal ?? ''),
+          valor_nuevo: String(newVal ?? ''),
+        });
       }
     }
 

@@ -525,7 +525,7 @@ export default function ConsolidadoDetailPage() {
                       setIsEditModalOpen(true);
                     }}
                     canEdit={(canValidateControl || canValidateFinanzas) && !isLocked}
-                    isLocked={isLocked}
+                    isLocked={!!isLocked}
                   />
                 ))}
               </tbody>
