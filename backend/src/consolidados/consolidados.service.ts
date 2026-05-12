@@ -24,7 +24,7 @@ export class ConsolidadosService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, user?: any) {
     const consolidado = await this.prisma.consolidado.findUnique({
       where: { id },
       include: {
@@ -40,6 +40,11 @@ export class ConsolidadosService {
     });
 
     if (!consolidado) throw new NotFoundException(`Consolidado #${id} no encontrado`);
+
+    // Security check
+    if (user && user.rol_enum === 'CENTRO_SALUD' && user.centro_salud_id && consolidado.centro_salud_id !== user.centro_salud_id) {
+      throw new NotFoundException(`Consolidado #${id} no pertenece a su establecimiento`);
+    }
 
     // --- Anomaly Detection: Find previous month data ---
     let prevMes = consolidado.periodo.mes - 1;
@@ -95,7 +100,7 @@ export class ConsolidadosService {
   }
 
   async update(id: number, dto: UpdateConsolidadoDto, user: any) {
-    const consolidado = await this.findOne(id);
+    const consolidado = await this.findOne(id, user);
     
     if (consolidado.periodo.estado === 'Cerrado') {
       throw new BadRequestException(`No se puede modificar un consolidado de un periodo CERRADO.`);
@@ -131,10 +136,12 @@ export class ConsolidadosService {
       }
     }
 
-    // General updates (only for ADMIN)
-    if (user.rol_enum === 'ADMIN' || user.rol_enum === 'ADMIN_MAESTRO') {
+    // General updates
+    if (user.rol_enum === 'ADMIN' || user.rol_enum === 'ADMIN_MAESTRO' || user.rol_enum === 'CENTRO_SALUD') {
       if (dto.estado_actual_enum) updateData.estado_actual_enum = dto.estado_actual_enum;
-      if (dto.usuario_gestor_id) updateData.usuario_gestor_id = dto.usuario_gestor_id;
+      if ((user.rol_enum === 'ADMIN' || user.rol_enum === 'ADMIN_MAESTRO') && dto.usuario_gestor_id) {
+        updateData.usuario_gestor_id = dto.usuario_gestor_id;
+      }
     }
 
     if (Object.keys(updateData).length === 0) {

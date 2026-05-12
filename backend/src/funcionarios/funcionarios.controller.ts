@@ -56,16 +56,22 @@ export class FuncionariosController {
   }
 
   @Get(':rut')
-  findOne(@Param('rut') rut: string) {
-    return this.funcionariosService.findOne(rut);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  findOne(@Param('rut') rut: string, @Req() req: any) {
+    return this.funcionariosService.findOne(rut, req.user);
   }
 
   @Patch(':rut')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'ADMIN_MAESTRO')
   update(@Param('rut') rut: string, @Body() updateFuncionarioDto: UpdateFuncionarioDto) {
     return this.funcionariosService.update(rut, updateFuncionarioDto);
   }
 
   @Delete(':rut')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'ADMIN_MAESTRO')
   remove(@Param('rut') rut: string) {
     return this.funcionariosService.remove(rut);
   }

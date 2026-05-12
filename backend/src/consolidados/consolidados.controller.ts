@@ -33,12 +33,13 @@ export class ConsolidadosController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.consolidadosService.findOne(+id);
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  findOne(@Param('id') id: string, @Req() req: any) {
+    return this.consolidadosService.findOne(+id, req.user);
   }
 
   @Patch(':id')
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
   update(@Param('id') id: string, @Body() dto: UpdateConsolidadoDto, @Request() req: any) {
     return this.consolidadosService.update(+id, dto, req.user);
   }

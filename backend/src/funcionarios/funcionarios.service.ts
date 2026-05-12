@@ -188,7 +188,7 @@ export class FuncionariosService {
     });
   }
 
-  async findOne(rut: string) {
+  async findOne(rut: string, user?: any) {
     const funcionario = await this.prisma.funcionario.findUnique({
       where: { rut },
       include: { 
@@ -206,6 +206,11 @@ export class FuncionariosService {
     });
 
     if (!funcionario) throw new NotFoundException(`Funcionario ${rut} no encontrado`);
+
+    // Security Check
+    if (user && user.rol_enum === 'CENTRO_SALUD' && user.centro_salud_id && funcionario.centro_salud_id !== user.centro_salud_id) {
+      throw new NotFoundException(`Funcionario ${rut} no pertenece a su establecimiento`);
+    }
 
     const heBudget = await this.prisma.horasExtras.aggregate({
       where: { funcionario_rut: rut, estado_25: 'APROBADO', estado_50: 'APROBADO' },
