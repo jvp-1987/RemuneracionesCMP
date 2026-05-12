@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 import LayoutContent from "@/components/LayoutContent";
+import { AuthProvider } from "@/context/AuthContext";
 
 export default function RootLayout({
   children,
@@ -23,7 +24,9 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
       </head>
       <body className={`${inter.variable} ${manrope.variable} font-body min-h-screen flex bg-surface text-on-surface antialiased transition-colors duration-500`}>
-        <LayoutContent>{children}</LayoutContent>
+        <AuthProvider>
+          <LayoutContent>{children}</LayoutContent>
+        </AuthProvider>
       </body>
     </html>
   );
