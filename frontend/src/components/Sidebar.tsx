@@ -24,7 +24,7 @@ export default function Sidebar() {
 
   const filteredNavItems = navItems.filter(item => {
     if (!user) return false;
-    if (user.rol === 'ADMIN') return true;
+    if (user.rol === 'ADMIN' || user.rol === 'ADMIN_MAESTRO') return true;
     
     if (user.rol === 'CENTRO_SALUD') {
       return ['Dashboard', 'Ingresar Novedades', 'Consolidados', 'Funcionarios'].includes(item.name);
@@ -96,7 +96,7 @@ export default function Sidebar() {
       {/* Footer / Account Section */}
       <div className="p-6 mt-auto">
         <div className="p-6 bg-surface-container rounded-[3rem] border border-outline-variant/5">
-          {user?.rol === 'ADMIN' && (
+          { (user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO') && (
             <Link href="/configuracion" className="flex items-center gap-4 w-full text-on-surface hover:text-primary transition-colors group mb-6">
               <span className="material-symbols-outlined text-xl text-outline group-hover:text-primary select-none">&#xe8b8;</span>
               <span className="text-xs font-black uppercase tracking-widest">Configuración</span>

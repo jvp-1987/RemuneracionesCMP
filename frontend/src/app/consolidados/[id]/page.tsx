@@ -57,9 +57,9 @@ export default function ConsolidadoDetailPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  const canValidateControl = user?.rol === 'ADMIN' || user?.rol === 'CONTROL';
-  const canValidateFinanzas = user?.rol === 'ADMIN' || user?.rol === 'FINANZAS';
-  const canFinalize = user?.rol === 'ADMIN';
+  const canValidateControl = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'CONTROL';
+  const canValidateFinanzas = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'FINANZAS';
+  const canFinalize = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO';
 
   const fetchData = async () => {
     try {

@@ -20,7 +20,7 @@ export class RolesGuard implements CanActivate {
     if (!user || !user.rol_enum) return false;
 
     // El ADMIN siempre tiene acceso a todo
-    if (user.rol_enum === 'ADMIN') return true;
+    if (user.rol_enum === 'ADMIN' || user.rol_enum === 'ADMIN_MAESTRO') return true;
 
     return requiredRoles.includes(user.rol_enum);
   }

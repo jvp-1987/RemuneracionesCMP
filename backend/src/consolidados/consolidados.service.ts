@@ -97,7 +97,7 @@ export class ConsolidadosService {
     const updateData: any = {};
 
     // Logic for CONTROL role
-    if (user.rol_enum === 'CONTROL' || user.rol_enum === 'ADMIN') {
+    if (user.rol_enum === 'CONTROL' || user.rol_enum === 'ADMIN' || user.rol_enum === 'ADMIN_MAESTRO') {
       if (dto.vb_control_interno !== undefined) {
         updateData.vb_control_interno = dto.vb_control_interno;
         if (dto.vb_control_interno === true) {
@@ -111,7 +111,7 @@ export class ConsolidadosService {
     }
 
     // Logic for FINANZAS role
-    if (user.rol_enum === 'FINANZAS' || user.rol_enum === 'ADMIN') {
+    if (user.rol_enum === 'FINANZAS' || user.rol_enum === 'ADMIN' || user.rol_enum === 'ADMIN_MAESTRO') {
       if (dto.vb_finanzas !== undefined) {
         updateData.vb_finanzas = dto.vb_finanzas;
         if (dto.vb_finanzas === true) {
@@ -125,7 +125,7 @@ export class ConsolidadosService {
     }
 
     // General updates (only for ADMIN)
-    if (user.rol_enum === 'ADMIN') {
+    if (user.rol_enum === 'ADMIN' || user.rol_enum === 'ADMIN_MAESTRO') {
       if (dto.estado_actual_enum) updateData.estado_actual_enum = dto.estado_actual_enum;
       if (dto.usuario_gestor_id) updateData.usuario_gestor_id = dto.usuario_gestor_id;
     }
