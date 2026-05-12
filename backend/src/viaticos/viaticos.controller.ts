@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ViaticosService } from './viaticos.service';
 import { CreateViaticoDto } from './dto/create-viatico.dto';
 import { UpdateViaticoDto } from './dto/update-viatico.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Viáticos')
 @Controller('viaticos')
@@ -25,8 +28,10 @@ export class ViaticosController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateViaticoDto) {
-    return this.viaticosService.update(+id, dto);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  update(@Req() req: any, @Param('id') id: string, @Body() dto: UpdateViaticoDto) {
+    return this.viaticosService.update(req.user, +id, dto);
   }
 
   @Delete(':id')

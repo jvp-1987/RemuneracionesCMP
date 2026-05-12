@@ -11,8 +11,15 @@ export class ConsolidadosService {
     return this.prisma.consolidado.create({ data: dto });
   }
 
-  findAll() {
+  findAll(user: any) {
+    const isCentroSalud = user.rol_enum === 'CENTRO_SALUD';
+    const where: any = {};
+    if (isCentroSalud && user.centro_salud_id) {
+      where.centro_salud_id = user.centro_salud_id;
+    }
+
     return this.prisma.consolidado.findMany({
+      where,
       include: { centro_salud: true, periodo: true, usuario_gestor: true },
     });
   }
@@ -160,10 +167,8 @@ export class ConsolidadosService {
     });
   }
 
-  async getDashboardKpis(periodoId?: number) {
+  async getDashboardKpis(user: any, periodoId?: number) {
     // ── Paso 1: Determinar el período a usar ───────────────────────────────────
-    // Si se pasa un periodoId, se filtra por ese. Si no, se usa el más reciente
-    // que tenga al menos una liquidación cargada.
     let targetPeriodoId = periodoId;
 
     if (!targetPeriodoId) {
@@ -174,14 +179,23 @@ export class ConsolidadosService {
       targetPeriodoId = ultimaLiq?.periodo_id ?? undefined;
     }
 
-    // ── Paso 2: Agregar totales desde el Maestro de Remuneraciones ─────────────
-    // LiquidacionMensual es la fuente de verdad financiera mensual.
-    const whereClause = targetPeriodoId ? { periodo_id: targetPeriodoId } : {};
+    // ── Paso 2: Determinar filtros de Rol ──────────────────────────────────────
+    const isCentroSalud = user.rol_enum === 'CENTRO_SALUD';
+    const centroId = user.centro_salud_id;
 
+    const whereMaestro: any = targetPeriodoId ? { periodo_id: targetPeriodoId } : {};
+    const whereConsolidado: any = {};
+
+    if (isCentroSalud && centroId) {
+      whereMaestro.funcionario = { centro_salud_id: centroId };
+      whereConsolidado.centro_salud_id = centroId;
+    }
+
+    // ── Paso 3: Agregar totales desde el Maestro de Remuneraciones ─────────────
     const [totalesMaestro, porCentroRaw, cantidades, ultimosConsolidados, periodoActual] = await Promise.all([
       // KPIs financieros principales desde el maestro
       this.prisma.liquidacionMensual.aggregate({
-        where: whereClause,
+        where: whereMaestro,
         _sum: {
           sueldo_base: true,
           total_haberes: true,
@@ -197,26 +211,25 @@ export class ConsolidadosService {
       }),
 
       // Gasto total por Centro de Salud desde el maestro
-      this.prisma.liquidacionMensual.groupBy({
-        by: ['funcionario_rut'],
-        where: whereClause,
-        _sum: {
-          total_haberes: true,
-          monto_liquido: true,
-        },
+      // Si es un centro específico, agrupamos por funcionario para ver el detalle de ese centro
+      // pero para el gráfico de barras del dashboard general, mantenemos la lógica de centro
+      this.prisma.liquidacionMensual.findMany({
+        where: whereMaestro,
+        include: { funcionario: { include: { centro_salud: true } } },
       }),
 
-      // Contadores operativos (atrasos, viáticos registrados en maestro)
+      // Contadores operativos
       this.prisma.liquidacionMensual.aggregate({
-        where: whereClause,
+        where: whereMaestro,
         _sum: {
           minutos_atraso_real: true,
         },
         _count: { funcionario_rut: true },
       }),
 
-      // Últimos 5 consolidados (sólo para contexto operativo del proceso de validación)
+      // Últimos 5 consolidados (filtrados por centro si aplica)
       this.prisma.consolidado.findMany({
+        where: whereConsolidado,
         include: { periodo: true, centro_salud: true },
         orderBy: { id: 'desc' },
         take: 5,
@@ -229,19 +242,11 @@ export class ConsolidadosService {
     ]);
 
     // ── Paso 3: Construir gasto por centro ────────────────────────────────────
-    // Necesitamos cruzar funcionario_rut con su centro_salud para agrupar
-    const rutsList = porCentroRaw.map(r => r.funcionario_rut);
-    const funcionariosCentro = await this.prisma.funcionario.findMany({
-      where: { rut: { in: rutsList } },
-      select: { rut: true, centro_salud_id: true, centro_salud: { select: { nombre: true } } },
-    });
-
     const centroMap: Record<string, { nombre: string; gasto_total: number }> = {};
     for (const fRow of porCentroRaw) {
-      const func = funcionariosCentro.find(f => f.rut === fRow.funcionario_rut);
-      const centrNombre = func?.centro_salud?.nombre ?? 'Sin Centro';
+      const centrNombre = fRow.funcionario?.centro_salud?.nombre ?? 'Sin Centro';
       if (!centroMap[centrNombre]) centroMap[centrNombre] = { nombre: centrNombre, gasto_total: 0 };
-      centroMap[centrNombre].gasto_total += Number(fRow._sum.monto_liquido ?? 0);
+      centroMap[centrNombre].gasto_total += Number(fRow.monto_liquido ?? 0);
     }
     const porCentro = Object.values(centroMap).sort((a, b) => b.gasto_total - a.gasto_total);
 

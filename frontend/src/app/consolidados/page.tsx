@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
 import { HealthCenterLogo } from "@/components/HealthCenterLogo";
+import { useAuth } from "@/components/AuthProvider";
 
 interface Consolidado {
   id: number;
@@ -37,16 +38,40 @@ const MONTHS = [
 ];
 
 export default function ConsolidadosPage() {
+  const { user } = useAuth();
   const [consolidados, setConsolidados] = useState<Consolidado[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedMonth, setSelectedMonth] = useState(5);
-  const [search, setSearch] = useState('');
+  
+  // Use sessionStorage to persist filters
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('consolidados_month');
+      return saved ? parseInt(saved) : 5;
+    }
+    return 5;
+  });
+  
+  const [search, setSearch] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('consolidados_search') || '';
+    }
+    return '';
+  });
+
   const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('consolidados_month', selectedMonth.toString());
+      sessionStorage.setItem('consolidados_search', search);
+    }
+  }, [selectedMonth, search]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/consolidados`);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+        const res = await axios.get(`${apiUrl}/consolidados`);
         setConsolidados(res.data);
       } catch (err) {
         console.error('Error fetching consolidados:', err);
@@ -61,6 +86,8 @@ export default function ConsolidadosPage() {
     c.periodo.mes === selectedMonth && 
     c.centro_salud.nombre.toLowerCase().includes(search.toLowerCase())
   );
+
+  const canBatchApprove = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'CONTROL' || user?.rol === 'FINANZAS';
 
   return (
     <div className="flex flex-col min-h-screen bg-surface p-12 pb-32">
@@ -184,29 +211,30 @@ export default function ConsolidadosPage() {
         </table>
       </div>
 
-      {/* Floating Status Bar Overlay */}
-      <div className="fixed bottom-12 left-1/2 -translate-x-1/2 bg-slate-900/80 backdrop-blur-2xl text-white px-8 py-5 rounded-[2.5rem] flex items-center gap-12 shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10 z-50 animate-in slide-in-from-bottom-8 duration-700">
-        <div className="flex items-center gap-4 border-r border-white/10 pr-12">
-          <div className="text-right">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Progreso Global Mayo</p>
-            <p className="text-xl font-bold">84%</p>
+      {/* Floating Status Bar Overlay - Solo para perfiles de aprobación global */}
+      {canBatchApprove && (
+        <div className="fixed bottom-12 left-1/2 -translate-x-1/2 bg-slate-900/80 backdrop-blur-2xl text-white px-8 py-5 rounded-[2.5rem] flex items-center gap-12 shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10 z-50 animate-in slide-in-from-bottom-8 duration-700">
+          <div className="flex items-center gap-4 border-r border-white/10 pr-12">
+            <div className="text-right">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Progreso Global Mayo</p>
+              <p className="text-xl font-bold">84%</p>
+            </div>
+            <div className="w-48 h-1.5 bg-white/10 rounded-full overflow-hidden">
+              <div className="h-full bg-primary-fixed w-[84%]" />
+            </div>
           </div>
-          <div className="w-48 h-1.5 bg-white/10 rounded-full overflow-hidden">
-            <div className="h-full bg-primary-fixed w-[84%]" />
+          <div className="flex items-center gap-8">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Total Auditoría</p>
+              <p className="text-xl font-bold">$24.8M</p>
+            </div>
+            <button className="relative px-8 py-3 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/30 overflow-hidden group">
+              <span className="relative z-10">Aprobar Lote</span>
+              <div className="absolute inset-0 w-full h-full bg-white/20 -translate-x-full group-hover:animate-[shimmer_1s_forwards] skew-x-12" />
+            </button>
           </div>
         </div>
-        <div className="flex items-center gap-8">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Total Auditoría</p>
-            <p className="text-xl font-bold">$24.8M</p>
-          </div>
-          <button className="relative px-8 py-3 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/30 overflow-hidden group">
-            <span className="relative z-10">Aprobar Lote</span>
-            <div className="absolute inset-0 w-full h-full bg-white/20 -translate-x-full group-hover:animate-[shimmer_1s_forwards] skew-x-12" />
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
-

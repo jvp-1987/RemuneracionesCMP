@@ -304,12 +304,34 @@ export default function IngresoPage() {
   const [activeRowId, setActiveRowId] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Forzar centro si el usuario es de un centro específico
+  // ─── Persistencia Local (Borradores) ──────────────────────────────────────────
   useEffect(() => {
+    if (!user) return;
+    const storageKey = `draft_ingreso_${user.id}_${activeTab}_${periodoId}`;
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setRows(parsed);
+        } else {
+            setRows([]);
+        }
+      } catch (e) { console.error("Error loading draft:", e); }
+    } else {
+        setRows([]); 
+    }
+    
     if (user?.rol === 'CENTRO_SALUD' && user.centro_salud_id) {
       setCentroId(String(user.centro_salud_id));
     }
-  }, [user]);
+  }, [user, activeTab, periodoId]);
+
+  useEffect(() => {
+    if (!user || rows.length === 0) return;
+    const storageKey = `draft_ingreso_${user.id}_${activeTab}_${periodoId}`;
+    localStorage.setItem(storageKey, JSON.stringify(rows));
+  }, [rows, user, activeTab, periodoId]);
   
   // Maestro Upload States
   const [showMaestroModal, setShowMaestroModal] = useState(false);
@@ -444,6 +466,13 @@ export default function IngresoPage() {
       const { consolidado_id } = response.data;
 
       setShowSuccess(true);
+      
+      // Limpiar borrador local tras éxito
+      if (user) {
+        const storageKey = `draft_ingreso_${user.id}_${activeTab}_${periodoId}`;
+        localStorage.removeItem(storageKey);
+      }
+
       setRows([]);
       addRow();
       // Redirigir al consolidado específico después de 1.5 segundos
@@ -1294,15 +1323,27 @@ export default function IngresoPage() {
               )}
             </AnimatePresence>
             <button
+              onClick={() => {
+                const storageKey = `draft_ingreso_${user?.id}_${activeTab}_${periodoId}`;
+                localStorage.setItem(storageKey, JSON.stringify(rows));
+                setShowSuccess(true);
+                setTimeout(() => setShowSuccess(false), 2000);
+              }}
+              className="flex items-center gap-2 bg-white text-slate-500 px-4 py-3.5 rounded-full font-black uppercase tracking-widest border border-slate-100 hover:bg-slate-50 transition-all text-[9px] whitespace-nowrap"
+            >
+              <Clock className="w-4 h-4 text-slate-400" />
+              Borrador
+            </button>
+            <button
               onClick={handleSave}
               disabled={loading || rows.every(r => !r.rut)}
               className={cn(
-                "flex items-center gap-2 bg-gradient-to-br from-slate-800 to-slate-900 text-white px-6 py-3.5 rounded-full font-black uppercase tracking-widest shadow-lg hover:shadow-primary/20 transition-all text-[10px] disabled:opacity-50",
+                "flex items-center gap-2 bg-gradient-to-br from-slate-800 to-slate-900 text-white px-6 py-3.5 rounded-full font-black uppercase tracking-widest shadow-lg hover:shadow-primary/20 transition-all text-[10px] disabled:opacity-50 whitespace-nowrap",
                 !loading && "hover:from-primary hover:to-indigo-600"
               )}
             >
               {loading ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Guardar Lote
+              Enviar Lote
             </button>
           </div>
         </motion.div>

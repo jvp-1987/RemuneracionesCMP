@@ -21,7 +21,7 @@ interface Transaction {
   cantidad_50?: number;
   monto_calculado?: number;
   monto_descuento?: number;
-  minutos_atraso?: number;
+  minutos?: number;
   tipo_destino?: string;
   tiempo_descuento?: string;
   estado_25?: EstadoValidacion;
@@ -32,6 +32,12 @@ interface Transaction {
   observaciones_50?: string;
   concept?: string;
   url_respaldo?: string;
+  // New fields for Procedimientos and Turnos
+  total_procedimientos?: number;
+  cant_habil?: number;
+  cant_inhabil?: number;
+  valor_habil?: number;
+  valor_inhabil?: number;
 }
 
 interface ConsolidadoDetail {
@@ -44,6 +50,8 @@ interface ConsolidadoDetail {
   horas_extras: Transaction[];
   viaticos: Transaction[];
   atrasos: Transaction[];
+  procedimientos: Transaction[];
+  turnos_urgencia: Transaction[];
   url_respaldo?: string;
 }
 
@@ -52,20 +60,34 @@ export default function ConsolidadoDetailPage() {
   const router = useRouter();
   const { user } = useAuth();
   const [data, setData] = useState<ConsolidadoDetail | null>(null);
-  const [activeTab, setActiveTab] = useState<'horas' | 'viaticos' | 'atrasos'>('horas');
+  const [activeTab, setActiveTab] = useState<'horas' | 'viaticos' | 'atrasos' | 'procedimientos' | 'turnos'>('horas');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<any>(null);
 
   const canValidateControl = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'CONTROL';
   const canValidateFinanzas = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'FINANZAS';
   const canFinalize = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO';
+  
+  // A record is locked for CENTRO_SALUD if Control Interno already gave V°B°
+  const isLocked = data?.vb_control_interno && user?.rol === 'CENTRO_SALUD';
 
   const fetchData = async () => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       const res = await axios.get(`${apiUrl}/consolidados/${id}`);
-      setData(res.data);
+      const consolidadoData = res.data;
+
+      // Security check: If CENTRO_SALUD, must match their assigned center
+      if (user?.rol === 'CENTRO_SALUD' && user.centro_salud_id && consolidadoData.centro_salud.id !== user.centro_salud_id) {
+        console.warn('Unauthorized access to consolidado of another center');
+        router.push('/consolidados');
+        return;
+      }
+
+      setData(consolidadoData);
     } catch (err) {
       console.error('Error fetching detail:', err);
     } finally {
@@ -74,17 +96,44 @@ export default function ConsolidadoDetailPage() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [id]);
+    if (user) fetchData();
+  }, [id, user]);
+
+  const handleSaveEdit = async (updatedFields: any) => {
+    if (!editingRecord) return;
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      const type = activeTab;
+      const endpoint = type === 'horas' ? 'horas-extras' : type === 'viaticos' ? 'viaticos' : type === 'atrasos' ? 'atrasos' : type === 'procedimientos' ? 'procedimientos' : 'turnos-urgencia';
+      const transId = editingRecord.id;
+
+      await axios.patch(`${apiUrl}/${endpoint}/${transId}`, updatedFields);
+      
+      setData(prev => {
+        if (!prev) return null;
+        const key = type === 'horas' ? 'horas_extras' : type === 'viaticos' ? 'viaticos' : type === 'atrasos' ? 'atrasos' : type === 'procedimientos' ? 'procedimientos' : 'turnos_urgencia';
+        return {
+          ...prev,
+          [key]: (prev as any)[key].map((t: any) => t.id === transId ? { ...t, ...updatedFields } : t)
+        };
+      });
+      
+      setIsEditModalOpen(false);
+      setEditingRecord(null);
+    } catch (err) {
+      console.error('Error saving edit:', err);
+      alert('Error al guardar los cambios');
+    }
+  };
 
   const handleUpdateStatus = React.useCallback(async (type: string, transId: number, field: string, newStatus: EstadoValidacion) => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-      const endpoint = type === 'horas' ? 'horas-extras' : type === 'viaticos' ? 'viaticos' : 'atrasos';
+      const endpoint = type === 'horas' ? 'horas-extras' : type === 'viaticos' ? 'viaticos' : type === 'atrasos' ? 'atrasos' : type === 'procedimientos' ? 'procedimientos' : 'turnos-urgencia';
       
       setData(prev => {
         if (!prev) return null;
-        const key = type === 'horas' ? 'horas_extras' : type === 'viaticos' ? 'viaticos' : 'atrasos';
+        const key = type === 'horas' ? 'horas_extras' : type === 'viaticos' ? 'viaticos' : type === 'atrasos' ? 'atrasos' : type === 'procedimientos' ? 'procedimientos' : 'turnos_urgencia';
         return {
           ...prev,
           [key]: (prev as any)[key].map((t: any) => t.id === transId ? { ...t, [field]: newStatus } : t)
@@ -101,12 +150,12 @@ export default function ConsolidadoDetailPage() {
   const handleUpdateObservation = React.useCallback(async (type: string, transId: number, text: string, subType?: '25' | '50') => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-      const endpoint = type === 'horas' ? 'horas-extras' : type === 'viaticos' ? 'viaticos' : 'atrasos';
+      const endpoint = type === 'horas' ? 'horas-extras' : type === 'viaticos' ? 'viaticos' : type === 'atrasos' ? 'atrasos' : type === 'procedimientos' ? 'procedimientos' : 'turnos-urgencia';
       const obsKey = type === 'horas' && subType ? `observaciones_${subType}` : 'observaciones';
       
       setData(prev => {
         if (!prev) return null;
-        const key = type === 'horas' ? 'horas_extras' : type === 'viaticos' ? 'viaticos' : 'atrasos';
+        const key = type === 'horas' ? 'horas_extras' : type === 'viaticos' ? 'viaticos' : type === 'atrasos' ? 'atrasos' : type === 'procedimientos' ? 'procedimientos' : 'turnos_urgencia';
         return {
           ...prev,
           [key]: (prev as any)[key].map((t: any) => t.id === transId ? { ...t, [obsKey]: text } : t)
@@ -123,7 +172,7 @@ export default function ConsolidadoDetailPage() {
   const handleBulkUpdate = async (status: EstadoValidacion) => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-      const endpoint = activeTab === 'horas' ? 'horas-extras' : activeTab === 'viaticos' ? 'viaticos' : 'atrasos';
+      const endpoint = activeTab === 'horas' ? 'horas-extras' : activeTab === 'viaticos' ? 'viaticos' : activeTab === 'atrasos' ? 'atrasos' : activeTab === 'procedimientos' ? 'procedimientos' : 'turnos-urgencia';
       const payload = activeTab === 'horas' ? { estado_25: status, estado_50: status } : { estado: status };
       await axios.patch(`${apiUrl}/${endpoint}/bulk/${id}`, payload);
       fetchData();
@@ -173,18 +222,18 @@ export default function ConsolidadoDetailPage() {
   if (!data) return <div className="p-20 text-center text-error font-extrabold">ERROR DE CARGA</div>;
 
   const filteredData = () => {
-    let list = activeTab === 'horas' ? data.horas_extras : activeTab === 'viaticos' ? data.viaticos : data.atrasos;
+    let list = activeTab === 'horas' ? data.horas_extras : 
+               activeTab === 'viaticos' ? data.viaticos : 
+               activeTab === 'atrasos' ? data.atrasos :
+               activeTab === 'procedimientos' ? data.procedimientos :
+               data.turnos_urgencia;
     
     list = list.filter(item => {
-      if (activeTab === 'horas') {
-        return (Number(item.cantidad_25 || 0) > 0 || Number(item.cantidad_50 || 0) > 0);
-      }
-      if (activeTab === 'viaticos') {
-        return Number(item.monto_calculado || 0) > 0;
-      }
-      if (activeTab === 'atrasos') {
-        return Number(item.minutos_atraso || 0) > 0 || (item.tiempo_descuento && item.tiempo_descuento !== '0 min');
-      }
+      if (activeTab === 'horas') return (Number(item.cantidad_25 || 0) > 0 || Number(item.cantidad_50 || 0) > 0);
+      if (activeTab === 'viaticos') return Number(item.monto_calculado || 0) > 0;
+      if (activeTab === 'atrasos') return Number(item.minutos || 0) > 0 || (item.tiempo_descuento && item.tiempo_descuento !== '0 min');
+      if (activeTab === 'procedimientos') return Number(item.total_procedimientos || 0) > 0;
+      if (activeTab === 'turnos') return (Number(item.cant_habil || 0) > 0 || Number(item.cant_inhabil || 0) > 0);
       return true;
     });
 
@@ -198,11 +247,17 @@ export default function ConsolidadoDetailPage() {
   const approvedSum = () => {
     if (activeTab === 'horas') return data.horas_extras.reduce((acc, h) => acc + (h.estado_25 === 'APROBADO' ? Number(h.monto_25) : 0) + (h.estado_50 === 'APROBADO' ? Number(h.monto_50) : 0), 0);
     if (activeTab === 'viaticos') return data.viaticos.reduce((acc, v) => acc + (v.estado === 'APROBADO' ? Number(v.monto_calculado) : 0), 0);
+    if (activeTab === 'procedimientos') return data.procedimientos.reduce((acc, p) => acc + (p.estado === 'APROBADO' ? Number(p.monto_calculado) : 0), 0);
+    if (activeTab === 'turnos') return data.turnos_urgencia.reduce((acc, t) => acc + (t.estado === 'APROBADO' ? (Number(t.cant_habil || 0) * Number(t.valor_habil || 0) + Number(t.cant_inhabil || 0) * Number(t.valor_inhabil || 0)) : 0), 0);
     return 0;
   };
 
   const auditProgress = () => {
-    const list = activeTab === 'horas' ? data.horas_extras : activeTab === 'viaticos' ? data.viaticos : data.atrasos;
+    const list = activeTab === 'horas' ? data.horas_extras : 
+                 activeTab === 'viaticos' ? data.viaticos : 
+                 activeTab === 'atrasos' ? data.atrasos :
+                 activeTab === 'procedimientos' ? data.procedimientos :
+                 data.turnos_urgencia;
     if (list.length === 0) return 0;
     const reviewed = list.filter(t => activeTab === 'horas' ? (t.estado_25 !== 'PENDIENTE' && t.estado_50 !== 'PENDIENTE') : t.estado !== 'PENDIENTE').length;
     return Math.round((reviewed / list.length) * 100);
@@ -212,12 +267,16 @@ export default function ConsolidadoDetailPage() {
     if (!data) return { 
         horas: { count: 0, complete: false }, 
         viaticos: { count: 0, complete: false }, 
-        atrasos: { count: 0, complete: false } 
+        atrasos: { count: 0, complete: false },
+        procedimientos: { count: 0, complete: false },
+        turnos: { count: 0, complete: false } 
     };
 
     const horasList = data.horas_extras.filter(item => Number(item.cantidad_25 || 0) > 0 || Number(item.cantidad_50 || 0) > 0);
     const viaticosList = data.viaticos.filter(item => Number(item.monto_calculado || 0) > 0);
-    const atrasosList = data.atrasos.filter(item => Number(item.minutos_atraso || 0) > 0 || (item.tiempo_descuento && item.tiempo_descuento !== '0 min'));
+    const atrasosList = data.atrasos.filter(item => Number(item.minutos || 0) > 0 || (item.tiempo_descuento && item.tiempo_descuento !== '0 min'));
+    const procedimientosList = data.procedimientos.filter(item => Number(item.total_procedimientos || 0) > 0);
+    const turnosList = data.turnos_urgencia.filter(item => Number(item.cant_habil || 0) > 0 || Number(item.cant_inhabil || 0) > 0);
 
     return {
       horas: { 
@@ -231,6 +290,14 @@ export default function ConsolidadoDetailPage() {
       atrasos: { 
         count: atrasosList.length, 
         complete: atrasosList.length > 0 && atrasosList.every(t => t.estado !== 'PENDIENTE') 
+      },
+      procedimientos: { 
+        count: procedimientosList.length, 
+        complete: procedimientosList.length > 0 && procedimientosList.every(t => t.estado !== 'PENDIENTE') 
+      },
+      turnos: { 
+        count: turnosList.length, 
+        complete: turnosList.length > 0 && turnosList.every(t => t.estado !== 'PENDIENTE') 
       },
     };
   };
@@ -374,19 +441,19 @@ export default function ConsolidadoDetailPage() {
         </div>
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-6 border-t border-outline-variant/10">
-          <div className="flex gap-3 p-2 bg-surface-container rounded-[2rem] border border-outline-variant/5 shadow-inner">
-            {(['horas', 'viaticos', 'atrasos'] as const).map(tab => (
+          <div className="flex gap-3 p-2 bg-surface-container rounded-[2rem] border border-outline-variant/5 shadow-inner overflow-x-auto no-scrollbar">
+            {(['horas', 'viaticos', 'atrasos', 'procedimientos', 'turnos'] as const).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  "px-8 py-3.5 text-xs font-black rounded-[1.5rem] tracking-widest uppercase transition-all duration-300 flex items-center gap-3",
+                  "px-8 py-3.5 text-xs font-black rounded-[1.5rem] tracking-widest uppercase transition-all duration-300 flex items-center gap-3 whitespace-nowrap",
                   activeTab === tab 
                     ? "bg-white text-primary shadow-lg shadow-slate-200/50" 
                     : "text-secondary hover:text-primary hover:bg-white/40"
                 )}
               >
-                {tab === 'horas' ? 'Horas Extras' : tab === 'viaticos' ? 'Viáticos' : 'Atrasos'}
+                {tab === 'horas' ? 'Horas Extras' : tab === 'viaticos' ? 'Viáticos' : tab === 'atrasos' ? 'Atrasos' : tab === 'procedimientos' ? 'Procedimientos' : 'Turnos'}
                 <span className={cn(
                   "px-2.5 py-1 rounded-lg text-[10px] font-black transition-all",
                   stats[tab].complete 
@@ -432,10 +499,10 @@ export default function ConsolidadoDetailPage() {
                   <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">Funcionario Clínico</th>
                   <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">RUT / Clasificación</th>
                   <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">
-                    {activeTab === 'horas' ? 'Horas 25%' : activeTab === 'atrasos' ? 'N/A' : 'Destino'}
+                    {activeTab === 'horas' ? 'Horas 25%' : activeTab === 'atrasos' ? 'N/A' : activeTab === 'viaticos' ? 'Destino' : activeTab === 'procedimientos' ? 'Cantidad' : 'Hábiles'}
                   </th>
                   <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">
-                    {activeTab === 'horas' ? 'Horas 50%' : activeTab === 'atrasos' ? 'Concepto' : 'Estado'}
+                    {activeTab === 'horas' ? 'Horas 50%' : activeTab === 'atrasos' ? 'Concepto' : activeTab === 'viaticos' ? 'Estado' : activeTab === 'procedimientos' ? 'Estado' : 'Inhábiles'}
                   </th>
                   <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">
                     {activeTab === 'atrasos' ? 'Total Tiempo' : 'Total Validado'}
@@ -453,7 +520,12 @@ export default function ConsolidadoDetailPage() {
                     expanded={expandedId === item.id}
                     onToggle={() => setExpandedId(expandedId === item.id ? null : item.id)}
                     onObs={(t, sub) => handleUpdateObservation(activeTab, item.id, t, sub)}
-                    canEdit={canValidateControl || canValidateFinanzas}
+                    onEdit={() => {
+                      setEditingRecord(item);
+                      setIsEditModalOpen(true);
+                    }}
+                    canEdit={(canValidateControl || canValidateFinanzas) && !isLocked}
+                    isLocked={isLocked}
                   />
                 ))}
               </tbody>
@@ -483,6 +555,153 @@ export default function ConsolidadoDetailPage() {
           </button>
         </div>
       </footer>
+
+      <AnimatePresence>
+        {isEditModalOpen && editingRecord && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setIsEditModalOpen(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-[3.5rem] shadow-2xl overflow-hidden border border-outline-variant/10"
+            >
+              <div className="p-12">
+                <div className="flex justify-between items-start mb-10">
+                  <div>
+                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2 block">Modificación de Registro</span>
+                    <h3 className="text-2xl font-black text-on-surface tracking-tight uppercase">{editingRecord.funcionario.nombre_completo}</h3>
+                  </div>
+                  <button onClick={() => setIsEditModalOpen(false)} className="p-2 hover:bg-surface-container rounded-full transition-all">
+                    <span className="material-symbols-outlined text-outline">close</span>
+                  </button>
+                </div>
+
+                <div className="space-y-8">
+                  {activeTab === 'horas' && (
+                    <div className="grid grid-cols-2 gap-8">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Horas 25%</label>
+                        <input 
+                          type="number"
+                          defaultValue={editingRecord.cantidad_25}
+                          id="edit_cantidad_25"
+                          className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Horas 50%</label>
+                        <input 
+                          type="number"
+                          defaultValue={editingRecord.cantidad_50}
+                          id="edit_cantidad_50"
+                          className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === 'procedimientos' && (
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Total Procedimientos</label>
+                      <input 
+                        type="number"
+                        defaultValue={editingRecord.total_procedimientos}
+                        id="edit_total_procedimientos"
+                        className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
+                      />
+                    </div>
+                  )}
+
+                  {activeTab === 'turnos' && (
+                    <div className="grid grid-cols-2 gap-8">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Cant. Hábiles</label>
+                        <input 
+                          type="number"
+                          defaultValue={editingRecord.cant_habil}
+                          id="edit_cant_habil"
+                          className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Cant. Inhábiles</label>
+                        <input 
+                          type="number"
+                          defaultValue={editingRecord.cant_inhabil}
+                          id="edit_cant_inhabil"
+                          className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {(activeTab === 'viaticos' || activeTab === 'atrasos') && (
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">
+                        {activeTab === 'viaticos' ? 'Monto Calculado ($)' : 'Minutos de Atraso'}
+                      </label>
+                      <input 
+                        type="number"
+                        defaultValue={activeTab === 'viaticos' ? editingRecord.monto_calculado : editingRecord.minutos}
+                        id={activeTab === 'viaticos' ? 'edit_monto' : 'edit_minutos'}
+                        className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
+                      />
+                    </div>
+                  )}
+
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Justificación / Concepto</label>
+                    <textarea 
+                      defaultValue={editingRecord.concepto || editingRecord.concept || editingRecord.justificacion}
+                      id="edit_concepto"
+                      className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all min-h-[100px]"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-4 mt-12">
+                  <button 
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-secondary border border-outline-variant/20 hover:bg-surface-container transition-all"
+                  >
+                    Cancelar
+                  </button>
+                  <button 
+                    onClick={() => {
+                      const payload: any = {};
+                      if (activeTab === 'horas') {
+                        payload.cantidad_25 = Number((document.getElementById('edit_cantidad_25') as HTMLInputElement).value);
+                        payload.cantidad_50 = Number((document.getElementById('edit_cantidad_50') as HTMLInputElement).value);
+                      } else if (activeTab === 'viaticos') {
+                        payload.monto_calculado = Number((document.getElementById('edit_monto') as HTMLInputElement).value);
+                      } else if (activeTab === 'atrasos') {
+                        payload.minutos = Number((document.getElementById('edit_minutos') as HTMLInputElement).value);
+                      } else if (activeTab === 'procedimientos') {
+                        payload.total_procedimientos = Number((document.getElementById('edit_total_procedimientos') as HTMLInputElement).value);
+                      } else if (activeTab === 'turnos') {
+                        payload.cant_habil = Number((document.getElementById('edit_cant_habil') as HTMLInputElement).value);
+                        payload.cant_inhabil = Number((document.getElementById('edit_cant_inhabil') as HTMLInputElement).value);
+                      }
+                      payload.concepto = (document.getElementById('edit_concepto') as HTMLTextAreaElement).value;
+                      handleSaveEdit(payload);
+                    }}
+                    className="flex-1 py-5 bg-primary text-white rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-primary/30 hover:brightness-110 active:scale-95 transition-all"
+                  >
+                    Guardar Cambios
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -509,27 +728,35 @@ const EmployeeTableRow = React.memo(({
   expanded,
   onToggle,
   onObs,
-  canEdit
+  onEdit,
+  canEdit,
+  isLocked
 }: { 
   item: Transaction, 
-  activeTab: 'horas' | 'viaticos' | 'atrasos',
+  activeTab: 'horas' | 'viaticos' | 'atrasos' | 'procedimientos' | 'turnos',
   onUpdateStatus: (type: string, id: number, field: string, s: EstadoValidacion) => void,
   expanded: boolean,
   onToggle: () => void,
   onObs: (t: string, sub?: '25' | '50') => void,
-  canEdit: boolean
+  onEdit: () => void,
+  canEdit: boolean,
+  isLocked: boolean
 }) => {
   const [obs25, setObs25] = useState(item.observaciones_25 || '');
   const [obs50, setObs50] = useState(item.observaciones_50 || '');
   const [obs, setObs] = useState(item.observaciones || '');
 
   const initials = item.funcionario.nombre_completo.split(' ').map(n => n[0]).join('').slice(0, 2);
-  const totalAmount = activeTab === 'horas' ? (Number(item.monto_25) + Number(item.monto_50)) : Number(item.monto_calculado || item.monto_descuento || 0);
+  const totalAmount = activeTab === 'horas' ? (Number(item.monto_25) + Number(item.monto_50)) : 
+                      activeTab === 'viaticos' ? Number(item.monto_calculado || 0) :
+                      activeTab === 'procedimientos' ? Number(item.monto_calculado || 0) :
+                      activeTab === 'turnos' ? (Number(item.cant_habil || 0) * Number(item.valor_habil || 0) + Number(item.cant_inhabil || 0) * Number(item.valor_inhabil || 0)) :
+                      0;
 
   return (
     <>
-      <tr className={cn("hover:bg-primary/5 transition-all duration-300 group cursor-pointer border-l-4 border-transparent", expanded && "bg-surface-container-low border-l-primary shadow-inner")} onClick={onToggle}>
-        <td className="px-10 py-7">
+      <tr className={cn("hover:bg-primary/5 transition-all duration-300 group cursor-pointer border-l-4 border-transparent", expanded && "bg-surface-container-low border-l-primary shadow-inner")}>
+        <td className="px-10 py-7" onClick={onToggle}>
           <div className="flex items-center gap-5">
             <div className="h-12 w-12 rounded-[1rem] bg-secondary-container flex items-center justify-center text-on-secondary-container font-black text-[14px] shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
               {initials}
@@ -540,11 +767,11 @@ const EmployeeTableRow = React.memo(({
             </div>
           </div>
         </td>
-        <td className="px-10 py-7">
+        <td className="px-10 py-7" onClick={onToggle}>
           <div className="text-[14px] font-black text-on-surface tracking-tighter mb-1">{item.funcionario.rut}</div>
           <div className="text-[10px] font-black uppercase text-primary tracking-widest bg-primary/5 px-2 py-0.5 rounded-md w-fit">Cat. {item.funcionario.categoria_aps || '-'} • Niv. {item.funcionario.nivel_aps || '-'}</div>
         </td>
-        <td className="px-10 py-7 text-center">
+        <td className="px-10 py-7 text-center" onClick={onToggle}>
           <div className="flex flex-col items-center gap-2">
             {activeTab === 'horas' ? (
               <>
@@ -553,42 +780,70 @@ const EmployeeTableRow = React.memo(({
               </>
             ) : activeTab === 'viaticos' ? (
               <div className="text-[12px] font-black text-on-surface uppercase tracking-widest">{item.tipo_destino || 'NACIONAL'}</div>
+            ) : activeTab === 'procedimientos' ? (
+              <div className="text-[16px] font-black text-primary tracking-tighter">{item.total_procedimientos || 0} <span className="text-[10px] text-secondary">PROCS</span></div>
+            ) : activeTab === 'turnos' ? (
+              <div className="text-[16px] font-black text-primary tracking-tighter">{item.cant_habil || 0} <span className="text-[10px] text-secondary">HAB</span></div>
             ) : <span className="text-outline/30 font-black text-[10px] uppercase">N/A</span>}
           </div>
         </td>
-        <td className="px-10 py-7 text-center">
+        <td className="px-10 py-7 text-center" onClick={onToggle}>
           <div className="flex flex-col items-center gap-2">
              {activeTab === 'horas' ? (
                <>
                 <div className="text-[16px] font-black text-primary tracking-tighter">{item.cantidad_50 || 0} <span className="text-[10px] text-secondary">HRS</span></div>
                 <StatusBadge status={item.estado_50} />
                </>
-             ) : activeTab === 'atrasos' ? (
-                <div className="text-[11px] font-black text-secondary tracking-widest uppercase">{item.concept || 'General'}</div>
-             ) : (
+             ) : activeTab === 'viaticos' ? (
+               <StatusBadge status={item.estado} />
+             ) : activeTab === 'procedimientos' ? (
+               <StatusBadge status={item.estado} />
+             ) : activeTab === 'turnos' ? (
+               <>
+                <div className="text-[16px] font-black text-primary tracking-tighter">{item.cant_inhabil || 0} <span className="text-[10px] text-secondary">INH</span></div>
                 <StatusBadge status={item.estado} />
+               </>
+             ) : (
+                <div className="text-[11px] font-black text-secondary tracking-widest uppercase">{item.concept || 'General'}</div>
              )}
           </div>
         </td>
-        <td className="px-10 py-7 font-black text-[16px] text-on-surface tracking-tighter">
-          {activeTab === 'horas' 
-            ? `${(Number(item.cantidad_25 || 0) + Number(item.cantidad_50 || 0)).toFixed(1)} HRS`
-            : activeTab === 'atrasos' ? item.tiempo_descuento : `$${totalAmount.toLocaleString('es-CL')}`}
+        <td className="px-10 py-7 font-black text-[16px] text-on-surface tracking-tighter" onClick={onToggle}>
+          {activeTab === 'atrasos' ? item.tiempo_descuento : `$${totalAmount.toLocaleString('es-CL')}`}
         </td>
         <td className="px-10 py-7 text-right">
-          <div className="flex justify-end gap-4 items-center">
+          <div className="flex items-center justify-end gap-5">
             {item.url_respaldo && (
               <button 
                 onClick={(e) => { e.stopPropagation(); window.open(item.url_respaldo, '_blank'); }}
-                className="flex items-center gap-2 text-[10px] font-black text-emerald-600 hover:text-emerald-700 transition-all uppercase tracking-widest overflow-hidden"
+                className="flex items-center gap-2 text-[10px] font-black text-emerald-600 hover:text-emerald-700 transition-all uppercase tracking-widest"
               >
                 Respaldo
                 <span className="material-symbols-outlined text-[18px] select-none" dangerouslySetInnerHTML={{ __html: '&#xe873;' }} />
               </button>
             )}
-            <div className="w-6 h-6 flex items-center justify-center overflow-hidden">
-              <span className={cn("material-symbols-outlined text-outline group-hover:text-primary transition-all select-none", expanded && "rotate-180")} dangerouslySetInnerHTML={{ __html: '&#xe5cf;' }} />
-            </div>
+            
+            <button 
+              disabled={isLocked}
+              onClick={(e) => { e.stopPropagation(); onEdit(); }}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm",
+                isLocked 
+                  ? "bg-surface-container text-outline/40 cursor-not-allowed border border-outline-variant/10" 
+                  : "bg-white border border-outline-variant/20 text-primary hover:bg-primary/5 hover:border-primary/40 active:scale-95"
+              )}
+              title={isLocked ? "Edición bloqueada por Control Interno" : "Editar registro"}
+            >
+              <span className="material-symbols-outlined text-sm select-none" dangerouslySetInnerHTML={{ __html: isLocked ? '&#xf033;' : '&#xe3c9;' }} />
+              {isLocked ? 'Bloqueado' : 'Editar'}
+            </button>
+
+            <button 
+              onClick={(e) => { e.stopPropagation(); onToggle(); }}
+              className="p-2.5 bg-surface-container-low hover:bg-primary/10 hover:text-primary rounded-xl transition-all"
+            >
+              <span className={cn("material-symbols-outlined transition-transform select-none", expanded && "rotate-180")} dangerouslySetInnerHTML={{ __html: '&#xe5cf;' }} />
+            </button>
           </div>
         </td>
       </tr>

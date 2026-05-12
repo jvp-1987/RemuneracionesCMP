@@ -2,10 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateViaticoDto } from './dto/create-viatico.dto';
 import { UpdateViaticoDto } from './dto/update-viatico.dto';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class ViaticosService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   create(dto: CreateViaticoDto) {
     return this.prisma.viaticos.create({ data: dto });
@@ -16,13 +20,32 @@ export class ViaticosService {
   }
 
   async findOne(id: number) {
-    const record = await this.prisma.viaticos.findUnique({ where: { id }, include: { funcionario: true } });
+    const record = await this.prisma.viaticos.findUnique({ where: { id }, include: { funcionario: true, consolidado: true } });
     if (!record) throw new NotFoundException(`Viático #${id} no encontrado`);
     return record;
   }
 
-  async update(id: number, dto: UpdateViaticoDto) {
-    await this.findOne(id);
+  async update(user: any, id: number, dto: UpdateViaticoDto) {
+    const current = await this.findOne(id);
+
+    if (current.consolidado.vb_control_interno && user.rol_enum === 'CENTRO_SALUD') {
+      throw new Error('Edición bloqueada: El área de Control Interno ya ha comenzado la revisión.');
+    }
+
+    const fieldsToTrack = ['monto_calculado', 'tipo_destino', 'estado', 'justificacion', 'concepto'];
+    for (const field of fieldsToTrack) {
+      if ((dto as any)[field] !== undefined && String((dto as any)[field]) !== String((current as any)[field])) {
+        await this.auditService.createLog({
+          tipo_modulo: 'VIATICO',
+          registro_id: id,
+          usuario_nombre: user.nombre || 'Sistema',
+          campo_afectado: field,
+          valor_anterior: String((current as any)[field] || ''),
+          valor_nuevo: String((dto as any)[field] || ''),
+        });
+      }
+    }
+
     return this.prisma.viaticos.update({ where: { id }, data: dto });
   }
 

@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AtrasosService } from './atrasos.service';
 import { CreateAtrasoDto } from './dto/create-atraso.dto';
 import { UpdateAtrasoDto } from './dto/update-atraso.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Atrasos')
 @Controller('atrasos')
@@ -25,8 +28,10 @@ export class AtrasosController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateAtrasoDto) {
-    return this.atrasosService.update(+id, dto);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  update(@Req() req: any, @Param('id') id: string, @Body() dto: UpdateAtrasoDto) {
+    return this.atrasosService.update(req.user, +id, dto);
   }
 
   @Delete(':id')

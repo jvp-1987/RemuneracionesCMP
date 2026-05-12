@@ -1,11 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ProcedimientosService } from './procedimientos.service';
 import { CreateProcedimientoDto } from './dto/create-procedimiento.dto';
 import { UpdateProcedimientoDto } from './dto/update-procedimiento.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Procedimientos')
 @Controller('procedimientos')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ProcedimientosController {
   constructor(private readonly procedimientosService: ProcedimientosService) {}
 
@@ -25,11 +29,13 @@ export class ProcedimientosController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateProcedimientoDto) {
-    return this.procedimientosService.update(+id, dto);
+  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD')
+  update(@Param('id') id: string, @Body() dto: UpdateProcedimientoDto, @Req() req: any) {
+    return this.procedimientosService.update(+id, dto, req.user);
   }
 
   @Delete(':id')
+  @Roles('ADMIN', 'ADMIN_MAESTRO')
   remove(@Param('id') id: string) {
     return this.procedimientosService.remove(+id);
   }

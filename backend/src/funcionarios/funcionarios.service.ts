@@ -177,8 +177,13 @@ export class FuncionariosService {
     return dryRun ? { dryRun: true, summary: { total: previewData.length }, previewData } : { message: 'Éxito', count: dataRows.length };
   }
 
-  findAll() {
+  findAll(user: any) {
+    const where: any = {};
+    if (user.rol_enum === 'CENTRO_SALUD' && user.centro_salud_id) {
+      where.centro_salud_id = user.centro_salud_id;
+    }
     return this.prisma.funcionario.findMany({
+      where,
       include: { centro_salud: true }
     });
   }
@@ -268,9 +273,20 @@ export class FuncionariosService {
     return this.prisma.funcionario.update({ where: { rut }, data: dto });
   }
 
-  async search(query: string) {
+  async search(user: any, query: string) {
+    const where: any = {
+      OR: [
+        { rut: { contains: query } },
+        { nombre_completo: { contains: query } }
+      ]
+    };
+    
+    if (user.rol_enum === 'CENTRO_SALUD' && user.centro_salud_id) {
+      where.centro_salud_id = user.centro_salud_id;
+    }
+
     return this.prisma.funcionario.findMany({
-      where: { OR: [{ rut: { contains: query } }, { nombre_completo: { contains: query } }] },
+      where,
       take: 5,
       select: { rut: true, nombre_completo: true, categoria_aps: true, nivel_aps: true }
     });

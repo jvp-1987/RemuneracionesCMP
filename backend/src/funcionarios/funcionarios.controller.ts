@@ -38,14 +38,18 @@ export class FuncionariosController {
   }
 
   @Get('search')
-  search(@Query('q') query: string) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  search(@Req() req: any, @Query('q') query: string) {
     if (!query || query.length < 2) return [];
-    return this.funcionariosService.search(query);
+    return this.funcionariosService.search(req.user, query);
   }
 
   @Get()
-  findAll() {
-    return this.funcionariosService.findAll();
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  findAll(@Req() req: any) {
+    return this.funcionariosService.findAll(req.user);
   }
 
   @Get(':rut')

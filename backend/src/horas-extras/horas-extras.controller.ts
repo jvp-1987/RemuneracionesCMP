@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiQuery } from '@nestjs/swagger';
 import { HorasExtrasService } from './horas-extras.service';
 import { CreateHorasExtrasDto } from './dto/create-horas-extras.dto';
 import { UpdateHorasExtrasDto } from './dto/update-horas-extras.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Horas Extras')
 @Controller('horas-extras')
@@ -27,13 +30,17 @@ export class HorasExtrasController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateHorasExtrasDto) {
-    return this.horasExtrasService.update(+id, dto);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  update(@Req() req: any, @Param('id') id: string, @Body() dto: UpdateHorasExtrasDto) {
+    return this.horasExtrasService.update(req.user, +id, dto);
   }
 
   @Patch('bulk/:consolidadoId')
-  bulkUpdate(@Param('consolidadoId') consolidadoId: string, @Body() dto: UpdateHorasExtrasDto) {
-    return this.horasExtrasService.bulkUpdate(+consolidadoId, dto);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  bulkUpdate(@Req() req: any, @Param('consolidadoId') consolidadoId: string, @Body() dto: UpdateHorasExtrasDto) {
+    return this.horasExtrasService.bulkUpdate(req.user, +consolidadoId, dto);
   }
 
   @Delete(':id')

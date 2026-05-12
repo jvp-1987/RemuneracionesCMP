@@ -20,14 +20,16 @@ export class ConsolidadosController {
   }
 
   @Get('dashboard')
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS')
-  getDashboardKpis(@Query('periodoId') periodoId?: string) {
-    return this.consolidadosService.getDashboardKpis(periodoId ? +periodoId : undefined);
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  getDashboardKpis(@Req() req: any, @Query('periodoId') periodoId?: string) {
+    return this.consolidadosService.getDashboardKpis(req.user, periodoId ? +periodoId : undefined);
   }
 
   @Get()
-  findAll() {
-    return this.consolidadosService.findAll();
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  findAll(@Req() req: any) {
+    return this.consolidadosService.findAll(req.user);
   }
 
   @Get(':id')
