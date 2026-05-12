@@ -552,7 +552,8 @@ export default function ConsolidadoDetailPage() {
                       setIsEditModalOpen(true);
                     }}
                     onDelete={() => handleDeleteRecord(item)}
-                    canEdit={(canValidateControl || canValidateFinanzas) || user?.rol === 'CENTRO_SALUD'}
+                    canEdit={((canValidateControl || canValidateFinanzas) || user?.rol === 'CENTRO_SALUD') && !isLocked}
+                    canAudit={canValidateControl || canValidateFinanzas}
                     isLocked={!!isLocked}
                   />
                 ))}
@@ -759,6 +760,7 @@ const EmployeeTableRow = React.memo(({
   onEdit,
   onDelete,
   canEdit,
+  canAudit,
   isLocked
 }: { 
   item: Transaction, 
@@ -770,6 +772,7 @@ const EmployeeTableRow = React.memo(({
   onEdit: () => void,
   onDelete: () => void,
   canEdit: boolean,
+  canAudit: boolean,
   isLocked: boolean
 }) => {
   const [obs25, setObs25] = useState(item.observaciones_25 || '');
@@ -913,15 +916,15 @@ const EmployeeTableRow = React.memo(({
                         </div>
                         <div className="space-y-4">
                           <textarea 
-                            disabled={!canEdit}
+                            disabled={!canAudit}
                             className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold min-h-[120px]" 
-                            placeholder="Ingrese hallazgos..."
+                            placeholder={canAudit ? "Ingrese hallazgos..." : "Notas de auditoría (Solo lectura)"}
                             value={obs25}
                             onChange={(e) => setObs25(e.target.value)}
                             onBlur={() => onObs(obs25, '25')}
                           />
                         </div>
-                        {canEdit && (
+                        {canAudit && (
                           <div className="flex gap-4">
                             <button onClick={() => onUpdateStatus('horas', item.id, 'estado_25', 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all", item.estado_25 === 'RECHAZADO' ? "bg-error text-white shadow-xl shadow-error/20" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
                             <button onClick={() => onUpdateStatus('horas', item.id, 'estado_25', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado_25 === 'APROBADO' ? "bg-primary text-white shadow-primary/20" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
@@ -937,15 +940,15 @@ const EmployeeTableRow = React.memo(({
                         </div>
                         <div className="space-y-4">
                           <textarea 
-                            disabled={!canEdit}
+                            disabled={!canAudit}
                             className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold min-h-[120px]" 
-                            placeholder="Ingrese hallazgos..."
+                            placeholder={canAudit ? "Ingrese hallazgos..." : "Notas de auditoría (Solo lectura)"}
                             value={obs50}
                             onChange={(e) => setObs50(e.target.value)}
                             onBlur={() => onObs(obs50, '50')}
                           />
                         </div>
-                        {canEdit && (
+                        {canAudit && (
                           <div className="flex gap-4">
                             <button onClick={() => onUpdateStatus('horas', item.id, 'estado_50', 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all", item.estado_50 === 'RECHAZADO' ? "bg-error text-white shadow-xl shadow-error/20" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
                             <button onClick={() => onUpdateStatus('horas', item.id, 'estado_50', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado_50 === 'APROBADO' ? "bg-primary text-white shadow-primary/20" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
@@ -956,14 +959,14 @@ const EmployeeTableRow = React.memo(({
                   ) : (
                     <div className="space-y-10 relative z-10 max-w-4xl mx-auto">
                         <textarea 
-                          disabled={!canEdit}
+                          disabled={!canAudit}
                           className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold min-h-[120px]" 
-                          placeholder="Notas de auditoría..."
+                          placeholder={canAudit ? "Notas de auditoría..." : "Notas de auditoría (Solo lectura)"}
                           value={obs}
                           onChange={(e) => setObs(e.target.value)}
                           onBlur={() => onObs(obs)}
                         />
-                        {canEdit && (activeTab === 'viaticos' || activeTab === 'atrasos') && (
+                        {canAudit && (activeTab === 'viaticos' || activeTab === 'atrasos' || activeTab === 'procedimientos' || activeTab === 'turnos') && (
                           <div className="flex gap-6 pt-4 pb-8">
                             <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado === 'RECHAZADO' ? "bg-error text-white" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
                             <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-primary/20", item.estado === 'APROBADO' ? "bg-primary text-white" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
