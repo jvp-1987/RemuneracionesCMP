@@ -130,4 +130,3 @@ export class CalculosService {
     return (valorHora / 60) * minutos;
   }
 }
-}
