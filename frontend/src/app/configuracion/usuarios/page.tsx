@@ -50,9 +50,10 @@ export default function UsuariosPage() {
 
   const fetchData = async () => {
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       const [usersRes, centersRes] = await Promise.all([
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/usuarios`),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/centro-salud`)
+        axios.get(`${apiUrl}/usuarios`),
+        axios.get(`${apiUrl}/centro-salud`)
       ]);
       setUsuarios(usersRes.data);
       setCentros(centersRes.data);
@@ -68,15 +69,17 @@ export default function UsuariosPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       const dataToSend = {
         ...formData,
         centro_salud_id: formData.centro_salud_id ? parseInt(formData.centro_salud_id) : null
       };
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/usuarios`, dataToSend);
+      await axios.post(`${apiUrl}/usuarios`, dataToSend);
       setIsModalOpen(false);
-      setFormData({ rut: '', nombre: '', email: '', rol_enum: 'DIRECTOR_CENTRO', centro_salud_id: '' });
+      setFormData({ rut: '', nombre: '', email: '', rol_enum: 'CENTRO_SALUD', centro_salud_id: '' });
       fetchData();
     } catch (error) {
+      console.error('Error creating user:', error);
       alert('Error al crear usuario. Verifica que el RUT o Email no existan ya.');
     }
   };
@@ -84,7 +87,8 @@ export default function UsuariosPage() {
   const handleDelete = async (id: number) => {
     if (confirm('¿Estás seguro de eliminar este usuario?')) {
       try {
-        await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/${id}`);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+        await axios.delete(`${apiUrl}/usuarios/${id}`);
         fetchData();
       } catch (error) {
         console.error('Error deleting user:', error);

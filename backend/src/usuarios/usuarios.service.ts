@@ -16,9 +16,15 @@ export class UsuariosService {
     });
   }
 
-  create(createUsuarioDto: CreateUsuarioDto) {
+  async create(createUsuarioDto: CreateUsuarioDto) {
+    const password = createUsuarioDto.password || '123456';
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Create a copy of the DTO to avoid mutating the original
+    const userData = { ...createUsuarioDto, password: hashedPassword };
+    
     return this.prisma.usuario.create({
-      data: createUsuarioDto,
+      data: userData,
     });
   }
 

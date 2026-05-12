@@ -25,4 +25,9 @@ export class CreateUsuarioDto {
   @IsOptional()
   @IsInt()
   centro_salud_id?: number;
+
+  @ApiPropertyOptional({ example: 'password123' })
+  @IsOptional()
+  @IsString()
+  password?: string;
 }
