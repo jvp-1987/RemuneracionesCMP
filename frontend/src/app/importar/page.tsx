@@ -27,12 +27,39 @@ interface PeriodoDB {
   anio: number;
 }
 
+interface MaestroPreviewItem {
+  rut: string;
+  nombre: string;
+  sueldo_base: number;
+  total_haberes: number;
+  monto_liquido: number;
+}
+
+interface ValidacionPreviewItem {
+  rut: string;
+  category: string;
+  concept: string;
+  cant_25?: number | string;
+  cant_50?: number | string;
+  cant_habil?: number | string;
+  cant_inhabil?: number | string;
+  viaticos?: number;
+  minutos_atraso?: number;
+}
+
+interface PreviewResponse {
+  totalProcesados?: number;
+  totalFuncionarios?: number;
+  totalRegistros?: number;
+  preview: (MaestroPreviewItem | ValidacionPreviewItem)[];
+}
+
 export default function ImportarPage() {
   const router = useRouter();
   const [mounted, setMounted] = React.useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [previewData, setPreviewData] = useState<any>(null);
+  const [previewData, setPreviewData] = useState<PreviewResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<Step>('select');
   const [periodoId, setPeriodoId] = useState('');
@@ -351,67 +378,84 @@ export default function ImportarPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-outline-variant/5">
-                      {previewData.preview?.map((item: any, idx: number) => (
-                        <tr key={`${item.rut}-${idx}`} className="group hover:bg-slate-50 transition-all">
-                          <td className="py-4 pl-4">
-                            <span className="text-xs font-black text-slate-400 group-hover:text-primary transition-colors font-mono">{item.rut}</span>
-                          </td>
-                          {importType === 'maestro' ? (
-                            <>
-                              <td className="py-4">
-                                <span className="text-xs font-bold text-slate-700">{item.nombre || 'Sin Nombre'}</span>
-                              </td>
-                              <td className="py-4 text-right">
-                                <span className="text-sm font-black text-slate-800">{formatCLP(item.sueldo_base || 0)}</span>
-                              </td>
-                              <td className="py-4 text-right">
-                                <span className="text-sm font-black text-slate-800">{formatCLP(item.total_haberes || 0)}</span>
-                              </td>
-                              <td className="py-4 text-right pr-4">
-                                <span className="text-sm font-black text-primary">{formatCLP(item.monto_liquido || 0)}</span>
-                              </td>
-                            </>
-                          ) : (
-                            <>
-                              <td className="py-4">
-                                <span className={cn(
-                                  "text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-tighter",
-                                  item.category === 'PRESUPUESTARIA' ? "bg-blue-100 text-blue-700" :
-                                  item.category === 'PROGRAMA_HE' ? "bg-purple-100 text-purple-700" :
-                                  item.category === 'PROGRAMA_TURNO' ? "bg-emerald-100 text-emerald-700" :
-                                  "bg-slate-100 text-slate-600"
-                                )}>
-                                  {item.category ? item.category.replace('_', ' ') : 'S/C'}
-                                </span>
-                              </td>
-                              <td className="py-4">
-                                 <div className="flex items-center gap-2">
-                                    <span className="text-xs font-black text-slate-700 uppercase tracking-tight leading-tight">{item.concept || 'N/A'}</span>
-                                 </div>
-                              </td>
-                              <td className="py-4 text-center">
-                                <span className="text-sm font-black text-slate-800">
-                                  {item.cant_25 || item.cant_habil || '-'}
-                                </span>
-                              </td>
-                              <td className="py-4 text-center">
-                                <span className="text-sm font-black text-slate-800">
-                                  {item.cant_50 || item.cant_inhabil || '-'}
-                                </span>
-                              </td>
-                              <td className="py-4 text-right pr-4">
-                                {item.viaticos ? (
-                                  <span className="text-xs font-black text-emerald-600 font-mono">{formatCLP(item.viaticos)}</span>
-                                ) : item.minutos_atraso ? (
-                                  <span className="text-xs font-black text-rose-600 font-mono">{item.minutos_atraso} min</span>
-                                ) : (
-                                  <span className="text-slate-200">-</span>
-                                )}
-                              </td>
-                            </>
-                          )}
-                        </tr>
-                      ))}
+                      {previewData.preview?.map((rawItem, idx) => {
+                        const item = rawItem as any; // Narrowing below
+                        return (
+                          <tr key={`${item.rut}-${idx}`} className="group hover:bg-slate-50 transition-all">
+                            <td className="py-4 pl-4">
+                              <span className="text-xs font-black text-slate-400 group-hover:text-primary transition-colors font-mono">{item.rut}</span>
+                            </td>
+                            {importType === 'maestro' ? (
+                              <>
+                                {(() => {
+                                  const m = item as MaestroPreviewItem;
+                                  return (
+                                    <>
+                                      <td className="py-4">
+                                        <span className="text-xs font-bold text-slate-700">{m.nombre || 'Sin Nombre'}</span>
+                                      </td>
+                                      <td className="py-4 text-right">
+                                        <span className="text-sm font-black text-slate-800">{formatCLP(m.sueldo_base || 0)}</span>
+                                      </td>
+                                      <td className="py-4 text-right">
+                                        <span className="text-sm font-black text-slate-800">{formatCLP(m.total_haberes || 0)}</span>
+                                      </td>
+                                      <td className="py-4 text-right pr-4">
+                                        <span className="text-sm font-black text-primary">{formatCLP(m.monto_liquido || 0)}</span>
+                                      </td>
+                                    </>
+                                  );
+                                })()}
+                              </>
+                            ) : (
+                              <>
+                                {(() => {
+                                  const v = item as ValidacionPreviewItem;
+                                  return (
+                                    <>
+                                      <td className="py-4">
+                                        <span className={cn(
+                                          "text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-tighter",
+                                          v.category === 'PRESUPUESTARIA' ? "bg-blue-100 text-blue-700" :
+                                          v.category === 'PROGRAMA_HE' ? "bg-purple-100 text-purple-700" :
+                                          v.category === 'PROGRAMA_TURNO' ? "bg-emerald-100 text-emerald-700" :
+                                          "bg-slate-100 text-slate-600"
+                                        )}>
+                                          {v.category ? v.category.replace('_', ' ') : 'S/C'}
+                                        </span>
+                                      </td>
+                                      <td className="py-4">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-black text-slate-700 uppercase tracking-tight leading-tight">{v.concept || 'N/A'}</span>
+                                        </div>
+                                      </td>
+                                      <td className="py-4 text-center">
+                                        <span className="text-sm font-black text-slate-800">
+                                          {v.cant_25 || v.cant_habil || '-'}
+                                        </span>
+                                      </td>
+                                      <td className="py-4 text-center">
+                                        <span className="text-sm font-black text-slate-800">
+                                          {v.cant_50 || v.cant_inhabil || '-'}
+                                        </span>
+                                      </td>
+                                      <td className="py-4 text-right pr-4">
+                                        {v.viaticos ? (
+                                          <span className="text-xs font-black text-emerald-600 font-mono">{formatCLP(v.viaticos)}</span>
+                                        ) : v.minutos_atraso ? (
+                                          <span className="text-xs font-black text-rose-600 font-mono">{v.minutos_atraso} min</span>
+                                        ) : (
+                                          <span className="text-slate-200">-</span>
+                                        )}
+                                      </td>
+                                    </>
+                                  );
+                                })()}
+                              </>
+                            )}
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
