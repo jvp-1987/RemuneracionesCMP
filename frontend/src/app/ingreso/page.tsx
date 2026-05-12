@@ -634,15 +634,9 @@ export default function IngresoPage() {
                 user?.rol === 'CENTRO_SALUD' ? "cursor-not-allowed opacity-50" : "cursor-pointer"
               )}
             >
-              {centros.length > 0 ? centros.map(c => (
-                <option key={c.id} value={c.id}>{c.nombre}</option>
-              )) : (
-                <>
-                  <option value="1">CESFAM Panguipulli</option>
-                  <option value="2">CESFAM Choshuenco</option>
-                  <option value="3">CESFAM Coñaripe</option>
-                </>
-              )}
+              <option value="1">CESFAM Panguipulli</option>
+              <option value="2">CESFAM Choshuenco</option>
+              <option value="3">CESFAM Coñaripe</option>
             </select>
           </div>
 
