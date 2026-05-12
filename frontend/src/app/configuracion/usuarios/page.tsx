@@ -37,6 +37,7 @@ export default function UsuariosPage() {
   const [centros, setCentros] = useState<CentroSalud[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   
   // Form State
@@ -74,14 +75,33 @@ export default function UsuariosPage() {
         ...formData,
         centro_salud_id: formData.centro_salud_id ? parseInt(formData.centro_salud_id) : null
       };
-      await axios.post(`${apiUrl}/usuarios`, dataToSend);
+
+      if (editingId) {
+        await axios.patch(`${apiUrl}/usuarios/${editingId}`, dataToSend);
+      } else {
+        await axios.post(`${apiUrl}/usuarios`, dataToSend);
+      }
+
       setIsModalOpen(false);
+      setEditingId(null);
       setFormData({ rut: '', nombre: '', email: '', rol_enum: 'CENTRO_SALUD', centro_salud_id: '' });
       fetchData();
     } catch (error) {
-      console.error('Error creating user:', error);
-      alert('Error al crear usuario. Verifica que el RUT o Email no existan ya.');
+      console.error('Error creating/updating user:', error);
+      alert('Error al procesar usuario. Verifica que el RUT o Email no existan ya.');
     }
+  };
+
+  const handleEditClick = (user: Usuario) => {
+    setEditingId(user.id);
+    setFormData({
+      rut: user.rut,
+      nombre: user.nombre,
+      email: user.email,
+      rol_enum: user.rol_enum,
+      centro_salud_id: user.centro_salud_id ? String(user.centro_salud_id) : ''
+    });
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (id: number) => {
@@ -205,7 +225,10 @@ export default function UsuariosPage() {
                     </td>
                     <td className="px-10 py-8 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-primary hover:border-primary/30 transition-all shadow-sm">
+                        <button 
+                          onClick={() => handleEditClick(user)}
+                          className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-primary hover:border-primary/30 transition-all shadow-sm"
+                        >
                           <Edit3 className="w-4 h-4" />
                         </button>
                         <button 
@@ -242,7 +265,11 @@ export default function UsuariosPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsModalOpen(false)}
+              onClick={() => {
+                setIsModalOpen(false);
+                setEditingId(null);
+                setFormData({ rut: '', nombre: '', email: '', rol_enum: 'CENTRO_SALUD', centro_salud_id: '' });
+              }}
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
             />
             <motion.div 
@@ -254,12 +281,20 @@ export default function UsuariosPage() {
               <form onSubmit={handleSubmit} className="p-12 space-y-8">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Nuevo Usuario</h2>
-                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-2">Configuración de credenciales iniciales</p>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+                      {editingId ? 'Editar Usuario' : 'Nuevo Usuario'}
+                    </h2>
+                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mt-2">
+                      {editingId ? 'Modificar permisos y asignaciones' : 'Configuración de credenciales iniciales'}
+                    </p>
                   </div>
                   <button 
                     type="button"
-                    onClick={() => setIsModalOpen(false)}
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      setEditingId(null);
+                      setFormData({ rut: '', nombre: '', email: '', rol_enum: 'CENTRO_SALUD', centro_salud_id: '' });
+                    }}
                     className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:text-rose-600 transition-all"
                   >
                     <X className="w-6 h-6" />
@@ -337,7 +372,11 @@ export default function UsuariosPage() {
                 <div className="flex gap-4 pt-6">
                   <button 
                     type="button"
-                    onClick={() => setIsModalOpen(false)}
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      setEditingId(null);
+                      setFormData({ rut: '', nombre: '', email: '', rol_enum: 'CENTRO_SALUD', centro_salud_id: '' });
+                    }}
                     className="flex-1 py-4 rounded-2xl bg-slate-100 text-slate-600 font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all"
                   >
                     Cancelar
@@ -346,7 +385,7 @@ export default function UsuariosPage() {
                     type="submit"
                     className="flex-[2] py-4 rounded-2xl bg-primary text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:brightness-110 transition-all"
                   >
-                    Crear Usuario
+                    {editingId ? 'Guardar Cambios' : 'Crear Usuario'}
                   </button>
                 </div>
               </form>
