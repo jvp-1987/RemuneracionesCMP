@@ -1,14 +1,19 @@
-import { Controller, Post, Get, Body, Param, Query, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Query, UseInterceptors, UploadedFile, BadRequestException, UseGuards } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { RemuneracionesService } from './remuneraciones.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Remuneraciones')
 @Controller('remuneraciones')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class RemuneracionesController {
   constructor(private readonly remuneracionesService: RemuneracionesService) {}
 
   @Post('importar-maestro-mensual')
+  @Roles('ADMIN', 'ADMIN_MAESTRO')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -32,6 +37,7 @@ export class RemuneracionesController {
   }
 
   @Post('importar-validacion')
+  @Roles('ADMIN', 'ADMIN_MAESTRO')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {

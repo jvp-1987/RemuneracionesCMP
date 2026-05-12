@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 
@@ -7,21 +7,27 @@ export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
+    // Obtenemos los roles requeridos para la ruta desde el decorador @Roles
     const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
+    
     if (!requiredRoles) {
-      return true;
+      return true; // Si la ruta no tiene el decorador @Roles, permite el paso
     }
+    
+    // Obtenemos el usuario que fue decodificado del JWT
     const { user } = context.switchToHttp().getRequest();
     
-    // Si no hay usuario o no tiene rol, denegar
-    if (!user || !user.rol_enum) return false;
+    // Verificamos si el rol del usuario está dentro de los requeridos
+    // Nota: Usamos rol_enum que es el campo real en nuestro modelo de Prisma
+    const userRole = user?.rol_enum || user?.rol;
+    
+    if (!userRole || !requiredRoles.includes(userRole)) {
+      throw new ForbiddenException('No tienes permisos suficientes para realizar esta acción');
+    }
 
-    // El ADMIN siempre tiene acceso a todo
-    if (user.rol_enum === 'ADMIN' || user.rol_enum === 'ADMIN_MAESTRO') return true;
-
-    return requiredRoles.includes(user.rol_enum);
+    return true;
   }
 }

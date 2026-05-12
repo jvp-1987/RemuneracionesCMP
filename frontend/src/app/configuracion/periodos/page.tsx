@@ -39,9 +39,7 @@ export default function PeriodControlPage() {
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Mock Admin (En producción vendría de un Contexto de Auth)
-  const isAdmin = true; 
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const fetchStatus = async () => {
     setLoading(true);
@@ -89,6 +87,16 @@ export default function PeriodControlPage() {
   };
 
   useEffect(() => {
+    // Leemos el usuario guardado tras el login para verificar si es ADMIN
+    const authData = localStorage.getItem('usuario'); // Ajusta la key si usas otro nombre
+    if (authData) {
+      try {
+        const user = JSON.parse(authData);
+        setIsAdmin(user.rol === 'ADMIN' || user.rol_enum === 'ADMIN');
+      } catch (e) {
+        console.error('Error al parsear usuario local');
+      }
+    }
     fetchStatus();
   }, []);
 
