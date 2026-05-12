@@ -169,6 +169,16 @@ export default function ConsolidadoDetailPage() {
     }
   }, [fetchData]);
 
+  const handleBulkUpdate = async (status: EstadoValidacion) => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      const endpoint = activeTab === 'horas' ? 'horas-extras' : activeTab === 'viaticos' ? 'viaticos' : activeTab === 'atrasos' ? 'atrasos' : activeTab === 'procedimientos' ? 'procedimientos' : 'turnos-urgencia';
+      const payload = activeTab === 'horas' ? { estado_25: status, estado_50: status } : { estado: status };
+      await axios.patch(`${apiUrl}/${endpoint}/bulk/${id}`, payload);
+      fetchData();
+    } catch (err) { console.error('Error in bulk update:', err); }
+  };
+
   const handleDeleteRecord = async (item: any) => {
     const confirmDelete = window.confirm(`¿Está seguro que desea eliminar este registro de ${item.funcionario.nombre_completo}? Esta acción quedará registrada en la auditoría.`);
     if (!confirmDelete) return;
@@ -747,6 +757,7 @@ const EmployeeTableRow = React.memo(({
   onToggle,
   onObs,
   onEdit,
+  onDelete,
   canEdit,
   isLocked
 }: { 
