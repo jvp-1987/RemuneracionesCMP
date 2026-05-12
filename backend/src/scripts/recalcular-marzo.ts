@@ -17,14 +17,18 @@ async function calcularValorHora(rut: string) {
 
   if (!escala) return 0;
 
-  const base = Number(escala.sueldo_base);
-  const aps = base;
-  const suma = base + aps;
-  const porZona = Number(funcionario.centro_salud?.porcentaje_zona || 0) / 100;
-  const porDificil = Number(funcionario.centro_salud?.porcentaje_dificil || 0) / 100;
+  const sueldoBase = Number(escala.sueldo_base);
+  const asignacionAPS = sueldoBase; 
+  const subtotalBaseAps = sueldoBase + asignacionAPS;
 
-  const total = suma + (suma * porZona) + (suma * porDificil);
-  return total / 176;
+  const porZona = Number(funcionario.centro_salud?.porcentaje_zona || 0);
+  const porDificil = Number(funcionario.centro_salud?.porcentaje_dificil || 0);
+
+  const montoZona = sueldoBase * (porZona / 100);
+  const montoDificil = subtotalBaseAps * (porDificil / 100);
+
+  const total = subtotalBaseAps + montoZona + montoDificil;
+  return total / 190;
 }
 
 async function run() {

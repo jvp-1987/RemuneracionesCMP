@@ -119,6 +119,7 @@ export class FuncionariosService {
       }
     }
 
+    const operations: any[] = [];
     for (const row of dataRows) {
       if (!row[rutIdx]) continue;
       const rut = this.normalizeRut(String(row[rutIdx]));
@@ -151,27 +152,24 @@ export class FuncionariosService {
       if (dryRun) {
         previewData.push({ rut, nombre, categoria, nivel, profesion, establecimiento: rawEst, status });
       } else {
-        await this.prisma.funcionario.upsert({
+        const data = {
+          nombre_completo: nombre,
+          categoria_aps: categoria,
+          nivel_aps: nivel,
+          jornada_horas: jornada,
+          profesion_enum: profesion || 'No Especificado',
+          centro_salud_id: centroId,
+        };
+        operations.push(this.prisma.funcionario.upsert({
           where: { rut },
-          update: {
-            nombre_completo: nombre,
-            categoria_aps: categoria,
-            nivel_aps: nivel,
-            jornada_horas: jornada,
-            profesion_enum: profesion || 'No Especificado',
-            centro_salud_id: centroId,
-          },
-          create: {
-            rut,
-            nombre_completo: nombre,
-            profesion_enum: profesion || 'No Especificado',
-            categoria_aps: categoria,
-            nivel_aps: nivel,
-            jornada_horas: jornada,
-            centro_salud_id: centroId
-          }
-        });
+          update: data,
+          create: { rut, ...data }
+        }));
       }
+    }
+
+    if (operations.length > 0) {
+      await this.prisma.$transaction(operations);
     }
 
     return dryRun ? { dryRun: true, summary: { total: previewData.length }, previewData } : { message: 'Éxito', count: dataRows.length };

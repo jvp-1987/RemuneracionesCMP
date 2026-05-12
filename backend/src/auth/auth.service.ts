@@ -24,9 +24,8 @@ export class AuthService {
     }
 
     const isPasswordValid = await bcrypt.compare(password, usuario.password);
-    const isPlainValid = password === usuario.password;
 
-    if (!isPasswordValid && !isPlainValid) {
+    if (!isPasswordValid) {
       throw new UnauthorizedException('Contraseña incorrecta');
     }
 

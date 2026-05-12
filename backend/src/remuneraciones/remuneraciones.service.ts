@@ -46,6 +46,9 @@ export class RemuneracionesService {
     
     const consolidadoMap = new Map<string, any>();
 
+    // Map para consolidar datos de funcionarios antes de guardar
+    const funcionarioUpdateMap = new Map<string, any>();
+
     // 1. Procesar Datos Generales (Metadata Maestra)
     for (const row of dataGenerales as any[]) {
       const rut = this.normalizeRut(row['RUT'] || row['RUN']);
@@ -53,25 +56,15 @@ export class RemuneracionesService {
 
       const nombreLargo = row['NOMBRE COMPLETO'] || `${row['NOMBRES'] || ''} ${row['APELLIDOS'] || ''}`.trim();
       
-      if (!dryRun) {
-        await this.prisma.funcionario.upsert({
-          where: { rut },
-          update: {
-            nombre_completo: nombreLargo || undefined,
-            categoria_aps: row['CATEGORIA APS'] || row['CATEGORIA'] || undefined,
-            nivel_aps: row['NIVEL APS'] || row['NIVEL'] ? +(row['NIVEL APS'] || row['NIVEL']) : undefined,
-            jornada_horas: row['JORNADA HRS'] || row['JORNADA'] ? +(row['JORNADA HRS'] || row['JORNADA']) : undefined,
-            fecha_nacimiento: row['FECHA NACIMIENTO'] ? new Date(row['FECHA NACIMIENTO']) : undefined,
-          },
-          create: {
-            rut,
-            nombre_completo: nombreLargo || 'Sin Nombre',
-            categoria_aps: row['CATEGORIA APS'] || row['CATEGORIA'] || 'Z',
-            nivel_aps: row['NIVEL APS'] || row['NIVEL'] ? +(row['NIVEL APS'] || row['NIVEL']) : 15,
-            profesion_enum: 'OTROS',
-          }
-        });
-      }
+      const funcData = {
+        nombre_completo: nombreLargo || 'Sin Nombre',
+        categoria_aps: row['CATEGORIA APS'] || row['CATEGORIA'] || 'Z',
+        nivel_aps: row['NIVEL APS'] || row['NIVEL'] ? +(row['NIVEL APS'] || row['NIVEL']) : 15,
+        jornada_horas: row['JORNADA HRS'] || row['JORNADA'] ? +(row['JORNADA HRS'] || row['JORNADA']) : undefined,
+        fecha_nacimiento: row['FECHA NACIMIENTO'] ? new Date(row['FECHA NACIMIENTO']) : undefined,
+        profesion_enum: 'OTROS',
+      };
+      funcionarioUpdateMap.set(rut, funcData);
 
       consolidadoMap.set(rut, {
         rut,
@@ -88,22 +81,13 @@ export class RemuneracionesService {
 
       const nombreLargo = `${row['NOMBRES'] || ''} ${row['APELLIDOS'] || ''}`.trim();
       
-      if (!dryRun && !consolidadoMap.has(rut)) {
-        await this.prisma.funcionario.upsert({
-          where: { rut },
-          update: {
-            nombre_completo: nombreLargo || undefined,
-            categoria_aps: row['CATEGORIA APS'] || undefined,
-            nivel_aps: row['NIVEL APS'] ? +row['NIVEL APS'] : undefined,
-            jornada_horas: row['JORNADA HRS'] ? +row['JORNADA HRS'] : undefined,
-          },
-          create: {
-            rut,
-            nombre_completo: nombreLargo || 'Sin Nombre',
-            categoria_aps: row['CATEGORIA APS'] || 'Z',
-            nivel_aps: row['NIVEL APS'] ? +row['NIVEL APS'] : 15,
-            profesion_enum: 'OTROS',
-          }
+      if (!funcionarioUpdateMap.has(rut)) {
+        funcionarioUpdateMap.set(rut, {
+          nombre_completo: nombreLargo || 'Sin Nombre',
+          categoria_aps: row['CATEGORIA APS'] || 'Z',
+          nivel_aps: row['NIVEL APS'] ? +row['NIVEL APS'] : 15,
+          jornada_horas: row['JORNADA HRS'] ? +row['JORNADA HRS'] : undefined,
+          profesion_enum: 'OTROS',
         });
       }
 
@@ -137,14 +121,18 @@ export class RemuneracionesService {
       current.detalle = { ...current.detalle, ...row };
     });
 
-    let count = 0;
-    const previewData = [];
+    // 4. Preparar operaciones de Base de Datos
+    if (!dryRun) {
+      const funcionarioOperations = Array.from(funcionarioUpdateMap.entries()).map(([rut, data]) => 
+        this.prisma.funcionario.upsert({
+          where: { rut },
+          update: data,
+          create: { rut, ...data }
+        })
+      );
 
-    for (const [rut, data] of Array.from(consolidadoMap.entries())) {
-      if (dryRun) {
-        previewData.push(data);
-      } else {
-        await this.prisma.liquidacionMensual.upsert({
+      const liquidacionOperations = Array.from(consolidadoMap.entries()).map(([rut, data]) => 
+        this.prisma.liquidacionMensual.upsert({
           where: {
             funcionario_rut_periodo_id: {
               funcionario_rut: rut,
@@ -187,10 +175,16 @@ export class RemuneracionesService {
               calculated_monto_dificil: data.monto_dificil
             }
           }
-        });
-      }
-      count++;
+        })
+      );
+
+      // Ejecutar en transacciones
+      if (funcionarioOperations.length > 0) await this.prisma.$transaction(funcionarioOperations);
+      if (liquidacionOperations.length > 0) await this.prisma.$transaction(liquidacionOperations);
     }
+
+    const previewData = Array.from(consolidadoMap.values());
+    const count = previewData.length;
 
     return {
       message: dryRun ? 'Previsualización de Maestro' : 'Maestro Mensual cargado con éxito',

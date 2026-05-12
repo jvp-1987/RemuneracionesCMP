@@ -11,10 +11,10 @@ async function main() {
   for (const escala of sueldosBase) {
     const { categoria, nivel, sueldo_base } = escala;
     
-    // Formula: (Base + APS) / 176
+    // Formula: (Base + APS) / 190
     // APS = Base (Confirmado 1:1)
     const baseTotal = Number(sueldo_base) * 2;
-    const valorHora = baseTotal / 176;
+    const valorHora = baseTotal / 190;
     
     const v25 = valorHora * 1.25;
     const v50 = valorHora * 1.50;
