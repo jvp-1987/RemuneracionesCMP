@@ -294,6 +294,12 @@ model AsignacionEspecial {
   @@index([funcionario_rut], map: "AsignacionEspecial_funcionario_rut_fkey")
 }
 
+model Parametro {
+  clave  String @id
+  valor  String
+  modulo String?
+}
+
 enum EstadoValidacion {
   PENDIENTE
   APROBADO

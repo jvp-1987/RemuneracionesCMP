@@ -2,6 +2,11 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+async function getParam(clave: string, defaultValue: string): Promise<string> {
+  const p = await prisma.parametro.findUnique({ where: { clave } });
+  return p ? p.valor : defaultValue;
+}
+
 // Duplicamos la lógica simple aquí para el script standalone
 async function calcularValorHora(rut: string) {
   const funcionario = await prisma.funcionario.findUnique({
@@ -28,7 +33,8 @@ async function calcularValorHora(rut: string) {
   const montoDificil = subtotalBaseAps * (porDificil / 100);
 
   const total = subtotalBaseAps + montoZona + montoDificil;
-  return total / 190;
+  const divisor = parseFloat(await getParam('VALOR_HORA_DIVISOR', '190'));
+  return total / divisor;
 }
 
 async function run() {
@@ -48,8 +54,11 @@ async function run() {
 
   // 2. Viáticos
   const viaticos = await prisma.viaticos.findMany();
+  const vFuera = parseFloat(await getParam('VIATICO_FUERA_COMUNA', '9000'));
+  const vDentro = parseFloat(await getParam('VIATICO_DENTRO_COMUNA', '7000'));
+  
   for (const v of viaticos) {
-    const monto = v.tipo_destino.toLowerCase().includes('fuera') ? 9000 : 7000;
+    const monto = v.tipo_destino.toLowerCase().includes('fuera') ? vFuera : vDentro;
     await prisma.viaticos.update({
       where: { id: v.id },
       data: { monto_calculado: monto }

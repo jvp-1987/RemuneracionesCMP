@@ -5,6 +5,11 @@ import { PrismaService } from '../prisma/prisma.service';
 export class CalculosService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private async getParam(clave: string, defaultValue: string): Promise<string> {
+    const p = await this.prisma.parametro.findUnique({ where: { clave } });
+    return p ? p.valor : defaultValue;
+  }
+
   async obtenerDesgloseSueldo(rut: string) {
     const funcionario = await this.prisma.funcionario.findUnique({
       where: { rut },
@@ -14,6 +19,8 @@ export class CalculosService {
     if (!funcionario || !funcionario.categoria_aps || !funcionario.nivel_aps) {
       return null;
     }
+
+    const divisor = parseFloat(await this.getParam('VALOR_HORA_DIVISOR', '190'));
 
     // PRIORIDAD: Intentar obtener datos reales del último Maestro cargado
     const latestLiq = await this.prisma.liquidacionMensual.findFirst({
@@ -44,7 +51,7 @@ export class CalculosService {
         porcentaje_zona: Number(funcionario.centro_salud?.porcentaje_zona || 0),
         porcentaje_dificil: Number(funcionario.centro_salud?.porcentaje_dificil || 0),
         total_base_mensual: totalBaseMensual,
-        valor_hora: baseParaHoraExtra / 190,
+        valor_hora: baseParaHoraExtra / divisor,
         is_real_data: true
       };
     }
@@ -83,7 +90,7 @@ export class CalculosService {
       porcentaje_zona: porZona,
       porcentaje_dificil: porDificil,
       total_base_mensual: sueldoTotal,
-      valor_hora: subtotalBaseAps / 190,
+      valor_hora: subtotalBaseAps / divisor,
       is_real_data: false
     };
   }
@@ -101,10 +108,14 @@ export class CalculosService {
     };
   }
 
-  getMontoViatico(tipo: string): number {
+  async getMontoViatico(tipo: string): Promise<number> {
     const t = tipo.toLowerCase();
-    if (t.includes('fuera')) return 9000;
-    return 7000;
+    if (t.includes('fuera')) {
+      const v = await this.getParam('VIATICO_FUERA_COMUNA', '9000');
+      return parseFloat(v);
+    }
+    const v = await this.getParam('VIATICO_DENTRO_COMUNA', '7000');
+    return parseFloat(v);
   }
 
   calcularMontoAtraso(valorHora: number, tiempoStr: string): number {
@@ -118,4 +129,5 @@ export class CalculosService {
     }
     return (valorHora / 60) * minutos;
   }
+}
 }
