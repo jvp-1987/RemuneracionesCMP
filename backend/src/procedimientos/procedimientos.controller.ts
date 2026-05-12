@@ -35,8 +35,8 @@ export class ProcedimientosController {
   }
 
   @Delete(':id')
-  @Roles('ADMIN', 'ADMIN_MAESTRO')
-  remove(@Param('id') id: string) {
-    return this.procedimientosService.remove(+id);
+  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD')
+  remove(@Param('id') id: string, @Req() req: any) {
+    return this.procedimientosService.remove(+id, req.user);
   }
 }

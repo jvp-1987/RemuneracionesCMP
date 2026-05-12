@@ -49,8 +49,22 @@ export class AtrasosService {
     return this.prisma.atrasos.update({ where: { id }, data: dto });
   }
 
-  async remove(id: number) {
-    await this.findOne(id);
+  async remove(user: any, id: number) {
+    const current = await this.findOne(id);
+
+    if (current.consolidado.vb_control_interno && user.rol_enum === 'CENTRO_SALUD') {
+      throw new Error('Eliminación bloqueada: El área de Control Interno ya ha comenzado la revisión.');
+    }
+
+    await this.auditService.createLog({
+      tipo_modulo: 'ATRASO',
+      registro_id: id,
+      usuario_nombre: user.nombre || 'Sistema',
+      campo_afectado: 'REGISTRO_ELIMINADO',
+      valor_anterior: 'EXISTE',
+      valor_nuevo: 'ELIMINADO',
+    });
+
     return this.prisma.atrasos.delete({ where: { id } });
   }
 }

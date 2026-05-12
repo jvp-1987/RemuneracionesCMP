@@ -169,14 +169,31 @@ export default function ConsolidadoDetailPage() {
     }
   }, [fetchData]);
 
-  const handleBulkUpdate = async (status: EstadoValidacion) => {
+  const handleDeleteRecord = async (item: any) => {
+    const confirmDelete = window.confirm(`¿Está seguro que desea eliminar este registro de ${item.funcionario.nombre_completo}? Esta acción quedará registrada en la auditoría.`);
+    if (!confirmDelete) return;
+
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-      const endpoint = activeTab === 'horas' ? 'horas-extras' : activeTab === 'viaticos' ? 'viaticos' : activeTab === 'atrasos' ? 'atrasos' : activeTab === 'procedimientos' ? 'procedimientos' : 'turnos-urgencia';
-      const payload = activeTab === 'horas' ? { estado_25: status, estado_50: status } : { estado: status };
-      await axios.patch(`${apiUrl}/${endpoint}/bulk/${id}`, payload);
-      fetchData();
-    } catch (err) { console.error('Error in bulk update:', err); }
+      const type = activeTab;
+      const endpoint = type === 'horas' ? 'horas-extras' : type === 'viaticos' ? 'viaticos' : type === 'atrasos' ? 'atrasos' : type === 'procedimientos' ? 'procedimientos' : 'turnos-urgencia';
+      const transId = item.id;
+
+      await axios.delete(`${apiUrl}/${endpoint}/${transId}`);
+      
+      setData(prev => {
+        if (!prev) return null;
+        const key = type === 'horas' ? 'horas_extras' : type === 'viaticos' ? 'viaticos' : type === 'atrasos' ? 'atrasos' : type === 'procedimientos' ? 'procedimientos' : 'turnos_urgencia';
+        return {
+          ...prev,
+          [key]: (prev as any)[key].filter((t: any) => t.id !== transId)
+        };
+      });
+      
+    } catch (err) {
+      console.error('Error deleting record:', err);
+      alert('Error al eliminar el registro: ' + (err as any).response?.data?.message || 'Error desconocido');
+    }
   };
 
   const handleFinalizeConsolidado = async () => {
@@ -524,7 +541,8 @@ export default function ConsolidadoDetailPage() {
                       setEditingRecord(item);
                       setIsEditModalOpen(true);
                     }}
-                    canEdit={(canValidateControl || canValidateFinanzas) && !isLocked}
+                    onDelete={() => handleDeleteRecord(item)}
+                    canEdit={(canValidateControl || canValidateFinanzas) || user?.rol === 'CENTRO_SALUD'}
                     isLocked={!!isLocked}
                   />
                 ))}
@@ -739,6 +757,7 @@ const EmployeeTableRow = React.memo(({
   onToggle: () => void,
   onObs: (t: string, sub?: '25' | '50') => void,
   onEdit: () => void,
+  onDelete: () => void,
   canEdit: boolean,
   isLocked: boolean
 }) => {
@@ -812,17 +831,30 @@ const EmployeeTableRow = React.memo(({
           {activeTab === 'atrasos' ? item.tiempo_descuento : `$${totalAmount.toLocaleString('es-CL')}`}
         </td>
         <td className="px-10 py-7 text-right">
-          <div className="flex items-center justify-end gap-5">
+          <div className="flex items-center justify-end gap-3">
             {item.url_respaldo && (
               <button 
                 onClick={(e) => { e.stopPropagation(); window.open(item.url_respaldo, '_blank'); }}
                 className="flex items-center gap-2 text-[10px] font-black text-emerald-600 hover:text-emerald-700 transition-all uppercase tracking-widest"
               >
-                Respaldo
                 <span className="material-symbols-outlined text-[18px] select-none" dangerouslySetInnerHTML={{ __html: '&#xe873;' }} />
               </button>
             )}
             
+            <button 
+              disabled={isLocked}
+              onClick={(e) => { e.stopPropagation(); onDelete(); }}
+              className={cn(
+                "p-2.5 rounded-xl transition-all shadow-sm",
+                isLocked 
+                  ? "bg-surface-container text-outline/20 cursor-not-allowed border border-outline-variant/5" 
+                  : "bg-white border border-error/20 text-error hover:bg-error/5 hover:border-error/40 active:scale-95"
+              )}
+              title={isLocked ? "Eliminación bloqueada" : "Eliminar registro"}
+            >
+              <span className="material-symbols-outlined text-sm select-none" dangerouslySetInnerHTML={{ __html: '&#xe872;' }} />
+            </button>
+
             <button 
               disabled={isLocked}
               onClick={(e) => { e.stopPropagation(); onEdit(); }}

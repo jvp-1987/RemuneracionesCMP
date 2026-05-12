@@ -35,7 +35,9 @@ export class ViaticosController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.viaticosService.remove(+id);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  remove(@Req() req: any, @Param('id') id: string) {
+    return this.viaticosService.remove(req.user, +id);
   }
 }

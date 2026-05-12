@@ -98,8 +98,28 @@ export class HorasExtrasService {
     });
   }
 
-  async remove(id: number) {
-    await this.findOne(id);
+  async remove(user: any, id: number) {
+    const current = await this.prisma.horasExtras.findUnique({
+      where: { id },
+      include: { consolidado: true }
+    });
+    if (!current) throw new NotFoundException(`Horas Extras #${id} no encontrada`);
+
+    // Lock check
+    if (current.consolidado.vb_control_interno && user.rol_enum === 'CENTRO_SALUD') {
+      throw new Error('Eliminación bloqueada: El área de Control Interno ya ha comenzado la revisión.');
+    }
+
+    // Audit Log for deletion
+    await this.auditService.createLog({
+      tipo_modulo: 'HE',
+      registro_id: id,
+      usuario_nombre: user.nombre || 'Sistema',
+      campo_afectado: 'REGISTRO_ELIMINADO',
+      valor_anterior: 'EXISTE',
+      valor_nuevo: 'ELIMINADO',
+    });
+
     return this.prisma.horasExtras.delete({ where: { id } });
   }
 }

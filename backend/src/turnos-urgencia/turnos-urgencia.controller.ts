@@ -35,8 +35,8 @@ export class TurnosUrgenciaController {
   }
 
   @Delete(':id')
-  @Roles('ADMIN', 'ADMIN_MAESTRO')
-  remove(@Param('id') id: string) {
-    return this.turnosUrgenciaService.remove(+id);
+  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD')
+  remove(@Param('id') id: string, @Req() req: any) {
+    return this.turnosUrgenciaService.remove(+id, req.user);
   }
 }

@@ -32,7 +32,7 @@ export class TurnosUrgenciaService {
     const oldData = await this.findOne(id);
 
     // Lock check
-    if ((oldData.consolidado as any)?.vb_control_interno && user?.rol === 'CENTRO_SALUD') {
+    if ((oldData.consolidado as any)?.vb_control_interno && user?.rol_enum === 'CENTRO_SALUD') {
       throw new ForbiddenException('Edición bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 
@@ -57,8 +57,23 @@ export class TurnosUrgenciaService {
     return updated;
   }
 
-  async remove(id: number) {
-    await this.findOne(id);
+  async remove(id: number, user?: any) {
+    const current = await this.findOne(id);
+
+    // Lock check
+    if ((current.consolidado as any)?.vb_control_interno && user?.rol_enum === 'CENTRO_SALUD') {
+      throw new ForbiddenException('Eliminación bloqueada: El consolidado ya está en revisión por Control Interno');
+    }
+
+    await this.audit.createLog({
+      tipo_modulo: 'TURNO_URGENCIA',
+      registro_id: id,
+      usuario_nombre: user?.nombre || user?.sub || 'Sistema',
+      campo_afectado: 'REGISTRO_ELIMINADO',
+      valor_anterior: 'EXISTE',
+      valor_nuevo: 'ELIMINADO',
+    });
+
     return this.prisma.turnosUrgencia.delete({ where: { id } });
   }
 }
