@@ -81,7 +81,7 @@ function KpiCard({
 export default function Dashboard() {
   const [data, setData] = useState<KpiData | null>(null);
   const [periods, setPeriods] = useState<any[]>([]);
-  const [selectedPeriodId, setSelectedPeriodId] = useState<string>('');
+  const [activeSource, setActiveSource] = useState<'hybrid' | 'maestro_remuneraciones' | 'novedades_en_proceso'>('hybrid');
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
@@ -95,13 +95,17 @@ export default function Dashboard() {
     }
   };
 
-  const fetchData = async (periodId?: string) => {
+  const fetchData = async (periodId?: string, source?: string) => {
     setLoading(true);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-      const url = periodId 
-        ? `${apiUrl}/consolidados/dashboard?periodoId=${periodId}`
-        : `${apiUrl}/consolidados/dashboard`;
+      let url = `${apiUrl}/consolidados/dashboard`;
+      const params = new URLSearchParams();
+      if (periodId) params.append('periodoId', periodId);
+      if (source && source !== 'hybrid') params.append('fuente', source);
+      
+      if (params.toString()) url += `?${params.toString()}`;
+      
       const res = await axios.get(url);
       setData(res.data);
       if (res.data.periodo && !selectedPeriodId) {
@@ -123,7 +127,12 @@ export default function Dashboard() {
   const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const id = e.target.value;
     setSelectedPeriodId(id);
-    fetchData(id);
+    fetchData(id, activeSource);
+  };
+
+  const handleSourceChange = (source: 'hybrid' | 'maestro_remuneraciones' | 'novedades_en_proceso') => {
+    setActiveSource(source);
+    fetchData(selectedPeriodId, source);
   };
 
   const totalLiquido = data?.kpis.total_liquido ?? 0;
@@ -171,8 +180,40 @@ export default function Dashboard() {
         </div>
 
         <div className="flex items-center gap-3">
+          <div className="bg-slate-100 p-1 rounded-2xl flex items-center gap-1">
+            <button 
+              onClick={() => handleSourceChange('hybrid')}
+              className={cn(
+                "px-4 py-2 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all",
+                activeSource === 'hybrid' ? "bg-white text-primary shadow-sm" : "text-slate-400 hover:text-slate-600"
+              )}
+            >
+              Híbrido
+            </button>
+            <button 
+              onClick={() => handleSourceChange('maestro_remuneraciones')}
+              className={cn(
+                "px-4 py-2 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all",
+                activeSource === 'maestro_remuneraciones' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+              )}
+            >
+              Maestro
+            </button>
+            <button 
+              onClick={() => handleSourceChange('novedades_en_proceso')}
+              className={cn(
+                "px-4 py-2 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all",
+                activeSource === 'novedades_en_proceso' ? "bg-white text-amber-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
+              )}
+            >
+              Novedades
+            </button>
+          </div>
+
+          <div className="h-8 w-[1px] bg-slate-200 mx-2" />
+
           <button
-            onClick={() => fetchData(selectedPeriodId)}
+            onClick={() => fetchData(selectedPeriodId, activeSource)}
             className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-primary hover:shadow-md hover:-translate-y-0.5 transition-all border border-slate-100"
           >
             <RefreshCcw className={`w-3 h-3 ${loading ? 'animate-spin text-primary' : ''}`} />

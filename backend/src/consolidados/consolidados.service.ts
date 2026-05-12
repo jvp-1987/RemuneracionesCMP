@@ -167,7 +167,7 @@ export class ConsolidadosService {
     });
   }
 
-  async getDashboardKpis(user: any, periodoId?: number) {
+  async getDashboardKpis(user: any, periodoId?: number, requestedFuente?: string) {
     // ── Paso 1: Determinar el período a usar ───────────────────────────────────
     let targetPeriodoId = periodoId;
 
@@ -269,8 +269,11 @@ export class ConsolidadosService {
 
     let fuente = 'maestro_remuneraciones';
 
-    // Si no hay datos en el maestro para el periodo seleccionado, consultamos Novedades
-    if (kpis.total_haberes === 0 && targetPeriodoId) {
+    // Determinar si forzamos una fuente o usamos la lógica híbrida
+    const useNovedades = requestedFuente === 'novedades_en_proceso' || 
+                        (requestedFuente !== 'maestro_remuneraciones' && kpis.total_haberes === 0 && targetPeriodoId);
+
+    if (useNovedades && targetPeriodoId) {
       fuente = 'novedades_en_proceso';
       
       const consolidadoId = ultimosConsolidados.find(c => c.periodo_id === targetPeriodoId)?.id;

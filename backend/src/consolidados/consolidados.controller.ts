@@ -21,8 +21,8 @@ export class ConsolidadosController {
 
   @Get('dashboard')
   @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
-  getDashboardKpis(@Req() req: any, @Query('periodoId') periodoId?: string) {
-    return this.consolidadosService.getDashboardKpis(req.user, periodoId ? +periodoId : undefined);
+  getDashboardKpis(@Req() req: any, @Query('periodoId') periodoId?: string, @Query('fuente') fuente?: string) {
+    return this.consolidadosService.getDashboardKpis(req.user, periodoId ? +periodoId : undefined, fuente);
   }
 
   @Get()
