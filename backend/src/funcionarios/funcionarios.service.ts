@@ -141,9 +141,7 @@ export class FuncionariosService {
       let centroId = centerMap.get(estNormalizado);
 
       if (!centroId && rawEst && !dryRun) {
-        const newCentro = await this.prisma.centroSalud.create({ data: { nombre: estNormalizado } });
-        centroId = newCentro.id;
-        centerMap.set(estNormalizado, newCentro.id);
+        throw new BadRequestException(`El establecimiento "${rawEst}" no existe en el sistema. Por favor créelo primero.`);
       }
 
       const existing = existingMap.get(rut);

@@ -12,18 +12,13 @@ export class IngresosService {
       throw new BadRequestException('Datos inválidos. Se requiere centro_salud_id, periodo_id, tipo y transacciones.');
     }
 
-    // Buscar o crear el Centro de Salud si no existe para evitar errores de FK
-    let centro = await this.prisma.centroSalud.findUnique({
+    // Verificar que el Centro de Salud existe
+    const centro = await this.prisma.centroSalud.findUnique({
       where: { id: parseInt(centro_salud_id) }
     });
 
     if (!centro) {
-      centro = await this.prisma.centroSalud.create({
-        data: { 
-          id: parseInt(centro_salud_id), 
-          nombre: centro_salud_id === '1' ? 'CESFAM Panguipulli' : `Centro ${centro_salud_id}` 
-        }
-      });
+      throw new BadRequestException(`El Centro de Salud ID ${centro_salud_id} no existe. Por favor créelo primero en el panel administrativo.`);
     }
 
     // Buscar o crear el Periodo si no existe para evitar errores de FK
