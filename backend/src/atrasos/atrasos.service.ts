@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAtrasoDto } from './dto/create-atraso.dto';
 import { UpdateAtrasoDto } from './dto/update-atraso.dto';
@@ -29,7 +29,7 @@ export class AtrasosService {
     const current = await this.findOne(id);
 
     if (current.consolidado.vb_control_interno && user.rol_enum === 'CENTRO_SALUD') {
-      throw new Error('Edición bloqueada: El área de Control Interno ya ha comenzado la revisión.');
+      throw new ForbiddenException('Edición bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 
     const fieldsToTrack = ['minutos', 'monto_descuento', 'estado', 'concepto', 'tiempo_descuento'];
@@ -53,7 +53,7 @@ export class AtrasosService {
     const current = await this.findOne(id);
 
     if (current.consolidado.vb_control_interno && user.rol_enum === 'CENTRO_SALUD') {
-      throw new Error('Eliminación bloqueada: El área de Control Interno ya ha comenzado la revisión.');
+      throw new ForbiddenException('Eliminación bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 
     await this.auditService.createLog({

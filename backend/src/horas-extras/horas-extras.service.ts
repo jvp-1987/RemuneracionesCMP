@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateHorasExtrasDto } from './dto/create-horas-extras.dto';
 import { UpdateHorasExtrasDto } from './dto/update-horas-extras.dto';
@@ -41,7 +41,7 @@ export class HorasExtrasService {
 
     // Lock check: If reviewed by Control Interno and user is CENTRO_SALUD, block editing
     if (current.consolidado.vb_control_interno && user.rol_enum === 'CENTRO_SALUD') {
-      throw new Error('Edición bloqueada: El área de Control Interno ya ha comenzado la revisión de este consolidado.');
+      throw new ForbiddenException('Edición bloqueada: El consolidado ya está en revisión por Control Interno');
     }
     
     // Check for changes and log them
@@ -67,7 +67,7 @@ export class HorasExtrasService {
     if (!consolidado) throw new NotFoundException(`Consolidado #${consolidadoId} no encontrado`);
 
     if (consolidado.vb_control_interno && user.rol_enum === 'CENTRO_SALUD') {
-      throw new Error('Edición masiva bloqueada: El área de Control Interno ya ha comenzado la revisión.');
+      throw new ForbiddenException('Edición masiva bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 
     const records = await this.prisma.horasExtras.findMany({
@@ -107,7 +107,7 @@ export class HorasExtrasService {
 
     // Lock check
     if (current.consolidado.vb_control_interno && user.rol_enum === 'CENTRO_SALUD') {
-      throw new Error('Eliminación bloqueada: El área de Control Interno ya ha comenzado la revisión.');
+      throw new ForbiddenException('Eliminación bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 
     // Audit Log for deletion

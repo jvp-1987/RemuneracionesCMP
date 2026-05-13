@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateViaticoDto } from './dto/create-viatico.dto';
 import { UpdateViaticoDto } from './dto/update-viatico.dto';
@@ -29,7 +29,7 @@ export class ViaticosService {
     const current = await this.findOne(id);
 
     if (current.consolidado.vb_control_interno && user.rol_enum === 'CENTRO_SALUD') {
-      throw new Error('Edición bloqueada: El área de Control Interno ya ha comenzado la revisión.');
+      throw new ForbiddenException('Edición bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 
     const fieldsToTrack = ['monto_calculado', 'tipo_destino', 'estado', 'justificacion', 'concepto'];
@@ -53,7 +53,7 @@ export class ViaticosService {
     const current = await this.findOne(id);
 
     if (current.consolidado.vb_control_interno && user.rol_enum === 'CENTRO_SALUD') {
-      throw new Error('Eliminación bloqueada: El área de Control Interno ya ha comenzado la revisión.');
+      throw new ForbiddenException('Eliminación bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 
     await this.auditService.createLog({
