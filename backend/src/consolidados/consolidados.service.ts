@@ -67,6 +67,7 @@ export class ConsolidadosService {
         horas_extras: true,
         viaticos: true,
         atrasos: true,
+        turnos_urgencia: true,
       },
     }) : null;
 
@@ -85,6 +86,10 @@ export class ConsolidadosService {
       prevConsolidado.atrasos.forEach(a => {
         if (!comparativa[a.funcionario_rut]) comparativa[a.funcionario_rut] = {};
         comparativa[a.funcionario_rut].atraso_monto_prev = Number(a.monto_descuento);
+      });
+      prevConsolidado.turnos_urgencia?.forEach(t => {
+        if (!comparativa[t.funcionario_rut]) comparativa[t.funcionario_rut] = {};
+        comparativa[t.funcionario_rut].turno_monto_prev = Number(t.monto_calculado);
       });
     }
 
@@ -291,7 +296,7 @@ export class ConsolidadosService {
       const consolidadoId = ultimosConsolidados.find(c => c.periodo_id === targetPeriodoId)?.id;
       
       if (consolidadoId) {
-        const [he, viat, atrasos] = await Promise.all([
+        const [he, viat, atrasos, turnos] = await Promise.all([
           this.prisma.horasExtras.aggregate({
             where: { consolidado_id: consolidadoId },
             _sum: { cantidad_25: true, cantidad_50: true, monto_25: true, monto_50: true }
@@ -304,6 +309,10 @@ export class ConsolidadosService {
             where: { consolidado_id: consolidadoId },
             _sum: { minutos: true, monto_descuento: true }
           })
+          ,this.prisma.turnosUrgencia.aggregate({
+            where: { consolidado_id: consolidadoId },
+            _sum: { monto_calculado: true }
+          })
         ]);
 
         kpis = {
@@ -315,6 +324,7 @@ export class ConsolidadosService {
           total_atrasos_descuento: Number(atrasos._sum.monto_descuento ?? 0),
           minutos_atraso_total: Number(atrasos._sum.minutos ?? 0),
           cantidad_funcionarios: await this.prisma.funcionario.count({ where: { centro_salud_id: user.centro_salud_id } }),
+          total_turnos: Number(turnos._sum.monto_calculado ?? 0),
         };
       }
     }
