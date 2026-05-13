@@ -359,9 +359,10 @@ export default function UsuariosPage() {
                       value={formData.centro_salud_id}
                       onChange={e => setFormData({...formData, centro_salud_id: e.target.value})}
                       disabled={formData.rol_enum === 'ADMIN' || formData.rol_enum === 'CONTROL' || formData.rol_enum === 'FINANZAS'}
+                      required={formData.rol_enum === 'CENTRO_SALUD'}
                       className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all appearance-none disabled:opacity-50"
                     >
-                      <option value="">Acceso Global (Todos)</option>
+                      <option value="">{formData.rol_enum === 'CENTRO_SALUD' ? 'Seleccione un Centro...' : 'Acceso Global (Todos)'}</option>
                       {centros.map(c => (
                         <option key={c.id} value={c.id}>{c.nombre}</option>
                       ))}
