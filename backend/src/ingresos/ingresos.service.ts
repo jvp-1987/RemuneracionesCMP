@@ -149,7 +149,8 @@ export class IngresosService {
 
           const viaticoData = {
             tipo_destino: tx.tipo_destino || 'DENTRO COMUNA',
-            monto_calculado: parseFloat(tx.monto || 0),
+            // Extracción flexible por si el frontend cambia la llave del monto
+            monto_calculado: parseFloat(tx.monto || tx.monto_calculado || tx.valor || tx.viaticos || 0),
             fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
             fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
             justificacion: tx.observaciones || '',
@@ -172,8 +173,13 @@ export class IngresosService {
                 where: { consolidado_id: consolidado!.id, funcionario_rut: tx.rut }
               });
 
+          // Extraemos solo los números del string de tiempo (ej: "45 min" -> 45)
+          const minutosRaw = parseInt(String(tx.minutos || tx.tiempo || '0').replace(/[^0-9]/g, '')) || 0;
+
           const atrasoData = {
-            tiempo_descuento: tx.tiempo || '0',
+            tiempo_descuento: tx.tiempo || `${minutosRaw} min`,
+            minutos: minutosRaw,
+            concepto: tx.observaciones || tx.concepto || '',
             fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
             fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
             url_respaldo: urlRespaldo,
