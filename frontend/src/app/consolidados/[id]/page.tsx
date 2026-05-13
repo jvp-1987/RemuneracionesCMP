@@ -34,8 +34,8 @@ interface Transaction {
   url_respaldo?: string;
   // New fields for Procedimientos and Turnos
   total_procedimientos?: number;
-  cant_habil?: number;
-  cant_inhabil?: number;
+  cant_turnos_habiles?: number;
+  cant_turnos_inhabiles?: number;
   valor_habil?: number;
   valor_inhabil?: number;
 }
@@ -260,7 +260,7 @@ export default function ConsolidadoDetailPage() {
       if (activeTab === 'viaticos') return Number(item.monto_calculado || 0) > 0;
       if (activeTab === 'atrasos') return Number(item.minutos || 0) > 0 || (item.tiempo_descuento && item.tiempo_descuento !== '0 min');
       if (activeTab === 'procedimientos') return Number(item.total_procedimientos || 0) > 0;
-      if (activeTab === 'turnos') return (Number(item.cant_habil || 0) > 0 || Number(item.cant_inhabil || 0) > 0);
+      if (activeTab === 'turnos') return (Number(item.cant_turnos_habiles || 0) > 0 || Number(item.cant_turnos_inhabiles || 0) > 0);
       return true;
     });
 
@@ -275,7 +275,7 @@ export default function ConsolidadoDetailPage() {
     if (activeTab === 'horas') return data.horas_extras.reduce((acc, h) => acc + (h.estado_25 === 'APROBADO' ? Number(h.monto_25) : 0) + (h.estado_50 === 'APROBADO' ? Number(h.monto_50) : 0), 0);
     if (activeTab === 'viaticos') return data.viaticos.reduce((acc, v) => acc + (v.estado === 'APROBADO' ? Number(v.monto_calculado) : 0), 0);
     if (activeTab === 'procedimientos') return data.procedimientos.reduce((acc, p) => acc + (p.estado === 'APROBADO' ? Number(p.monto_calculado) : 0), 0);
-    if (activeTab === 'turnos') return data.turnos_urgencia.reduce((acc, t) => acc + (t.estado === 'APROBADO' ? (Number(t.cant_habil || 0) * Number(t.valor_habil || 0) + Number(t.cant_inhabil || 0) * Number(t.valor_inhabil || 0)) : 0), 0);
+    if (activeTab === 'turnos') return data.turnos_urgencia.reduce((acc, t) => acc + (t.estado === 'APROBADO' ? (Number(t.cant_turnos_habiles || 0) * Number(t.valor_habil || 0) + Number(t.cant_turnos_inhabiles || 0) * Number(t.valor_inhabil || 0)) : 0), 0);
     return 0;
   };
 
@@ -303,7 +303,7 @@ export default function ConsolidadoDetailPage() {
     const viaticosList = data.viaticos.filter(item => Number(item.monto_calculado || 0) > 0);
     const atrasosList = data.atrasos.filter(item => Number(item.minutos || 0) > 0 || (item.tiempo_descuento && item.tiempo_descuento !== '0 min'));
     const procedimientosList = data.procedimientos.filter(item => Number(item.total_procedimientos || 0) > 0);
-    const turnosList = data.turnos_urgencia.filter(item => Number(item.cant_habil || 0) > 0 || Number(item.cant_inhabil || 0) > 0);
+    const turnosList = data.turnos_urgencia.filter(item => Number(item.cant_turnos_habiles || 0) > 0 || Number(item.cant_turnos_inhabiles || 0) > 0);
 
     return {
       horas: { 
@@ -654,8 +654,8 @@ export default function ConsolidadoDetailPage() {
                         <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Cant. Hábiles</label>
                         <input 
                           type="number"
-                          defaultValue={editingRecord.cant_habil}
-                          id="edit_cant_habil"
+                          defaultValue={editingRecord.cant_turnos_habiles}
+                          id="edit_cant_turnos_habiles"
                           className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
                         />
                       </div>
@@ -663,8 +663,8 @@ export default function ConsolidadoDetailPage() {
                         <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Cant. Inhábiles</label>
                         <input 
                           type="number"
-                          defaultValue={editingRecord.cant_inhabil}
-                          id="edit_cant_inhabil"
+                          defaultValue={editingRecord.cant_turnos_inhabiles}
+                          id="edit_cant_turnos_inhabiles"
                           className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
                         />
                       </div>
@@ -715,8 +715,8 @@ export default function ConsolidadoDetailPage() {
                       } else if (activeTab === 'procedimientos') {
                         payload.total_procedimientos = Number((document.getElementById('edit_total_procedimientos') as HTMLInputElement).value);
                       } else if (activeTab === 'turnos') {
-                        payload.cant_habil = Number((document.getElementById('edit_cant_habil') as HTMLInputElement).value);
-                        payload.cant_inhabil = Number((document.getElementById('edit_cant_inhabil') as HTMLInputElement).value);
+                        payload.cant_turnos_habiles = Number((document.getElementById('edit_cant_turnos_habiles') as HTMLInputElement).value);
+                        payload.cant_turnos_inhabiles = Number((document.getElementById('edit_cant_turnos_inhabiles') as HTMLInputElement).value);
                       }
                       payload.concepto = (document.getElementById('edit_concepto') as HTMLTextAreaElement).value;
                       handleSaveEdit(payload);
@@ -783,7 +783,7 @@ const EmployeeTableRow = React.memo(({
   const totalAmount = activeTab === 'horas' ? (Number(item.monto_25) + Number(item.monto_50)) : 
                       activeTab === 'viaticos' ? Number(item.monto_calculado || 0) :
                       activeTab === 'procedimientos' ? Number(item.monto_calculado || 0) :
-                      activeTab === 'turnos' ? (Number(item.cant_habil || 0) * Number(item.valor_habil || 0) + Number(item.cant_inhabil || 0) * Number(item.valor_inhabil || 0)) :
+                      activeTab === 'turnos' ? (Number(item.cant_turnos_habiles || 0) * Number(item.valor_habil || 0) + Number(item.cant_turnos_inhabiles || 0) * Number(item.valor_inhabil || 0)) :
                       0;
 
   return (
@@ -816,7 +816,7 @@ const EmployeeTableRow = React.memo(({
             ) : activeTab === 'procedimientos' ? (
               <div className="text-[16px] font-black text-primary tracking-tighter">{item.total_procedimientos || 0} <span className="text-[10px] text-secondary">PROCS</span></div>
             ) : activeTab === 'turnos' ? (
-              <div className="text-[16px] font-black text-primary tracking-tighter">{item.cant_habil || 0} <span className="text-[10px] text-secondary">HAB</span></div>
+              <div className="text-[16px] font-black text-primary tracking-tighter">{item.cant_turnos_habiles || 0} <span className="text-[10px] text-secondary">HAB</span></div>
             ) : <span className="text-outline/30 font-black text-[10px] uppercase">N/A</span>}
           </div>
         </td>
@@ -833,7 +833,7 @@ const EmployeeTableRow = React.memo(({
                <StatusBadge status={item.estado} />
              ) : activeTab === 'turnos' ? (
                <>
-                <div className="text-[16px] font-black text-primary tracking-tighter">{item.cant_inhabil || 0} <span className="text-[10px] text-secondary">INH</span></div>
+                <div className="text-[16px] font-black text-primary tracking-tighter">{item.cant_turnos_inhabiles || 0} <span className="text-[10px] text-secondary">INH</span></div>
                 <StatusBadge status={item.estado} />
                </>
              ) : (
