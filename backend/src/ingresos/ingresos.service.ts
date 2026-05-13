@@ -61,8 +61,11 @@ export class IngresosService {
 
       for (const tx of transacciones) {
         if (!tx.rut) continue;
+        
+        // Extracción flexible del documento por si el frontend varía la llave
+        const urlRespaldo = tx.url_respaldo || tx.documento_respaldo || tx.respaldo || tx.archivo || null;
 
-        if (tipo === 'fondos_presupuestarios' || tipo === 'programas_he') {
+        if (tipo === 'fondos_presupuestarios' || tipo === 'programas_he' || tipo === 'horas_extras') {
           let programa_id = 1;
           
           // Asegurar programa base
@@ -80,9 +83,11 @@ export class IngresosService {
             if (prog) programa_id = prog.id;
           }
 
-          const existingHE = await txPrisma.horasExtras.findFirst({
-            where: { consolidado_id: consolidado!.id, funcionario_rut: tx.rut, programa_id }
-          });
+          const existingHE = tx.id 
+            ? await txPrisma.horasExtras.findUnique({ where: { id: tx.id } }) 
+            : await txPrisma.horasExtras.findFirst({
+                where: { consolidado_id: consolidado!.id, funcionario_rut: tx.rut, programa_id }
+              });
 
           const heData = {
             cantidad_25: parseFloat(tx.cantidad_25 || 0) || 0,
@@ -90,7 +95,7 @@ export class IngresosService {
             fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
             fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
             observaciones_25: tx.observaciones || tx.programa_nombre || '',
-            url_respaldo: tx.url_respaldo || null,
+            url_respaldo: urlRespaldo,
           };
 
           if (existingHE) {
@@ -102,16 +107,18 @@ export class IngresosService {
           }
           count++;
 
-        } else if (tipo === 'programas_turno') {
+        } else if (tipo === 'programas_turno' || tipo === 'turnos' || tipo === 'turnos_urgencia') {
           const valHab = parseFloat(tx.valor_habil || 0) || 0;
           const valInh = parseFloat(tx.valor_inhabil || 0) || 0;
           const cantHab = parseInt(tx.cant_habil || 0) || 0;
           const cantInh = parseInt(tx.cant_inhabil || 0) || 0;
           const subtotal = (cantHab * valHab) + (cantInh * valInh);
 
-          const existingTurno = await txPrisma.turnosUrgencia.findFirst({
-            where: { consolidado_id: consolidado!.id, funcionario_rut: tx.rut }
-          });
+          const existingTurno = tx.id 
+            ? await txPrisma.turnosUrgencia.findUnique({ where: { id: tx.id } }) 
+            : await txPrisma.turnosUrgencia.findFirst({
+                where: { consolidado_id: consolidado!.id, funcionario_rut: tx.rut }
+              });
 
           const turnoData = {
             cant_turnos_habiles: cantHab,
@@ -121,7 +128,7 @@ export class IngresosService {
             monto_calculado: parseFloat(subtotal.toString()),
             fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
             fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
-            url_respaldo: tx.url_respaldo || null,
+            url_respaldo: urlRespaldo,
           };
 
           if (existingTurno) {
@@ -134,9 +141,11 @@ export class IngresosService {
           count++;
 
         } else if (tipo === 'viaticos') {
-          const existingViatico = await txPrisma.viaticos.findFirst({
-            where: { consolidado_id: consolidado!.id, funcionario_rut: tx.rut }
-          });
+          const existingViatico = tx.id 
+            ? await txPrisma.viaticos.findUnique({ where: { id: tx.id } }) 
+            : await txPrisma.viaticos.findFirst({
+                where: { consolidado_id: consolidado!.id, funcionario_rut: tx.rut }
+              });
 
           const viaticoData = {
             tipo_destino: tx.tipo_destino || 'DENTRO COMUNA',
@@ -144,7 +153,7 @@ export class IngresosService {
             fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
             fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
             justificacion: tx.observaciones || '',
-            url_respaldo: tx.url_respaldo || null,
+            url_respaldo: urlRespaldo,
           };
 
           if (existingViatico) {
@@ -157,14 +166,17 @@ export class IngresosService {
           count++;
 
         } else if (tipo === 'atrasos') {
-          const existingAtraso = await txPrisma.atrasos.findFirst({
-            where: { consolidado_id: consolidado!.id, funcionario_rut: tx.rut }
-          });
+          const existingAtraso = tx.id 
+            ? await txPrisma.atrasos.findUnique({ where: { id: tx.id } }) 
+            : await txPrisma.atrasos.findFirst({
+                where: { consolidado_id: consolidado!.id, funcionario_rut: tx.rut }
+              });
 
           const atrasoData = {
             tiempo_descuento: tx.tiempo || '0',
             fecha_inicio: tx.fecha_inicio ? new Date(tx.fecha_inicio) : new Date(),
             fecha_termino: tx.fecha_termino ? new Date(tx.fecha_termino) : new Date(),
+            url_respaldo: urlRespaldo,
           };
 
           if (existingAtraso) {
@@ -175,6 +187,8 @@ export class IngresosService {
             });
           }
           count++;
+        } else {
+          throw new BadRequestException(`El tipo de novedad '${tipo}' no es reconocido por el sistema.`);
         }
       }
 
