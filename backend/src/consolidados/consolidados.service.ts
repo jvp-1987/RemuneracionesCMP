@@ -105,6 +105,11 @@ export class ConsolidadosService {
     if (consolidado.periodo.estado === 'Cerrado') {
       throw new BadRequestException(`No se puede modificar un consolidado de un periodo CERRADO.`);
     }
+    
+    // Bloqueo de seguridad: El Gestor de Centro no puede alterar el consolidado si Control ya lo validó
+    if (user.rol_enum === 'CENTRO_SALUD' && consolidado.vb_control_interno) {
+      throw new ForbiddenException('Edición bloqueada: El consolidado ya está validado por Control Interno y no puede ser alterado por el Centro de Salud.');
+    }
 
     const updateData: any = {};
 
