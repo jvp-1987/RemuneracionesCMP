@@ -412,7 +412,7 @@ export class RemuneracionesService {
           centro_salud_id: centroId,
           periodo_id: +periodoId,
           estado_actual_enum: 'AUDITORIA_TECNICA',
-        }
+        },
         include: { periodo: true }
       });
     }
