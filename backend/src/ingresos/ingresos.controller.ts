@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { IngresosService } from './ingresos.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -11,7 +11,7 @@ export class IngresosController {
 
   @Post('manual')
   @Roles('ADMIN', 'CENTRO_SALUD')
-  guardarIngresos(@Body() data: any) {
-    return this.ingresosService.guardarIngresos(data);
+  guardarIngresos(@Body() data: any, @Req() req: any) {
+    return this.ingresosService.guardarIngresos(data, req.user);
   }
 }
