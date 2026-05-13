@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param, Query, UseInterceptors, UploadedFile, BadRequestException, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Query, UseInterceptors, UploadedFile, BadRequestException, UseGuards, Req } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { RemuneracionesService } from './remuneraciones.service';
@@ -37,7 +37,7 @@ export class RemuneracionesController {
   }
 
   @Post('importar-validacion')
-  @Roles('ADMIN', 'ADMIN_MAESTRO')
+  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CENTRO_SALUD', 'CONTROL')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -52,12 +52,24 @@ export class RemuneracionesController {
   async importarValidacion(
     @UploadedFile() file: Express.Multer.File,
     @Body('periodoId') periodoId: number,
-    @Query('dryRun') dryRun?: string
+    @Query('dryRun') dryRun: string,
+    @Req() req: any
   ) {
     if (!file) throw new BadRequestException('Archivo no detectado');
     if (!periodoId) throw new BadRequestException('ID de periodo es requerido');
+    
+    const centroId = req.user.centro_salud_id;
+    if (!centroId && req.user.rol_enum !== 'ADMIN') {
+        throw new BadRequestException('El usuario no tiene un centro de salud asignado.');
+    }
+
     const isDryRun = dryRun === 'true';
-    return this.remuneracionesService.importarValidacion(file.buffer, periodoId, isDryRun);
+    return this.remuneracionesService.importarValidacion(
+        file.buffer, 
+        +periodoId, 
+        centroId, 
+        isDryRun
+    );
   }
 
   @Get('historial/:rut')
