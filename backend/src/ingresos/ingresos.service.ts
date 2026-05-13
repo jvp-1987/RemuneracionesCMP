@@ -74,6 +74,15 @@ export class IngresosService {
             // Extracción flexible del documento de respaldo
             const urlRespaldo = trx.url_respaldo || trx.documento_respaldo || trx.respaldo || trx.archivo || null;
 
+            // Función auxiliar para obtener ID numérico real (evita NaN en findUnique)
+            const getRealId = (id: any): number | null => {
+              if (!id) return null;
+              const parsed = parseInt(String(id));
+              return isNaN(parsed) ? null : parsed;
+            };
+
+            const realId = getRealId(trx.id);
+
             if (tipo === 'fondos_presupuestarios' || tipo === 'programas_he' || tipo === 'horas_extras') {
               let programa_id = 1;
               const checkProg = await tx.programa.findUnique({ where: { id: 1 } });
@@ -90,8 +99,8 @@ export class IngresosService {
                 if (prog) programa_id = prog.id;
               }
 
-              const existingHE = trx.id 
-                ? await tx.horasExtras.findUnique({ where: { id: parseInt(trx.id) } }) 
+              const existingHE = realId 
+                ? await tx.horasExtras.findUnique({ where: { id: realId } }) 
                 : await tx.horasExtras.findFirst({
                     where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut, programa_id }
                   });
@@ -114,15 +123,15 @@ export class IngresosService {
               }
               count++;
 
-            } else if (tipo === 'programas_turno' || tipo === 'turnos' || tipo === 'turnos_urgencia') {
+            } else if (tipo === 'programas_turnos' || tipo === 'programas_turno' || tipo === 'turnos' || tipo === 'turnos_urgencia') {
               const valHab = parseFloat(trx.valor_habil || 0) || 0;
               const valInh = parseFloat(trx.valor_inhabil || 0) || 0;
               const cantHab = parseInt(trx.cant_habil || 0) || 0;
               const cantInh = parseInt(trx.cant_inhabil || 0) || 0;
               const subtotal = (cantHab * valHab) + (cantInh * valInh);
 
-              const existingTurno = trx.id 
-                ? await tx.turnosUrgencia.findUnique({ where: { id: parseInt(trx.id) } }) 
+              const existingTurno = realId 
+                ? await tx.turnosUrgencia.findUnique({ where: { id: realId } }) 
                 : await tx.turnosUrgencia.findFirst({
                     where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut }
                   });
@@ -148,8 +157,8 @@ export class IngresosService {
               count++;
 
             } else if (tipo === 'viaticos') {
-              const existingViatico = trx.id 
-                ? await tx.viaticos.findUnique({ where: { id: parseInt(trx.id) } }) 
+              const existingViatico = realId 
+                ? await tx.viaticos.findUnique({ where: { id: realId } }) 
                 : await tx.viaticos.findFirst({
                     where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut }
                   });
@@ -173,8 +182,8 @@ export class IngresosService {
               count++;
 
             } else if (tipo === 'atrasos') {
-              const existingAtraso = trx.id 
-                ? await tx.atrasos.findUnique({ where: { id: parseInt(trx.id) } }) 
+              const existingAtraso = realId 
+                ? await tx.atrasos.findUnique({ where: { id: realId } }) 
                 : await tx.atrasos.findFirst({
                     where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut }
                   });
