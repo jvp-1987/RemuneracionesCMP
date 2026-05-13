@@ -62,6 +62,17 @@ export class IngresosService {
         for (const trx of transacciones) {
           if (!trx.rut) continue;
 
+          // Asegurar que el Funcionario existe para evitar errores de Foreign Key (Internal Server Error)
+          await tx.funcionario.upsert({
+            where: { rut: trx.rut },
+            update: {},
+            create: {
+              rut: trx.rut,
+              nombre_completo: trx.nombre || trx.nombre_completo || 'Funcionario Agregado (Novedad)',
+              profesion_enum: 'POR_CLASIFICAR',
+            }
+          });
+
           // Extracción flexible del documento de respaldo
           const urlRespaldo = trx.url_respaldo || trx.documento_respaldo || trx.respaldo || trx.archivo || null;
 
@@ -77,13 +88,13 @@ export class IngresosService {
 
             if (tipo === 'programas_he' && trx.programa_nombre) {
               const prog = await tx.programa.findFirst({
-                where: { nombre: { contains: trx.programa_nombre.substring(0, 15) } }
+                where: { nombre: { contains: String(trx.programa_nombre).substring(0, 15) } }
               });
               if (prog) programa_id = prog.id;
             }
 
             const existingHE = trx.id 
-              ? await tx.horasExtras.findUnique({ where: { id: trx.id } }) 
+              ? await tx.horasExtras.findUnique({ where: { id: parseInt(trx.id) } }) 
               : await tx.horasExtras.findFirst({
                   where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut, programa_id }
                 });
@@ -114,7 +125,7 @@ export class IngresosService {
             const subtotal = (cantHab * valHab) + (cantInh * valInh);
 
             const existingTurno = trx.id 
-              ? await tx.turnosUrgencia.findUnique({ where: { id: trx.id } }) 
+              ? await tx.turnosUrgencia.findUnique({ where: { id: parseInt(trx.id) } }) 
               : await tx.turnosUrgencia.findFirst({
                   where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut }
                 });
@@ -141,7 +152,7 @@ export class IngresosService {
 
           } else if (tipo === 'viaticos') {
             const existingViatico = trx.id 
-              ? await tx.viaticos.findUnique({ where: { id: trx.id } }) 
+              ? await tx.viaticos.findUnique({ where: { id: parseInt(trx.id) } }) 
               : await tx.viaticos.findFirst({
                   where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut }
                 });
@@ -166,7 +177,7 @@ export class IngresosService {
 
           } else if (tipo === 'atrasos') {
             const existingAtraso = trx.id 
-              ? await tx.atrasos.findUnique({ where: { id: trx.id } }) 
+              ? await tx.atrasos.findUnique({ where: { id: parseInt(trx.id) } }) 
               : await tx.atrasos.findFirst({
                   where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut }
                 });
