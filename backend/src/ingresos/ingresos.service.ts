@@ -62,7 +62,10 @@ export class IngresosService {
         for (const trx of transacciones) {
           if (!trx.rut) continue;
 
-          if (tipo === 'fondos_presupuestarios' || tipo === 'programas_he') {
+          // Extracción flexible del documento de respaldo
+          const urlRespaldo = trx.url_respaldo || trx.documento_respaldo || trx.respaldo || trx.archivo || null;
+
+          if (tipo === 'fondos_presupuestarios' || tipo === 'programas_he' || tipo === 'horas_extras') {
             let programa_id = 1;
             
             const checkProg = await tx.programa.findUnique({ where: { id: 1 } });
@@ -79,9 +82,11 @@ export class IngresosService {
               if (prog) programa_id = prog.id;
             }
 
-            const existingHE = await tx.horasExtras.findFirst({
-              where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut, programa_id }
-            });
+            const existingHE = trx.id 
+              ? await tx.horasExtras.findUnique({ where: { id: trx.id } }) 
+              : await tx.horasExtras.findFirst({
+                  where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut, programa_id }
+                });
 
             const heData = {
               cantidad_25: parseFloat(trx.cantidad_25 || 0) || 0,
@@ -89,7 +94,7 @@ export class IngresosService {
               fecha_inicio: trx.fecha_inicio ? new Date(trx.fecha_inicio) : new Date(),
               fecha_termino: trx.fecha_termino ? new Date(trx.fecha_termino) : new Date(),
               observaciones_25: trx.observaciones || trx.programa_nombre || '',
-              url_respaldo: trx.url_respaldo || null,
+              url_respaldo: urlRespaldo,
             };
 
             if (existingHE) {
@@ -101,16 +106,18 @@ export class IngresosService {
             }
             count++;
 
-          } else if (tipo === 'programas_turno') {
+          } else if (tipo === 'programas_turno' || tipo === 'turnos' || tipo === 'turnos_urgencia') {
             const valHab = parseFloat(trx.valor_habil || 0) || 0;
             const valInh = parseFloat(trx.valor_inhabil || 0) || 0;
             const cantHab = parseInt(trx.cant_habil || 0) || 0;
             const cantInh = parseInt(trx.cant_inhabil || 0) || 0;
             const subtotal = (cantHab * valHab) + (cantInh * valInh);
 
-            const existingTurno = await tx.turnosUrgencia.findFirst({
-              where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut }
-            });
+            const existingTurno = trx.id 
+              ? await tx.turnosUrgencia.findUnique({ where: { id: trx.id } }) 
+              : await tx.turnosUrgencia.findFirst({
+                  where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut }
+                });
 
             const turnoData = {
               cant_turnos_habiles: cantHab,
@@ -120,7 +127,7 @@ export class IngresosService {
               monto_calculado: parseFloat(subtotal.toString()),
               fecha_inicio: trx.fecha_inicio ? new Date(trx.fecha_inicio) : new Date(),
               fecha_termino: trx.fecha_termino ? new Date(trx.fecha_termino) : new Date(),
-              url_respaldo: trx.url_respaldo || null,
+              url_respaldo: urlRespaldo,
             };
 
             if (existingTurno) {
@@ -133,17 +140,19 @@ export class IngresosService {
             count++;
 
           } else if (tipo === 'viaticos') {
-            const existingViatico = await tx.viaticos.findFirst({
-              where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut }
-            });
+            const existingViatico = trx.id 
+              ? await tx.viaticos.findUnique({ where: { id: trx.id } }) 
+              : await tx.viaticos.findFirst({
+                  where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut }
+                });
 
             const viaticoData = {
               tipo_destino: trx.tipo_destino || 'DENTRO COMUNA',
-              monto_calculado: parseFloat(trx.monto || 0),
+              monto_calculado: parseFloat(trx.monto || trx.monto_calculado || trx.valor || trx.viaticos || 0),
               fecha_inicio: trx.fecha_inicio ? new Date(trx.fecha_inicio) : new Date(),
               fecha_termino: trx.fecha_termino ? new Date(trx.fecha_termino) : new Date(),
               justificacion: trx.observaciones || '',
-              url_respaldo: trx.url_respaldo || null,
+              url_respaldo: urlRespaldo,
             };
 
             if (existingViatico) {
@@ -156,14 +165,21 @@ export class IngresosService {
             count++;
 
           } else if (tipo === 'atrasos') {
-            const existingAtraso = await tx.atrasos.findFirst({
-              where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut }
-            });
+            const existingAtraso = trx.id 
+              ? await tx.atrasos.findUnique({ where: { id: trx.id } }) 
+              : await tx.atrasos.findFirst({
+                  where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut }
+                });
+
+            const minutosRaw = parseInt(String(trx.minutos || trx.tiempo || '0').replace(/[^0-9]/g, '')) || 0;
 
             const atrasoData = {
-              tiempo_descuento: trx.tiempo || '0',
+              tiempo_descuento: trx.tiempo || `${minutosRaw} min`,
+              minutos: minutosRaw,
+              concepto: trx.observaciones || trx.concepto || '',
               fecha_inicio: trx.fecha_inicio ? new Date(trx.fecha_inicio) : new Date(),
               fecha_termino: trx.fecha_termino ? new Date(trx.fecha_termino) : new Date(),
+              url_respaldo: urlRespaldo,
             };
 
             if (existingAtraso) {
