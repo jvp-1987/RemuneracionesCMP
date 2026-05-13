@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as xlsx from 'xlsx';
 
@@ -193,13 +193,10 @@ export class RemuneracionesService {
     };
   }
 
-  async importarValidacion(buffer: Buffer, periodoId: number, dryRun: boolean = false) {
+  async importarValidacion(buffer: Buffer, periodoId: number, centroId: number, dryRun: boolean = false) {
     const workbook = xlsx.read(buffer, { type: 'buffer' });
     const sheetNames = workbook.SheetNames;
     
-    // 1. Obtener Centro de Salud (Default: ID 1 si no hay usuarios)
-    const centroId = 1; 
-
     // 2. Cargar Mapeo de Programas (de LISTADO DE PROGRAMAS APS 2026 )
     const programEntries: { num: string, name: string }[] = [];
     const listadoSheet = sheetNames.find(s => s.trim().startsWith('LISTADO DE PROGRAMAS'));
@@ -396,16 +393,27 @@ export class RemuneracionesService {
     // 2. Asegurar existencia del Consolidado para el periodo/centro
     // Intentamos buscar por combinación única si existiera, o usamos findFirst
     let consolidado = await this.prisma.consolidado.findFirst({
-      where: { centro_salud_id: centroId, periodo_id: +periodoId }
+      where: { centro_salud_id: centroId, periodo_id: +periodoId },
+      include: { periodo: true }
     });
 
-    if (!consolidado) {
+    if (consolidado) {
+      // BLOQUEOS DE SEGURIDAD ANTES DE SOBREESCRIBIR
+      if (consolidado.periodo?.estado === 'Cerrado') {
+        throw new BadRequestException('No se pueden importar novedades en un periodo CERRADO.');
+      }
+      if (consolidado.vb_control_interno) {
+        throw new ForbiddenException('Edición bloqueada: El consolidado ya está validado por Control Interno. No se puede sobreescribir mediante re-importación.');
+      }
+    } else {
+      // Si no existe, lo creamos
       consolidado = await this.prisma.consolidado.create({
         data: {
           centro_salud_id: centroId,
           periodo_id: +periodoId,
           estado_actual_enum: 'AUDITORIA_TECNICA',
         }
+        include: { periodo: true }
       });
     }
 
