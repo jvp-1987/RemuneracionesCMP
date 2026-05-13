@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateConsolidadoDto } from './dto/create-consolidado.dto';
 import { UpdateConsolidadoDto } from './dto/update-consolidado.dto';
