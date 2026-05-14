@@ -50,9 +50,9 @@ export class ConsolidadosService {
         usuario_gestor: true,
         horas_extras: { include: { funcionario: { include: { centro_salud: true } }, programa: true } },
         turnos_urgencia: { include: { funcionario: { include: { centro_salud: true } } } },
-        viaticos: { include: { funcionario: { include: { centro_salud: true } }, programa: true } },
+        viaticos: { include: { funcionario: { include: { centro_salud: true } } } },
         atrasos: { include: { funcionario: { include: { centro_salud: true } } } },
-        procedimientos: { include: { funcionario: { include: { centro_salud: true } }, programa: true } },
+        procedimientos: { include: { funcionario: { include: { centro_salud: true } } } },
       },
     });
 
@@ -122,7 +122,7 @@ export class ConsolidadosService {
   }
 
   async update(id: number, dto: UpdateConsolidadoDto, user: any) {
-    const consolidado = await this.findOne(id, user);
+    const consolidado: any = await this.findOne(id, user);
     
     if (consolidado.periodo.estado === 'Cerrado') {
       throw new BadRequestException(`No se puede modificar un consolidado de un periodo CERRADO.`);
