@@ -14,7 +14,22 @@ export class CentrosSaludService {
   }
 
   findAll() {
-    return this.prisma.centroSalud.findMany();
+    return this.prisma.centroSalud.findMany({
+      include: {
+        parent: true,
+        dependientes: true
+      }
+    });
+  }
+
+  async findTree() {
+    // Return only top-level centers with their dependents
+    return this.prisma.centroSalud.findMany({
+      where: { parent_id: null },
+      include: {
+        dependientes: true
+      }
+    });
   }
 
   async findOne(id: number) {

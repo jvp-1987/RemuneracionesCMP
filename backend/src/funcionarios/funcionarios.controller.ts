@@ -51,8 +51,8 @@ export class FuncionariosController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
-  findAll(@Req() req: any) {
-    return this.funcionariosService.findAll(req.user);
+  findAll(@Req() req: any, @Query('centroId') centroId?: string) {
+    return this.funcionariosService.findAll(req.user, centroId ? +centroId : undefined);
   }
 
   @Get(':rut')

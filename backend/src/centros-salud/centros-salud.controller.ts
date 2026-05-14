@@ -5,13 +5,18 @@ import { CreateCentroSaludDto } from './dto/create-centro-salud.dto';
 import { UpdateCentroSaludDto } from './dto/update-centro-salud.dto';
 
 @ApiTags('Centros de Salud')
-@Controller('centros-salud')
+@Controller('centro-salud')
 export class CentrosSaludController {
   constructor(private readonly centrosSaludService: CentrosSaludService) {}
 
   @Post()
   create(@Body() createCentroSaludDto: CreateCentroSaludDto) {
     return this.centrosSaludService.create(createCentroSaludDto);
+  }
+
+  @Get('tree')
+  findTree() {
+    return this.centrosSaludService.findTree();
   }
 
   @Get()

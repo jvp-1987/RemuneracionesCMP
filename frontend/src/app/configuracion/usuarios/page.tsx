@@ -23,6 +23,7 @@ interface Usuario {
 interface CentroSalud {
   id: number;
   nombre: string;
+  parent_id?: number;
 }
 
 const ROLES = [
@@ -363,8 +364,13 @@ export default function UsuariosPage() {
                       className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all appearance-none disabled:opacity-50"
                     >
                       <option value="">{formData.rol_enum === 'CENTRO_SALUD' ? 'Seleccione un Centro...' : 'Acceso Global (Todos)'}</option>
-                      {centros.map(c => (
-                        <option key={c.id} value={c.id}>{c.nombre}</option>
+                      {centros.filter(c => !c.parent_id).map(parent => (
+                        <optgroup key={parent.id} label={parent.nombre}>
+                          <option value={parent.id}>{parent.nombre} (Principal)</option>
+                          {centros.filter(c => c.parent_id === parent.id).map(child => (
+                            <option key={child.id} value={child.id}>↳ {child.nombre}</option>
+                          ))}
+                        </optgroup>
                       ))}
                     </select>
                   </div>

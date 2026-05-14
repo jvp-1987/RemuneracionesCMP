@@ -38,20 +38,25 @@ export class FuncionariosService {
 
   private normalizeEstablishment(name: string): string {
     const norm = this.normalizeString(name);
-    if (norm.includes('neltume')) return 'CECOSF NELTUME';
-    if (norm.includes('pirihueico')) return 'POSTA PIRIHUEICO';
-    if (norm.includes('lago neltume')) return 'POSTA LAGO NELTUME';
+    if (norm.includes('neltume') && !norm.includes('lago')) return 'CECOSF NELTUME';
+    if (norm.includes('pireheuico') || norm.includes('pirihueico')) return 'POSTA RURAL PIREHEUICO';
+    if (norm.includes('lago neltume')) return 'POSTA RURAL LAGONELTUME';
     if (norm.includes('choshuenco')) return 'CESFAM CHOSHUENCO';
     if (norm.includes('liquine')) return 'CECOSF LIQUIÑE';
     if (norm.includes('conaripe')) return 'CESFAM COÑARIPE';
-    if (norm.includes('adm central') || norm.includes('depsa') || norm.includes('eleam') || norm.includes('rrhh') || norm.includes('farmacia')) {
-      return 'CESFAM PANGUIPULLI';
+    if (norm.includes('melefquen')) return 'POSTA RURAL MELEFQUEN';
+    if (norm.includes('bocatoma')) return 'POSTA RURAL BOCATOMA';
+    if (norm.includes('huitag')) return 'POSTA RURAL HUITAG';
+    if (norm.includes('cayumapu')) return 'POSTA RURAL CAYUMAPU';
+    if (norm.includes('sar')) return 'SAR PANGUIPULLI';
+    
+    // Centralized Admin
+    if (norm.includes('personal') || norm.includes('rrhh')) return 'DEPARTAMENTO DE PERSONAL (RRHH)';
+    if (norm.includes('farmacia')) return 'FARMACIA COMUNAL';
+    if (norm.includes('central') || norm.includes('adm central') || norm.includes('depsa') || norm.includes('eleam')) {
+      return 'CENTRAL';
     }
-    if (norm.includes('melefquen')) return 'POSTA MELEFQUEN';
-    if (norm.includes('bocatoma')) return 'POSTA BOCATOMA';
-    if (norm.includes('huitag')) return 'POSTA HUITAG';
-    if (norm.includes('cayumapu')) return 'POSTA CAYUMAPU';
-    if (norm.includes('sar')) return 'SAR';
+
     return 'CESFAM PANGUIPULLI';
   }
 
@@ -173,10 +178,25 @@ export class FuncionariosService {
     return dryRun ? { dryRun: true, summary: { total: previewData.length }, previewData } : { message: 'Éxito', count: dataRows.length };
   }
 
-  findAll(user: any) {
+  private async getCenterIds(centerId: number): Promise<number[]> {
+    const center = await this.prisma.centroSalud.findUnique({
+      where: { id: centerId },
+      include: { dependientes: true }
+    });
+    if (!center) return [centerId];
+    return [centerId, ...center.dependientes.map(d => d.id)];
+  }
+
+  async findAll(user: any, centroId?: number) {
+    const isCentroSalud = user.rol_enum === 'CENTRO_SALUD';
     const where: any = {};
-    if (user.rol_enum === 'CENTRO_SALUD' && user.centro_salud_id) {
-      where.centro_salud_id = user.centro_salud_id;
+    
+    if (centroId) {
+      const ids = await this.getCenterIds(centroId);
+      where.centro_salud_id = { in: ids };
+    } else if (isCentroSalud && user.centro_salud_id) {
+      const ids = await this.getCenterIds(user.centro_salud_id);
+      where.centro_salud_id = { in: ids };
     }
     return this.prisma.funcionario.findMany({
       where,
@@ -204,8 +224,11 @@ export class FuncionariosService {
     if (!funcionario) throw new NotFoundException(`Funcionario ${rut} no encontrado`);
 
     // Security Check
-    if (user && user.rol_enum === 'CENTRO_SALUD' && user.centro_salud_id && funcionario.centro_salud_id !== user.centro_salud_id) {
-      throw new NotFoundException(`Funcionario ${rut} no pertenece a su establecimiento`);
+    if (user && user.rol_enum === 'CENTRO_SALUD' && user.centro_salud_id) {
+      const ids = await this.getCenterIds(user.centro_salud_id);
+      if (!funcionario.centro_salud_id || !ids.includes(funcionario.centro_salud_id)) {
+        throw new NotFoundException(`Funcionario ${rut} no pertenece a su establecimiento ni dependientes`);
+      }
     }
 
     const heBudget = await this.prisma.horasExtras.aggregate({
@@ -283,7 +306,8 @@ export class FuncionariosService {
     };
     
     if (user.rol_enum === 'CENTRO_SALUD' && user.centro_salud_id) {
-      where.centro_salud_id = user.centro_salud_id;
+      const ids = await this.getCenterIds(user.centro_salud_id);
+      where.centro_salud_id = { in: ids };
     }
 
     return this.prisma.funcionario.findMany({

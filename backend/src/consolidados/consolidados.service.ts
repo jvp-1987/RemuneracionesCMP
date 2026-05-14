@@ -11,11 +11,28 @@ export class ConsolidadosService {
     return this.prisma.consolidado.create({ data: dto });
   }
 
-  findAll(user: any) {
+  private async getCenterIds(centerId: number): Promise<number[]> {
+    const center = await this.prisma.centroSalud.findUnique({
+      where: { id: centerId },
+      include: { dependientes: true }
+    });
+    if (!center) return [centerId];
+    return [centerId, ...center.dependientes.map(d => d.id)];
+  }
+
+  async findAll(user: any, centroId?: number) {
     const isCentroSalud = user.rol_enum === 'CENTRO_SALUD';
     const where: any = {};
-    if (isCentroSalud && user.centro_salud_id) {
-      where.centro_salud_id = user.centro_salud_id;
+    
+    // Explicit filter from query param
+    if (centroId) {
+      const ids = await this.getCenterIds(centroId);
+      where.centro_salud_id = { in: ids };
+    } 
+    // Or implicit filter from user profile (if gestor de centro)
+    else if (isCentroSalud && user.centro_salud_id) {
+      const ids = await this.getCenterIds(user.centro_salud_id);
+      where.centro_salud_id = { in: ids };
     }
 
     return this.prisma.consolidado.findMany({
@@ -171,6 +188,7 @@ export class ConsolidadosService {
     return this.prisma.consolidado.delete({ where: { id } });
   }
 
+
   async uploadRespaldo(id: number, file: any) {
     if (!file) throw new BadRequestException('Archivo no proporcionado');
     
@@ -184,7 +202,7 @@ export class ConsolidadosService {
     });
   }
 
-  async getDashboardKpis(user: any, periodoId?: number, requestedFuente?: string) {
+  async getDashboardKpis(user: any, periodoId?: number, requestedFuente?: string, centroIdOverride?: number) {
     // ── Paso 1: Determinar el período a usar ───────────────────────────────────
     let targetPeriodoId = periodoId;
 
@@ -196,16 +214,19 @@ export class ConsolidadosService {
       targetPeriodoId = ultimaLiq?.periodo_id ?? undefined;
     }
 
-    // ── Paso 2: Determinar filtros de Rol ──────────────────────────────────────
+    // ── Paso 2: Determinar filtros de Rol & Centro ────────────────────────────
     const isCentroSalud = user.rol_enum === 'CENTRO_SALUD';
-    const centroId = user.centro_salud_id;
-
+    const effectiveCentroId = centroIdOverride || (isCentroSalud ? user.centro_salud_id : null);
+    
     const whereMaestro: any = targetPeriodoId ? { periodo_id: targetPeriodoId } : {};
     const whereConsolidado: any = {};
+    const whereHeViat: any = {};
 
-    if (isCentroSalud && centroId) {
-      whereMaestro.funcionario = { centro_salud_id: centroId };
-      whereConsolidado.centro_salud_id = centroId;
+    if (effectiveCentroId) {
+      const ids = await this.getCenterIds(effectiveCentroId);
+      whereMaestro.funcionario = { centro_salud_id: { in: ids } };
+      whereConsolidado.centro_salud_id = { in: ids };
+      whereHeViat.consolidado = { centro_salud_id: { in: ids } };
     }
 
     // ── Paso 3: Agregar totales desde el Maestro de Remuneraciones ─────────────
