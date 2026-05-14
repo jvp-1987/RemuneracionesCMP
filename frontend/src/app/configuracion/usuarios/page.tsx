@@ -55,7 +55,7 @@ export default function UsuariosPage() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       const [usersRes, centersRes] = await Promise.all([
         axios.get(`${apiUrl}/usuarios`),
-        axios.get(`${apiUrl}/centros-salud`)
+        axios.get(`${apiUrl}/centro-salud`)
       ]);
       setUsuarios(usersRes.data);
       setCentros(centersRes.data);
