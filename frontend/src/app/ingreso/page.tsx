@@ -301,6 +301,7 @@ export default function IngresoPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [centros, setCentros] = useState<any[]>([]);
   const [activeRowId, setActiveRowId] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -325,6 +326,23 @@ export default function IngresoPage() {
     if (user?.rol === 'CENTRO_SALUD' && user.centro_salud_id) {
       setCentroId(String(user.centro_salud_id));
     }
+
+    const fetchCentros = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+        const res = await axios.get(`${apiUrl}/centro-salud`);
+        setCentros(res.data.filter((c: any) => 
+          !c.parent_id && (
+            c.nombre.toUpperCase().includes('CESFAM PANGUIPULLI') || 
+            c.nombre.toUpperCase().includes('CESFAM CHOSHUENCO') || 
+            c.nombre.toUpperCase().includes('CESFAM COÑARIPE') || 
+            c.nombre.toUpperCase().includes('ADMINISTRACION CENTRAL') ||
+            c.nombre.toUpperCase().includes('DEPARTAMENTO DE SALUD')
+          )
+        ));
+      } catch (e) { console.error("Error fetching centers:", e); }
+    };
+    fetchCentros();
   }, [user, activeTab, periodoId]);
 
   useEffect(() => {
@@ -663,9 +681,9 @@ export default function IngresoPage() {
                 user?.rol === 'CENTRO_SALUD' ? "cursor-not-allowed opacity-50" : "cursor-pointer"
               )}
             >
-              <option value="1">CESFAM Panguipulli</option>
-              <option value="2">CESFAM Choshuenco</option>
-              <option value="3">CESFAM Coñaripe</option>
+              {centros.map(c => (
+                <option key={c.id} value={c.id}>{c.nombre}</option>
+              ))}
             </select>
           </div>
 
@@ -774,7 +792,7 @@ export default function IngresoPage() {
                          </div>
                          <div>
                           <p className="text-sm font-black text-slate-800 leading-tight mb-1 group-hover:text-primary transition-colors">{f.nombre_completo}</p>
-                          <p className="text-[10px] font-black text-slate-400 tracking-widest uppercase">{f.rut}</p>
+                          <p className="text-[10px] font-black text-slate-400 tracking-widest uppercase">{f.rut} • {f.centro_salud?.nombre}</p>
                         </div>
                       </div>
                       <div className="text-right">

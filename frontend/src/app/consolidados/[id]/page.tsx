@@ -13,7 +13,13 @@ type EstadoValidacion = 'PENDIENTE' | 'APROBADO' | 'RECHAZADO';
 
 interface Transaction {
   id: number;
-  funcionario: { rut: string; nombre_completo: string; categoria_aps?: string; nivel_aps?: number };
+  funcionario: { 
+    rut: string; 
+    nombre_completo: string; 
+    categoria_aps?: string; 
+    nivel_aps?: number;
+    centro_salud?: { nombre: string };
+  };
   programa: { id: number; nombre: string };
   monto_25?: number;
   monto_50?: number;
@@ -796,7 +802,9 @@ const EmployeeTableRow = React.memo(({
             </div>
             <div>
               <div className="font-black text-on-surface text-[15px] uppercase tracking-tight leading-none mb-1.5 group-hover:text-primary transition-colors">{item.funcionario.nombre_completo}</div>
-              <div className="text-[10px] font-bold text-secondary uppercase tracking-widest leading-none">Personal de Planta • APS</div>
+              <div className="text-[10px] font-bold text-secondary uppercase tracking-widest leading-none">
+                {item.funcionario.centro_salud?.nombre || 'Personal de Planta • APS'}
+              </div>
             </div>
           </div>
         </td>

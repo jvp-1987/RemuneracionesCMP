@@ -48,11 +48,11 @@ export class ConsolidadosService {
         centro_salud: true,
         periodo: true,
         usuario_gestor: true,
-        horas_extras: { include: { funcionario: true, programa: true } },
-        turnos_urgencia: { include: { funcionario: true } },
-        viaticos: { include: { funcionario: true } },
-        atrasos: { include: { funcionario: true } },
-        procedimientos: { include: { funcionario: true } },
+        horas_extras: { include: { funcionario: { include: { centro_salud: true } }, programa: true } },
+        turnos_urgencia: { include: { funcionario: { include: { centro_salud: true } } } },
+        viaticos: { include: { funcionario: { include: { centro_salud: true } }, programa: true } },
+        atrasos: { include: { funcionario: { include: { centro_salud: true } } } },
+        procedimientos: { include: { funcionario: { include: { centro_salud: true } }, programa: true } },
       },
     });
 
