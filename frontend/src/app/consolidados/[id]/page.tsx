@@ -72,6 +72,12 @@ export default function ConsolidadoDetailPage() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<any>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [addSearchQuery, setAddSearchQuery] = useState('');
+  const [addSearchResults, setAddSearchResults] = useState<any[]>([]);
+  const [selectedFuncionario, setSelectedFuncionario] = useState<any>(null);
+  const [programas, setProgramas] = useState<any[]>([]);
+  const [isSavingNew, setIsSavingNew] = useState(false);
 
   const canValidateControl = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'CONTROL';
   const canValidateFinanzas = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'FINANZAS';
@@ -104,6 +110,37 @@ export default function ConsolidadoDetailPage() {
   useEffect(() => {
     if (user) fetchData();
   }, [id, user]);
+
+  useEffect(() => {
+    const searchFunc = async () => {
+      if (addSearchQuery.length < 2) {
+        setAddSearchResults([]);
+        return;
+      }
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+        const res = await axios.get(`${apiUrl}/funcionarios/search?q=${addSearchQuery}`);
+        setAddSearchResults(res.data);
+      } catch (err) {
+        console.error('Error searching funcionarios:', err);
+      }
+    };
+    const delay = setTimeout(searchFunc, 300);
+    return () => clearTimeout(delay);
+  }, [addSearchQuery]);
+
+  useEffect(() => {
+    const fetchProgramas = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+        const res = await axios.get(`${apiUrl}/programas`);
+        setProgramas(res.data);
+      } catch (err) {
+        console.error('Error fetching programas:', err);
+      }
+    };
+    fetchProgramas();
+  }, []);
 
   const handleSaveEdit = async (updatedFields: any) => {
     if (!editingRecord) return;
@@ -209,6 +246,36 @@ export default function ConsolidadoDetailPage() {
     } catch (err) {
       console.error('Error deleting record:', err);
       alert('Error al eliminar el registro: ' + (err as any).response?.data?.message || 'Error desconocido');
+    }
+  };
+
+  const handleCreateRecord = async (fields: any) => {
+    if (!selectedFuncionario) return;
+    setIsSavingNew(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      const type = activeTab;
+      const endpoint = type === 'horas' ? 'horas-extras' : type === 'viaticos' ? 'viaticos' : type === 'atrasos' ? 'atrasos' : type === 'procedimientos' ? 'procedimientos' : 'turnos-urgencia';
+      
+      const payload = {
+        ...fields,
+        consolidado_id: Number(id),
+        funcionario_rut: selectedFuncionario.rut,
+        fecha_inicio: data?.periodo ? `2026-${String(data.periodo.mes).padStart(2, '0')}-01` : '2026-01-01',
+        fecha_termino: data?.periodo ? `2026-${String(data.periodo.mes).padStart(2, '0')}-28` : '2026-01-28',
+      };
+
+      await axios.post(`${apiUrl}/${endpoint}`, payload);
+      await fetchData();
+      
+      setIsAddModalOpen(false);
+      setSelectedFuncionario(null);
+      setAddSearchQuery('');
+    } catch (err) {
+      console.error('Error creating record:', err);
+      alert('Error al crear el registro: ' + ((err as any).response?.data?.message || 'Error desconocido'));
+    } finally {
+      setIsSavingNew(false);
     }
   };
 
@@ -515,6 +582,22 @@ export default function ConsolidadoDetailPage() {
               <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform select-none" dangerouslySetInnerHTML={{ __html: '&#xe877;' }} />
               Certificar Todo el Lote
             </button>
+
+            <button 
+              disabled={isLocked}
+              onClick={() => {
+                setSelectedFuncionario(null);
+                setAddSearchQuery('');
+                setIsAddModalOpen(true);
+              }}
+              className={cn(
+                "group flex items-center gap-3 px-8 py-4 text-[11px] font-black bg-primary text-white shadow-xl shadow-primary/30 rounded-[2rem] hover:brightness-110 transition-all uppercase tracking-widest active:scale-95",
+                isLocked && "opacity-40 cursor-not-allowed"
+              )}
+            >
+              <span className="material-symbols-outlined text-lg group-hover:rotate-90 transition-transform select-none" dangerouslySetInnerHTML={{ __html: '&#xe145;' }} />
+              Agregar Registro
+            </button>
           </div>
         </div>
 
@@ -732,6 +815,183 @@ export default function ConsolidadoDetailPage() {
                     Guardar Cambios
                   </button>
                 </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isAddModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setIsAddModalOpen(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-[3.5rem] shadow-2xl overflow-hidden border border-outline-variant/10"
+            >
+              <div className="p-12">
+                <div className="flex justify-between items-start mb-10">
+                  <div>
+                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2 block">Nuevo Registro en Consolidado</span>
+                    <h3 className="text-2xl font-black text-on-surface tracking-tight uppercase">
+                      Agregar a {activeTab === "horas" ? "Horas Extras" : activeTab === "viaticos" ? "Viáticos" : activeTab === "atrasos" ? "Atrasos" : activeTab === "procedimientos" ? "Procedimientos" : "Turnos"}
+                    </h3>
+                  </div>
+                  <button onClick={() => setIsAddModalOpen(false)} className="p-2 hover:bg-surface-container rounded-full transition-all">
+                    <span className="material-symbols-outlined text-outline">close</span>
+                  </button>
+                </div>
+
+                {!selectedFuncionario ? (
+                  <div className="space-y-6">
+                    <div className="relative">
+                      <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+                      <input 
+                        className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
+                        placeholder="Buscar funcionario por nombre o RUT..."
+                        value={addSearchQuery}
+                        onChange={(e) => setAddSearchQuery(e.target.value)}
+                        autoFocus
+                      />
+                    </div>
+                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                      {addSearchResults.map(f => (
+                        <button 
+                          key={f.rut}
+                          onClick={() => setSelectedFuncionario(f)}
+                          className="w-full text-left p-4 hover:bg-primary/5 rounded-2xl transition-all border border-transparent hover:border-primary/10 flex items-center gap-4 group"
+                        >
+                          <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-xs font-black text-outline group-hover:bg-primary group-hover:text-white transition-all">
+                            {f.nombre_completo.split(" ").map((n)=>n[0]).join("").slice(0,2)}
+                          </div>
+                          <div>
+                            <p className="text-sm font-black text-on-surface group-hover:text-primary transition-colors">{f.nombre_completo}</p>
+                            <p className="text-[10px] font-bold text-outline uppercase tracking-widest">{f.rut} • {f.centro_salud?.nombre}</p>
+                          </div>
+                        </button>
+                      ))}
+                      {addSearchQuery.length >= 2 && addSearchResults.length === 0 && (
+                        <p className="text-center py-8 text-xs font-bold text-outline italic">No se encontraron funcionarios</p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+                    <div className="flex items-center justify-between p-4 bg-primary/5 rounded-2xl border border-primary/10">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-xs font-black text-white">
+                          {selectedFuncionario.nombre_completo.split(" ").map((n)=>n[0]).join("").slice(0,2)}
+                        </div>
+                        <div>
+                          <p className="text-sm font-black text-primary">{selectedFuncionario.nombre_completo}</p>
+                          <p className="text-[10px] font-bold text-primary/60 uppercase tracking-widest">{selectedFuncionario.rut}</p>
+                        </div>
+                      </div>
+                      <button onClick={() => setSelectedFuncionario(null)} className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Cambiar</button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                      {activeTab === "horas" && (
+                        <>
+                          <div className="col-span-2 space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Programa</label>
+                            <select id="add_programa_id" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all">
+                              {programas.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                            </select>
+                          </div>
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Horas 25%</label>
+                            <input type="number" id="add_cantidad_25" defaultValue="0" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all" />
+                          </div>
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Horas 50%</label>
+                            <input type="number" id="add_cantidad_50" defaultValue="0" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all" />
+                          </div>
+                        </>
+                      )}
+
+                      {activeTab === "procedimientos" && (
+                        <div className="col-span-2 space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Total Procedimientos</label>
+                          <input type="number" id="add_total_procedimientos" defaultValue="0" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all" />
+                        </div>
+                      )}
+
+                      {activeTab === "turnos" && (
+                        <>
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Cant. Hábiles</label>
+                            <input type="number" id="add_cant_turnos_habiles" defaultValue="0" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all" />
+                          </div>
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Cant. Inhábiles</label>
+                            <input type="number" id="add_cant_turnos_inhabiles" defaultValue="0" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all" />
+                          </div>
+                        </>
+                      )}
+
+                      {(activeTab === "viaticos" || activeTab === "atrasos") && (
+                        <div className="col-span-2 space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">
+                            {activeTab === "viaticos" ? "Monto Calculado ($)" : "Minutos de Atraso"}
+                          </label>
+                          <input type="number" id={activeTab === "viaticos" ? "add_monto" : "add_minutos"} defaultValue="0" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all" />
+                        </div>
+                      )}
+
+                      <div className="col-span-2 space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Justificación / Concepto</label>
+                        <textarea id="add_concepto" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all min-h-[80px]" placeholder="Ingrese motivo o detalle..." />
+                      </div>
+                    </div>
+
+                    <div className="flex gap-4 mt-4">
+                      <button 
+                        onClick={() => setSelectedFuncionario(null)}
+                        className="flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-secondary border border-outline-variant/20 hover:bg-surface-container transition-all"
+                      >
+                        Atrás
+                      </button>
+                      <button 
+                        disabled={isSavingNew}
+                        onClick={() => {
+                          const payload: any = {};
+                          if (activeTab === "horas") {
+                            payload.programa_id = Number(document.getElementById("add_programa_id").value);
+                            payload.cantidad_25 = Number(document.getElementById("add_cantidad_25").value);
+                            payload.cantidad_50 = Number(document.getElementById("add_cantidad_50").value);
+                          } else if (activeTab === "viaticos") {
+                            payload.monto_calculado = Number(document.getElementById("add_monto").value);
+                          } else if (activeTab === "atrasos") {
+                            payload.minutos = Number(document.getElementById("add_minutos").value);
+                          } else if (activeTab === "procedimientos") {
+                            payload.total_procedimientos = Number(document.getElementById("add_total_procedimientos").value);
+                          } else if (activeTab === "turnos") {
+                            payload.cant_turnos_habiles = Number(document.getElementById("add_cant_turnos_habiles").value);
+                            payload.cant_turnos_inhabiles = Number(document.getElementById("add_cant_turnos_inhabiles").value);
+                          }
+                          const conceptoValue = document.getElementById("add_concepto").value;
+                          if (activeTab === "horas") {
+                            payload.observaciones_25 = conceptoValue;
+                            payload.observaciones_50 = conceptoValue;
+                          } else {
+                            payload.observaciones = conceptoValue;
+                          }
+                          handleCreateRecord(payload);
+                        }}
+                        className="flex-[2] py-5 bg-primary text-white rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-primary/30 hover:brightness-110 active:scale-95 transition-all"
+                      >
+                        {isSavingNew ? "Guardando..." : "Crear Registro"}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
