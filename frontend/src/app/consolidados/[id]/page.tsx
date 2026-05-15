@@ -861,14 +861,14 @@ export default function ConsolidadoDetailPage() {
                       />
                     </div>
                     <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                      {addSearchResults.map(f => (
+                      {addSearchResults.map((f: any) => (
                         <button 
                           key={f.rut}
                           onClick={() => setSelectedFuncionario(f)}
                           className="w-full text-left p-4 hover:bg-primary/5 rounded-2xl transition-all border border-transparent hover:border-primary/10 flex items-center gap-4 group"
                         >
                           <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-xs font-black text-outline group-hover:bg-primary group-hover:text-white transition-all">
-                            {f.nombre_completo.split(" ").map((n)=>n[0]).join("").slice(0,2)}
+                            {f.nombre_completo.split(" ").map((n: any)=>n[0]).join("").slice(0,2)}
                           </div>
                           <div>
                             <p className="text-sm font-black text-on-surface group-hover:text-primary transition-colors">{f.nombre_completo}</p>
@@ -886,7 +886,7 @@ export default function ConsolidadoDetailPage() {
                     <div className="flex items-center justify-between p-4 bg-primary/5 rounded-2xl border border-primary/10">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-xs font-black text-white">
-                          {selectedFuncionario.nombre_completo.split(" ").map((n)=>n[0]).join("").slice(0,2)}
+                          {selectedFuncionario.nombre_completo.split(" ").map((n: any)=>n[0]).join("").slice(0,2)}
                         </div>
                         <div>
                           <p className="text-sm font-black text-primary">{selectedFuncionario.nombre_completo}</p>
@@ -902,7 +902,7 @@ export default function ConsolidadoDetailPage() {
                           <div className="col-span-2 space-y-3">
                             <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Programa</label>
                             <select id="add_programa_id" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all">
-                              {programas.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                              {programas.map((p: any) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                             </select>
                           </div>
                           <div className="space-y-3">
@@ -963,20 +963,20 @@ export default function ConsolidadoDetailPage() {
                         onClick={() => {
                           const payload: any = {};
                           if (activeTab === "horas") {
-                            payload.programa_id = Number(document.getElementById("add_programa_id").value);
-                            payload.cantidad_25 = Number(document.getElementById("add_cantidad_25").value);
-                            payload.cantidad_50 = Number(document.getElementById("add_cantidad_50").value);
+                            payload.programa_id = Number((document.getElementById("add_programa_id") as any).value);
+                            payload.cantidad_25 = Number((document.getElementById("add_cantidad_25") as any).value);
+                            payload.cantidad_50 = Number((document.getElementById("add_cantidad_50") as any).value);
                           } else if (activeTab === "viaticos") {
-                            payload.monto_calculado = Number(document.getElementById("add_monto").value);
+                            payload.monto_calculado = Number((document.getElementById("add_monto") as any).value);
                           } else if (activeTab === "atrasos") {
-                            payload.minutos = Number(document.getElementById("add_minutos").value);
+                            payload.minutos = Number((document.getElementById("add_minutos") as any).value);
                           } else if (activeTab === "procedimientos") {
-                            payload.total_procedimientos = Number(document.getElementById("add_total_procedimientos").value);
+                            payload.total_procedimientos = Number((document.getElementById("add_total_procedimientos") as any).value);
                           } else if (activeTab === "turnos") {
-                            payload.cant_turnos_habiles = Number(document.getElementById("add_cant_turnos_habiles").value);
-                            payload.cant_turnos_inhabiles = Number(document.getElementById("add_cant_turnos_inhabiles").value);
+                            payload.cant_turnos_habiles = Number((document.getElementById("add_cant_turnos_habiles") as any).value);
+                            payload.cant_turnos_inhabiles = Number((document.getElementById("add_cant_turnos_inhabiles") as any).value);
                           }
-                          const conceptoValue = document.getElementById("add_concepto").value;
+                          const conceptoValue = (document.getElementById("add_concepto") as any).value;
                           if (activeTab === "horas") {
                             payload.observaciones_25 = conceptoValue;
                             payload.observaciones_50 = conceptoValue;
@@ -1045,7 +1045,7 @@ const EmployeeTableRow = React.memo(({
   const [obs50, setObs50] = useState(item.observaciones_50 || '');
   const [obs, setObs] = useState(item.observaciones || '');
 
-  const initials = item.funcionario.nombre_completo.split(' ').map(n => n[0]).join('').slice(0, 2);
+  const initials = item.funcionario.nombre_completo.split(' ').map((n: any) => n[0]).join('').slice(0, 2);
   const totalAmount = activeTab === 'horas' ? (Number(item.monto_25) + Number(item.monto_50)) : 
                       activeTab === 'viaticos' ? Number(item.monto_calculado || 0) :
                       activeTab === 'procedimientos' ? Number(item.monto_calculado || 0) :
