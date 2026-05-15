@@ -139,7 +139,7 @@ export default function Dashboard() {
   const totalLiquido = data?.kpis.total_liquido ?? 0;
   const totalHaberes = data?.kpis.total_haberes ?? 0;
   const totalDescuentos = data?.kpis.total_descuentos ?? 0;
-  const max_centro = data?.por_centro[0]?.gasto_total ?? 1;
+  const totalGastoCentros = data?.por_centro.reduce((acc, c) => acc + c.gasto_total, 0) || 1;
 
   const periodoLabel = data?.periodo
     ? `${MESES[(data.periodo.mes ?? 1) - 1]} ${data.periodo.anio}`
@@ -374,7 +374,7 @@ export default function Dashboard() {
                 <p className="text-center text-outline font-bold italic py-12 text-xs">Sin liquidaciones importadas. Cargue el Maestro de Remuneraciones para ver datos.</p>
               ) : (
                 data?.por_centro.map((c, i) => {
-                  const pct = max_centro > 0 ? (c.gasto_total / max_centro) * 100 : 0;
+                  const pct = totalGastoCentros > 0 ? (c.gasto_total / totalGastoCentros) * 100 : 0;
                   return (
                     <div key={c.nombre}>
                       <div className="flex justify-between items-baseline mb-1.5">
@@ -390,7 +390,7 @@ export default function Dashboard() {
                             i === 0 ? 'bg-primary' : i === 1 ? 'bg-blue-400' : 'bg-sky-300'
                           }`}
                         >
-                          {pct > 20 && (
+                          {pct > 8 && (
                             <span className="text-white text-[9px] font-black tracking-wider">{pct.toFixed(0)}%</span>
                           )}
                         </motion.div>
