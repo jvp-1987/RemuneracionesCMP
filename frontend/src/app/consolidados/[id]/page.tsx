@@ -102,6 +102,9 @@ export default function ConsolidadoDetailPage() {
       }
 
       setData(consolidadoData);
+      if (consolidadoData.reloj_data) {
+        setRelojData(consolidadoData.reloj_data);
+      }
     } catch (err) {
       console.error('Error fetching detail:', err);
     } finally {
@@ -375,7 +378,7 @@ export default function ConsolidadoDetailPage() {
     setIsRelojLoading(true);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-      const res = await axios.post(`${apiUrl}/reloj-control/proyectar-asistencia`, formData, {
+      const res = await axios.post(`${apiUrl}/reloj-control/proyectar-asistencia/${id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setRelojData(res.data);

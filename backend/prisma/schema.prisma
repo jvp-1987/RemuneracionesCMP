@@ -96,6 +96,7 @@ model Consolidado {
   firma_vb_finanzas        String?
   usuario_gestor_id        Int?
   url_respaldo             String?          @db.LongText
+  reloj_data               Json?
   atrasos                  Atrasos[]
   centro_salud             CentroSalud      @relation(fields: [centro_salud_id], references: [id])
   periodo                  Periodo          @relation(fields: [periodo_id], references: [id])
