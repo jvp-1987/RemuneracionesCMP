@@ -186,6 +186,61 @@ export default function FuncionarioDetailPage() {
                      </div>
                   </div>
                 )}
+                {funcionario.liquidaciones?.[0]?.detalle_json && (
+                  <>
+                    <div className="bg-white rounded-[3rem] p-10 shadow-2xl border border-outline-variant/5">
+                      <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60">Otras Asignaciones</h3>
+                      </div>
+                      <div className="space-y-3">
+                        {Object.entries(funcionario.liquidaciones[0].detalle_json)
+                          .filter(([key, val]) => {
+                            if (typeof val !== 'number' || val <= 0) return false;
+                            const k = key.toUpperCase();
+                            // Excluir base y novedades
+                            if (k.includes('SUELDO BASE') || k.includes('ATENCION PRIMARIA') || k.includes('ASIGNACION APS') || k.includes('ASIG. APS') || k.includes('ZONA') || k.includes('DIFICIL') || k.includes('CALCULATED_')) return false;
+                            if (k.includes('HORAS EXTRAS') || k.includes('VIATICOS') || k.includes('ATRASO')) return false;
+                            // Excluir Subtotales
+                            if (k.includes('TOTAL') || k.includes('LIQUIDO') || k.includes('IMPONIBLE') || k.includes('TRIBUTABLE') || k.includes('PROMEDIO')) return false;
+                            // Excluir Descuentos conocidos
+                            if (k.includes('SALUD') || k.includes('AFP') || k.includes('PENSION') || k.includes('IMPUESTO') || k.includes('ANTICIPO') || k.includes('DESCUENTO') || k.includes('CAJA') || k.includes('PRESTAMO') || k.includes('SEGURO') || k.includes('CESANTIA') || k.includes('ASOC') || k.includes('COLEGIO') || k.includes('SINDICATO') || k.includes('AHORRO') || k.includes('VOLUNTARI')) return false;
+                            return true;
+                          })
+                          .map(([key, val]) => (
+                            <div key={key} className="flex justify-between items-center border-b border-outline-variant/5 pb-2">
+                              <span className="text-[9px] font-bold text-outline uppercase tracking-widest truncate max-w-[70%]">{key}</span>
+                              <span className="text-sm font-black text-emerald-600">${Number(val).toLocaleString('es-CL')}</span>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-[3rem] p-10 shadow-2xl border border-outline-variant/5">
+                      <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60">Descuentos Aplicados</h3>
+                      </div>
+                      <div className="space-y-3">
+                        {Object.entries(funcionario.liquidaciones[0].detalle_json)
+                          .filter(([key, val]) => {
+                            if (typeof val !== 'number' || val <= 0) return false;
+                            const k = key.toUpperCase();
+                            // Excluir base y novedades
+                            if (k.includes('HORAS EXTRAS') || k.includes('VIATICOS')) return false;
+                            // Excluir Subtotales
+                            if (k.includes('TOTAL') || k.includes('LIQUIDO') || k.includes('IMPONIBLE') || k.includes('TRIBUTABLE') || k.includes('PROMEDIO')) return false;
+                            // Solo incluir si es un descuento conocido o es Atraso (que es un descuento)
+                            if (k.includes('SALUD') || k.includes('AFP') || k.includes('PENSION') || k.includes('IMPUESTO') || k.includes('ANTICIPO') || k.includes('DESCUENTO') || k.includes('CAJA') || k.includes('PRESTAMO') || k.includes('SEGURO') || k.includes('CESANTIA') || k.includes('ASOC') || k.includes('COLEGIO') || k.includes('SINDICATO') || k.includes('AHORRO') || k.includes('VOLUNTARI') || k.includes('ATRASO')) return true;
+                            return false;
+                          })
+                          .map(([key, val]) => (
+                            <div key={key} className="flex justify-between items-center border-b border-outline-variant/5 pb-2">
+                              <span className="text-[9px] font-bold text-outline uppercase tracking-widest truncate max-w-[70%]">{key}</span>
+                              <span className="text-sm font-black text-rose-500">${Number(val).toLocaleString('es-CL')}</span>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  </>
+                )}
              </div>
            </section>
         )}
