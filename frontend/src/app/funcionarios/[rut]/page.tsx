@@ -187,7 +187,7 @@ export default function FuncionarioDetailPage() {
                   </div>
                 )}
                 {funcionario.liquidaciones?.[0]?.detalle_json && (
-                  <>
+                  <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="bg-white rounded-[3rem] p-10 shadow-2xl border border-outline-variant/5">
                       <div className="flex justify-between items-center mb-6">
                         <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60">Otras Asignaciones</h3>
@@ -197,13 +197,24 @@ export default function FuncionarioDetailPage() {
                           .filter(([key, val]) => {
                             if (typeof val !== 'number' || val <= 0) return false;
                             const k = key.toUpperCase();
+                            
+                            const isMetadata = ['MES', 'AÑO', 'EDAD', 'FICHA', 'NIVEL', 'N°HORAS', 'JORNADA', 'JORNADA HRS', 'DIAS TRABAJADOS', 'FECHA DE NACIMIENTO', 'FECHA INICIO SERVICIO', 'NºCARGAS FAMILIARES', 'DIAS ACREDITADOS', 'AÑOS ACREDITADOS', 'MESES ACREDITADOS', 'PUNTAJE ANTIGÜEDAD', 'TELEFONO', 'N° DECRETO', 'N° DEC. NOMBRAMIENTO', 'Nº BIENIOS', 'POST TITULO', 'MONTO PACTADO'].some(w => k === w);
+                            if (isMetadata) return false;
+                            
+                            // Excluir Aportes del empleador que no son de libre disposicion
+                            if (k.includes('APORTE') || k.includes('PATRONAL') || k.includes('EMPLEADOR')) return false;
+
                             // Excluir base y novedades
                             if (k.includes('SUELDO BASE') || k.includes('ATENCION PRIMARIA') || k.includes('ASIGNACION APS') || k.includes('ASIG. APS') || k.includes('ZONA') || k.includes('DIFICIL') || k.includes('CALCULATED_')) return false;
                             if (k.includes('HORAS EXTRAS') || k.includes('VIATICOS') || k.includes('ATRASO')) return false;
+                            
                             // Excluir Subtotales
                             if (k.includes('TOTAL') || k.includes('LIQUIDO') || k.includes('IMPONIBLE') || k.includes('TRIBUTABLE') || k.includes('PROMEDIO')) return false;
+                            
                             // Excluir Descuentos conocidos
-                            if (k.includes('SALUD') || k.includes('AFP') || k.includes('PENSION') || k.includes('IMPUESTO') || k.includes('ANTICIPO') || k.includes('DESCUENTO') || k.includes('CAJA') || k.includes('PRESTAMO') || k.includes('SEGURO') || k.includes('CESANTIA') || k.includes('ASOC') || k.includes('COLEGIO') || k.includes('SINDICATO') || k.includes('AHORRO') || k.includes('VOLUNTARI')) return false;
+                            const isDescuento = ['SALUD', 'AFP', 'PENSION', 'IMPUESTO', 'ANTICIPO', 'DESCUENTO', 'CAJA', 'CCAF', 'PRESTAMO', 'SEGURO', 'CESANTIA', 'ASOC', 'COLEGIO', 'SINDICATO', 'AHORRO', 'VOLUNTARI', 'ATRASO', 'BIENESTAR', 'FONDO', 'MUTUAL'].some(w => k.includes(w));
+                            if (isDescuento) return false;
+                            
                             return true;
                           })
                           .map(([key, val]) => (
@@ -223,12 +234,16 @@ export default function FuncionarioDetailPage() {
                           .filter(([key, val]) => {
                             if (typeof val !== 'number' || val <= 0) return false;
                             const k = key.toUpperCase();
+                            
                             // Excluir base y novedades
                             if (k.includes('HORAS EXTRAS') || k.includes('VIATICOS')) return false;
+                            
                             // Excluir Subtotales
                             if (k.includes('TOTAL') || k.includes('LIQUIDO') || k.includes('IMPONIBLE') || k.includes('TRIBUTABLE') || k.includes('PROMEDIO')) return false;
-                            // Solo incluir si es un descuento conocido o es Atraso (que es un descuento)
-                            if (k.includes('SALUD') || k.includes('AFP') || k.includes('PENSION') || k.includes('IMPUESTO') || k.includes('ANTICIPO') || k.includes('DESCUENTO') || k.includes('CAJA') || k.includes('PRESTAMO') || k.includes('SEGURO') || k.includes('CESANTIA') || k.includes('ASOC') || k.includes('COLEGIO') || k.includes('SINDICATO') || k.includes('AHORRO') || k.includes('VOLUNTARI') || k.includes('ATRASO')) return true;
+                            
+                            const isDescuento = ['SALUD', 'AFP', 'PENSION', 'IMPUESTO', 'ANTICIPO', 'DESCUENTO', 'CAJA', 'CCAF', 'PRESTAMO', 'SEGURO', 'CESANTIA', 'ASOC', 'COLEGIO', 'SINDICATO', 'AHORRO', 'VOLUNTARI', 'ATRASO', 'BIENESTAR', 'FONDO', 'MUTUAL'].some(w => k.includes(w));
+                            if (isDescuento) return true;
+                            
                             return false;
                           })
                           .map(([key, val]) => (
@@ -239,7 +254,7 @@ export default function FuncionarioDetailPage() {
                           ))}
                       </div>
                     </div>
-                  </>
+                  </div>
                 )}
              </div>
            </section>
