@@ -23,6 +23,7 @@ import { ContratosModule } from './contratos/contratos.module';
 import { AusentismosModule } from './ausentismos/ausentismos.module';
 import { AsignacionesEspecialesModule } from './asignaciones-especiales/asignaciones-especiales.module';
 import { AlertasRrhhModule } from './alertas-rrhh/alertas-rrhh.module';
+import { RelojControlModule } from './reloj-control/reloj-control.module';
 
 @Module({
   imports: [
@@ -47,7 +48,7 @@ import { AlertasRrhhModule } from './alertas-rrhh/alertas-rrhh.module';
     ContratosModule, 
     AusentismosModule, 
     AsignacionesEspecialesModule, 
-    AlertasRrhhModule
+    AlertasRrhhModule, RelojControlModule
   ],
   controllers: [AppController],
   providers: [AppService],

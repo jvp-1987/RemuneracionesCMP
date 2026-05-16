@@ -78,6 +78,8 @@ export default function ConsolidadoDetailPage() {
   const [selectedFuncionario, setSelectedFuncionario] = useState<any>(null);
   const [programas, setProgramas] = useState<any[]>([]);
   const [isSavingNew, setIsSavingNew] = useState(false);
+  const [relojData, setRelojData] = useState<Record<string, any[]> | null>(null);
+  const [isRelojLoading, setIsRelojLoading] = useState(false);
 
   const canValidateControl = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'CONTROL';
   const canValidateFinanzas = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'FINANZAS';
@@ -364,6 +366,28 @@ export default function ConsolidadoDetailPage() {
     }
   };
 
+  const handleAttendanceUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.[0]) return;
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    setIsRelojLoading(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      const res = await axios.post(`${apiUrl}/reloj-control/proyectar-asistencia`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setRelojData(res.data);
+      alert('Asistencia de Reloj Control cargada con éxito. Ahora puedes revisar los registros por funcionario.');
+    } catch (err) {
+      console.error('Error uploading attendance report:', err);
+      alert('Error al procesar el reporte de asistencia');
+    } finally {
+      setIsRelojLoading(false);
+    }
+  };
+
   const handleOpenRespaldo = (url: string) => {
     if (!url) return;
     
@@ -553,6 +577,17 @@ export default function ConsolidadoDetailPage() {
                 <input type="file" className="hidden" onChange={handleRespaldoUpload} accept=".pdf,.jpg,.jpeg,.png" />
               </label>
             </div>
+
+            <div className="h-8 w-[1px] bg-outline-variant/15 mx-2" />
+
+            <label className={cn(
+              "flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-indigo-700 transition-all shadow-lg",
+              isRelojLoading ? "opacity-50 pointer-events-none" : ""
+            )}>
+              <span className="material-symbols-outlined text-sm">{isRelojLoading ? 'sync' : 'schedule'}</span>
+              {isRelojLoading ? 'Procesando...' : 'Proyectar Asistencia (Reloj)'}
+              <input type="file" className="hidden" onChange={handleAttendanceUpload} accept=".xls,.xlsx" />
+            </label>
           </div>
         </div>
       </header>
@@ -713,6 +748,7 @@ export default function ConsolidadoDetailPage() {
                     onDelete={() => handleDeleteRecord(item)}
                     onRespaldoUpload={(e) => handleRecordRespaldoUpload(item.id, e)}
                     onViewRespaldo={() => handleOpenRespaldo(item.url_respaldo!)}
+                    attendanceLogs={relojData ? relojData[item.funcionario.rut.replace(/\./g, '').replace(/^0+/, '')] : undefined}
                     canEdit={((canValidateControl || canValidateFinanzas) || user?.rol === 'CENTRO_SALUD') && !isLocked}
                     canAudit={canValidateControl || canValidateFinanzas}
                     isLocked={!!isLocked}
@@ -1069,6 +1105,7 @@ export default function ConsolidadoDetailPage() {
           </div>
         )}
       </AnimatePresence>
+
     </div>
   );
 }
@@ -1099,6 +1136,7 @@ const EmployeeTableRow = React.memo(({
   onDelete,
   onRespaldoUpload,
   onViewRespaldo,
+  attendanceLogs,
   canEdit,
   canAudit,
   isLocked
@@ -1113,10 +1151,12 @@ const EmployeeTableRow = React.memo(({
   onDelete: () => void,
   onRespaldoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void,
   onViewRespaldo: () => void,
+  attendanceLogs?: any[],
   canEdit: boolean,
   canAudit: boolean,
   isLocked: boolean
 }) => {
+  const [showLogs, setShowLogs] = useState(false);
   const [obs25, setObs25] = useState(item.observaciones_25 || '');
   const [obs50, setObs50] = useState(item.observaciones_50 || '');
   const [obs, setObs] = useState(item.observaciones || '');
@@ -1190,6 +1230,19 @@ const EmployeeTableRow = React.memo(({
         </td>
         <td className="px-10 py-7 text-right">
           <div className="flex items-center justify-end gap-3">
+            {attendanceLogs && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); setShowLogs(!showLogs); }}
+                className={cn(
+                  "flex items-center gap-2 p-1.5 rounded-lg transition-all",
+                  showLogs ? "bg-indigo-100 text-indigo-700" : "text-indigo-600 hover:bg-indigo-50"
+                )}
+                title="Ver Asistencia Real (Reloj)"
+              >
+                <span className="material-symbols-outlined text-[20px] select-none">history</span>
+              </button>
+            )}
+
             {item.url_respaldo ? (
               <button 
                 onClick={(e) => { e.stopPropagation(); onViewRespaldo(); }}
@@ -1331,6 +1384,50 @@ const EmployeeTableRow = React.memo(({
                         )}
                     </div>
                   )}
+                </div>
+              </motion.div>
+            </td>
+          </tr>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showLogs && attendanceLogs && (
+          <tr>
+            <td colSpan={6} className="px-10 py-0">
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="bg-indigo-50/10 border-t border-indigo-100 overflow-hidden rounded-b-[2rem]"
+              >
+                <div className="p-10">
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="material-symbols-outlined text-indigo-600">event_note</span>
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-indigo-900">Proyección de Asistencia (Reloj Control)</h4>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {attendanceLogs.map((log, idx) => (
+                      <div key={idx} className="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm flex flex-col gap-1">
+                        <span className="text-[10px] font-bold text-slate-500">{new Date(log.fecha + 'T12:00:00').toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                        <div className="flex items-center justify-between">
+                          <div className="flex flex-col">
+                            <span className="text-[9px] uppercase font-black text-slate-400">Entrada</span>
+                            <span className="text-xs font-black text-indigo-600">{log.entrada}</span>
+                          </div>
+                          <div className="h-6 w-[1px] bg-slate-100" />
+                          <div className="flex flex-col text-right">
+                            <span className="text-[9px] uppercase font-black text-slate-400">Salida</span>
+                            <span className="text-xs font-black text-indigo-600">{log.salida}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-6 flex items-center gap-2 text-[9px] font-medium text-indigo-400 italic">
+                    <span className="material-symbols-outlined text-[14px]">info</span>
+                    Coteja manualmente si la jornada registrada coincide con la novedad ingresada.
+                  </div>
                 </div>
               </motion.div>
             </td>
