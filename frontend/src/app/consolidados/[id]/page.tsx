@@ -1046,6 +1046,7 @@ const EmployeeTableRow = React.memo(({
   onObs,
   onEdit,
   onDelete,
+  onRespaldoUpload,
   canEdit,
   canAudit,
   isLocked
