@@ -84,17 +84,26 @@ export class RelojControlService {
 
   private formatTime(v: any): string {
     if (!v || v === '0:00' || v === 0) return '-';
+    if (v instanceof Date) {
+      return `${String(v.getUTCHours()).padStart(2, '0')}:${String(v.getUTCMinutes()).padStart(2, '0')}`;
+    }
     if (typeof v === 'number') {
       const totalSeconds = Math.round(v * 24 * 3600);
       const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
     }
+    if (typeof v === 'string' && v.includes(':')) {
+      return v.substring(0, 5);
+    }
     return String(v);
   }
 
   private formatDate(v: any): string {
     if (!v) return '-';
+    if (v instanceof Date) {
+      return v.toISOString().split('T')[0];
+    }
     if (typeof v === 'number') {
       const date = new Date((v - 25569) * 86400 * 1000);
       return date.toISOString().split('T')[0];
