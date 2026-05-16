@@ -310,11 +310,30 @@ export default function ConsolidadoDetailPage() {
       await axios.post(`${apiUrl}/consolidados/${id}/respaldo`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      fetchData();
-      alert('Respaldo adjuntado con éxito');
+      await fetchData();
+      alert('Respaldo actualizado con éxito');
     } catch (err) {
       console.error('Error uploading respaldo:', err);
       alert('Error al subir el respaldo');
+    }
+  };
+
+  const handleRecordRespaldoUpload = async (recordId: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.[0]) return;
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      await axios.post(`${apiUrl}/consolidados/${id}/respaldo/${activeTab}/${recordId}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      await fetchData();
+      alert('Respaldo de registro actualizado');
+    } catch (err) {
+      console.error('Error uploading record respaldo:', err);
+      alert('Error al subir el respaldo del registro');
     }
   };
 
@@ -463,26 +482,27 @@ export default function ConsolidadoDetailPage() {
             
             <div className="h-8 w-[1px] bg-outline-variant/15 mx-2" />
             
-            {data.url_respaldo ? (
-              <a 
-                href={data.url_respaldo} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-200 transition-all hover:scale-105"
-              >
-                <span className="material-symbols-outlined text-sm">visibility</span>
-                Ver Respaldo
-              </a>
-            ) : (
+            <div className="flex gap-2">
+              {data.url_respaldo && (
+                <a 
+                  href={data.url_respaldo} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-200 transition-all hover:scale-105"
+                >
+                  <span className="material-symbols-outlined text-sm">visibility</span>
+                  Ver Respaldo
+                </a>
+              )}
               <label className={cn(
                 "flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-700 transition-all shadow-lg",
                 user?.rol === 'CENTRO_SALUD' || user?.rol === 'ADMIN' ? "" : "opacity-50 pointer-events-none"
               )}>
-                <span className="material-symbols-outlined text-sm">attach_file</span>
-                Adjuntar Respaldo
+                <span className="material-symbols-outlined text-sm">{data.url_respaldo ? 'refresh' : 'attach_file'}</span>
+                {data.url_respaldo ? 'Cambiar Respaldo' : 'Adjuntar Respaldo'}
                 <input type="file" className="hidden" onChange={handleRespaldoUpload} accept=".pdf,.jpg,.jpeg,.png" />
               </label>
-            )}
+            </div>
           </div>
         </div>
       </header>
@@ -641,6 +661,7 @@ export default function ConsolidadoDetailPage() {
                       setIsEditModalOpen(true);
                     }}
                     onDelete={() => handleDeleteRecord(item)}
+                    onRespaldoUpload={(e) => handleRecordRespaldoUpload(item.id, e)}
                     canEdit={((canValidateControl || canValidateFinanzas) || user?.rol === 'CENTRO_SALUD') && !isLocked}
                     canAudit={canValidateControl || canValidateFinanzas}
                     isLocked={!!isLocked}
@@ -1037,6 +1058,7 @@ const EmployeeTableRow = React.memo(({
   onObs: (t: string, sub?: '25' | '50') => void,
   onEdit: () => void,
   onDelete: () => void,
+  onRespaldoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void,
   canEdit: boolean,
   canAudit: boolean,
   isLocked: boolean
@@ -1114,14 +1136,27 @@ const EmployeeTableRow = React.memo(({
         </td>
         <td className="px-10 py-7 text-right">
           <div className="flex items-center justify-end gap-3">
-            {item.url_respaldo && (
+            {item.url_respaldo ? (
               <button 
                 onClick={(e) => { e.stopPropagation(); window.open(item.url_respaldo, '_blank'); }}
                 className="flex items-center gap-2 text-[10px] font-black text-emerald-600 hover:text-emerald-700 transition-all uppercase tracking-widest"
+                title="Ver Respaldo"
               >
                 <span className="material-symbols-outlined text-[18px] select-none" dangerouslySetInnerHTML={{ __html: '&#xe873;' }} />
               </button>
-            )}
+            ) : null}
+
+            <label 
+              onClick={(e) => e.stopPropagation()}
+              className={cn(
+                "p-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center",
+                isLocked ? "opacity-20 pointer-events-none" : "hover:bg-primary/10 text-primary"
+              )}
+              title={item.url_respaldo ? "Cambiar Respaldo" : "Subir Respaldo"}
+            >
+              <span className="material-symbols-outlined text-[18px] select-none">{item.url_respaldo ? 'refresh' : 'upload_file'}</span>
+              <input type="file" className="hidden" onChange={onRespaldoUpload} accept=".pdf,.jpg,.jpeg,.png" />
+            </label>
             
             <button 
               disabled={isLocked}

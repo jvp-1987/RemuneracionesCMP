@@ -202,6 +202,28 @@ export class ConsolidadosService {
     });
   }
 
+  async uploadRecordRespaldo(consolidadoId: number, type: string, recordId: number, file: any) {
+    if (!file) throw new BadRequestException('Archivo no proporcionado');
+    
+    const base64 = file.buffer.toString('base64');
+    const dataUri = `data:${file.mimetype};base64,${base64}`;
+
+    let model: any;
+    switch (type) {
+      case 'horas': model = this.prisma.horasExtras; break;
+      case 'viaticos': model = this.prisma.viaticos; break;
+      case 'atrasos': model = this.prisma.atrasos; break;
+      case 'procedimientos': model = this.prisma.procedimientos; break;
+      case 'turnos': model = this.prisma.turnosUrgencia; break;
+      default: throw new BadRequestException(`Tipo de registro '${type}' no válido`);
+    }
+
+    return model.update({
+      where: { id: recordId },
+      data: { url_respaldo: dataUri }
+    });
+  }
+
   async getDashboardKpis(user: any, periodoId?: number, requestedFuente?: string, centroIdOverride?: number) {
     // ── Paso 1: Determinar el período a usar ───────────────────────────────────
     let targetPeriodoId = periodoId;

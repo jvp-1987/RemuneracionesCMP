@@ -53,4 +53,15 @@ export class ConsolidadosController {
   uploadRespaldo(@Param('id') id: string, @UploadedFile() file: any) {
     return this.consolidadosService.uploadRespaldo(+id, file);
   }
+
+  @Post(':id/respaldo/:type/:recordId')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadRecordRespaldo(
+    @Param('id') id: string,
+    @Param('type') type: string,
+    @Param('recordId') recordId: string,
+    @UploadedFile() file: any
+  ) {
+    return this.consolidadosService.uploadRecordRespaldo(+id, type, +recordId, file);
+  }
 }

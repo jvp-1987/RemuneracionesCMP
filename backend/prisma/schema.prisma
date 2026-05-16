@@ -202,6 +202,7 @@ model Procedimientos {
   fecha_termino        DateTime
   monto_calculado      Decimal          @db.Decimal(10, 2)
   estado               EstadoValidacion @default(PENDIENTE)
+  url_respaldo         String?          @db.LongText
   consolidado          Consolidado      @relation(fields: [consolidado_id], references: [id])
   funcionario          Funcionario      @relation(fields: [funcionario_rut], references: [rut])
 
