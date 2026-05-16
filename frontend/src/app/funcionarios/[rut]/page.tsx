@@ -130,36 +130,36 @@ export default function FuncionarioDetailPage() {
                 </div>
                 <div className="mt-12 space-y-6 pt-8 border-t border-outline-variant/5">
                   <HeroField label="Establecimiento" value={funcionario.centro_salud?.nombre || 'Sin asignar'} />
-                  <HeroField label="Sueldo Base" value={`$${Math.round(funcionario.remuneracion_presupuesto?.total_base_mensual || funcionario.sueldo_base || 0).toLocaleString('es-CL')}`} />
+                  <HeroField label="Sueldo Base" value={`$${Math.round(funcionario.sueldo_base || 0).toLocaleString('es-CL')}`} />
                   <HeroField label="Ley Médica" value={`Cat. ${funcionario.categoria_aps} • Niv. ${funcionario.nivel_aps}`} />
                   <HeroField label="Jornada" value={`${funcionario.jornada_horas} hrs / Semanal`} border={false} />
                 </div>
              </div>
              
              <div className="w-full lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-8">
-                {funcionario.stats?.monto_he_real ? (
                   <div className="bg-white rounded-[3rem] p-10 shadow-2xl border border-outline-variant/5 flex flex-col justify-between group overflow-hidden relative transition-all">
                     <div>
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex flex-col">
                           <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60">Horas Extras</h3>
-                          {funcionario.stats?.periodo_maestro && <span className="text-[9px] font-bold text-primary uppercase mt-1">({funcionario.stats.periodo_maestro})</span>}
+                          {funcionario.stats?.periodo_maestro ? (
+                             <span className="text-[9px] font-bold text-primary uppercase mt-1">({funcionario.stats.periodo_maestro})</span>
+                          ) : (
+                             <span className="text-[9px] font-bold text-outline uppercase mt-1">(Sin Maestro)</span>
+                          )}
                         </div>
                         <span className="material-symbols-outlined text-3xl text-primary">schedule</span>
                       </div>
                       <div className="flex flex-col gap-1 mb-4">
-                        <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-outline">HE 25%</span><span className="text-sm font-black">${Math.round(funcionario.stats.monto_he_25_maestro || 0).toLocaleString('es-CL')}</span></div>
-                        <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-outline">HE 50%</span><span className="text-sm font-black">${Math.round(funcionario.stats.monto_he_50_maestro || 0).toLocaleString('es-CL')}</span></div>
+                        <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-outline">HE 25%</span><span className="text-sm font-black">${Math.round(funcionario.stats?.monto_he_25_maestro || 0).toLocaleString('es-CL')}</span></div>
+                        <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-outline">HE 50%</span><span className="text-sm font-black">${Math.round(funcionario.stats?.monto_he_50_maestro || 0).toLocaleString('es-CL')}</span></div>
                       </div>
                       <div className="flex items-baseline gap-2 pt-4 border-t border-outline-variant/10">
                         <span className="text-[10px] font-black uppercase text-primary">Total Pagado:</span>
-                        <span className="text-xl font-black">${Math.round(funcionario.stats.monto_he_real).toLocaleString('es-CL')}</span>
+                        <span className="text-xl font-black">${Math.round(funcionario.stats?.monto_he_real || 0).toLocaleString('es-CL')}</span>
                       </div>
                     </div>
                   </div>
-                ) : (
-                  <BentoCard title="Actividad" icon="schedule" value={`${funcionario.stats?.total_he || 0}`} unit="H.Extras" />
-                )}
                 <div className="bg-white rounded-[3rem] p-10 shadow-2xl border border-outline-variant/5 flex flex-col justify-between group overflow-hidden relative transition-all">
                   <div>
                     <div className="flex justify-between items-start mb-8">
