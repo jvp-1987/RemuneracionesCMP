@@ -364,6 +364,31 @@ export default function ConsolidadoDetailPage() {
     }
   };
 
+  const handleOpenRespaldo = (url: string) => {
+    if (!url) return;
+    
+    if (url.startsWith('data:')) {
+      try {
+        const parts = url.split(';base64,');
+        const contentType = parts[0].split(':')[1];
+        const raw = window.atob(parts[1]);
+        const rawLength = raw.length;
+        const uInt8Array = new Uint8Array(rawLength);
+        for (let i = 0; i < rawLength; ++i) {
+          uInt8Array[i] = raw.charCodeAt(i);
+        }
+        const blob = new Blob([uInt8Array], { type: contentType });
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+      } catch (err) {
+        console.error('Error opening data URI:', err);
+        window.open(url, '_blank');
+      }
+    } else {
+      window.open(url, '_blank');
+    }
+  };
+
   if (loading) return <div className="p-20 text-center animate-pulse text-primary font-black uppercase tracking-widest text-xs">Sincronizando Validator Pro...</div>;
   if (!data) return <div className="p-20 text-center text-error font-extrabold">ERROR DE CARGA</div>;
 
@@ -511,15 +536,13 @@ export default function ConsolidadoDetailPage() {
             
             <div className="flex gap-2">
               {data.url_respaldo && (
-                <a 
-                  href={data.url_respaldo} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                <button 
+                  onClick={() => handleOpenRespaldo(data.url_respaldo!)}
                   className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-200 transition-all hover:scale-105"
                 >
                   <span className="material-symbols-outlined text-sm">visibility</span>
                   Ver Respaldo
-                </a>
+                </button>
               )}
               <label className={cn(
                 "flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-700 transition-all shadow-lg",
@@ -689,6 +712,7 @@ export default function ConsolidadoDetailPage() {
                     }}
                     onDelete={() => handleDeleteRecord(item)}
                     onRespaldoUpload={(e) => handleRecordRespaldoUpload(item.id, e)}
+                    onViewRespaldo={() => handleOpenRespaldo(item.url_respaldo!)}
                     canEdit={((canValidateControl || canValidateFinanzas) || user?.rol === 'CENTRO_SALUD') && !isLocked}
                     canAudit={canValidateControl || canValidateFinanzas}
                     isLocked={!!isLocked}
@@ -1074,6 +1098,7 @@ const EmployeeTableRow = React.memo(({
   onEdit,
   onDelete,
   onRespaldoUpload,
+  onViewRespaldo,
   canEdit,
   canAudit,
   isLocked
@@ -1087,6 +1112,7 @@ const EmployeeTableRow = React.memo(({
   onEdit: () => void,
   onDelete: () => void,
   onRespaldoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void,
+  onViewRespaldo: () => void,
   canEdit: boolean,
   canAudit: boolean,
   isLocked: boolean
@@ -1166,7 +1192,7 @@ const EmployeeTableRow = React.memo(({
           <div className="flex items-center justify-end gap-3">
             {item.url_respaldo ? (
               <button 
-                onClick={(e) => { e.stopPropagation(); window.open(item.url_respaldo, '_blank'); }}
+                onClick={(e) => { e.stopPropagation(); onViewRespaldo(); }}
                 className="flex items-center gap-2 text-[10px] font-black text-emerald-600 hover:text-emerald-700 transition-all uppercase tracking-widest"
                 title="Ver Respaldo"
               >
