@@ -277,18 +277,38 @@ export default function Dashboard() {
                     data?.fuente === 'novedades_en_proceso' ? "bg-amber-400" : "bg-emerald-400"
                   )} />
                   <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/90">
-                    {data?.fuente === 'novedades_en_proceso' ? 'Masa Salarial Estimada · Novedades en Proceso' : 'Masa Salarial Líquida · Maestro de Remuneraciones'}
+                    {data?.fuente === 'novedades_en_proceso' ? 'Impacto Financiero Estimado · Novedades en Proceso' : 'Masa Salarial Líquida · Maestro de Remuneraciones'}
                   </span>
               </div>
               <div className="text-6xl font-black text-white tracking-tighter mb-3 drop-shadow-sm">
-                {loading ? '—' : formatCLP(totalLiquido)}
+                {loading ? '—' : formatCLP(data?.fuente === 'novedades_en_proceso' ? ((data?.kpis.total_he ?? 0) + (data?.kpis.total_viaticos ?? 0) + (data?.kpis.total_turnos ?? 0) - (data?.kpis.total_atrasos_descuento ?? 0)) : totalLiquido)}
               </div>
               <p className="text-white/60 text-xs font-bold tracking-wide uppercase">
-                {loading ? '' : `${data?.kpis.cantidad_funcionarios ?? 0} funcionarios · Haberes: ${formatCLP(totalHaberes)} · Desc.: ${formatCLP(totalDescuentos)}`}
+                {loading ? '' : data?.fuente === 'novedades_en_proceso' 
+                  ? `${data?.kpis.cantidad_funcionarios ?? 0} funcionarios con novedades registradas`
+                  : `${data?.kpis.cantidad_funcionarios ?? 0} funcionarios · Haberes: ${formatCLP(totalHaberes)} · Desc.: ${formatCLP(totalDescuentos)}`}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 min-w-[320px]">
-              {[
+              {data?.fuente === 'novedades_en_proceso' ? [
+                { l: 'Horas Extras', v: data?.kpis.total_he ?? 0 },
+                { l: 'Viáticos', v: data?.kpis.total_viaticos ?? 0 },
+                { l: 'Turnos/Procs', v: data?.kpis.total_turnos ?? 0 },
+                { l: 'Desc. Atrasos', v: data?.kpis.total_atrasos_descuento ?? 0, neg: true },
+              ].map((item, i) => (
+                <motion.div 
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 + (i * 0.1) }}
+                  key={item.l} 
+                  className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-xl hover:bg-white/10 transition-colors"
+                >
+                  <p className="text-white/50 text-[9px] font-black uppercase tracking-widest mb-1.5">{item.l}</p>
+                  <p className={`text-lg font-black ${item.neg ? 'text-rose-400' : 'text-white'} tracking-tighter`}>
+                    {loading ? '—' : formatCLP(item.v)}
+                  </p>
+                </motion.div>
+              )) : [
                 { l: 'Sueldo Base', v: data?.kpis.total_sueldo_base ?? 0 },
                 { l: 'Total Haberes', v: data?.kpis.total_haberes ?? 0 },
                 { l: 'HE Pagadas', v: data?.kpis.total_he ?? 0 },
