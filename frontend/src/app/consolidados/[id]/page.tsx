@@ -307,10 +307,17 @@ export default function ConsolidadoDetailPage() {
     
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-      await axios.post(`${apiUrl}/consolidados/${id}/respaldo`, formData, {
+      const res = await axios.post(`${apiUrl}/consolidados/${id}/respaldo`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      await fetchData();
+      
+      // Update local state manually for immediate feedback
+      if (res.data?.url_respaldo) {
+        setData(prev => prev ? { ...prev, url_respaldo: res.data.url_respaldo } : null);
+      } else {
+        await fetchData();
+      }
+      
       alert('Respaldo actualizado con éxito');
     } catch (err) {
       console.error('Error uploading respaldo:', err);
@@ -326,10 +333,30 @@ export default function ConsolidadoDetailPage() {
     
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-      await axios.post(`${apiUrl}/consolidados/${id}/respaldo/${activeTab}/${recordId}`, formData, {
+      const res = await axios.post(`${apiUrl}/consolidados/${id}/respaldo/${activeTab}/${recordId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      await fetchData();
+      
+      // Update local state manually for immediate feedback
+      if (res.data?.url_respaldo) {
+        setData(prev => {
+          if (!prev) return null;
+          const key = activeTab === 'horas' ? 'horas_extras' : 
+                      activeTab === 'viaticos' ? 'viaticos' : 
+                      activeTab === 'atrasos' ? 'atrasos' : 
+                      activeTab === 'procedimientos' ? 'procedimientos' : 'turnos_urgencia';
+          
+          return {
+            ...prev,
+            [key]: (prev as any)[key].map((t: any) => 
+              t.id === recordId ? { ...t, url_respaldo: res.data.url_respaldo } : t
+            )
+          };
+        });
+      } else {
+        await fetchData();
+      }
+      
       alert('Respaldo de registro actualizado');
     } catch (err) {
       console.error('Error uploading record respaldo:', err);
