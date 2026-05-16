@@ -382,7 +382,8 @@ export default function ConsolidadoDetailPage() {
       alert('Asistencia de Reloj Control cargada con éxito. Ahora puedes revisar los registros por funcionario.');
     } catch (err) {
       console.error('Error uploading attendance report:', err);
-      alert('Error al procesar el reporte de asistencia');
+      const msg = (err as any).response?.data?.message || 'Error al procesar el reporte de asistencia';
+      alert(msg);
     } finally {
       setIsRelojLoading(false);
     }

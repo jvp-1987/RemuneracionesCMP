@@ -13,7 +13,7 @@ export class RelojControlController {
   constructor(private readonly relojControlService: RelojControlService) {}
 
   @Post('proyectar-asistencia')
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'ADMIN_MAESTRO')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'ADMIN_MAESTRO', 'CENTRO_SALUD')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {

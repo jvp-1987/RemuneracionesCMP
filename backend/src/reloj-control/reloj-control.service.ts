@@ -5,29 +5,50 @@ import * as xlsx from 'xlsx';
 export class RelojControlService {
   
   async parseAttendanceReport(buffer: Buffer) {
-    const workbook = xlsx.read(buffer, { type: 'buffer' });
+    const workbook = xlsx.read(buffer, { type: 'buffer', cellDates: true });
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
     const data = xlsx.utils.sheet_to_json(sheet, { header: 1 });
+
+    console.log(`Procesando archivo RelojControl. Filas detectadas: ${data.length}`);
 
     if (data.length < 8) {
       throw new BadRequestException('El archivo no tiene el formato esperado de RelojControl (mínimo 8 filas)');
     }
 
-    // El encabezado está en la fila 8 (índice 7)
-    const headers = data[7] as any[];
-    const rutIdx = headers.indexOf('RUT');
-    const fechaIdx = headers.indexOf('Fecha');
-    const entradaIdx = headers.indexOf('Entrada');
-    const salidaIdx = headers.indexOf('Salida');
+    // El encabezado suele estar en la fila 8 (índice 7), pero busquemos por si acaso
+    let headers: any[] = [];
+    let headerRowIdx = 7;
+    
+    // Buscar la fila que contiene "RUT"
+    for (let i = 0; i < Math.min(data.length, 20); i++) {
+      const row = data[i] as any[];
+      if (row && row.some(cell => String(cell).includes('RUT'))) {
+        headers = row;
+        headerRowIdx = i;
+        break;
+      }
+    }
+
+    if (headers.length === 0) {
+      headers = data[7] as any[];
+      headerRowIdx = 7;
+    }
+
+    const rutIdx = headers.findIndex(h => String(h).includes('RUT'));
+    const fechaIdx = headers.findIndex(h => String(h).includes('Fecha'));
+    const entradaIdx = headers.findIndex(h => String(h).includes('Entrada'));
+    const salidaIdx = headers.findIndex(h => String(h).includes('Salida'));
+
+    console.log(`Mapeo de columnas -> RUT: ${rutIdx}, Fecha: ${fechaIdx}, Entrada: ${entradaIdx}, Salida: ${salidaIdx}`);
 
     if (rutIdx === -1 || fechaIdx === -1) {
-      throw new BadRequestException('No se encontraron las columnas críticas (RUT, Fecha) en la fila 8');
+      throw new BadRequestException('No se encontraron las columnas críticas (RUT, Fecha) en las primeras filas del archivo');
     }
 
     const attendanceMap: Record<string, any[]> = {};
 
-    for (let i = 8; i < data.length; i++) {
+    for (let i = headerRowIdx + 1; i < data.length; i++) {
       const row = data[i] as any[];
       let rawRut = row[rutIdx];
       if (!rawRut) continue;
