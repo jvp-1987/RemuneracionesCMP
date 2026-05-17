@@ -162,9 +162,10 @@ model Viaticos {
   funcionario_rut String
   tipo_destino    String
   fecha_inicio    DateTime
-  fecha_termino   DateTime
-  monto_calculado Decimal          @db.Decimal(12, 2)
-  estado          EstadoValidacion @default(PENDIENTE)
+  fecha_termino     DateTime
+  monto_calculado   Decimal          @db.Decimal(12, 2)
+  rendicion_pasajes Decimal          @default(0.00) @db.Decimal(12, 2)
+  estado            EstadoValidacion @default(PENDIENTE)
   justificacion   String?
   concepto        String?
   url_respaldo    String?          @db.LongText

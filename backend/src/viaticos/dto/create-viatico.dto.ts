@@ -34,6 +34,11 @@ export class CreateViaticoDto {
   @IsString()
   justificacion?: string;
 
+  @ApiPropertyOptional({ example: 5000, description: 'Rendición de pasajes o bencina' })
+  @IsOptional()
+  @IsNumber()
+  rendicion_pasajes?: number;
+
   @ApiPropertyOptional({ enum: EstadoValidacion, example: EstadoValidacion.PENDIENTE })
   @IsOptional()
   @IsEnum(EstadoValidacion)

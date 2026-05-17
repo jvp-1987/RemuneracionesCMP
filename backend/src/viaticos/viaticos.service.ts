@@ -32,7 +32,7 @@ export class ViaticosService {
       throw new ForbiddenException('Edición bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 
-    const fieldsToTrack = ['monto_calculado', 'tipo_destino', 'estado', 'justificacion', 'concepto'];
+    const fieldsToTrack = ['monto_calculado', 'rendicion_pasajes', 'tipo_destino', 'estado', 'justificacion', 'concepto'];
     for (const field of fieldsToTrack) {
       if ((dto as any)[field] !== undefined && String((dto as any)[field]) !== String((current as any)[field])) {
         await this.auditService.createLog({

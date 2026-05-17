@@ -26,6 +26,7 @@ interface Transaction {
   cantidad_25?: number;
   cantidad_50?: number;
   monto_calculado?: number;
+  rendicion_pasajes?: number;
   monto_descuento?: number;
   minutos?: number;
   tipo_destino?: string;
@@ -872,15 +873,35 @@ export default function ConsolidadoDetailPage() {
                     </div>
                   )}
 
-                  {(activeTab === 'viaticos' || activeTab === 'atrasos') && (
+                  {activeTab === 'viaticos' && (
+                    <div className="grid grid-cols-2 gap-8">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Base Viático ($)</label>
+                        <input 
+                          type="number"
+                          defaultValue={editingRecord.monto_calculado}
+                          id="edit_monto"
+                          className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Pasajes/Bencina ($)</label>
+                        <input 
+                          type="number"
+                          defaultValue={editingRecord.rendicion_pasajes || 0}
+                          id="edit_rendicion"
+                          className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {activeTab === 'atrasos' && (
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">
-                        {activeTab === 'viaticos' ? 'Monto Calculado ($)' : 'Minutos de Atraso'}
-                      </label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Minutos de Atraso</label>
                       <input 
                         type="number"
-                        defaultValue={activeTab === 'viaticos' ? editingRecord.monto_calculado : editingRecord.minutos}
-                        id={activeTab === 'viaticos' ? 'edit_monto' : 'edit_minutos'}
+                        defaultValue={editingRecord.minutos}
+                        id="edit_minutos"
                         className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
                       />
                     </div>
@@ -911,6 +932,7 @@ export default function ConsolidadoDetailPage() {
                         payload.cantidad_50 = Number((document.getElementById('edit_cantidad_50') as HTMLInputElement).value);
                       } else if (activeTab === 'viaticos') {
                         payload.monto_calculado = Number((document.getElementById('edit_monto') as HTMLInputElement).value);
+                        payload.rendicion_pasajes = Number((document.getElementById('edit_rendicion') as HTMLInputElement).value);
                       } else if (activeTab === 'atrasos') {
                         payload.minutos = Number((document.getElementById('edit_minutos') as HTMLInputElement).value);
                       } else if (activeTab === 'procedimientos') {
@@ -1048,12 +1070,22 @@ export default function ConsolidadoDetailPage() {
                         </>
                       )}
 
-                      {(activeTab === "viaticos" || activeTab === "atrasos") && (
+                      {activeTab === "viaticos" && (
+                        <div className="col-span-2 grid grid-cols-2 gap-6">
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Base Viático ($)</label>
+                            <input type="number" id="add_monto" defaultValue="0" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all" />
+                          </div>
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Pasajes/Bencina ($)</label>
+                            <input type="number" id="add_rendicion" defaultValue="0" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all" />
+                          </div>
+                        </div>
+                      )}
+                      {activeTab === "atrasos" && (
                         <div className="col-span-2 space-y-3">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">
-                            {activeTab === "viaticos" ? "Monto Calculado ($)" : "Minutos de Atraso"}
-                          </label>
-                          <input type="number" id={activeTab === "viaticos" ? "add_monto" : "add_minutos"} defaultValue="0" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all" />
+                          <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Minutos de Atraso</label>
+                          <input type="number" id="add_minutos" defaultValue="0" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all" />
                         </div>
                       )}
 
@@ -1079,7 +1111,8 @@ export default function ConsolidadoDetailPage() {
                             payload.cantidad_25 = Number((document.getElementById("add_cantidad_25") as any).value);
                             payload.cantidad_50 = Number((document.getElementById("add_cantidad_50") as any).value);
                           } else if (activeTab === "viaticos") {
-                            payload.monto_calculado = Number((document.getElementById("add_monto") as any).value);
+                            payload.monto_calculado = Number((document.getElementById("add_monto") as HTMLInputElement).value);
+                            payload.rendicion_pasajes = Number((document.getElementById("add_rendicion") as HTMLInputElement).value);
                           } else if (activeTab === "atrasos") {
                             payload.minutos = Number((document.getElementById("add_minutos") as any).value);
                           } else if (activeTab === "procedimientos") {
@@ -1167,7 +1200,7 @@ const EmployeeTableRow = React.memo(({
 
   const initials = item.funcionario.nombre_completo.split(' ').map((n: any) => n[0]).join('').slice(0, 2);
   const totalAmount = activeTab === 'horas' ? (Number(item.monto_25) + Number(item.monto_50)) : 
-                      activeTab === 'viaticos' ? Number(item.monto_calculado || 0) :
+                      activeTab === 'viaticos' ? (Number(item.monto_calculado || 0) + Number(item.rendicion_pasajes || 0)) :
                       activeTab === 'procedimientos' ? Number(item.monto_calculado || 0) :
                       activeTab === 'turnos' ? (Number(item.cant_turnos_habiles || 0) * Number(item.valor_habil || 0) + Number(item.cant_turnos_inhabiles || 0) * Number(item.valor_inhabil || 0)) :
                       0;

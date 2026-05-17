@@ -346,7 +346,7 @@ export class ConsolidadosService {
           }),
           this.prisma.viaticos.aggregate({
             where: { consolidado_id: consolidadoId },
-            _sum: { monto_calculado: true }
+            _sum: { monto_calculado: true, rendicion_pasajes: true }
           }),
           this.prisma.atrasos.aggregate({
             where: { consolidado_id: consolidadoId },
@@ -363,7 +363,7 @@ export class ConsolidadosService {
           total_he: Number(he._sum.monto_25 ?? 0) + Number(he._sum.monto_50 ?? 0),
           cantidad_he_25: Number(he._sum.cantidad_25 ?? 0),
           cantidad_he_50: Number(he._sum.cantidad_50 ?? 0),
-          total_viaticos: Number(viat._sum.monto_calculado ?? 0),
+          total_viaticos: Number(viat._sum.monto_calculado ?? 0) + Number(viat._sum.rendicion_pasajes ?? 0),
           total_atrasos_descuento: Number(atrasos._sum.monto_descuento ?? 0),
           minutos_atraso_total: Number(atrasos._sum.minutos ?? 0),
           cantidad_funcionarios: await this.prisma.funcionario.count({ where: { centro_salud_id: user.centro_salud_id } }),
