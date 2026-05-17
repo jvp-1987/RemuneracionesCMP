@@ -370,6 +370,15 @@ export default function IngresoPage() {
     return dStart < s || dEnd > e;
   };
 
+  const getDaysCount = (start: string, end: string) => {
+    if (!start || !end) return 1;
+    const s = new Date(start + 'T00:00:00');
+    const e = new Date(end + 'T00:00:00');
+    const diff = e.getTime() - s.getTime();
+    if (diff < 0) return 1;
+    return Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
+  };
+
   const today = new Date().toISOString().split('T')[0];
 
   const addRow = () => {
@@ -471,7 +480,16 @@ export default function IngresoPage() {
     }
     setLoading(true);
     try {
-      const transacciones = validRows.map(r => ({ ...r }));
+      const transacciones = validRows.map(r => {
+        if (activeTab === 'viaticos') {
+          const days = getDaysCount(r.fecha_inicio, r.fecha_termino);
+          return {
+            ...r,
+            monto: String(Number(r.monto || 0) * days)
+          };
+        }
+        return { ...r };
+      });
       const payload = {
         centro_salud_id: centroId,
         periodo_id: periodoId,
@@ -541,7 +559,8 @@ export default function IngresoPage() {
       return (Number(r.cant_habil) * Number(r.valor_habil)) + (Number(r.cant_inhabil) * Number(r.valor_inhabil));
     }
     if (activeTab === 'viaticos') {
-      return Number(r.monto || 0) + Number(r.rendicion_pasajes || 0);
+      const days = getDaysCount(r.fecha_inicio, r.fecha_termino);
+      return (Number(r.monto || 0) * days) + Number(r.rendicion_pasajes || 0);
     }
     return 0;
   };
@@ -1061,6 +1080,9 @@ export default function IngresoPage() {
                               <span className="text-[10px] font-black uppercase text-amber-800 mb-2">Pasajes/Bencina</span>
                               <input type="number" value={row.rendicion_pasajes} onChange={e => updateRow(row.id, 'rendicion_pasajes', e.target.value)} className="w-full bg-transparent text-left text-2xl font-black text-amber-600 outline-none" placeholder="0" />
                             </div>
+                          </div>
+                          <div className="text-[10px] font-black uppercase tracking-wider text-slate-400 text-center mt-2 bg-slate-50 py-2 rounded-xl">
+                            Cálculo Base: ${Number(row.monto || 0).toLocaleString('es-CL')} × {getDaysCount(row.fecha_inicio, row.fecha_termino)} {getDaysCount(row.fecha_inicio, row.fecha_termino) === 1 ? 'día' : 'días'} = ${(Number(row.monto || 0) * getDaysCount(row.fecha_inicio, row.fecha_termino)).toLocaleString('es-CL')}
                           </div>
                           <div className="bg-slate-900 rounded-[2rem] p-6 text-white flex justify-between items-center">
                             <div>
