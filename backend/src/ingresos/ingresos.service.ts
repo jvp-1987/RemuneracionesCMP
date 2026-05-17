@@ -157,17 +157,28 @@ export class IngresosService {
               count++;
 
             } else if (tipo === 'viaticos') {
+              const startVal = trx.fecha_inicio ? new Date(trx.fecha_inicio) : new Date();
+              const endVal = trx.fecha_termino ? new Date(trx.fecha_termino) : new Date();
+              const destVal = trx.tipo_destino || 'DENTRO COMUNA';
+
               const existingViatico = realId 
                 ? await tx.viaticos.findUnique({ where: { id: realId } }) 
                 : await tx.viaticos.findFirst({
-                    where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut }
+                    where: { 
+                      consolidado_id: consolidado.id, 
+                      funcionario_rut: trx.rut,
+                      tipo_destino: destVal,
+                      fecha_inicio: startVal,
+                      fecha_termino: endVal,
+                    }
                   });
 
               const viaticoData = {
-                tipo_destino: trx.tipo_destino || 'DENTRO COMUNA',
+                tipo_destino: destVal,
                 monto_calculado: parseFloat(trx.monto || trx.monto_calculado || trx.valor || trx.viaticos || 0),
-                fecha_inicio: trx.fecha_inicio ? new Date(trx.fecha_inicio) : new Date(),
-                fecha_termino: trx.fecha_termino ? new Date(trx.fecha_termino) : new Date(),
+                rendicion_pasajes: parseFloat(trx.rendicion_pasajes || 0) || 0,
+                fecha_inicio: startVal,
+                fecha_termino: endVal,
                 justificacion: trx.observaciones || '',
                 url_respaldo: urlRespaldo,
               };
