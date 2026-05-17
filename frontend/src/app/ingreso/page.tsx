@@ -52,6 +52,7 @@ interface RowData {
   cant_inhabil: string;
   valor_inhabil: string;
   url_respaldo?: string;
+  rendicion_pasajes: string;
 }
 
 interface PeriodoConfig {
@@ -391,7 +392,8 @@ export default function IngresoPage() {
       cant_habil: '0',
       valor_habil: lastRow?.valor_habil || '0',
       cant_inhabil: '0',
-      valor_inhabil: lastRow?.valor_inhabil || '0'
+      valor_inhabil: lastRow?.valor_inhabil || '0',
+      rendicion_pasajes: lastRow?.rendicion_pasajes || '0'
     }]);
   };
 
@@ -537,6 +539,9 @@ export default function IngresoPage() {
   const getRowTotal = (r: RowData) => {
     if (activeTab === 'programas_turno') {
       return (Number(r.cant_habil) * Number(r.valor_habil)) + (Number(r.cant_inhabil) * Number(r.valor_inhabil));
+    }
+    if (activeTab === 'viaticos') {
+      return Number(r.monto || 0) + Number(r.rendicion_pasajes || 0);
     }
     return 0;
   };
@@ -1047,9 +1052,22 @@ export default function IngresoPage() {
                             <option value="DENTRO COMUNA">Dentro de Comuna</option>
                             <option value="FUERA COMUNA">Fuera de Comuna</option>
                           </select>
-                          <div className="bg-emerald-50 rounded-[2rem] p-6 flex justify-between items-center border border-emerald-100">
-                            <span className="text-xs font-black uppercase text-emerald-800">Monto Diario</span>
-                            <input type="number" value={row.monto} onChange={e => updateRow(row.id, 'monto', e.target.value)} className="w-32 bg-transparent text-right text-2xl font-black text-emerald-600 outline-none" />
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-emerald-50 rounded-[1.5rem] p-4 flex flex-col justify-center border border-emerald-100">
+                              <span className="text-[10px] font-black uppercase text-emerald-800 mb-2">Base Diario</span>
+                              <input type="number" value={row.monto} onChange={e => updateRow(row.id, 'monto', e.target.value)} className="w-full bg-transparent text-left text-2xl font-black text-emerald-600 outline-none" />
+                            </div>
+                            <div className="bg-amber-50 rounded-[1.5rem] p-4 flex flex-col justify-center border border-amber-100">
+                              <span className="text-[10px] font-black uppercase text-amber-800 mb-2">Pasajes/Bencina</span>
+                              <input type="number" value={row.rendicion_pasajes} onChange={e => updateRow(row.id, 'rendicion_pasajes', e.target.value)} className="w-full bg-transparent text-left text-2xl font-black text-amber-600 outline-none" placeholder="0" />
+                            </div>
+                          </div>
+                          <div className="bg-slate-900 rounded-[2rem] p-6 text-white flex justify-between items-center">
+                            <div>
+                              <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Total Viático</p>
+                              <p className="text-2xl font-black text-emerald-400">${getRowTotal(row).toLocaleString('es-CL')}</p>
+                            </div>
+                            <DollarSign className="w-8 h-8 opacity-20" />
                           </div>
                         </div>
                       )}
@@ -1165,7 +1183,8 @@ export default function IngresoPage() {
 
                   {activeTab === 'viaticos' && (<>
                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Destino</th>
-                    <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">$ Monto</th>
+                    <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">$ Base</th>
+                    <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">$ Rendición</th>
                   </>)}
 
                   {activeTab === 'atrasos' && (
@@ -1261,7 +1280,8 @@ export default function IngresoPage() {
 
                       {activeTab === 'viaticos' && (<>
                         <td className="px-4 py-3"><select value={row.tipo_destino} onChange={e => updateRow(row.id, 'tipo_destino', e.target.value as any)} className="w-36 bg-slate-50 rounded-lg py-2 px-2 text-[10px] font-black text-slate-600 outline-none border border-slate-200"><option value="DENTRO COMUNA">Dentro Comuna</option><option value="FUERA COMUNA">Fuera Comuna</option></select></td>
-                        <td className="px-4 py-3"><input type="number" value={row.monto} onChange={e => updateRow(row.id, 'monto', e.target.value)} onKeyDown={e => e.key === 'Enter' && addRow()} className="w-20 bg-slate-50 rounded-lg py-2 text-center text-[11px] font-black text-emerald-600 border border-slate-200" /></td>
+                        <td className="px-4 py-3"><input type="number" value={row.monto} onChange={e => updateRow(row.id, 'monto', e.target.value)} className="w-20 bg-slate-50 rounded-lg py-2 text-center text-[11px] font-black text-emerald-600 border border-slate-200" /></td>
+                        <td className="px-4 py-3"><input type="number" value={row.rendicion_pasajes} onChange={e => updateRow(row.id, 'rendicion_pasajes', e.target.value)} onKeyDown={e => e.key === 'Enter' && addRow()} className="w-20 bg-slate-50 rounded-lg py-2 text-center text-[11px] font-black text-amber-600 border border-slate-200" placeholder="0" /></td>
                       </>)}
 
                       {activeTab === 'atrasos' && (
