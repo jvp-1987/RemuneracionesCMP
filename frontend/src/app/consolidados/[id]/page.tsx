@@ -60,6 +60,7 @@ interface ConsolidadoDetail {
   procedimientos: Transaction[];
   turnos_urgencia: Transaction[];
   url_respaldo?: string;
+  usuario_gestor?: { nombre: string };
 }
 
 export default function ConsolidadoDetailPage() {
@@ -71,7 +72,6 @@ export default function ConsolidadoDetailPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<number | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<any>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addSearchQuery, setAddSearchQuery] = useState('');
@@ -81,6 +81,8 @@ export default function ConsolidadoDetailPage() {
   const [isSavingNew, setIsSavingNew] = useState(false);
   const [relojData, setRelojData] = useState<Record<string, any[]> | null>(null);
   const [isRelojLoading, setIsRelojLoading] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [newFileBase64, setNewFileBase64] = useState<string | null>(null);
 
   const canValidateControl = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'CONTROL';
   const canValidateFinanzas = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'FINANZAS';
@@ -154,21 +156,25 @@ export default function ConsolidadoDetailPage() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       const type = activeTab;
       const endpoint = type === 'horas' ? 'horas-extras' : type === 'viaticos' ? 'viaticos' : type === 'atrasos' ? 'atrasos' : type === 'procedimientos' ? 'procedimientos' : 'turnos-urgencia';
-      const transId = editingRecord.id;
-
-      await axios.patch(`${apiUrl}/${endpoint}/${transId}`, updatedFields);
+      const payload = { ...updatedFields };
+      if (newFileBase64) {
+        payload.url_respaldo = newFileBase64;
+      }
+      
+      await axios.patch(`${apiUrl}/${endpoint}/${editingRecord.id}`, payload);
       
       setData(prev => {
         if (!prev) return null;
         const key = type === 'horas' ? 'horas_extras' : type === 'viaticos' ? 'viaticos' : type === 'atrasos' ? 'atrasos' : type === 'procedimientos' ? 'procedimientos' : 'turnos_urgencia';
         return {
           ...prev,
-          [key]: (prev as any)[key].map((t: any) => t.id === transId ? { ...t, ...updatedFields } : t)
+          [key]: (prev as any)[key].map((t: any) => t.id === editingRecord.id ? { ...t, ...payload } : t)
         };
       });
       
       setIsEditModalOpen(false);
       setEditingRecord(null);
+      setNewFileBase64(null);
     } catch (err) {
       console.error('Error saving edit:', err);
       alert('Error al guardar los cambios');
@@ -437,10 +443,10 @@ export default function ConsolidadoDetailPage() {
       return true;
     });
 
-    if (!searchQuery) return list;
     return list.filter(t => 
       t.funcionario.nombre_completo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.funcionario.rut.includes(searchQuery)
+      t.funcionario.rut.includes(searchQuery) ||
+      t.funcionario.centro_salud?.nombre.toLowerCase().includes(searchQuery.toLowerCase())
     );
   };
 
@@ -518,7 +524,9 @@ export default function ConsolidadoDetailPage() {
               <h2 className="font-headline text-2xl font-black text-primary tracking-tight leading-none uppercase">{data.centro_salud.nombre}</h2>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface mt-1.5 flex items-center gap-2">
                 <span className="material-symbols-outlined text-[12px] text-primary select-none" dangerouslySetInnerHTML={{ __html: '&#xe935;' }} />
-                {new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(new Date(2026, data.periodo.mes - 1))} {data.periodo.anio}
+                {new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(new Date(2026, data.periodo.mes - 1))} {data.periodo.anio} 
+                <span className="mx-2">•</span>
+                Gestor: {data.usuario_gestor?.nombre || 'Sincronización Automática'}
               </p>
             </div>
           </div>
@@ -529,7 +537,7 @@ export default function ConsolidadoDetailPage() {
             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface text-lg select-none" dangerouslySetInnerHTML={{ __html: '&#xe8b6;' }} />
             <input 
               className="bg-surface-container-low border border-outline rounded-xl pl-11 pr-4 py-2.5 text-xs w-full focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-on-surface font-bold placeholder:text-outline"
-              placeholder="Buscar funcionario o RUT..."
+              placeholder="Buscar funcionario, RUT o centro..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -914,6 +922,40 @@ export default function ConsolidadoDetailPage() {
                       id="edit_concepto"
                       className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all min-h-[100px]"
                     />
+                  </div>
+
+                  <div className="space-y-3 pt-4">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Documento de Respaldo</label>
+                    <div className="flex items-center gap-4">
+                      {editingRecord.url_respaldo && (
+                        <a 
+                          href={editingRecord.url_respaldo} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-200"
+                        >
+                          <span className="material-symbols-outlined text-sm">visibility</span>
+                          Ver Actual
+                        </a>
+                      )}
+                      <label className="flex-1 flex items-center gap-2 px-4 py-3 bg-white border border-outline-variant/20 rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:border-primary transition-all">
+                        <span className="material-symbols-outlined text-sm">upload_file</span>
+                        {newFileBase64 ? 'Archivo Seleccionado ✅' : 'Cambiar / Subir Adjunto'}
+                        <input 
+                          type="file" 
+                          className="hidden" 
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => setNewFileBase64(reader.result as string);
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
                   </div>
                 </div>
 
