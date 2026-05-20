@@ -54,6 +54,7 @@ interface Funcionario {
   contratos?: any[];
   ausentismos?: any[];
   asignaciones?: any[];
+  AsignacionFuncionario?: any[];
 }
 
 export default function FuncionarioDetailPage() {
@@ -61,7 +62,7 @@ export default function FuncionarioDetailPage() {
   const router = useRouter();
   const [funcionario, setFuncionario] = useState<Funcionario | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'perfil' | 'historial' | 'contratos' | 'ausentismos' | 'resoluciones'>('perfil');
+  const [activeTab, setActiveTab] = useState<'perfil' | 'historial' | 'contratos' | 'ausentismos' | 'resoluciones' | 'asignaciones'>('perfil');
   const [selectedRawData, setSelectedRawData] = useState<any | null>(null);
 
   useEffect(() => {
@@ -101,7 +102,7 @@ export default function FuncionarioDetailPage() {
 
       <div className="px-12 max-w-7xl mx-auto w-full pt-8">
         <div className="flex gap-10 border-b border-outline-variant/10 overflow-x-auto no-scrollbar">
-          {(['perfil', 'historial', 'contratos', 'ausentismos', 'resoluciones'] as const).map((tab) => (
+          {(['perfil', 'asignaciones', 'historial', 'contratos', 'ausentismos', 'resoluciones'] as const).map((tab) => (
             <button 
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -257,7 +258,123 @@ export default function FuncionarioDetailPage() {
                   </div>
                 )}
              </div>
-           </section>
+         </section>
+        )}
+
+        {activeTab === 'asignaciones' && (
+          <div className="bg-white rounded-[3rem] shadow-2xl border border-outline-variant/5 p-10 space-y-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-2xl font-black uppercase">Beneficios y Asignaciones Fijas</h3>
+              <span className="text-[10px] font-black uppercase text-outline tracking-[0.2em]">Registro Histórico</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Formulario de Enrolamiento (Mini) */}
+              <div className="bg-surface-container-low p-8 rounded-[2rem] border border-outline-variant/10">
+                <h4 className="text-xs font-black uppercase tracking-widest text-slate-800 mb-6">Nueva Asignación</h4>
+                <form 
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.currentTarget);
+                    try {
+                      const url = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+                      await axios.post(`${url}/asignaciones/funcionario`, {
+                        funcionario_rut: rut,
+                        asignacion_id: Number(formData.get('asignacion_id')),
+                        tipo_calculo: formData.get('tipo_calculo'),
+                        valor: Number(formData.get('valor')),
+                        fecha_inicio: formData.get('fecha_inicio'),
+                        fecha_termino: formData.get('fecha_termino') || null,
+                        num_resolucion: formData.get('num_resolucion')
+                      });
+                      alert('Asignación agregada correctamente');
+                      window.location.reload();
+                    } catch (error) {
+                      console.error(error);
+                      alert('Error al agregar asignación');
+                    }
+                  }} 
+                  className="space-y-4"
+                >
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">ID de Catálogo (A futuro será un Select)</label>
+                    <input name="asignacion_id" type="number" required className="w-full text-sm bg-white border border-slate-200 rounded-xl px-4 py-2" placeholder="ID (ej: 1)"/>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Tipo</label>
+                      <select name="tipo_calculo" className="w-full text-sm bg-white border border-slate-200 rounded-xl px-4 py-2">
+                        <option value="MONTO_FIJO">Monto Fijo ($)</option>
+                        <option value="PORCENTAJE">Porcentaje (%)</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Valor</label>
+                      <input name="valor" type="number" step="0.01" required className="w-full text-sm bg-white border border-slate-200 rounded-xl px-4 py-2" placeholder="Ej: 150000 o 15"/>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Inicio</label>
+                      <input name="fecha_inicio" type="date" required className="w-full text-sm bg-white border border-slate-200 rounded-xl px-4 py-2"/>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase">Término (Opcional)</label>
+                      <input name="fecha_termino" type="date" className="w-full text-sm bg-white border border-slate-200 rounded-xl px-4 py-2"/>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Nº Resolución</label>
+                    <input name="num_resolucion" type="text" className="w-full text-sm bg-white border border-slate-200 rounded-xl px-4 py-2" placeholder="Ej: Res. Exenta N°1234"/>
+                  </div>
+                  <button type="submit" className="w-full py-3 mt-2 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:brightness-110">
+                    Guardar Beneficio
+                  </button>
+                </form>
+              </div>
+
+              {/* Lista de Asignaciones */}
+              <div className="space-y-4">
+                {(!funcionario.AsignacionFuncionario || funcionario.AsignacionFuncionario.length === 0) ? (
+                  <div className="p-12 text-center border-2 border-dashed border-outline-variant/20 rounded-[2rem]">
+                    <p className="text-[10px] font-black text-outline uppercase tracking-widest italic">No tiene asignaciones activas</p>
+                  </div>
+                ) : (
+                  funcionario.AsignacionFuncionario.map((asig: any) => (
+                    <div key={asig.id} className="p-6 rounded-[2rem] border border-outline-variant/10 bg-slate-50 relative overflow-hidden group">
+                      <div className={`absolute top-0 left-0 w-1.5 h-full ${asig.estado === 'ACTIVO' ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="text-sm font-black text-slate-800">{asig.catalogo?.nombre || 'Asignación'}</h4>
+                        <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md ${asig.estado === 'ACTIVO' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                          {asig.estado}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Monto / Tipo</p>
+                          <p className="text-xs font-black text-slate-700">
+                            {asig.tipo_calculo === 'PORCENTAJE' ? `${asig.valor}%` : `$${Number(asig.valor).toLocaleString('es-CL')}`}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Resolución</p>
+                          <p className="text-xs font-bold text-slate-700">{asig.num_resolucion || 'S/N'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Inicio</p>
+                          <p className="text-xs font-bold text-slate-700">{new Date(asig.fecha_inicio).toLocaleDateString('es-CL')}</p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Término</p>
+                          <p className="text-xs font-bold text-slate-700">{asig.fecha_termino ? new Date(asig.fecha_termino).toLocaleDateString('es-CL') : 'Indefinido'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
         )}
 
         {activeTab === 'historial' && (

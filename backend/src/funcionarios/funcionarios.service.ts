@@ -217,7 +217,8 @@ export class FuncionariosService {
         },
         contratos: { orderBy: { fecha_inicio: 'desc' } },
         ausentismos: { orderBy: { fecha_inicio: 'desc' } },
-        asignaciones: { orderBy: { fecha_inicio: 'desc' } }
+        asignaciones: { orderBy: { fecha_inicio: 'desc' } },
+        AsignacionFuncionario: { include: { catalogo: true }, orderBy: { fecha_inicio: 'desc' } }
       }
     });
 

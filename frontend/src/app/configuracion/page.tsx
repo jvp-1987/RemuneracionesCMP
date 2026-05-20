@@ -141,6 +141,11 @@ export default function ConfigurationPage() {
                   <span className="material-symbols-outlined text-base group-hover:rotate-12 transition-transform">calendar_month</span>
                   Control de Periodos
                </Link>
+
+               <Link href="/configuracion/asignaciones" className="flex items-center justify-center gap-3 w-full py-4 mt-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-primary transition-all group">
+                  <span className="material-symbols-outlined text-base group-hover:rotate-12 transition-transform">list_alt</span>
+                  Catálogo de Asignaciones
+               </Link>
             </div>
           </div>
 

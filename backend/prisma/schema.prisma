@@ -36,24 +36,25 @@ model CentroSalud {
 }
 
 model Funcionario {
-  rut              String               @id
-  nombre_completo  String
-  profesion_enum   String
-  categoria_aps    String?
-  nivel_aps        Int?
-  jornada_horas    Int?
-  centro_salud_id  Int?
-  fecha_nacimiento DateTime?
-  asignaciones     AsignacionEspecial[]
-  atrasos          Atrasos[]
-  ausentismos      Ausentismo[]
-  contratos        Contrato[]
-  centro_salud     CentroSalud?         @relation(fields: [centro_salud_id], references: [id])
-  horas_extras     HorasExtras[]
-  liquidaciones    LiquidacionMensual[]
-  procedimientos   Procedimientos[]
-  turnos           TurnosUrgencia[]
-  viaticos         Viaticos[]
+  rut                   String                  @id
+  nombre_completo       String
+  profesion_enum        String
+  categoria_aps         String?
+  nivel_aps             Int?
+  jornada_horas         Int?
+  centro_salud_id       Int?
+  fecha_nacimiento      DateTime?
+  asignaciones          AsignacionEspecial[]
+  atrasos               Atrasos[]
+  ausentismos           Ausentismo[]
+  contratos             Contrato[]
+  centro_salud          CentroSalud?            @relation(fields: [centro_salud_id], references: [id])
+  horas_extras          HorasExtras[]
+  liquidaciones         LiquidacionMensual[]
+  procedimientos        Procedimientos[]
+  turnos                TurnosUrgencia[]
+  viaticos              Viaticos[]
+  AsignacionFuncionario AsignacionFuncionario[]
 
   @@index([centro_salud_id], map: "Funcionario_centro_salud_id_fkey")
 }
@@ -75,12 +76,13 @@ model Programa {
 }
 
 model Periodo {
-  id            Int                  @id @default(autoincrement())
-  mes           Int
-  anio          Int
-  estado        String
-  consolidados  Consolidado[]
-  liquidaciones LiquidacionMensual[]
+  id                            Int                             @id @default(autoincrement())
+  mes                           Int
+  anio                          Int
+  estado                        String
+  consolidados                  Consolidado[]
+  liquidaciones                 LiquidacionMensual[]
+  VerificacionMensualAsignacion VerificacionMensualAsignacion[]
 }
 
 model Consolidado {
@@ -157,20 +159,20 @@ model TurnosUrgencia {
 }
 
 model Viaticos {
-  id              Int              @id @default(autoincrement())
-  consolidado_id  Int
-  funcionario_rut String
-  tipo_destino    String
-  fecha_inicio    DateTime
+  id                Int              @id @default(autoincrement())
+  consolidado_id    Int
+  funcionario_rut   String
+  tipo_destino      String
+  fecha_inicio      DateTime
   fecha_termino     DateTime
   monto_calculado   Decimal          @db.Decimal(12, 2)
   rendicion_pasajes Decimal          @default(0.00) @db.Decimal(12, 2)
   estado            EstadoValidacion @default(PENDIENTE)
-  justificacion   String?
-  concepto        String?
-  url_respaldo    String?          @db.LongText
-  consolidado     Consolidado      @relation(fields: [consolidado_id], references: [id])
-  funcionario     Funcionario      @relation(fields: [funcionario_rut], references: [rut])
+  justificacion     String?
+  concepto          String?
+  url_respaldo      String?          @db.LongText
+  consolidado       Consolidado      @relation(fields: [consolidado_id], references: [id])
+  funcionario       Funcionario      @relation(fields: [funcionario_rut], references: [rut])
 
   @@index([consolidado_id], map: "Viaticos_consolidado_id_fkey")
   @@index([funcionario_rut], map: "Viaticos_funcionario_rut_fkey")
@@ -300,8 +302,47 @@ model AsignacionEspecial {
   @@index([funcionario_rut], map: "AsignacionEspecial_funcionario_rut_fkey")
 }
 
+model CatalogoAsignacion {
+  id           Int                     @id @default(autoincrement())
+  nombre       String                  @unique
+  estado       String                  @default("ACTIVO") // ACTIVO, INACTIVO
+  asignaciones AsignacionFuncionario[]
+}
+
+model AsignacionFuncionario {
+  id              Int                             @id @default(autoincrement())
+  funcionario_rut String
+  asignacion_id   Int
+  tipo_calculo    String                          @default("MONTO_FIJO") // MONTO_FIJO, PORCENTAJE
+  valor           Decimal                         @db.Decimal(12, 2)
+  fecha_inicio    DateTime
+  fecha_termino   DateTime?
+  num_resolucion  String?
+  estado          String                          @default("ACTIVO") // ACTIVO, INACTIVO
+  funcionario     Funcionario                     @relation(fields: [funcionario_rut], references: [rut])
+  catalogo        CatalogoAsignacion              @relation(fields: [asignacion_id], references: [id])
+  verificaciones  VerificacionMensualAsignacion[]
+
+  @@index([funcionario_rut], map: "AsigFunc_funcionario_rut_fkey")
+  @@index([asignacion_id], map: "AsigFunc_asignacion_id_fkey")
+}
+
+model VerificacionMensualAsignacion {
+  id                        Int                   @id @default(autoincrement())
+  periodo_id                Int
+  asignacion_funcionario_id Int
+  estado_verificacion       String                @default("PENDIENTE") // PENDIENTE, PAGADO, NO_PAGADO, OBSERVADO
+  observaciones             String?               @db.LongText
+  periodo                   Periodo               @relation(fields: [periodo_id], references: [id])
+  asignacion                AsignacionFuncionario @relation(fields: [asignacion_funcionario_id], references: [id])
+
+  @@unique([periodo_id, asignacion_funcionario_id])
+  @@index([periodo_id], map: "VerifMensual_periodo_id_fkey")
+  @@index([asignacion_funcionario_id], map: "VerifMensual_asignacion_id_fkey")
+}
+
 model Parametro {
-  clave  String @id
+  clave  String  @id
   valor  String
   modulo String?
 }
