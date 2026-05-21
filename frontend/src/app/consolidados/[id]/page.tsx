@@ -928,15 +928,16 @@ export default function ConsolidadoDetailPage() {
                     <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Documento de Respaldo</label>
                     <div className="flex items-center gap-4">
                       {editingRecord.url_respaldo && (
-                        <a 
-                          href={editingRecord.url_respaldo} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-200"
+                        <button 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleOpenRespaldo(editingRecord.url_respaldo);
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-200 cursor-pointer"
                         >
                           <span className="material-symbols-outlined text-sm">visibility</span>
                           Ver Actual
-                        </a>
+                        </button>
                       )}
                       <label className="flex-1 flex items-center gap-2 px-4 py-3 bg-white border border-outline-variant/20 rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:border-primary transition-all">
                         <span className="material-symbols-outlined text-sm">upload_file</span>

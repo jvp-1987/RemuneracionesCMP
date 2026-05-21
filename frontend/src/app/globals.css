@@ -27,6 +27,11 @@
   
   --color-success: var(--success);
   --color-on-success: var(--on-success);
+
+  --color-error: var(--error);
+  --color-on-error: var(--on-error);
+  --color-error-container: var(--error-container);
+  --color-on-error-container: var(--on-error-container);
 }
 
 :root {
