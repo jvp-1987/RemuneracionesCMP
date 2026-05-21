@@ -786,7 +786,7 @@ export default function ConsolidadoDetailPage() {
               "px-12 py-3.5 text-xs font-black rounded-2xl uppercase tracking-[0.15em] transition-all shadow-2xl",
               (canFinalize && data.vb_control_interno && data.vb_finanzas)
                 ? "bg-primary text-white hover:brightness-110 active:scale-95 shadow-primary/40" 
-                : "bg-surface-container text-white/20 cursor-not-allowed border border-white/5"
+                : "bg-surface-container text-outline/50 cursor-not-allowed border border-outline-variant/20"
             )}
             title={!canFinalize ? "Solo ADMIN puede cerrar el consolidado" : ""}
           >
@@ -1335,12 +1335,14 @@ const EmployeeTableRow = React.memo(({
             <label 
               onClick={(e) => e.stopPropagation()}
               className={cn(
-                "p-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center",
-                isLocked ? "opacity-20 pointer-events-none" : "hover:bg-primary/10 text-primary"
+                "p-2 rounded-xl transition-all shadow-sm flex items-center justify-center cursor-pointer",
+                isLocked 
+                  ? "bg-surface-container text-outline/20 cursor-not-allowed border border-outline-variant/5" 
+                  : "bg-white border border-outline-variant/20 text-primary hover:bg-primary/5 hover:border-primary/40 active:scale-95"
               )}
               title={item.url_respaldo ? "Cambiar Respaldo" : "Subir Respaldo"}
             >
-              <span className="material-symbols-outlined text-[18px] select-none">{item.url_respaldo ? 'refresh' : 'upload_file'}</span>
+              <span className="material-symbols-outlined text-[16px] select-none">{item.url_respaldo ? 'refresh' : 'upload_file'}</span>
               <input type="file" className="hidden" onChange={onRespaldoUpload} accept=".pdf,.jpg,.jpeg,.png" />
             </label>
             
@@ -1348,14 +1350,14 @@ const EmployeeTableRow = React.memo(({
               disabled={isLocked}
               onClick={(e) => { e.stopPropagation(); onDelete(); }}
               className={cn(
-                "p-2.5 rounded-xl transition-all shadow-sm",
+                "p-2 rounded-xl transition-all shadow-sm flex items-center justify-center",
                 isLocked 
                   ? "bg-surface-container text-outline/20 cursor-not-allowed border border-outline-variant/5" 
                   : "bg-white border border-error/20 text-error hover:bg-error/5 hover:border-error/40 active:scale-95"
               )}
               title={isLocked ? "Eliminación bloqueada" : "Eliminar registro"}
             >
-              <span className="material-symbols-outlined text-sm select-none" dangerouslySetInnerHTML={{ __html: '&#xe872;' }} />
+              <span className="material-symbols-outlined text-[16px] select-none" dangerouslySetInnerHTML={{ __html: '&#xe872;' }} />
             </button>
 
             <button 
@@ -1406,7 +1408,7 @@ const EmployeeTableRow = React.memo(({
                         <div className="space-y-4">
                           <textarea 
                             disabled={!canAudit}
-                            className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold min-h-[120px]" 
+                            className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold h-24 min-h-[80px] resize-y" 
                             placeholder={canAudit ? "Ingrese hallazgos..." : "Notas de auditoría (Solo lectura)"}
                             value={obs25}
                             onChange={(e) => setObs25(e.target.value)}
@@ -1430,7 +1432,7 @@ const EmployeeTableRow = React.memo(({
                         <div className="space-y-4">
                           <textarea 
                             disabled={!canAudit}
-                            className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold min-h-[120px]" 
+                            className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold h-24 min-h-[80px] resize-y" 
                             placeholder={canAudit ? "Ingrese hallazgos..." : "Notas de auditoría (Solo lectura)"}
                             value={obs50}
                             onChange={(e) => setObs50(e.target.value)}
