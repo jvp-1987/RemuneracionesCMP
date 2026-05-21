@@ -13,6 +13,7 @@ const navItems = [
   { name: 'Consolidados', href: '/consolidados', icon: '&#xea17;' },
   { name: 'Funcionarios', href: '/funcionarios', icon: '&#xe7ef;' },
   { name: 'Importar', href: '/importar', icon: '&#xe2c3;' },
+  { name: 'Asignaciones Fijas', href: '/asignaciones', icon: '&#xf0c5;' },
   { name: 'Alertas RRHH', href: '/alertas-rrhh', icon: '&#xe002;' },
   { name: 'Reportes', href: '/reportes', icon: '&#xe873;' },
   { name: 'Control Períodos', href: '/configuracion/periodos', icon: '&#xeb93;' },
@@ -27,11 +28,11 @@ export default function Sidebar() {
     if (user.rol === 'ADMIN' || user.rol === 'ADMIN_MAESTRO') return true;
     
     if (user.rol === 'CENTRO_SALUD') {
-      return ['Dashboard', 'Ingresar Novedades', 'Consolidados', 'Funcionarios'].includes(item.name);
+      return ['Dashboard', 'Ingresar Novedades', 'Consolidados', 'Funcionarios', 'Asignaciones Fijas'].includes(item.name);
     }
     
     if (user.rol === 'CONTROL' || user.rol === 'FINANZAS') {
-      return ['Dashboard', 'Consolidados', 'Funcionarios', 'Reportes'].includes(item.name);
+      return ['Dashboard', 'Consolidados', 'Funcionarios', 'Reportes', 'Asignaciones Fijas'].includes(item.name);
     }
     
     return false;
