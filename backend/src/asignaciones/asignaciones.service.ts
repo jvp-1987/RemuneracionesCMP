@@ -92,8 +92,8 @@ export class AsignacionesService {
     const periodo = await this.prisma.periodo.findUnique({ where: { id: periodoId } });
     if (!periodo) throw new NotFoundException('Período no encontrado');
 
-    const periodoInicio = new Date(periodo.inicio);
-    const periodoFin = new Date(periodo.fin);
+    const periodoInicio = new Date(periodo.anio, periodo.mes - 1, 1);
+    const periodoFin = new Date(periodo.anio, periodo.mes, 0);
 
     // Buscar asignaciones activas que caigan en este periodo
     const asignacionesActivas = await this.prisma.asignacionFuncionario.findMany({
