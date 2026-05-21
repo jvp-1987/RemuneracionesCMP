@@ -35,6 +35,9 @@ interface Funcionario {
 
 export default function FuncionariosPage() {
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
+  const [centros, setCentros] = useState<{id: number, nombre: string}[]>([]);
+  const [selectedEstablishment, setSelectedEstablishment] = useState<string | null>(null);
+  const [assigningRut, setAssigningRut] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -64,10 +67,14 @@ export default function FuncionariosPage() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || ''}/funcionarios`);
-      setFuncionarios(res.data);
+      const [resFuncs, resCentros] = await Promise.all([
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL || ''}/funcionarios`),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL || ''}/centro-salud`).catch(() => ({ data: [] }))
+      ]);
+      setFuncionarios(resFuncs.data);
+      setCentros(resCentros.data);
     } catch (err) {
-      console.error('Error fetching funcionarios:', err);
+      console.error('Error fetching data:', err);
     } finally {
       setLoading(false);
     }
@@ -157,6 +164,28 @@ export default function FuncionariosPage() {
       setLoading(false);
     }
   };
+
+  const handleAssignCenter = async (rut: string, centroId: number) => {
+    if (!centroId) return;
+    try {
+      setAssigningRut(rut);
+      await axios.patch(`${process.env.NEXT_PUBLIC_API_URL || ''}/funcionarios/${rut}`, {
+        centro_salud_id: centroId
+      });
+      await fetchData();
+    } catch (error) {
+      console.error('Error asignando centro:', error);
+      alert('Error al asignar establecimiento');
+    } finally {
+      setAssigningRut(null);
+    }
+  };
+
+  const funcsToRender = selectedEstablishment 
+    ? (groupedFuncionarios[selectedEstablishment] || []) 
+    : filtered;
+
+  funcsToRender.sort((a, b) => a.nombre_completo.localeCompare(b.nombre_completo));
 
 
   return (
@@ -268,9 +297,9 @@ export default function FuncionariosPage() {
                       value={formData.centro_salud_id}
                       onChange={(e) => setFormData({...formData, centro_salud_id: parseInt(e.target.value)})}
                     >
-                      <option value="1">CESFAM PANGUIPULLI</option>
-                      <option value="2">CESFAM CHOSHUENCO</option>
-                      <option value="3">CESFAM COÑARIPE</option>
+                      {centros.map(c => (
+                        <option key={c.id} value={c.id}>{c.nombre}</option>
+                      ))}
                     </select>
                   </div>
 
@@ -380,7 +409,7 @@ export default function FuncionariosPage() {
       </div>
 
       {/* Control Bar */}
-      <div className="flex flex-col md:flex-row gap-6 items-center justify-between mb-10 bg-white p-4 rounded-[2.5rem] border border-slate-100 shadow-sm">
+      <div className="flex flex-col md:flex-row gap-6 items-center justify-between mb-6 bg-white p-4 rounded-[2.5rem] border border-slate-100 shadow-sm">
         <div className="relative flex-1 group w-full">
           <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5 group-focus-within:text-primary transition-colors" />
           <input 
@@ -391,6 +420,36 @@ export default function FuncionariosPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+      </div>
+
+      {/* Establecimientos Banner */}
+      <div className="mb-10 flex gap-3 overflow-x-auto pb-4 snap-x relative z-10" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <button
+          onClick={() => setSelectedEstablishment(null)}
+          className={cn(
+            "shrink-0 px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all snap-start shadow-sm border",
+            selectedEstablishment === null 
+              ? "bg-primary text-white border-primary shadow-primary/20" 
+              : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+          )}
+        >
+          Todos ({filtered.length})
+        </button>
+        {Object.keys(groupedFuncionarios).sort().map(est => (
+          <button
+            key={est}
+            onClick={() => setSelectedEstablishment(est)}
+            className={cn(
+              "shrink-0 px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all snap-start shadow-sm border flex items-center gap-2",
+              selectedEstablishment === est 
+                ? "bg-primary text-white border-primary shadow-primary/20" 
+                : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+            )}
+          >
+            <Building2 className="w-4 h-4" />
+            {est} <span className={selectedEstablishment === est ? "text-white/80" : "text-slate-400"}>({groupedFuncionarios[est].length})</span>
+          </button>
+        ))}
       </div>
 
       {/* High-Density Registry Table */}
@@ -421,7 +480,7 @@ export default function FuncionariosPage() {
                     </td>
                   </tr>
                 ))
-              ) : filtered.length === 0 ? (
+              ) : funcsToRender.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-12 py-48 text-center bg-slate-50/20">
                     <div className="max-w-xs mx-auto">
@@ -429,92 +488,72 @@ export default function FuncionariosPage() {
                         <Search className="w-8 h-8" />
                       </div>
                       <p className="font-black text-slate-300 uppercase tracking-widest text-[11px] italic">
-                         No se encontraron registros en el maestro actual
+                         No se encontraron registros en la vista actual
                       </p>
                     </div>
                   </td>
                 </tr>
               ) : (
-                Object.keys(groupedFuncionarios).sort().map((establecimiento) => {
-                  const funcs = groupedFuncionarios[establecimiento].sort((a, b) => a.nombre_completo.localeCompare(b.nombre_completo));
-                  return (
-                    <React.Fragment key={establecimiento}>
-                      <tr 
-                        className="cursor-pointer group hover:bg-slate-50 transition-colors"
-                        onClick={() => {
-                          const el = document.getElementById(`group-${establecimiento.replace(/\\s+/g, '-')}`);
-                          if (el) {
-                            el.style.display = el.style.display === 'none' ? 'table-row-group' : 'none';
-                          }
-                        }}
-                      >
-                        <td colSpan={5} className="px-12 py-6 bg-slate-50/80 border-y border-slate-100/50">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-xl bg-white shadow-sm border border-slate-200 flex items-center justify-center">
-                                <Building2 className="w-4 h-4 text-primary" />
-                              </div>
-                              <h3 className="text-sm font-black text-slate-800 tracking-tight uppercase">{establecimiento}</h3>
-                              <span className="px-3 py-1 rounded-full bg-white text-[10px] font-black text-slate-500 border border-slate-200 shadow-sm ml-2">{funcs.length} funcionarios</span>
-                            </div>
-                            <div className="p-2 bg-white rounded-full border border-slate-200 shadow-sm text-slate-400 group-hover:text-primary transition-colors">
-                              <ChevronRight className="w-4 h-4 rotate-90" />
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                      <tbody id={`group-${establecimiento.replace(/\\s+/g, '-')}`} style={{ display: 'table-row-group' }}>
-                        {funcs.map((f) => (
-                          <tr 
-                            key={f.rut}
-                            onClick={() => router.push(`/funcionarios/${f.rut}`)}
-                            className="hover:bg-slate-50 transition-all group/row cursor-pointer border-b border-slate-50 last:border-0"
+                funcsToRender.map((f) => (
+                  <tr 
+                    key={f.rut}
+                    onClick={() => router.push(`/funcionarios/${f.rut}`)}
+                    className="hover:bg-slate-50 transition-all group/row cursor-pointer border-b border-slate-50 last:border-0"
+                  >
+                    <td className="px-12 py-8">
+                      <div className="flex items-center gap-6">
+                        <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center border border-slate-100 shadow-sm group-hover/row:bg-primary group-hover/row:border-primary transition-all overflow-hidden relative">
+                           <img 
+                              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${f.rut}`} 
+                              className="w-full h-full object-cover scale-150 grayscale group-hover/row:grayscale-0 transition-all opacity-20 group-hover/row:opacity-100" 
+                              alt={f.nombre_completo}
+                           />
+                        </div>
+                        <div>
+                          <p className="font-black text-lg text-slate-800 tracking-tight leading-none mb-2 group-hover/row:text-primary transition-colors uppercase">{f.nombre_completo}</p>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] opacity-60">ID: {f.rut} • {f.centro_salud?.nombre || 'SIN ESTABLECIMIENTO'}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-12 py-8">
+                      <div className="flex justify-center items-center gap-2">
+                        <span className="px-5 py-2 rounded-xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest group-hover/row:bg-primary transition-colors">
+                          Cat. {f.categoria_aps || '?'}
+                        </span>
+                        <span className="px-5 py-2 rounded-xl bg-slate-100 text-slate-500 text-[10px] font-black border border-slate-200 uppercase tracking-widest">
+                          Niv. {f.nivel_aps || '-'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-12 py-8 text-center text-slate-700 font-black">
+                      <div className="flex items-center justify-center gap-2">
+                         <Clock className="w-4 h-4 text-slate-300" />
+                         <span className="text-sm tracking-tighter">{f.jornada_horas || 44} HRS</span>
+                      </div>
+                    </td>
+                    <td className="px-12 py-8 text-left">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] bg-slate-50 px-4 py-2 border border-slate-100 rounded-xl group-hover/row:bg-white transition-all">{f.profesion_enum}</span>
+                        {!f.centro_salud && (
+                          <select 
+                            className="text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-xl px-3 py-2 outline-none cursor-pointer hover:bg-emerald-100 transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => handleAssignCenter(f.rut, parseInt(e.target.value))}
+                            disabled={assigningRut === f.rut}
                           >
-                            <td className="px-12 py-8">
-                              <div className="flex items-center gap-6">
-                                <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center border border-slate-100 shadow-sm group-hover/row:bg-primary group-hover/row:border-primary transition-all overflow-hidden relative">
-                                   <img 
-                                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${f.rut}`} 
-                                      className="w-full h-full object-cover scale-150 grayscale group-hover/row:grayscale-0 transition-all opacity-20 group-hover/row:opacity-100" 
-                                      alt={f.nombre_completo}
-                                   />
-                                </div>
-                                <div>
-                                  <p className="font-black text-lg text-slate-800 tracking-tight leading-none mb-2 group-hover/row:text-primary transition-colors uppercase">{f.nombre_completo}</p>
-                                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] opacity-60">ID: {f.rut}</p>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-12 py-8">
-                              <div className="flex justify-center items-center gap-2">
-                                <span className="px-5 py-2 rounded-xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest group-hover/row:bg-primary transition-colors">
-                                  Cat. {f.categoria_aps || '?'}
-                                </span>
-                                <span className="px-5 py-2 rounded-xl bg-slate-100 text-slate-500 text-[10px] font-black border border-slate-200 uppercase tracking-widest">
-                                  Niv. {f.nivel_aps || '-'}
-                                </span>
-                              </div>
-                            </td>
-                            <td className="px-12 py-8 text-center text-slate-700 font-black">
-                              <div className="flex items-center justify-center gap-2">
-                                 <Clock className="w-4 h-4 text-slate-300" />
-                                 <span className="text-sm tracking-tighter">{f.jornada_horas || 44} HRS</span>
-                              </div>
-                            </td>
-                            <td className="px-12 py-8 text-left">
-                              <span className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] bg-slate-50 px-4 py-2 border border-slate-100 rounded-xl group-hover/row:bg-white transition-all">{f.profesion_enum}</span>
-                            </td>
-                            <td className="px-12 py-8 text-right">
-                              <button className="p-4 bg-white border border-slate-100 rounded-2xl text-slate-300 group-hover/row:text-primary group-hover/row:border-primary transition-all shadow-sm active:scale-95">
-                                <ChevronRight className="w-5 h-5" />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </React.Fragment>
-                  );
-                })
+                            <option value="">{assigningRut === f.rut ? 'Asignando...' : 'Asignar Centro'}</option>
+                            {centros.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+                          </select>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-12 py-8 text-right">
+                      <button className="p-4 bg-white border border-slate-100 rounded-2xl text-slate-300 group-hover/row:text-primary group-hover/row:border-primary transition-all shadow-sm active:scale-95">
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
