@@ -27,6 +27,10 @@ interface Funcionario {
   categoria_aps: string;
   nivel_aps: number;
   jornada_horas: number;
+  centro_salud?: {
+    id: number;
+    nombre: string;
+  };
 }
 
 export default function FuncionariosPage() {
@@ -123,6 +127,15 @@ export default function FuncionariosPage() {
     f.nombre_completo.toLowerCase().includes(search.toLowerCase()) ||
     f.rut.toLowerCase().includes(search.toLowerCase())
   );
+
+  const groupedFuncionarios = filtered.reduce((acc, f) => {
+    const centerName = f.centro_salud?.nombre || 'Sin Establecimiento Asignado';
+    if (!acc[centerName]) {
+      acc[centerName] = [];
+    }
+    acc[centerName].push(f);
+    return acc;
+  }, {} as Record<string, Funcionario[]>);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -422,52 +435,67 @@ export default function FuncionariosPage() {
                   </td>
                 </tr>
               ) : (
-                filtered.map((f) => (
-                  <tr 
-                    key={f.rut}
-                    onClick={() => router.push(`/funcionarios/${f.rut}`)}
-                    className="hover:bg-slate-50 transition-all group cursor-pointer"
-                  >
-                    <td className="px-12 py-8">
-                      <div className="flex items-center gap-6">
-                        <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center border border-slate-100 shadow-sm group-hover:bg-primary group-hover:border-primary transition-all overflow-hidden relative">
-                           <img 
-                              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${f.rut}`} 
-                              className="w-full h-full object-cover scale-150 grayscale group-hover:grayscale-0 transition-all opacity-20 group-hover:opacity-100" 
-                              alt={f.nombre_completo}
-                           />
+                Object.entries(groupedFuncionarios).map(([establecimiento, funcs]) => (
+                  <React.Fragment key={establecimiento}>
+                    <tr>
+                      <td colSpan={5} className="px-12 py-6 bg-slate-50/80 border-y border-slate-100/50">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-xl bg-white shadow-sm border border-slate-200 flex items-center justify-center">
+                            <Building2 className="w-4 h-4 text-primary" />
+                          </div>
+                          <h3 className="text-sm font-black text-slate-800 tracking-tight uppercase">{establecimiento}</h3>
+                          <span className="px-3 py-1 rounded-full bg-white text-[10px] font-black text-slate-500 border border-slate-200 shadow-sm ml-2">{funcs.length} funcionarios</span>
                         </div>
-                        <div>
-                          <p className="font-black text-lg text-slate-800 tracking-tight leading-none mb-2 group-hover:text-primary transition-colors uppercase">{f.nombre_completo}</p>
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] opacity-60">ID: {f.rut}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-12 py-8">
-                      <div className="flex justify-center items-center gap-2">
-                        <span className="px-5 py-2 rounded-xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest group-hover:bg-primary transition-colors">
-                          Cat. {f.categoria_aps || '?'}
-                        </span>
-                        <span className="px-5 py-2 rounded-xl bg-slate-100 text-slate-500 text-[10px] font-black border border-slate-200 uppercase tracking-widest">
-                          Niv. {f.nivel_aps || '-'}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-12 py-8 text-center text-slate-700 font-black">
-                      <div className="flex items-center justify-center gap-2">
-                         <Clock className="w-4 h-4 text-slate-300" />
-                         <span className="text-sm tracking-tighter">{f.jornada_horas || 44} HRS</span>
-                      </div>
-                    </td>
-                    <td className="px-12 py-8 text-left">
-                      <span className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] bg-slate-50 px-4 py-2 border border-slate-100 rounded-xl group-hover:bg-white transition-all">{f.profesion_enum}</span>
-                    </td>
-                    <td className="px-12 py-8 text-right">
-                      <button className="p-4 bg-white border border-slate-100 rounded-2xl text-slate-300 group-hover:text-primary group-hover:border-primary transition-all shadow-sm active:scale-95">
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
-                    </td>
-                  </tr>
+                      </td>
+                    </tr>
+                    {funcs.map((f) => (
+                      <tr 
+                        key={f.rut}
+                        onClick={() => router.push(`/funcionarios/${f.rut}`)}
+                        className="hover:bg-slate-50 transition-all group cursor-pointer"
+                      >
+                        <td className="px-12 py-8">
+                          <div className="flex items-center gap-6">
+                            <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center border border-slate-100 shadow-sm group-hover:bg-primary group-hover:border-primary transition-all overflow-hidden relative">
+                               <img 
+                                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${f.rut}`} 
+                                  className="w-full h-full object-cover scale-150 grayscale group-hover:grayscale-0 transition-all opacity-20 group-hover:opacity-100" 
+                                  alt={f.nombre_completo}
+                               />
+                            </div>
+                            <div>
+                              <p className="font-black text-lg text-slate-800 tracking-tight leading-none mb-2 group-hover:text-primary transition-colors uppercase">{f.nombre_completo}</p>
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] opacity-60">ID: {f.rut}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-12 py-8">
+                          <div className="flex justify-center items-center gap-2">
+                            <span className="px-5 py-2 rounded-xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest group-hover:bg-primary transition-colors">
+                              Cat. {f.categoria_aps || '?'}
+                            </span>
+                            <span className="px-5 py-2 rounded-xl bg-slate-100 text-slate-500 text-[10px] font-black border border-slate-200 uppercase tracking-widest">
+                              Niv. {f.nivel_aps || '-'}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-12 py-8 text-center text-slate-700 font-black">
+                          <div className="flex items-center justify-center gap-2">
+                             <Clock className="w-4 h-4 text-slate-300" />
+                             <span className="text-sm tracking-tighter">{f.jornada_horas || 44} HRS</span>
+                          </div>
+                        </td>
+                        <td className="px-12 py-8 text-left">
+                          <span className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] bg-slate-50 px-4 py-2 border border-slate-100 rounded-xl group-hover:bg-white transition-all">{f.profesion_enum}</span>
+                        </td>
+                        <td className="px-12 py-8 text-right">
+                          <button className="p-4 bg-white border border-slate-100 rounded-2xl text-slate-300 group-hover:text-primary group-hover:border-primary transition-all shadow-sm active:scale-95">
+                            <ChevronRight className="w-5 h-5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
                 ))
               )}
             </tbody>
