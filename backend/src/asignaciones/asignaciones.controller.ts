@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { AsignacionesService } from './asignaciones.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -22,6 +22,16 @@ export class AsignacionesController {
   @Put('catalogo/:id/toggle')
   toggleCatalogoEstado(@Param('id') id: string) {
     return this.asignacionesService.toggleCatalogoEstado(Number(id));
+  }
+
+  @Put('catalogo/:id')
+  updateCatalogo(@Param('id') id: string, @Body() data: { nombre: string }) {
+    return this.asignacionesService.updateCatalogo(Number(id), data);
+  }
+
+  @Delete('catalogo/:id')
+  deleteCatalogo(@Param('id') id: string) {
+    return this.asignacionesService.deleteCatalogo(Number(id));
   }
 
   // ================= ASIGNACIONES POR FUNCIONARIO =================

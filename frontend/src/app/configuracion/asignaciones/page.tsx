@@ -16,6 +16,8 @@ export default function AsignacionesConfigPage() {
   const [loading, setLoading] = useState(true);
   const [nuevaAsignacion, setNuevaAsignacion] = useState('');
   const [adding, setAdding] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editNombre, setEditNombre] = useState('');
 
   useEffect(() => {
     fetchAsignaciones();
@@ -57,6 +59,36 @@ export default function AsignacionesConfigPage() {
       fetchAsignaciones();
     } catch (error) {
       console.error('Error toggling asignacion:', error);
+    }
+  };
+
+  const startEdit = (asig: CatalogoAsignacion) => {
+    setEditingId(asig.id);
+    setEditNombre(asig.nombre);
+  };
+
+  const handleUpdate = async (id: number) => {
+    if (!editNombre.trim()) return;
+    try {
+      const url = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      await axios.put(`${url}/asignaciones/catalogo/${id}`, { nombre: editNombre.trim() });
+      setEditingId(null);
+      fetchAsignaciones();
+    } catch (error) {
+      console.error('Error updating asignacion:', error);
+      alert('Error al actualizar asignación');
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('¿Estás seguro de eliminar esta asignación?')) return;
+    try {
+      const url = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      await axios.delete(`${url}/asignaciones/catalogo/${id}`);
+      fetchAsignaciones();
+    } catch (error: any) {
+      console.error('Error deleting asignacion:', error);
+      alert(error.response?.data?.message || 'Error al eliminar asignación. Puede que esté en uso.');
     }
   };
 
@@ -157,18 +189,46 @@ export default function AsignacionesConfigPage() {
                     exit={{ opacity: 0, scale: 0.9 }}
                     className={`p-5 rounded-2xl border flex items-center justify-between transition-all ${asig.estado === 'ACTIVO' ? 'bg-slate-50 border-slate-200' : 'bg-slate-50/50 border-slate-100 opacity-60 grayscale'}`}
                   >
-                    <div>
-                      <h4 className="text-sm font-black text-slate-800">{asig.nombre}</h4>
-                      <p className="text-[10px] font-black uppercase tracking-widest mt-1" style={{ color: asig.estado === 'ACTIVO' ? '#10b981' : '#ef4444' }}>
-                        {asig.estado}
-                      </p>
-                    </div>
-                    <button 
-                      onClick={() => handleToggle(asig.id)}
-                      className={`w-12 h-6 rounded-full relative p-1 transition-colors ${asig.estado === 'ACTIVO' ? 'bg-emerald-500' : 'bg-slate-300'}`}
-                    >
-                      <div className={`w-4 h-4 bg-white rounded-full transition-all ${asig.estado === 'ACTIVO' ? 'ml-auto' : 'ml-0'}`}></div>
-                    </button>
+                    {editingId === asig.id ? (
+                      <div className="flex-1 mr-4 flex gap-2">
+                        <input
+                          type="text"
+                          value={editNombre}
+                          onChange={(e) => setEditNombre(e.target.value)}
+                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-900 outline-none focus:border-primary"
+                          autoFocus
+                        />
+                        <button onClick={() => handleUpdate(asig.id)} className="w-8 h-8 flex shrink-0 items-center justify-center bg-primary text-white rounded-lg hover:bg-primary/90">
+                          <span className="material-symbols-outlined text-sm">check</span>
+                        </button>
+                        <button onClick={() => setEditingId(null)} className="w-8 h-8 flex shrink-0 items-center justify-center bg-slate-200 text-slate-600 rounded-lg hover:bg-slate-300">
+                          <span className="material-symbols-outlined text-sm">close</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div>
+                          <h4 className="text-sm font-black text-slate-800">{asig.nombre}</h4>
+                          <p className="text-[10px] font-black uppercase tracking-widest mt-1" style={{ color: asig.estado === 'ACTIVO' ? '#10b981' : '#ef4444' }}>
+                            {asig.estado}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <button onClick={() => startEdit(asig)} className="text-slate-400 hover:text-primary transition-colors">
+                            <span className="material-symbols-outlined text-lg">edit</span>
+                          </button>
+                          <button onClick={() => handleDelete(asig.id)} className="text-slate-400 hover:text-rose-500 transition-colors">
+                            <span className="material-symbols-outlined text-lg">delete</span>
+                          </button>
+                          <button 
+                            onClick={() => handleToggle(asig.id)}
+                            className={`w-12 h-6 rounded-full relative p-1 transition-colors ${asig.estado === 'ACTIVO' ? 'bg-emerald-500' : 'bg-slate-300'}`}
+                          >
+                            <div className={`w-4 h-4 bg-white rounded-full transition-all ${asig.estado === 'ACTIVO' ? 'ml-auto' : 'ml-0'}`}></div>
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </motion.div>
                 ))}
               </AnimatePresence>

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -25,6 +25,21 @@ export class AsignacionesService {
       where: { id },
       data: { estado: asig.estado === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO' },
     });
+  }
+
+  async updateCatalogo(id: number, data: { nombre: string }) {
+    return this.prisma.catalogoAsignacion.update({
+      where: { id },
+      data: { nombre: data.nombre },
+    });
+  }
+
+  async deleteCatalogo(id: number) {
+    const count = await this.prisma.asignacionFuncionario.count({ where: { asignacion_id: id } });
+    if (count > 0) {
+      throw new BadRequestException('No se puede eliminar la asignación porque ya está asignada a uno o más funcionarios.');
+    }
+    return this.prisma.catalogoAsignacion.delete({ where: { id } });
   }
 
   // ================= ASIGNACIONES POR FUNCIONARIO =================
