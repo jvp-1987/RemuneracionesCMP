@@ -583,7 +583,7 @@ export default function ConsolidadoDetailPage() {
               )}
               <label className={cn(
                 "flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-700 transition-all shadow-lg",
-                user?.rol === 'CENTRO_SALUD' || user?.rol === 'ADMIN' ? "" : "opacity-50 pointer-events-none"
+                user?.rol === 'CENTRO_SALUD' || user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' ? "" : "opacity-50 pointer-events-none"
               )}>
                 <span className="material-symbols-outlined text-sm">{data.url_respaldo ? 'refresh' : 'attach_file'}</span>
                 {data.url_respaldo ? 'Cambiar Respaldo' : 'Adjuntar Respaldo'}
