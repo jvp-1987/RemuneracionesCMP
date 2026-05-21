@@ -423,7 +423,7 @@ export default function FuncionariosPage() {
       </div>
 
       {/* Establecimientos Banner */}
-      <div className="mb-10 flex gap-3 overflow-x-auto pb-4 snap-x relative z-10" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <div className="mb-10 flex gap-3 overflow-x-auto pb-6 snap-x relative z-10 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
         <button
           onClick={() => setSelectedEstablishment(null)}
           className={cn(
