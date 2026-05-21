@@ -434,6 +434,7 @@ export default function FuncionariosPage() {
                     </div>
                   </td>
                 </tr>
+              ) : (
                 Object.keys(groupedFuncionarios).sort().map((establecimiento) => {
                   const funcs = groupedFuncionarios[establecimiento].sort((a, b) => a.nombre_completo.localeCompare(b.nombre_completo));
                   return (
