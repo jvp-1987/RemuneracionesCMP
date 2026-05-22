@@ -8,44 +8,52 @@ import {
   BarChart3, 
   PieChart, 
   TrendingUp, 
-  ShieldCheck, 
+  Users, 
   Calculator, 
   Building2,
   Calendar,
-  ChevronRight,
   Download,
-  Filter
+  Filter,
+  DollarSign,
+  Activity
 } from 'lucide-react';
 
-interface Stats {
-  total_monto: number;
-  total_unidades: number;
-  certificacion_ci: number;
-  certificacion_fi: number;
+interface HRStats {
+  headcount: number;
+  by_category: { name: string; value: number }[];
+  by_profesion: { name: string; value: number }[];
+}
+
+interface FinancialStats {
+  total_haberes: number;
+  total_descuentos: number;
+  total_liquido: number;
   distribucion_gasto: { name: string; value: number }[];
 }
 
 interface CentroStat {
   id: number;
   nombre: string;
-  monto: number;
-  porcentaje_completado: number;
+  headcount: number;
+  costo_total: number;
 }
 
 export default function ReportesPage() {
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [hrStats, setHrStats] = useState<HRStats | null>(null);
+  const [financialStats, setFinancialStats] = useState<FinancialStats | null>(null);
   const [centros, setCentros] = useState<CentroStat[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [statsRes, centrosRes] = await Promise.all([
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reportes/stats`),
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reportes/centros`),
+        const [hrRes, finRes, centrosRes] = await Promise.all([
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reportes/hr-stats`),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reportes/financial-stats`),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reportes/centros-stats`),
         ]);
-        setStats(statsRes.data);
+        setHrStats(hrRes.data);
+        setFinancialStats(finRes.data);
         setCentros(centrosRes.data);
       } catch (err) {
         console.error('Error fetching report stats:', err);
@@ -60,7 +68,7 @@ export default function ReportesPage() {
     return (
       <div className="flex flex-col min-h-screen bg-surface p-12 items-center justify-center">
         <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-        <p className="mt-8 font-black uppercase tracking-[0.3em] text-outline text-xs animate-pulse">Sincronizando Matriz de Inteligencia...</p>
+        <p className="mt-8 font-black uppercase tracking-[0.3em] text-outline text-xs animate-pulse">Analizando Maestro de Remuneraciones...</p>
       </div>
     );
   }
@@ -71,21 +79,21 @@ export default function ReportesPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
         <div>
           <h2 className="text-[3.5rem] font-black leading-none tracking-tight text-primary font-headline mb-4">
-            Reportes Avanzados
+            Gestión de Personas
           </h2>
           <div className="flex items-center gap-3">
             <span className="bg-primary/10 text-primary text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-primary/20">
-              Ciclo Auditoría 2026
+              Maestro de Remuneraciones
             </span>
             <span className="text-secondary text-xs font-bold opacity-60 flex items-center gap-2">
-              <Calendar className="w-3 h-3" /> Última actualización: Hoy, 12:45 PM
+              <Calendar className="w-3 h-3" /> Último Periodo Calculado
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-4 bg-white/50 backdrop-blur-md p-2 rounded-2xl border border-outline-variant/10 shadow-sm">
           <button className="px-6 py-3 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all">
-            <Download className="w-4 h-4 text-white" /> Exportar Suite
+            <Download className="w-4 h-4 text-white" /> Exportar Informe
           </button>
           <button className="p-3 bg-white border border-outline-variant/10 rounded-xl text-secondary hover:text-primary transition-all">
             <Filter className="w-5 h-5" />
@@ -95,17 +103,46 @@ export default function ReportesPage() {
 
       {/* Main Stats Bento Grid */}
       <div className="grid grid-cols-12 gap-8 mb-12">
-        {/* Metric 1: Financial Impact */}
+        {/* Metric 1: Headcount (HR) */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          className="col-span-12 md:col-span-4 bg-white p-8 rounded-[2.5rem] border border-outline-variant/10 shadow-sm flex flex-col justify-between"
+        >
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-2">Dotación Activa (Headcount)</p>
+              <h3 className="text-5xl font-black text-on-surface tracking-tighter">
+                {hrStats?.headcount.toLocaleString('es-CL')}
+              </h3>
+            </div>
+            <div className="w-12 h-12 bg-primary/5 rounded-2xl flex items-center justify-center">
+              <Users className="w-6 h-6 text-primary" />
+            </div>
+          </div>
+          <div className="mt-8 space-y-3">
+            <p className="text-[10px] font-black text-outline uppercase tracking-wider mb-2">Distribución por Profesión (Top 3)</p>
+            {hrStats?.by_profesion.slice(0, 3).map((prof, i) => (
+              <div key={i} className="flex justify-between items-center text-xs font-bold text-on-surface-variant">
+                <span>{prof.name}</span>
+                <span className="text-primary">{prof.value}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Metric 2: Financial Impact (Costo Nómina) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
           className="col-span-12 md:col-span-4 bg-primary text-on-primary p-8 rounded-[2.5rem] shadow-xl shadow-primary/20 flex flex-col justify-between relative overflow-hidden group"
         >
           <div className="relative z-10 flex justify-between items-start">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-2">Inversión Auditada Total</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-2">Costo Total Nómina (Haberes)</p>
               <h3 className="text-5xl font-black tracking-tighter">
-                ${stats?.total_monto.toLocaleString('es-CL')}
+                ${(financialStats?.total_haberes || 0).toLocaleString('es-CL')}
               </h3>
             </div>
             <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
@@ -114,47 +151,14 @@ export default function ReportesPage() {
           </div>
           <div className="relative z-10 mt-8 flex items-center gap-4">
             <span className="flex items-center gap-1.5 text-[11px] font-black bg-white/20 px-3 py-1.5 rounded-full">
-              <TrendingUp className="w-3 h-3" /> +14.2%
+              <TrendingUp className="w-3 h-3" /> Impacto Real
             </span>
-            <p className="text-[10px] font-bold opacity-60">Sobre el promedio del trimestre anterior</p>
+            <p className="text-[10px] font-bold opacity-60">Basado en el Maestro</p>
           </div>
           <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-white/5 rounded-full blur-[80px] group-hover:scale-125 transition-transform duration-1000" />
         </motion.div>
 
-        {/* Metric 2: Certification CI */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="col-span-12 md:col-span-4 bg-white p-8 rounded-[2.5rem] border border-outline-variant/10 shadow-sm flex flex-col justify-between"
-        >
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-2">Visación Control Interno</p>
-              <h3 className="text-5xl font-black text-on-surface tracking-tighter">
-                {stats?.certificacion_ci.toFixed(1)}%
-              </h3>
-            </div>
-            <div className="w-12 h-12 bg-secondary/5 rounded-2xl flex items-center justify-center">
-              <ShieldCheck className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-          <div className="mt-8">
-            <div className="w-full h-2 bg-surface-container rounded-full overflow-hidden">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${stats?.certificacion_ci}%` }}
-                className="h-full bg-primary"
-              />
-            </div>
-            <div className="flex justify-between mt-3 text-[10px] font-black text-outline uppercase tracking-wider">
-              <span>{stats?.total_unidades} Unidades</span>
-              <span>Audit-Sync: OK</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Metric 3: Certification FI */}
+        {/* Metric 3: Total Líquido */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -163,26 +167,26 @@ export default function ReportesPage() {
         >
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-2">Validación Finanzas</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-2">Total Líquido a Pago</p>
               <h3 className="text-5xl font-black text-on-surface tracking-tighter">
-                {stats?.certificacion_fi.toFixed(1)}%
+                ${(financialStats?.total_liquido || 0).toLocaleString('es-CL')}
               </h3>
             </div>
-            <div className="w-12 h-12 bg-secondary/5 rounded-2xl flex items-center justify-center">
-              <Building2 className="w-6 h-6 text-primary" />
+            <div className="w-12 h-12 bg-success/10 rounded-2xl flex items-center justify-center">
+              <DollarSign className="w-6 h-6 text-success" />
             </div>
           </div>
           <div className="mt-8">
             <div className="w-full h-2 bg-surface-container rounded-full overflow-hidden">
               <motion.div 
                 initial={{ width: 0 }}
-                animate={{ width: `${stats?.certificacion_fi}%` }}
-                className="h-full bg-secondary"
+                animate={{ width: `${((financialStats?.total_liquido || 0) / (financialStats?.total_haberes || 1)) * 100}%` }}
+                className="h-full bg-success"
               />
             </div>
             <div className="flex justify-between mt-3 text-[10px] font-black text-outline uppercase tracking-wider">
-              <span>Nivel de cumplimiento</span>
-              <span>FI-VAL-2026</span>
+              <span>Relación Liquido/Bruto</span>
+              <span>{(((financialStats?.total_liquido || 0) / (financialStats?.total_haberes || 1)) * 100).toFixed(1)}%</span>
             </div>
           </div>
         </motion.div>
@@ -197,9 +201,9 @@ export default function ReportesPage() {
             <div>
               <h3 className="text-2xl font-black text-on-surface mb-2 tracking-tight flex items-center gap-3">
                 <BarChart3 className="w-6 h-6 text-primary" />
-                Desglose Financiero por Unidad
+                Costo Financiero por Establecimiento
               </h3>
-              <p className="text-sm text-secondary font-bold">Comparativa de montos totales validados por CESFAM</p>
+              <p className="text-sm text-secondary font-bold">Distribución de dotación (Headcount) y gasto total bruto</p>
             </div>
           </div>
 
@@ -207,24 +211,21 @@ export default function ReportesPage() {
             {centros.map((centro, idx) => (
               <div key={centro.id} className="group cursor-pointer">
                 <div className="flex justify-between items-end mb-2">
-                  <span className="text-[13px] font-black text-on-surface group-hover:text-primary transition-colors">{centro.nombre}</span>
-                  <span className="text-xs font-bold text-outline">${centro.monto.toLocaleString('es-CL')}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] font-black text-on-surface group-hover:text-primary transition-colors">{centro.nombre}</span>
+                    <span className="text-[10px] font-bold bg-surface-container px-2 py-0.5 rounded text-outline">{centro.headcount} func.</span>
+                  </div>
+                  <span className="text-xs font-bold text-outline">${centro.costo_total.toLocaleString('es-CL')}</span>
                 </div>
                 <div className="w-full h-8 bg-surface-container rounded-xl overflow-hidden relative">
                   <motion.div 
                     initial={{ width: 0 }}
-                    animate={{ width: `${(centro.monto / (stats?.total_monto || 1)) * 300}%` }} // Simplified ratio for visualization
+                    animate={{ width: `${(centro.costo_total / (financialStats?.total_haberes || 1)) * 100}%` }}
                     className={cn(
                       "h-full transition-colors duration-500",
                       idx % 2 === 0 ? "bg-primary/80 group-hover:bg-primary" : "bg-secondary/70 group-hover:bg-secondary"
                     )}
                   />
-                  {centro.porcentaje_completado === 100 && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                      <ShieldCheck className="w-3 h-3 text-white" />
-                      <span className="text-[9px] font-black text-white uppercase tracking-tighter">Certificado</span>
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
@@ -235,17 +236,17 @@ export default function ReportesPage() {
         <div className="col-span-12 lg:col-span-4 bg-surface-container-low p-10 rounded-[3rem] border border-outline-variant/10">
           <h3 className="text-2xl font-black text-on-surface mb-8 tracking-tight flex items-center gap-3">
             <PieChart className="w-6 h-6 text-secondary" />
-            Distribución
+            Distribución del Gasto
           </h3>
           
           <div className="relative w-full aspect-square flex items-center justify-center mb-8">
             <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-              {stats?.distribucion_gasto.map((item, idx) => {
-                const total = stats.total_monto || 1;
+              {financialStats?.distribucion_gasto.map((item, idx) => {
+                const total = financialStats.total_haberes || 1;
                 const percentage = (item.value / total) * 100;
                 let offset = 0;
                 for (let i = 0; i < idx; i++) {
-                  offset += (stats.distribucion_gasto[i].value / total) * 100;
+                  offset += (financialStats.distribucion_gasto[i].value / total) * 100;
                 }
                 return (
                   <motion.circle
@@ -269,12 +270,14 @@ export default function ReportesPage() {
             </svg>
             <div className="absolute flex flex-col items-center">
               <span className="text-[10px] font-black text-outline uppercase tracking-widest">Gasto Dominante</span>
-              <span className="text-lg font-black text-primary">HE 25%</span>
+              <span className="text-lg font-black text-primary">
+                {financialStats?.distribucion_gasto[0] ? `${((financialStats.distribucion_gasto[0].value / (financialStats.total_haberes || 1)) * 100).toFixed(1)}%` : '0%'}
+              </span>
             </div>
           </div>
 
           <div className="space-y-4">
-            {stats?.distribucion_gasto.map((item, idx) => (
+            {financialStats?.distribucion_gasto.map((item, idx) => (
               <div key={item.name} className="flex items-center justify-between group">
                 <div className="flex items-center gap-3">
                   <div className={cn(
@@ -284,7 +287,7 @@ export default function ReportesPage() {
                   <span className="text-xs font-bold text-on-surface-variant group-hover:text-primary transition-colors">{item.name}</span>
                 </div>
                 <span className="text-xs font-black text-on-surface">
-                  {((item.value / (stats.total_monto || 1)) * 100).toFixed(1)}%
+                  {((item.value / (financialStats.total_haberes || 1)) * 100).toFixed(1)}%
                 </span>
               </div>
             ))}
@@ -298,19 +301,10 @@ export default function ReportesPage() {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-[10px] font-black text-primary uppercase tracking-widest">Sincronizado con Host-Cloud</span>
+            <span className="text-[10px] font-black text-primary uppercase tracking-widest">Sincronizado con Maestro Remuneraciones</span>
           </div>
           <div className="h-4 w-[1px] bg-outline-variant" />
-          <span className="text-[10px] font-black text-outline uppercase tracking-widest italic">Confidencial - Uso Exclusivo Auditories CMP</span>
-        </div>
-        
-        <div className="flex items-center gap-4">
-           <button className="text-[10px] font-black text-on-surface-variant bg-surface-container/50 px-4 py-2 rounded-xl hover:bg-white transiton-all border border-transparent hover:border-outline-variant/20">
-            Manual de Glosas
-           </button>
-           <button className="text-[10px] font-black text-white bg-on-background px-6 py-2 rounded-xl hover:brightness-125 transition-all shadow-lg active:scale-95">
-            Generar Certificado Anual
-           </button>
+          <span className="text-[10px] font-black text-outline uppercase tracking-widest italic">Confidencial - Jefaturas RRHH</span>
         </div>
       </footer>
     </div>

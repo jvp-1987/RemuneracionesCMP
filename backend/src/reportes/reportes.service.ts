@@ -5,87 +5,121 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ReportesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getGlobalStats() {
-    const [
-      totalHE,
-      totalViaticos,
-      totalTurnos,
-      totalProcedimientos,
-      consolidadosStatus,
-    ] = await Promise.all([
-      this.prisma.horasExtras.aggregate({
-        _sum: { monto_25: true, monto_50: true },
-      }),
-      this.prisma.viaticos.aggregate({
-        _sum: { monto_calculado: true },
-      }),
-      this.prisma.turnosUrgencia.aggregate({
-        _sum: { monto_calculado: true },
-      }),
-      this.prisma.procedimientos.aggregate({
-        _sum: { monto_calculado: true },
-      }),
-      this.prisma.consolidado.findMany({
-        select: {
-          vb_control_interno: true,
-          vb_finanzas: true,
-        },
-      }),
-    ]);
-
-    const totalMoney = 
-      Number(totalHE._sum.monto_25 || 0) + 
-      Number(totalHE._sum.monto_50 || 0) + 
-      Number(totalViaticos._sum.monto_calculado || 0) + 
-      Number(totalTurnos._sum.monto_calculado || 0) + 
-      Number(totalProcedimientos._sum.monto_calculado || 0);
-
-    const totalConsolidados = consolidadosStatus.length;
-    const certControlInterno = consolidadosStatus.filter(c => c.vb_control_interno).length;
-    const certFinanzas = consolidadosStatus.filter(c => c.vb_finanzas).length;
-
-    return {
-      total_monto: totalMoney,
-      total_unidades: totalConsolidados,
-      certificacion_ci: totalConsolidados > 0 ? (certControlInterno / totalConsolidados) * 100 : 0,
-      certificacion_fi: totalConsolidados > 0 ? (certFinanzas / totalConsolidados) * 100 : 0,
-      distribucion_gasto: [
-        { name: 'Horas Extras', value: Number(totalHE._sum.monto_25 || 0) + Number(totalHE._sum.monto_50 || 0) },
-        { name: 'Viáticos', value: Number(totalViaticos._sum.monto_calculado || 0) },
-        { name: 'Turnos Urgencia', value: Number(totalTurnos._sum.monto_calculado || 0) },
-        { name: 'Procedimientos', value: Number(totalProcedimientos._sum.monto_calculado || 0) },
+  private async getLatestPeriodId() {
+    const period = await this.prisma.periodo.findFirst({
+      orderBy: [
+        { anio: 'desc' },
+        { mes: 'desc' }
       ]
+    });
+    return period?.id;
+  }
+
+  async getHRStats() {
+    const periodId = await this.getLatestPeriodId();
+    if (!periodId) return { headcount: 0, by_category: [], by_profesion: [] };
+
+    const liquidaciones = await this.prisma.liquidacionMensual.findMany({
+      where: { periodo_id: periodId },
+      include: {
+        funcionario: true
+      }
+    });
+
+    const headcount = liquidaciones.length;
+    
+    // Dist by profesion
+    const by_profesion = liquidaciones.reduce((acc, l) => {
+      const prof = l.funcionario.profesion_enum || 'Sin Profesión';
+      acc[prof] = (acc[prof] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Dist by category
+    const by_category = liquidaciones.reduce((acc, l) => {
+      const cat = l.funcionario.categoria_aps ? `Cat. ${l.funcionario.categoria_aps}` : 'S/C';
+      acc[cat] = (acc[cat] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // format to arrays
+    return {
+      headcount,
+      by_profesion: Object.entries(by_profesion).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
+      by_category: Object.entries(by_category).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
     };
   }
 
-  async getStatsByCentro() {
-    const centros = await this.prisma.centroSalud.findMany({
+  async getFinancialStats() {
+    const periodId = await this.getLatestPeriodId();
+    if (!periodId) return { total_haberes: 0, total_descuentos: 0, total_liquido: 0, distribucion_gasto: [] };
+
+    const aggr = await this.prisma.liquidacionMensual.aggregate({
+      where: { periodo_id: periodId },
+      _sum: {
+        sueldo_base: true,
+        total_haberes: true,
+        total_descuentos: true,
+        monto_liquido: true,
+        monto_he_pagado: true,
+        monto_viaticos_real: true
+      }
+    });
+
+    const total_sueldo_base = Number(aggr._sum.sueldo_base || 0);
+    const total_haberes = Number(aggr._sum.total_haberes || 0);
+    const total_descuentos = Number(aggr._sum.total_descuentos || 0);
+    const total_liquido = Number(aggr._sum.monto_liquido || 0);
+    const total_he = Number(aggr._sum.monto_he_pagado || 0);
+    const total_viaticos = Number(aggr._sum.monto_viaticos_real || 0);
+
+    // Variables = total_haberes - sueldo_base
+    const haberes_variables = total_haberes - total_sueldo_base;
+    let otros_haberes = haberes_variables - total_he - total_viaticos;
+    if (otros_haberes < 0) otros_haberes = 0;
+
+    return {
+      total_haberes,
+      total_descuentos,
+      total_liquido,
+      distribucion_gasto: [
+        { name: 'Sueldo Base', value: total_sueldo_base },
+        { name: 'Horas Extras', value: total_he },
+        { name: 'Viáticos', value: total_viaticos },
+        { name: 'Otros Haberes', value: otros_haberes }
+      ].filter(item => item.value > 0).sort((a, b) => b.value - a.value)
+    };
+  }
+
+  async getCentrosStats() {
+    const periodId = await this.getLatestPeriodId();
+    if (!periodId) return [];
+
+    const liquidaciones = await this.prisma.liquidacionMensual.findMany({
+      where: { periodo_id: periodId },
       include: {
-        consolidados: {
+        funcionario: {
           include: {
-            horas_extras: true,
-            viaticos: true,
+            centro_salud: true
           }
         }
       }
     });
 
-    return centros.map(centro => {
-      let montoTotal = 0;
-      centro.consolidados.forEach(c => {
-        c.horas_extras.forEach(h => montoTotal += Number(h.monto_25) + Number(h.monto_50));
-        c.viaticos.forEach(v => montoTotal += Number(v.monto_calculado));
-      });
+    const centrosMap = liquidaciones.reduce((acc, l) => {
+      const centro = l.funcionario.centro_salud;
+      const centroId = centro?.id || 0;
+      const centroName = centro?.nombre || 'Sin Establecimiento';
 
-      const certificados = centro.consolidados.filter(c => c.vb_control_interno && c.vb_finanzas).length;
-      const total = centro.consolidados.length;
+      if (!acc[centroId]) {
+        acc[centroId] = { id: centroId, nombre: centroName, headcount: 0, costo_total: 0 };
+      }
+      
+      acc[centroId].headcount += 1;
+      acc[centroId].costo_total += Number(l.total_haberes || 0);
+      return acc;
+    }, {} as Record<number, any>);
 
-      return {
-        id: centro.id,
-        nombre: centro.nombre,
-        monto: montoTotal,
-        porcentaje_completado: total > 0 ? (certificados / total) * 100 : 0,
-      };
-    });
+    return Object.values(centrosMap).sort((a: any, b: any) => b.costo_total - a.costo_total);
   }
 }

@@ -7,13 +7,18 @@ import { ReportesService } from './reportes.service';
 export class ReportesController {
   constructor(private readonly reportesService: ReportesService) {}
 
-  @Get('stats')
-  getGlobalStats() {
-    return this.reportesService.getGlobalStats();
+  @Get('hr-stats')
+  getHRStats() {
+    return this.reportesService.getHRStats();
   }
 
-  @Get('centros')
-  getStatsByCentro() {
-    return this.reportesService.getStatsByCentro();
+  @Get('financial-stats')
+  getFinancialStats() {
+    return this.reportesService.getFinancialStats();
+  }
+
+  @Get('centros-stats')
+  getCentrosStats() {
+    return this.reportesService.getCentrosStats();
   }
 }
