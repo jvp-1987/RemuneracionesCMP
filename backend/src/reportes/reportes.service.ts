@@ -7,6 +7,9 @@ export class ReportesService {
 
   private async getLatestPeriodId() {
     const period = await this.prisma.periodo.findFirst({
+      where: {
+        liquidaciones: { some: {} }
+      },
       orderBy: [
         { anio: 'desc' },
         { mes: 'desc' }
