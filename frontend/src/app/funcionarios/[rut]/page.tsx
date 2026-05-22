@@ -131,7 +131,12 @@ export default function FuncionarioDetailPage() {
                 </div>
                 <div className="mt-12 space-y-6 pt-8 border-t border-outline-variant/5">
                   <HeroField label="Establecimiento" value={funcionario.centro_salud?.nombre || 'Sin asignar'} />
-                  <HeroField label="Sueldo Base" value={`$${Math.round(funcionario.sueldo_base || 0).toLocaleString('es-CL')}`} />
+                  <HeroField 
+                    label="Sueldo Base" 
+                    value={`$${Math.round(
+                      (funcionario.remuneracion_presupuesto?.escala_base || 0) + (funcionario.remuneracion_presupuesto?.asignacion_aps || 0) || funcionario.sueldo_base || 0
+                    ).toLocaleString('es-CL')}`} 
+                  />
                   <HeroField label="Ley Médica" value={`Cat. ${funcionario.categoria_aps} • Niv. ${funcionario.nivel_aps}`} />
                   <HeroField label="Jornada" value={`${funcionario.jornada_horas} hrs / Semanal`} border={false} />
                 </div>
