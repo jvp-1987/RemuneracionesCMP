@@ -5,8 +5,8 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ReportesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private async getLatestPeriodId() {
-    const period = await this.prisma.periodo.findFirst({
+  private async getLatestPeriod() {
+    return this.prisma.periodo.findFirst({
       where: {
         liquidaciones: { some: {} }
       },
@@ -15,12 +15,12 @@ export class ReportesService {
         { mes: 'desc' }
       ]
     });
-    return period?.id;
   }
 
   async getHRStats() {
-    const periodId = await this.getLatestPeriodId();
-    if (!periodId) return { headcount: 0, by_category: [], by_profesion: [] };
+    const period = await this.getLatestPeriod();
+    if (!period) return { headcount: 0, by_category: [], by_profesion: [], periodo: null };
+    const periodId = period.id;
 
     const liquidaciones = await this.prisma.liquidacionMensual.findMany({
       where: { periodo_id: periodId },
@@ -54,8 +54,9 @@ export class ReportesService {
   }
 
   async getFinancialStats() {
-    const periodId = await this.getLatestPeriodId();
-    if (!periodId) return { total_haberes: 0, total_descuentos: 0, total_liquido: 0, distribucion_gasto: [] };
+    const period = await this.getLatestPeriod();
+    if (!period) return { total_haberes: 0, total_descuentos: 0, total_liquido: 0, distribucion_gasto: [] };
+    const periodId = period.id;
 
     const aggr = await this.prisma.liquidacionMensual.aggregate({
       where: { periodo_id: periodId },
@@ -95,8 +96,9 @@ export class ReportesService {
   }
 
   async getCentrosStats() {
-    const periodId = await this.getLatestPeriodId();
-    if (!periodId) return [];
+    const period = await this.getLatestPeriod();
+    if (!period) return [];
+    const periodId = period.id;
 
     const liquidaciones = await this.prisma.liquidacionMensual.findMany({
       where: { periodo_id: periodId },

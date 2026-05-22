@@ -22,7 +22,10 @@ interface HRStats {
   headcount: number;
   by_category: { name: string; value: number }[];
   by_profesion: { name: string; value: number }[];
+  periodo?: { mes: number; anio: number };
 }
+
+const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
 interface FinancialStats {
   total_haberes: number;
@@ -44,8 +47,6 @@ export default function ReportesPage() {
   const [centros, setCentros] = useState<CentroStat[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -60,7 +61,6 @@ export default function ReportesPage() {
         setCentros(centrosRes.data);
       } catch (err: any) {
         console.error('Error fetching report stats:', err);
-        setErrorMsg(err.message + " | API: " + process.env.NEXT_PUBLIC_API_URL);
       } finally {
         setLoading(false);
       }
@@ -85,17 +85,12 @@ export default function ReportesPage() {
           <h2 className="text-[3.5rem] font-black leading-none tracking-tight text-primary font-headline mb-4">
             Gestión de Personas
           </h2>
-          {errorMsg && (
-            <div className="bg-red-100 text-red-800 p-4 rounded-xl mb-4 text-xs font-bold border border-red-200">
-              ⚠️ {errorMsg}
-            </div>
-          )}
           <div className="flex items-center gap-3">
             <span className="bg-primary/10 text-primary text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-primary/20">
               Maestro de Remuneraciones
             </span>
             <span className="text-secondary text-xs font-bold opacity-60 flex items-center gap-2">
-              <Calendar className="w-3 h-3" /> Último Periodo Calculado
+              <Calendar className="w-3 h-3" /> {hrStats?.periodo ? `${MONTHS[hrStats.periodo.mes - 1]} ${hrStats.periodo.anio}` : 'Último Periodo Calculado'}
             </span>
           </div>
         </div>
