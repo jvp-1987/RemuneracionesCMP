@@ -44,6 +44,8 @@ export default function ReportesPage() {
   const [centros, setCentros] = useState<CentroStat[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -55,8 +57,9 @@ export default function ReportesPage() {
         setHrStats(hrRes.data);
         setFinancialStats(finRes.data);
         setCentros(centrosRes.data);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching report stats:', err);
+        setErrorMsg(err.message + " | API: " + process.env.NEXT_PUBLIC_API_URL);
       } finally {
         setLoading(false);
       }
@@ -81,6 +84,11 @@ export default function ReportesPage() {
           <h2 className="text-[3.5rem] font-black leading-none tracking-tight text-primary font-headline mb-4">
             Gestión de Personas
           </h2>
+          {errorMsg && (
+            <div className="bg-red-100 text-red-800 p-4 rounded-xl mb-4 text-xs font-bold border border-red-200">
+              ⚠️ {errorMsg}
+            </div>
+          )}
           <div className="flex items-center gap-3">
             <span className="bg-primary/10 text-primary text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-primary/20">
               Maestro de Remuneraciones
