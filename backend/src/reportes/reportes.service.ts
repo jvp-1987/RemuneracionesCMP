@@ -50,6 +50,7 @@ export class ReportesService {
       headcount,
       by_profesion: Object.entries(by_profesion).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
       by_category: Object.entries(by_category).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
+      periodo: period,
     };
   }
 
