@@ -49,10 +49,11 @@ export default function ReportesPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
         const [hrRes, finRes, centrosRes] = await Promise.all([
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reportes/hr-stats`),
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reportes/financial-stats`),
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/reportes/centros-stats`),
+          axios.get(`${apiUrl}/reportes/hr-stats`),
+          axios.get(`${apiUrl}/reportes/financial-stats`),
+          axios.get(`${apiUrl}/reportes/centros-stats`),
         ]);
         setHrStats(hrRes.data);
         setFinancialStats(finRes.data);
