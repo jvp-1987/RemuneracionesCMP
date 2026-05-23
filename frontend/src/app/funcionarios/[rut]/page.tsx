@@ -64,15 +64,23 @@ export default function FuncionarioDetailPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'perfil' | 'historial' | 'contratos' | 'ausentismos' | 'resoluciones' | 'asignaciones'>('perfil');
   const [selectedRawData, setSelectedRawData] = useState<any | null>(null);
+  const [catalogo, setCatalogo] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-        const res = await axios.get(`${apiUrl}/funcionarios/${rut}`);
-        setFuncionario(res.data);
+        
+        // Fetch data in parallel
+        const [funcRes, catRes] = await Promise.all([
+          axios.get(`${apiUrl}/funcionarios/${rut}`),
+          axios.get(`${apiUrl}/asignaciones/catalogo`).catch(() => ({ data: [] }))
+        ]);
+        
+        setFuncionario(funcRes.data);
+        setCatalogo(catRes.data.filter((c: any) => c.estado === 'ACTIVO'));
       } catch (err) {
-        console.error('Error fetching funcionario:', err);
+        console.error('Error fetching data:', err);
       } finally {
         setLoading(false);
       }
@@ -302,8 +310,13 @@ export default function FuncionarioDetailPage() {
                   className="space-y-4"
                 >
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase">ID de Catálogo (A futuro será un Select)</label>
-                    <input name="asignacion_id" type="number" required className="w-full text-sm bg-white border border-slate-200 rounded-xl px-4 py-2" placeholder="ID (ej: 1)"/>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Tipo de Asignación / Beneficio</label>
+                    <select name="asignacion_id" required className="w-full text-sm bg-white border border-slate-200 rounded-xl px-4 py-2">
+                      <option value="">Seleccione una asignación...</option>
+                      {catalogo.map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
