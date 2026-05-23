@@ -17,30 +17,45 @@ export class ReportesService {
     });
   }
 
-  async getHRStats() {
-    const period = await this.getLatestPeriod();
-    if (!period) return { headcount: 0, by_category: [], by_profesion: [], periodo: null };
-    const periodId = period.id;
+  private async getPeriodsFilter(periodoIds?: number[]) {
+    if (periodoIds && periodoIds.length > 0) {
+      return { in: periodoIds };
+    }
+    const latest = await this.getLatestPeriod();
+    return latest ? latest.id : 0;
+  }
+
+  async getHRStats(periodoIds?: number[]) {
+    const periodFilter = await this.getPeriodsFilter(periodoIds);
+    if (!periodFilter || periodFilter === 0) return { headcount: 0, by_category: [], by_profesion: [], periodo: null };
 
     const liquidaciones = await this.prisma.liquidacionMensual.findMany({
-      where: { periodo_id: periodId },
+      where: { periodo_id: periodFilter },
       include: {
         funcionario: true
       }
     });
 
-    const headcount = liquidaciones.length;
+    const distinctFuncionariosMap = new Map();
+    liquidaciones.forEach(l => {
+      if (!distinctFuncionariosMap.has(l.funcionario_rut)) {
+        distinctFuncionariosMap.set(l.funcionario_rut, l.funcionario);
+      }
+    });
+
+    const uniqueFuncionarios = Array.from(distinctFuncionariosMap.values());
+    const headcount = uniqueFuncionarios.length;
     
     // Dist by profesion
-    const by_profesion = liquidaciones.reduce((acc, l) => {
-      const prof = l.funcionario.profesion_enum || 'Sin Profesión';
+    const by_profesion = uniqueFuncionarios.reduce((acc, f: any) => {
+      const prof = f.profesion_enum || 'Sin Profesión';
       acc[prof] = (acc[prof] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
     // Dist by category
-    const by_category = liquidaciones.reduce((acc, l) => {
-      const cat = l.funcionario.categoria_aps ? `Cat. ${l.funcionario.categoria_aps}` : 'S/C';
+    const by_category = uniqueFuncionarios.reduce((acc, f: any) => {
+      const cat = f.categoria_aps ? `Cat. ${f.categoria_aps}` : 'S/C';
       acc[cat] = (acc[cat] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -48,19 +63,18 @@ export class ReportesService {
     // format to arrays
     return {
       headcount,
-      by_profesion: Object.entries(by_profesion).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
-      by_category: Object.entries(by_category).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
-      periodo: period,
+      by_profesion: Object.entries(by_profesion).map(([name, value]) => ({ name, value })).sort((a: any, b: any) => b.value - a.value),
+      by_category: Object.entries(by_category).map(([name, value]) => ({ name, value })).sort((a: any, b: any) => b.value - a.value),
+      periodo: null,
     };
   }
 
-  async getFinancialStats() {
-    const period = await this.getLatestPeriod();
-    if (!period) return { total_haberes: 0, total_descuentos: 0, total_liquido: 0, distribucion_gasto: [] };
-    const periodId = period.id;
+  async getFinancialStats(periodoIds?: number[]) {
+    const periodFilter = await this.getPeriodsFilter(periodoIds);
+    if (!periodFilter || periodFilter === 0) return { total_haberes: 0, total_descuentos: 0, total_liquido: 0, distribucion_gasto: [] };
 
     const aggr = await this.prisma.liquidacionMensual.aggregate({
-      where: { periodo_id: periodId },
+      where: { periodo_id: periodFilter },
       _sum: {
         sueldo_base: true,
         total_haberes: true,
@@ -96,13 +110,12 @@ export class ReportesService {
     };
   }
 
-  async getCentrosStats() {
-    const period = await this.getLatestPeriod();
-    if (!period) return [];
-    const periodId = period.id;
+  async getCentrosStats(periodoIds?: number[]) {
+    const periodFilter = await this.getPeriodsFilter(periodoIds);
+    if (!periodFilter || periodFilter === 0) return [];
 
     const liquidaciones = await this.prisma.liquidacionMensual.findMany({
-      where: { periodo_id: periodId },
+      where: { periodo_id: periodFilter },
       include: {
         funcionario: {
           include: {
@@ -112,6 +125,8 @@ export class ReportesService {
       }
     });
 
+    const uniqueByCentro = new Map();
+
     const centrosMap = liquidaciones.reduce((acc, l) => {
       const centro = l.funcionario.centro_salud;
       const centroId = centro?.id || 0;
@@ -119,9 +134,15 @@ export class ReportesService {
 
       if (!acc[centroId]) {
         acc[centroId] = { id: centroId, nombre: centroName, headcount: 0, costo_total: 0 };
+        uniqueByCentro.set(centroId, new Set());
       }
       
-      acc[centroId].headcount += 1;
+      const rutSet = uniqueByCentro.get(centroId);
+      if (!rutSet.has(l.funcionario_rut)) {
+        rutSet.add(l.funcionario_rut);
+        acc[centroId].headcount += 1;
+      }
+
       acc[centroId].costo_total += Number(l.total_haberes || 0);
       return acc;
     }, {} as Record<number, any>);

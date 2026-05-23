@@ -46,15 +46,47 @@ export default function ReportesPage() {
   const [financialStats, setFinancialStats] = useState<FinancialStats | null>(null);
   const [centros, setCentros] = useState<CentroStat[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  const [availablePeriods, setAvailablePeriods] = useState<{ id: number; mes: number; anio: number }[]>([]);
+  const [selectedPeriods, setSelectedPeriods] = useState<number[]>([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const init = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+        const perRes = await axios.get(`${apiUrl}/periodos`);
+        const periods = perRes.data.sort((a: any, b: any) => {
+          if (b.anio !== a.anio) return b.anio - a.anio;
+          return b.mes - a.mes;
+        });
+        setAvailablePeriods(periods);
+        if (periods.length > 0) {
+          setSelectedPeriods([periods[0].id]);
+        } else {
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Error fetching periods:', err);
+        setLoading(false);
+      }
+    };
+    init();
+  }, []);
+
+  useEffect(() => {
+    if (selectedPeriods.length === 0 && availablePeriods.length > 0) return;
+    if (availablePeriods.length === 0) return;
+
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+        const params = { periodoIds: selectedPeriods.join(',') };
         const [hrRes, finRes, centrosRes] = await Promise.all([
-          axios.get(`${apiUrl}/reportes/hr-stats`),
-          axios.get(`${apiUrl}/reportes/financial-stats`),
-          axios.get(`${apiUrl}/reportes/centros-stats`),
+          axios.get(`${apiUrl}/reportes/hr-stats`, { params }),
+          axios.get(`${apiUrl}/reportes/financial-stats`, { params }),
+          axios.get(`${apiUrl}/reportes/centros-stats`, { params }),
         ]);
         setHrStats(hrRes.data);
         setFinancialStats(finRes.data);
@@ -66,7 +98,7 @@ export default function ReportesPage() {
       }
     };
     fetchData();
-  }, []);
+  }, [selectedPeriods, availablePeriods]);
 
   if (loading) {
     return (
@@ -90,12 +122,46 @@ export default function ReportesPage() {
               Maestro de Remuneraciones
             </span>
             <span className="text-secondary text-xs font-bold opacity-60 flex items-center gap-2">
-              <Calendar className="w-3 h-3" /> {hrStats?.periodo ? `${MONTHS[hrStats.periodo.mes - 1]} ${hrStats.periodo.anio}` : 'Último Periodo Calculado'}
+              <Calendar className="w-3 h-3" /> {selectedPeriods.length === 1 ? '1 Período Seleccionado' : `${selectedPeriods.length} Períodos Seleccionados`}
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-4 bg-white/50 backdrop-blur-md p-2 rounded-2xl border border-outline-variant/10 shadow-sm">
+          <div className="relative">
+            <button 
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="px-4 py-3 bg-white border border-outline-variant/10 rounded-xl text-xs font-black uppercase tracking-widest text-primary hover:border-primary/30 transition-all outline-none cursor-pointer flex items-center gap-2"
+            >
+              Filtro Períodos
+              <span className="bg-primary text-white px-2 py-0.5 rounded-full text-[10px]">{selectedPeriods.length}</span>
+            </button>
+            {dropdownOpen && (
+              <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-outline-variant/10 p-3 z-50 max-h-64 overflow-y-auto">
+                <div className="flex justify-between items-center mb-3 pb-2 border-b border-outline-variant/10">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-secondary">Períodos Disponibles</span>
+                  <button onClick={() => setDropdownOpen(false)} className="text-[10px] text-primary hover:underline">Cerrar</button>
+                </div>
+                {availablePeriods.map(p => (
+                  <label key={p.id} className="flex items-center gap-3 p-2 hover:bg-surface-container rounded-lg cursor-pointer transition-colors">
+                    <input 
+                      type="checkbox" 
+                      checked={selectedPeriods.includes(p.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedPeriods([...selectedPeriods, p.id]);
+                        } else {
+                          setSelectedPeriods(selectedPeriods.filter(id => id !== p.id));
+                        }
+                      }}
+                      className="w-4 h-4 rounded text-primary focus:ring-primary"
+                    />
+                    <span className="text-xs font-bold text-on-surface">{MONTHS[p.mes - 1]} {p.anio}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
           <button className="px-6 py-3 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all">
             <Download className="w-4 h-4 text-white" /> Exportar Informe
           </button>
