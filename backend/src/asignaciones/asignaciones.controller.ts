@@ -55,6 +55,12 @@ export class AsignacionesController {
     return this.asignacionesService.toggleAsignacionFuncionarioEstado(Number(id));
   }
 
+  // ================= TODAS LAS ASIGNACIONES =================
+  @Get('todas')
+  getAsignacionesTodas() {
+    return this.asignacionesService.getAsignacionesTodas();
+  }
+
   // ================= VERIFICACIÓN MENSUAL =================
   @Post('verificacion/generar/:periodoId')
   generarVerificacionMensual(@Param('periodoId') periodoId: string) {

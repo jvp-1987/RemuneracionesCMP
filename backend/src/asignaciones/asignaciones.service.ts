@@ -102,6 +102,24 @@ export class AsignacionesService {
     });
   }
 
+  // ================= TODAS LAS ASIGNACIONES (VISTA GLOBAL) =================
+  async getAsignacionesTodas() {
+    return this.prisma.asignacionFuncionario.findMany({
+      include: {
+        catalogo: true,
+        funcionario: {
+          include: {
+            centro_salud: true,
+          }
+        }
+      },
+      orderBy: [
+        { funcionario: { nombre_completo: 'asc' } },
+        { catalogo: { nombre: 'asc' } }
+      ]
+    });
+  }
+
   // ================= VERIFICACIÓN MENSUAL =================
   async generarVerificacionMensual(periodoId: number) {
     const periodo = await this.prisma.periodo.findUnique({ where: { id: periodoId } });
