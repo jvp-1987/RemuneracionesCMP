@@ -304,6 +304,13 @@ export default function ConsolidadoDetailPage() {
   };
 
   const handleToggleValidation = async (field: 'vb_control_interno' | 'vb_finanzas', value: boolean) => {
+    const fieldName = field === 'vb_control_interno' ? 'V°B° CONTROL INTERNO' : 'V°B° FINANZAS';
+    const action = value ? 'activar' : 'quitar';
+    
+    if (!window.confirm(`¿Estás seguro de que deseas ${action} el ${fieldName}?`)) {
+      return;
+    }
+
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       await axios.patch(`${apiUrl}/consolidados/${id}`, { [field]: value });
