@@ -32,7 +32,11 @@ export class ReportesService {
     const liquidaciones = await this.prisma.liquidacionMensual.findMany({
       where: { periodo_id: periodFilter },
       include: {
-        funcionario: true
+        funcionario: {
+          include: {
+            contratos: true
+          }
+        }
       }
     });
 
@@ -60,11 +64,21 @@ export class ReportesService {
       return acc;
     }, {} as Record<string, number>);
 
+    // Dist by contrato
+    const by_contrato = uniqueFuncionarios.reduce((acc, f: any) => {
+      // Tomamos el tipo de contrato del contrato más reciente o uno activo
+      const activeContrato = f.contratos && f.contratos.length > 0 ? f.contratos[0] : null;
+      const tipo = activeContrato ? activeContrato.tipo_contrato : 'Sin Contrato';
+      acc[tipo] = (acc[tipo] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
     // format to arrays
     return {
       headcount,
       by_profesion: Object.entries(by_profesion).map(([name, value]) => ({ name, value })).sort((a: any, b: any) => b.value - a.value),
       by_category: Object.entries(by_category).map(([name, value]) => ({ name, value })).sort((a: any, b: any) => b.value - a.value),
+      by_contrato: Object.entries(by_contrato).map(([name, value]) => ({ name, value })).sort((a: any, b: any) => b.value - a.value),
       periodo: null,
     };
   }

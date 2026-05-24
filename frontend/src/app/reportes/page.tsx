@@ -22,6 +22,7 @@ interface HRStats {
   headcount: number;
   by_category: { name: string; value: number }[];
   by_profesion: { name: string; value: number }[];
+  by_contrato?: { name: string; value: number }[];
   periodo?: { mes: number; anio: number };
 }
 
@@ -363,7 +364,54 @@ export default function ReportesPage() {
             ))}
           </div>
         </div>
+      </div>
 
+      {/* Tipos de Contrato Proportion Bar */}
+      <div className="bg-white p-10 rounded-[3rem] shadow-xl shadow-slate-200/40 border border-outline-variant/5 mb-12">
+        <div className="mb-8">
+          <h3 className="text-2xl font-black text-on-surface tracking-tight flex items-center gap-3">
+            <Users className="w-6 h-6 text-primary" />
+            Tipos de Contrato (Dotación)
+          </h3>
+          <p className="text-sm text-secondary font-bold mt-2">Proporción de modalidades contractuales del personal</p>
+        </div>
+        
+        <div className="w-full h-8 flex rounded-xl overflow-hidden mb-8">
+          {hrStats?.by_contrato?.map((item, idx) => {
+            const total = hrStats.headcount || 1;
+            const percentage = (item.value / total) * 100;
+            const colors = ['bg-primary', 'bg-secondary', 'bg-primary-container', 'bg-emerald-500', 'bg-amber-500'];
+            return (
+              <motion.div 
+                key={item.name} 
+                initial={{ width: 0 }}
+                animate={{ width: `${percentage}%` }}
+                className={cn("h-full transition-colors hover:brightness-110", colors[idx % colors.length])}
+                title={`${item.name}: ${item.value}`}
+              />
+            );
+          })}
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {hrStats?.by_contrato?.map((item, idx) => {
+            const total = hrStats.headcount || 1;
+            const percentage = (item.value / total) * 100;
+            const colors = ['bg-primary', 'bg-secondary', 'bg-primary-container', 'bg-emerald-500', 'bg-amber-500'];
+            return (
+              <div key={item.name} className="flex items-start gap-3">
+                <div className={cn("w-3 h-3 rounded-full mt-1 shrink-0", colors[idx % colors.length])} />
+                <div>
+                  <span className="block text-[10px] font-black text-outline uppercase tracking-wider">{item.name}</span>
+                  <div className="flex items-end gap-2 mt-1">
+                    <span className="text-2xl font-black text-on-surface leading-none">{item.value}</span>
+                    <span className="text-xs font-bold text-outline mb-0.5">{percentage.toFixed(1)}%</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Action Footer Meta */}
