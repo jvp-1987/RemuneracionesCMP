@@ -146,6 +146,7 @@ export default function FuncionarioDetailPage() {
                     ).toLocaleString('es-CL')}`} 
                   />
                   <HeroField label="Ley Médica" value={`Cat. ${funcionario.categoria_aps} • Niv. ${funcionario.nivel_aps}`} />
+                  <HeroField label="Tipo de Contrato" value={funcionario.contratos && funcionario.contratos.length > 0 ? funcionario.contratos[0].tipo_contrato : 'Sin Contrato'} />
                   <HeroField label="Jornada" value={`${funcionario.jornada_horas} hrs / Semanal`} border={false} />
                 </div>
              </div>
