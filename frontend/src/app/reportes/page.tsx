@@ -112,7 +112,7 @@ export default function ReportesPage() {
   return (
     <div className="flex flex-col min-h-screen bg-surface p-12 pb-32">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8 relative z-50">
         <div>
           <h2 className="text-[3.5rem] font-black leading-none tracking-tight text-primary font-headline mb-4">
             Gestión de Personas
