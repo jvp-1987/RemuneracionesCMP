@@ -68,10 +68,19 @@ export class ReportesService {
     const by_contrato = uniqueFuncionarios.reduce((acc, f: any) => {
       // Intentamos extraer del maestro primero
       const detalle = f.latest_detalle_json || {};
-      const contratoKey = Object.keys(detalle).find(k => {
-        const key = k.toUpperCase().trim();
-        return key === 'TIPO CONTRATO EN PERSONAL' || key === 'TIPO DE CONTRATO' || key === 'CALIDAD JURIDICA';
-      }) || Object.keys(detalle).find(k => k.toUpperCase().includes('CONTRATO') && !k.toUpperCase().includes('FECHA') && !k.toUpperCase().includes('Nº') && !k.toUpperCase().includes('N°'));
+      let contratoKey = Object.keys(detalle).find(k => k.toUpperCase().includes('TIPO CONTRATO EN PERSONAL'));
+      if (!contratoKey) {
+        contratoKey = Object.keys(detalle).find(k => {
+          const key = k.toUpperCase();
+          return key.includes('TIPO DE CONTRATO') || key.includes('CALIDAD JURIDICA');
+        });
+      }
+      if (!contratoKey) {
+        contratoKey = Object.keys(detalle).find(k => {
+          const key = k.toUpperCase();
+          return key.includes('CONTRATO') && !key.includes('FECHA') && !key.includes('Nº') && !key.includes('N°');
+        });
+      }
       
       let tipo = 'Sin Contrato';
       if (contratoKey && detalle[contratoKey]) {
