@@ -176,8 +176,17 @@ export default function FuncionarioDetailPage() {
                         }
                       }
                       
-                      if (contratoKey && matchedDetalle[contratoKey]) return String(matchedDetalle[contratoKey]).trim().toUpperCase();
-                      return funcionario.contratos && funcionario.contratos.length > 0 ? funcionario.contratos[0].tipo_contrato : 'Sin Contrato';
+                      let finalTipo = 'Sin Contrato';
+                      if (contratoKey && matchedDetalle[contratoKey]) {
+                        finalTipo = String(matchedDetalle[contratoKey]).trim().toUpperCase();
+                      } else if (funcionario.contratos && funcionario.contratos.length > 0) {
+                        finalTipo = String(funcionario.contratos[0].tipo_contrato).trim().toUpperCase();
+                      }
+
+                      if (finalTipo === 'CONTRATA') finalTipo = 'PLAZO FIJO';
+                      if (finalTipo === 'PLANTA') finalTipo = 'INDEFINIDO';
+                      
+                      return finalTipo;
                     })()
                   } />
                   <HeroField label="Jornada" value={`${funcionario.jornada_horas} hrs / Semanal`} border={false} />

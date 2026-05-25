@@ -102,9 +102,15 @@ export class ReportesService {
       let tipo = 'Sin Contrato';
       if (contratoKey && matchedDetalle[contratoKey]) {
         tipo = String(matchedDetalle[contratoKey]).trim().toUpperCase();
+        if (tipo === 'CONTRATA') tipo = 'PLAZO FIJO';
+        if (tipo === 'PLANTA') tipo = 'INDEFINIDO';
       } else {
         const activeContrato = f.contratos && f.contratos.length > 0 ? f.contratos[0] : null;
-        if (activeContrato) tipo = activeContrato.tipo_contrato;
+        if (activeContrato) {
+          tipo = activeContrato.tipo_contrato;
+          if (tipo === 'CONTRATA') tipo = 'PLAZO FIJO';
+          if (tipo === 'PLANTA') tipo = 'INDEFINIDO';
+        }
       }
       
       acc[tipo] = (acc[tipo] || 0) + 1;
