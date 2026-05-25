@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
 const manrope = Manrope({ subsets: ["latin"], variable: '--font-manrope' });
 
 export const metadata: Metadata = {
-  title: "Validator Pro | HR Remuneration",
+  title: "Motor financiero y gestion de personas",
   description: "Plataforma avanzada de auditoría y gestión de remuneraciones APS.",
 };
 

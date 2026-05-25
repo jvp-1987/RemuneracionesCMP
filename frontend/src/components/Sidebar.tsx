@@ -41,14 +41,14 @@ export default function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 bottom-0 w-72 bg-surface-container-low border-r border-outline-variant/10 flex flex-col z-50">
       {/* Branding Section */}
-      <div className="p-10 mb-6 group">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-[1.25rem] bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-500">
-            <span className="material-symbols-outlined text-white text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>&#xe16e;</span>
+      <div className="p-6 mb-2 mt-4 group">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-24 h-24 rounded-2xl bg-white flex items-center justify-center shadow-lg shadow-primary/10 p-2 overflow-hidden group-hover:scale-105 transition-transform duration-500">
+            <img src="/logo.jpg" alt="Logo" className="w-full h-full object-contain mix-blend-multiply" />
           </div>
-          <div>
-            <h1 className="text-xl font-black text-primary tracking-tighter leading-none font-headline">Remuneraciones</h1>
-            <p className="text-[10px] text-secondary font-black tracking-[0.2em] uppercase mt-1">Salud CMP</p>
+          <div className="text-center px-2">
+            <h1 className="text-[15px] font-black text-primary tracking-tight leading-tight font-headline">Motor Financiero</h1>
+            <p className="text-[11px] text-secondary font-bold tracking-wide uppercase mt-0.5">y Gestión de Personas</p>
           </div>
         </div>
       </div>
