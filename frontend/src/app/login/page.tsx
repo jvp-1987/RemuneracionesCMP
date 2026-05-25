@@ -57,13 +57,13 @@ export default function LoginPage() {
       >
         {/* Logo Section */}
         <div className="flex flex-col items-center mb-10">
-          <div className="w-20 h-20 bg-primary rounded-[2rem] flex items-center justify-center shadow-2xl shadow-primary/30 mb-6 group hover:rotate-12 transition-transform duration-500">
-            <ShieldCheck className="w-10 h-10 text-white" />
+          <div className="w-32 h-32 bg-white rounded-[2rem] flex items-center justify-center shadow-2xl shadow-slate-200/50 mb-6 group hover:rotate-6 transition-transform duration-500 p-4 overflow-hidden border border-slate-100">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain mix-blend-multiply" />
           </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tighter text-center">
-            Remuneraciones <span className="text-primary">CMP</span>
+            Motor Financiero
           </h1>
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2">Plataforma de Auditoría Salud APS</p>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2">y Gestión de Personas</p>
         </div>
 
         {/* Login Card */}

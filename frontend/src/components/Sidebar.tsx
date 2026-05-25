@@ -44,7 +44,7 @@ export default function Sidebar() {
       <div className="p-6 mb-2 mt-4 group">
         <div className="flex flex-col items-center gap-3">
           <div className="w-24 h-24 rounded-2xl bg-white flex items-center justify-center shadow-lg shadow-primary/10 p-2 overflow-hidden group-hover:scale-105 transition-transform duration-500">
-            <img src="/logo.jpg" alt="Logo" className="w-full h-full object-contain mix-blend-multiply" />
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain mix-blend-multiply" />
           </div>
           <div className="text-center px-2">
             <h1 className="text-[15px] font-black text-primary tracking-tight leading-tight font-headline">Motor Financiero</h1>
