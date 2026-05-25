@@ -149,7 +149,11 @@ export default function FuncionarioDetailPage() {
                   <HeroField label="Tipo de Contrato" value={
                     (() => {
                       const detalle = funcionario.liquidaciones?.[0]?.detalle_json || {};
-                      const contratoKey = Object.keys(detalle).find(k => k.toUpperCase().includes('CONTRATO') || k.toUpperCase().includes('CALIDAD'));
+                      const contratoKey = Object.keys(detalle).find(k => {
+                        const key = k.toUpperCase().trim();
+                        return key === 'TIPO CONTRATO EN PERSONAL' || key === 'TIPO DE CONTRATO' || key === 'CALIDAD JURIDICA';
+                      }) || Object.keys(detalle).find(k => k.toUpperCase().includes('CONTRATO') && !k.toUpperCase().includes('FECHA') && !k.toUpperCase().includes('Nº') && !k.toUpperCase().includes('N°'));
+                      
                       if (contratoKey && detalle[contratoKey]) return String(detalle[contratoKey]).trim().toUpperCase();
                       return funcionario.contratos && funcionario.contratos.length > 0 ? funcionario.contratos[0].tipo_contrato : 'Sin Contrato';
                     })()
