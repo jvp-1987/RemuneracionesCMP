@@ -241,7 +241,7 @@ export class ConsolidadosService {
     const effectiveCentroId = centroIdOverride || (isCentroSalud ? user.centro_salud_id : null);
     
     const whereMaestro: any = targetPeriodoId ? { periodo_id: targetPeriodoId } : {};
-    const whereConsolidado: any = {};
+    const whereConsolidado: any = targetPeriodoId ? { periodo_id: targetPeriodoId } : {};
     const whereHeViat: any = {};
 
     if (effectiveCentroId) {
