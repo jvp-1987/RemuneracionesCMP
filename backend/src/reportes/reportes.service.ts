@@ -43,7 +43,7 @@ export class ReportesService {
     const distinctFuncionariosMap = new Map();
     liquidaciones.forEach(l => {
       if (!distinctFuncionariosMap.has(l.funcionario_rut)) {
-        distinctFuncionariosMap.set(l.funcionario_rut, l.funcionario);
+        distinctFuncionariosMap.set(l.funcionario_rut, { ...l.funcionario, latest_detalle_json: l.detalle_json });
       }
     });
 
@@ -66,9 +66,18 @@ export class ReportesService {
 
     // Dist by contrato
     const by_contrato = uniqueFuncionarios.reduce((acc, f: any) => {
-      // Tomamos el tipo de contrato del contrato más reciente o uno activo
-      const activeContrato = f.contratos && f.contratos.length > 0 ? f.contratos[0] : null;
-      const tipo = activeContrato ? activeContrato.tipo_contrato : 'Sin Contrato';
+      // Intentamos extraer del maestro primero
+      const detalle = f.latest_detalle_json || {};
+      const contratoKey = Object.keys(detalle).find(k => k.toUpperCase().includes('CONTRATO') || k.toUpperCase().includes('CALIDAD'));
+      
+      let tipo = 'Sin Contrato';
+      if (contratoKey && detalle[contratoKey]) {
+        tipo = String(detalle[contratoKey]).trim().toUpperCase();
+      } else {
+        const activeContrato = f.contratos && f.contratos.length > 0 ? f.contratos[0] : null;
+        if (activeContrato) tipo = activeContrato.tipo_contrato;
+      }
+      
       acc[tipo] = (acc[tipo] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
