@@ -243,76 +243,92 @@ export default function FuncionarioDetailPage() {
                      </div>
                   </div>
                 )}
-                {funcionario.liquidaciones?.[0]?.detalle_json && (
-                  <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="bg-white rounded-[3rem] p-10 shadow-2xl border border-outline-variant/5">
-                      <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60">Otras Asignaciones</h3>
-                      </div>
-                      <div className="space-y-3">
-                        {Object.entries(funcionario.liquidaciones[0].detalle_json)
-                          .filter(([key, val]) => {
-                            if (typeof val !== 'number' || val <= 0) return false;
-                            const k = key.toUpperCase();
-                            
-                            const isMetadata = ['MES', 'AÑO', 'EDAD', 'FICHA', 'NIVEL', 'N°HORAS', 'JORNADA', 'JORNADA HRS', 'DIAS TRABAJADOS', 'FECHA DE NACIMIENTO', 'FECHA INICIO SERVICIO', 'NºCARGAS FAMILIARES', 'DIAS ACREDITADOS', 'AÑOS ACREDITADOS', 'MESES ACREDITADOS', 'PUNTAJE ANTIGÜEDAD', 'TELEFONO', 'N° DECRETO', 'N° DEC. NOMBRAMIENTO', 'Nº BIENIOS', 'POST TITULO', 'MONTO PACTADO'].some(w => k === w);
-                            if (isMetadata) return false;
-                            
-                            // Excluir Aportes del empleador que no son de libre disposicion
-                            if (k.includes('APORTE') || k.includes('PATRONAL') || k.includes('EMPLEADOR')) return false;
+                {(() => {
+                  const detalleJsonToUse = funcionario.liquidaciones?.find((l: any) => l.detalle_json && Object.keys(l.detalle_json).length > 5)?.detalle_json || funcionario.liquidaciones?.[0]?.detalle_json;
+                  
+                  if (!detalleJsonToUse) return null;
 
-                            // Excluir base y novedades
-                            if (k.includes('SUELDO BASE') || k.includes('ATENCION PRIMARIA') || k.includes('ASIGNACION APS') || k.includes('ASIG. APS') || k.includes('ZONA') || k.includes('DIFICIL') || k.includes('CALCULATED_')) return false;
-                            if (k.includes('HORAS EXTRAS') || k.includes('VIATICOS') || k.includes('ATRASO')) return false;
-                            
-                            // Excluir Subtotales
-                            if (k.includes('TOTAL') || k.includes('LIQUIDO') || k.includes('IMPONIBLE') || k.includes('TRIBUTABLE') || k.includes('PROMEDIO')) return false;
-                            
-                            // Excluir Descuentos conocidos
-                            const isDescuento = ['SALUD', 'AFP', 'PENSION', 'IMPUESTO', 'ANTICIPO', 'DESCUENTO', 'CAJA', 'CCAF', 'PRESTAMO', 'SEGURO', 'CESANTIA', 'ASOC', 'COLEGIO', 'SINDICATO', 'AHORRO', 'VOLUNTARI', 'ATRASO', 'BIENESTAR', 'FONDO', 'MUTUAL'].some(w => k.includes(w));
-                            if (isDescuento) return false;
-                            
-                            return true;
-                          })
-                          .map(([key, val]) => (
-                            <div key={key} className="flex justify-between items-center border-b border-outline-variant/5 pb-2">
-                              <span className="text-[9px] font-bold text-outline uppercase tracking-widest truncate max-w-[70%]">{key}</span>
-                              <span className="text-sm font-black text-emerald-600">${Number(val).toLocaleString('es-CL')}</span>
-                            </div>
-                          ))}
+                  const asignacionesItems = Object.entries(detalleJsonToUse)
+                    .filter(([key, val]) => {
+                      if (typeof val !== 'number' || val <= 0) return false;
+                      const k = key.toUpperCase();
+                      
+                      const isMetadata = ['MES', 'AÑO', 'EDAD', 'FICHA', 'NIVEL', 'N°HORAS', 'JORNADA', 'JORNADA HRS', 'DIAS TRABAJADOS', 'FECHA DE NACIMIENTO', 'FECHA INICIO SERVICIO', 'NºCARGAS FAMILIARES', 'DIAS ACREDITADOS', 'AÑOS ACREDITADOS', 'MESES ACREDITADOS', 'PUNTAJE ANTIGÜEDAD', 'TELEFONO', 'N° DECRETO', 'N° DEC. NOMBRAMIENTO', 'Nº BIENIOS', 'POST TITULO', 'MONTO PACTADO'].some(w => k === w);
+                      if (isMetadata) return false;
+                      
+                      // Excluir Aportes del empleador que no son de libre disposicion
+                      if (k.includes('APORTE') || k.includes('PATRONAL') || k.includes('EMPLEADOR')) return false;
+
+                      // Excluir base y novedades
+                      if (k.includes('SUELDO BASE') || k.includes('ATENCION PRIMARIA') || k.includes('ASIGNACION APS') || k.includes('ASIG. APS') || k.includes('ZONA') || k.includes('DIFICIL') || k.includes('CALCULATED_')) return false;
+                      if (k.includes('HORAS EXTRAS') || k.includes('VIATICOS') || k.includes('ATRASO')) return false;
+                      
+                      // Excluir Subtotales
+                      if (k.includes('TOTAL') || k.includes('LIQUIDO') || k.includes('IMPONIBLE') || k.includes('TRIBUTABLE') || k.includes('PROMEDIO')) return false;
+                      
+                      // Excluir Descuentos conocidos
+                      const isDescuento = ['SALUD', 'AFP', 'PENSION', 'IMPUESTO', 'ANTICIPO', 'DESCUENTO', 'CAJA', 'CCAF', 'PRESTAMO', 'SEGURO', 'CESANTIA', 'ASOC', 'COLEGIO', 'SINDICATO', 'AHORRO', 'VOLUNTARI', 'ATRASO', 'BIENESTAR', 'FONDO', 'MUTUAL'].some(w => k.includes(w));
+                      if (isDescuento) return false;
+                      
+                      return true;
+                    });
+
+                  const descuentosItems = Object.entries(detalleJsonToUse)
+                    .filter(([key, val]) => {
+                      if (typeof val !== 'number' || val <= 0) return false;
+                      const k = key.toUpperCase();
+                      
+                      // Excluir base y novedades
+                      if (k.includes('HORAS EXTRAS') || k.includes('VIATICOS')) return false;
+                      
+                      // Excluir Subtotales
+                      if (k.includes('TOTAL') || k.includes('LIQUIDO') || k.includes('IMPONIBLE') || k.includes('TRIBUTABLE') || k.includes('PROMEDIO')) return false;
+                      
+                      const isDescuento = ['SALUD', 'AFP', 'PENSION', 'IMPUESTO', 'ANTICIPO', 'DESCUENTO', 'CAJA', 'CCAF', 'PRESTAMO', 'SEGURO', 'CESANTIA', 'ASOC', 'COLEGIO', 'SINDICATO', 'AHORRO', 'VOLUNTARI', 'ATRASO', 'BIENESTAR', 'FONDO', 'MUTUAL'].some(w => k.includes(w));
+                      if (isDescuento) return true;
+                      
+                      return false;
+                    });
+
+                  return (
+                    <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="bg-white rounded-[3rem] p-10 shadow-2xl border border-outline-variant/5">
+                        <div className="flex justify-between items-center mb-6">
+                          <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60">Otras Asignaciones</h3>
+                        </div>
+                        <div className="space-y-3">
+                          {asignacionesItems.length === 0 ? (
+                            <p className="text-xs text-outline font-bold italic py-4">No hay otras asignaciones registradas.</p>
+                          ) : (
+                            asignacionesItems.map(([key, val]) => (
+                              <div key={key} className="flex justify-between items-center border-b border-outline-variant/5 pb-2">
+                                <span className="text-[9px] font-bold text-outline uppercase tracking-widest truncate max-w-[70%]">{key}</span>
+                                <span className="text-sm font-black text-emerald-600">${Number(val).toLocaleString('es-CL')}</span>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                      <div className="bg-white rounded-[3rem] p-10 shadow-2xl border border-outline-variant/5">
+                        <div className="flex justify-between items-center mb-6">
+                          <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60">Descuentos Aplicados</h3>
+                        </div>
+                        <div className="space-y-3">
+                          {descuentosItems.length === 0 ? (
+                            <p className="text-xs text-outline font-bold italic py-4">No hay descuentos registrados.</p>
+                          ) : (
+                            descuentosItems.map(([key, val]) => (
+                              <div key={key} className="flex justify-between items-center border-b border-outline-variant/5 pb-2">
+                                <span className="text-[9px] font-bold text-outline uppercase tracking-widest truncate max-w-[70%]">{key}</span>
+                                <span className="text-sm font-black text-rose-500">${Number(val).toLocaleString('es-CL')}</span>
+                              </div>
+                            ))
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <div className="bg-white rounded-[3rem] p-10 shadow-2xl border border-outline-variant/5">
-                      <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60">Descuentos Aplicados</h3>
-                      </div>
-                      <div className="space-y-3">
-                        {Object.entries(funcionario.liquidaciones[0].detalle_json)
-                          .filter(([key, val]) => {
-                            if (typeof val !== 'number' || val <= 0) return false;
-                            const k = key.toUpperCase();
-                            
-                            // Excluir base y novedades
-                            if (k.includes('HORAS EXTRAS') || k.includes('VIATICOS')) return false;
-                            
-                            // Excluir Subtotales
-                            if (k.includes('TOTAL') || k.includes('LIQUIDO') || k.includes('IMPONIBLE') || k.includes('TRIBUTABLE') || k.includes('PROMEDIO')) return false;
-                            
-                            const isDescuento = ['SALUD', 'AFP', 'PENSION', 'IMPUESTO', 'ANTICIPO', 'DESCUENTO', 'CAJA', 'CCAF', 'PRESTAMO', 'SEGURO', 'CESANTIA', 'ASOC', 'COLEGIO', 'SINDICATO', 'AHORRO', 'VOLUNTARI', 'ATRASO', 'BIENESTAR', 'FONDO', 'MUTUAL'].some(w => k.includes(w));
-                            if (isDescuento) return true;
-                            
-                            return false;
-                          })
-                          .map(([key, val]) => (
-                            <div key={key} className="flex justify-between items-center border-b border-outline-variant/5 pb-2">
-                              <span className="text-[9px] font-bold text-outline uppercase tracking-widest truncate max-w-[70%]">{key}</span>
-                              <span className="text-sm font-black text-rose-500">${Number(val).toLocaleString('es-CL')}</span>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
+                  );
+                })()}
              </div>
          </section>
         )}
