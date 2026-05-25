@@ -148,22 +148,35 @@ export default function FuncionarioDetailPage() {
                   <HeroField label="Ley Médica" value={`Cat. ${funcionario.categoria_aps} • Niv. ${funcionario.nivel_aps}`} />
                   <HeroField label="Tipo de Contrato" value={
                     (() => {
-                      const detalle = funcionario.liquidaciones?.[0]?.detalle_json || {};
-                      let contratoKey = Object.keys(detalle).find(k => k.toUpperCase().includes('TIPO CONTRATO EN PERSONAL'));
-                      if (!contratoKey) {
-                        contratoKey = Object.keys(detalle).find(k => {
-                          const key = k.toUpperCase();
-                          return key.includes('TIPO DE CONTRATO') || key.includes('CALIDAD JURIDICA');
-                        });
-                      }
-                      if (!contratoKey) {
-                        contratoKey = Object.keys(detalle).find(k => {
-                          const key = k.toUpperCase();
-                          return key.includes('CONTRATO') && !key.includes('FECHA') && !key.includes('Nº') && !key.includes('N°');
-                        });
+                      let contratoKey: string | undefined;
+                      let matchedDetalle: any = {};
+
+                      if (funcionario.liquidaciones) {
+                        for (const liq of funcionario.liquidaciones) {
+                          const detalle = liq.detalle_json || {};
+                          
+                          contratoKey = Object.keys(detalle).find(k => k.toUpperCase().includes('TIPO CONTRATO EN PERSONAL'));
+                          if (!contratoKey) {
+                            contratoKey = Object.keys(detalle).find(k => {
+                              const key = k.toUpperCase();
+                              return key.includes('TIPO DE CONTRATO') || key.includes('CALIDAD JURIDICA');
+                            });
+                          }
+                          if (!contratoKey) {
+                            contratoKey = Object.keys(detalle).find(k => {
+                              const key = k.toUpperCase();
+                              return key.includes('CONTRATO') && !key.includes('FECHA') && !key.includes('Nº') && !key.includes('N°');
+                            });
+                          }
+
+                          if (contratoKey) {
+                            matchedDetalle = detalle;
+                            break;
+                          }
+                        }
                       }
                       
-                      if (contratoKey && detalle[contratoKey]) return String(detalle[contratoKey]).trim().toUpperCase();
+                      if (contratoKey && matchedDetalle[contratoKey]) return String(matchedDetalle[contratoKey]).trim().toUpperCase();
                       return funcionario.contratos && funcionario.contratos.length > 0 ? funcionario.contratos[0].tipo_contrato : 'Sin Contrato';
                     })()
                   } />

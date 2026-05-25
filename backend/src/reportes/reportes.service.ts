@@ -34,7 +34,12 @@ export class ReportesService {
       include: {
         funcionario: {
           include: {
-            contratos: true
+            contratos: true,
+            liquidaciones: {
+              take: 6,
+              orderBy: [{ periodo: { anio: 'desc' } }, { periodo: { mes: 'desc' } }],
+              include: { periodo: true }
+            }
           }
         }
       }
@@ -66,25 +71,37 @@ export class ReportesService {
 
     // Dist by contrato
     const by_contrato = uniqueFuncionarios.reduce((acc, f: any) => {
-      // Intentamos extraer del maestro primero
-      const detalle = f.latest_detalle_json || {};
-      let contratoKey = Object.keys(detalle).find(k => k.toUpperCase().includes('TIPO CONTRATO EN PERSONAL'));
-      if (!contratoKey) {
-        contratoKey = Object.keys(detalle).find(k => {
-          const key = k.toUpperCase();
-          return key.includes('TIPO DE CONTRATO') || key.includes('CALIDAD JURIDICA');
-        });
-      }
-      if (!contratoKey) {
-        contratoKey = Object.keys(detalle).find(k => {
-          const key = k.toUpperCase();
-          return key.includes('CONTRATO') && !key.includes('FECHA') && !key.includes('Nº') && !key.includes('N°');
-        });
+      let contratoKey: string | undefined;
+      let matchedDetalle: any = {};
+
+      if (f.liquidaciones) {
+        for (const liq of f.liquidaciones) {
+          const detalle = liq.detalle_json || {};
+          
+          contratoKey = Object.keys(detalle).find(k => k.toUpperCase().includes('TIPO CONTRATO EN PERSONAL'));
+          if (!contratoKey) {
+            contratoKey = Object.keys(detalle).find(k => {
+              const key = k.toUpperCase();
+              return key.includes('TIPO DE CONTRATO') || key.includes('CALIDAD JURIDICA');
+            });
+          }
+          if (!contratoKey) {
+            contratoKey = Object.keys(detalle).find(k => {
+              const key = k.toUpperCase();
+              return key.includes('CONTRATO') && !key.includes('FECHA') && !key.includes('Nº') && !key.includes('N°');
+            });
+          }
+
+          if (contratoKey) {
+            matchedDetalle = detalle;
+            break;
+          }
+        }
       }
       
       let tipo = 'Sin Contrato';
-      if (contratoKey && detalle[contratoKey]) {
-        tipo = String(detalle[contratoKey]).trim().toUpperCase();
+      if (contratoKey && matchedDetalle[contratoKey]) {
+        tipo = String(matchedDetalle[contratoKey]).trim().toUpperCase();
       } else {
         const activeContrato = f.contratos && f.contratos.length > 0 ? f.contratos[0] : null;
         if (activeContrato) tipo = activeContrato.tipo_contrato;
