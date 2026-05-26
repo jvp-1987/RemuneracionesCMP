@@ -43,9 +43,9 @@ interface CentroStat {
 }
 
 interface HaberResumen {
-  nombre: string;
-  count: number;
-  total: number;
+  nombre_haber: string;
+  total_funcionarios: number;
+  total_monto: number;
 }
 interface HaberDetalleFuncionario {
   rut: string;
