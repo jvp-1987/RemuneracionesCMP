@@ -448,30 +448,30 @@ export default function ReportesPage() {
           <div className="space-y-3 max-h-[600px] overflow-y-auto pr-4 custom-scrollbar">
             {haberesResumen.map(h => (
               <div 
-                key={h.nombre} 
-                onClick={() => setSelectedHaber(h.nombre)}
+                key={h.nombre_haber} 
+                onClick={() => setSelectedHaber(h.nombre_haber)}
                 className={cn(
                   "p-5 rounded-2xl cursor-pointer transition-all border",
-                  selectedHaber === h.nombre 
+                  selectedHaber === h.nombre_haber 
                     ? "border-primary bg-primary/5 shadow-md" 
                     : "border-outline-variant/20 hover:border-primary/50 hover:bg-surface-container"
                 )}
               >
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-black uppercase text-on-surface">{h.nombre}</span>
+                    <span className="text-xs font-black uppercase text-on-surface">{h.nombre_haber}</span>
                     <span className="text-[10px] bg-surface-container px-2 py-0.5 rounded text-outline font-bold">
-                      {h.count} func.
+                      {h.total_funcionarios} func.
                     </span>
                   </div>
                   <span className="text-sm font-black text-primary">
-                    ${h.total.toLocaleString('es-CL')}
+                    ${(h.total_monto || 0).toLocaleString('es-CL')}
                   </span>
                 </div>
                 <div className="w-full h-2 bg-surface-container rounded-full overflow-hidden">
                   <motion.div 
                     initial={{ width: 0 }}
-                    animate={{ width: `${(h.total / (haberesResumen[0]?.total || 1)) * 100}%` }}
+                    animate={{ width: `${((h.total_monto || 0) / (haberesResumen[0]?.total_monto || 1)) * 100}%` }}
                     className="h-full bg-primary"
                   />
                 </div>
@@ -489,7 +489,7 @@ export default function ReportesPage() {
                   <div>
                     <h4 className="text-lg font-black text-on-surface uppercase tracking-tight">{selectedHaber}</h4>
                     <p className="text-[10px] text-secondary font-bold uppercase tracking-widest mt-1">
-                      {haberesResumen.find(h => h.nombre === selectedHaber)?.count} Funcionarios
+                      {haberesResumen.find(h => h.nombre_haber === selectedHaber)?.total_funcionarios} Funcionarios
                     </p>
                   </div>
                 </div>
