@@ -215,7 +215,11 @@ export class ReportesService {
     const liquidaciones = await this.prisma.liquidacionMensual.findMany({
       where: { periodo_id: periodFilter },
       include: {
-        funcionario: true
+        funcionario: {
+          include: {
+            centro_salud: true
+          }
+        }
       }
     });
 
@@ -281,6 +285,7 @@ export class ReportesService {
       return {
         rut: l.funcionario_rut,
         nombre: l.funcionario.nombre_completo,
+        establecimiento: l.funcionario.centro_salud?.nombre || 'Sin Establecimiento',
         haberes: haberesFunc,
         total_haberes_seleccionados: total_funcionario
       };

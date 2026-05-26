@@ -16,7 +16,6 @@ const navItems = [
   { name: 'Asignaciones Fijas', href: '/asignaciones', icon: '&#xf0c5;' },
   { name: 'Alertas RRHH', href: '/alertas-rrhh', icon: '&#xe002;' },
   { name: 'Reportes', href: '/reportes', icon: '&#xe873;' },
-  { name: 'Reporte Haberes', href: '/reportes/haberes', icon: '&#xe227;' },
   { name: 'Control Períodos', href: '/configuracion/periodos', icon: '&#xeb93;' },
 ];
 
@@ -33,7 +32,7 @@ export default function Sidebar() {
     }
     
     if (user.rol === 'CONTROL' || user.rol === 'FINANZAS') {
-      return ['Dashboard', 'Consolidados', 'Funcionarios', 'Reportes', 'Reporte Haberes', 'Asignaciones Fijas'].includes(item.name);
+      return ['Dashboard', 'Consolidados', 'Funcionarios', 'Reportes', 'Asignaciones Fijas'].includes(item.name);
     }
     
     return false;

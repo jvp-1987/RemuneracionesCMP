@@ -42,10 +42,28 @@ interface CentroStat {
   costo_total: number;
 }
 
+interface HaberResumen {
+  nombre: string;
+  count: number;
+  total: number;
+}
+interface HaberDetalleFuncionario {
+  rut: string;
+  nombre: string;
+  establecimiento: string;
+  haberes: Record<string, number>;
+  total_haberes_seleccionados: number;
+}
+
 export default function ReportesPage() {
   const [hrStats, setHrStats] = useState<HRStats | null>(null);
   const [financialStats, setFinancialStats] = useState<FinancialStats | null>(null);
   const [centros, setCentros] = useState<CentroStat[]>([]);
+  
+  const [haberesResumen, setHaberesResumen] = useState<HaberResumen[]>([]);
+  const [haberesDetalle, setHaberesDetalle] = useState<HaberDetalleFuncionario[]>([]);
+  const [selectedHaber, setSelectedHaber] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(true);
   
   const [availablePeriods, setAvailablePeriods] = useState<{ id: number; mes: number; anio: number }[]>([]);
@@ -84,14 +102,18 @@ export default function ReportesPage() {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
         const params = { periodoIds: selectedPeriods.join(',') };
-        const [hrRes, finRes, centrosRes] = await Promise.all([
+        const [hrRes, finRes, centrosRes, habRes] = await Promise.all([
           axios.get(`${apiUrl}/reportes/hr-stats`, { params }),
           axios.get(`${apiUrl}/reportes/financial-stats`, { params }),
           axios.get(`${apiUrl}/reportes/centros-stats`, { params }),
+          axios.get(`${apiUrl}/reportes/haberes-stats`, { params })
         ]);
         setHrStats(hrRes.data);
         setFinancialStats(finRes.data);
         setCentros(centrosRes.data);
+        setHaberesResumen(habRes.data.resumen);
+        setHaberesDetalle(habRes.data.detalle);
+        setSelectedHaber(null);
       } catch (err: any) {
         console.error('Error fetching report stats:', err);
       } finally {
@@ -393,6 +415,8 @@ export default function ReportesPage() {
           })}
         </div>
 
+
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {hrStats?.by_contrato?.map((item, idx) => {
             const total = hrStats.headcount || 1;
@@ -411,6 +435,93 @@ export default function ReportesPage() {
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* Resumen por Tipo de Haber */}
+      <div className="bg-white p-10 rounded-[3rem] shadow-xl shadow-slate-200/40 border border-outline-variant/5 mb-12">
+        <h3 className="text-2xl font-black text-on-surface tracking-tight flex items-center gap-3 mb-6">
+          <DollarSign className="w-6 h-6 text-primary" />
+          Desglose por Tipo de Haber
+        </h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-4 custom-scrollbar">
+            {haberesResumen.map(h => (
+              <div 
+                key={h.nombre} 
+                onClick={() => setSelectedHaber(h.nombre)}
+                className={cn(
+                  "p-5 rounded-2xl cursor-pointer transition-all border",
+                  selectedHaber === h.nombre 
+                    ? "border-primary bg-primary/5 shadow-md" 
+                    : "border-outline-variant/20 hover:border-primary/50 hover:bg-surface-container"
+                )}
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-black uppercase text-on-surface">{h.nombre}</span>
+                    <span className="text-[10px] bg-surface-container px-2 py-0.5 rounded text-outline font-bold">
+                      {h.count} func.
+                    </span>
+                  </div>
+                  <span className="text-sm font-black text-primary">
+                    ${h.total.toLocaleString('es-CL')}
+                  </span>
+                </div>
+                <div className="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(h.total / (haberesResumen[0]?.total || 1)) * 100}%` }}
+                    className="h-full bg-primary"
+                  />
+                </div>
+              </div>
+            ))}
+            {haberesResumen.length === 0 && (
+              <p className="text-xs text-outline text-center p-4">No hay datos de haberes para este período.</p>
+            )}
+          </div>
+
+          <div className="bg-surface-container-low p-8 rounded-[2rem] border border-outline-variant/10 min-h-[400px]">
+            {selectedHaber ? (
+              <>
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h4 className="text-lg font-black text-on-surface uppercase tracking-tight">{selectedHaber}</h4>
+                    <p className="text-[10px] text-secondary font-bold uppercase tracking-widest mt-1">
+                      {haberesResumen.find(h => h.nombre === selectedHaber)?.count} Funcionarios
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                  {haberesDetalle
+                    .filter(d => d.haberes[selectedHaber])
+                    .sort((a, b) => b.haberes[selectedHaber] - a.haberes[selectedHaber])
+                    .map(d => (
+                    <div key={d.rut} className="flex justify-between items-center p-4 bg-white rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-colors">
+                      <div className="flex-1 min-w-0 pr-4">
+                        <div className="flex items-center gap-3 mb-1">
+                          <span className="text-xs font-black text-on-surface truncate">{d.nombre}</span>
+                          <span className="text-[10px] text-outline font-mono bg-surface-container px-2 py-0.5 rounded shrink-0">{d.rut}</span>
+                        </div>
+                        <span className="text-[10px] font-bold text-secondary uppercase flex items-center gap-1 truncate">
+                          <Building2 className="w-3 h-3 shrink-0" /> {d.establecimiento}
+                        </span>
+                      </div>
+                      <span className="text-sm font-black text-primary shrink-0">
+                        ${d.haberes[selectedHaber].toLocaleString('es-CL')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-outline opacity-60 min-h-[400px]">
+                <Activity className="w-12 h-12 mb-4" />
+                <p className="text-xs font-bold uppercase tracking-widest text-center">Selecciona un concepto<br/>en la lista izquierda<br/>para ver los funcionarios</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
