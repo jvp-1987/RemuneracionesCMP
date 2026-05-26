@@ -29,6 +29,8 @@ interface HaberDetalleFuncionario {
   total_haberes_seleccionados: number;
 }
 
+const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
 export default function HaberesReportPage() {
   const [resumen, setResumen] = useState<HaberResumen[]>([]);
   const [detalle, setDetalle] = useState<HaberDetalleFuncionario[]>([]);
