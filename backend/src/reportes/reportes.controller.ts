@@ -26,4 +26,9 @@ export class ReportesController {
   getCentrosStats(@Query('periodoIds') periodoIds?: string) {
     return this.reportesService.getCentrosStats(this.parsePeriodoIds(periodoIds));
   }
+
+  @Get('haberes-stats')
+  getHaberesStats(@Query('periodoIds') periodoIds?: string) {
+    return this.reportesService.getHaberesStats(this.parsePeriodoIds(periodoIds));
+  }
 }

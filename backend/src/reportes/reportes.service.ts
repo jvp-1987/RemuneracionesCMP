@@ -205,6 +205,92 @@ export class ReportesService {
       return acc;
     }, {} as Record<number, any>);
 
-    return Object.values(centrosMap).sort((a: any, b: any) => b.costo_total - a.costo_total);
+  async getHaberesStats(periodoIds?: number[]) {
+    const periodFilter = await this.getPeriodsFilter(periodoIds);
+    if (!periodFilter || periodFilter === 0) return { resumen: [], detalle: [] };
+
+    const liquidaciones = await this.prisma.liquidacionMensual.findMany({
+      where: { periodo_id: periodFilter },
+      include: {
+        funcionario: true
+      }
+    });
+
+    const haberesTarget = [
+      "SUELDO BASE",
+      "ATENCION PRIMARIA",
+      "ASIG. ZONA",
+      "DESEMPEÑO DIFICIL",
+      "HORAS EXTRAS 25%",
+      "HORAS EXTRAS 50%",
+      "ASIG.FAMILIAR",
+      "ASIG.FAMILIAR MATERNAL",
+      "ASIG.FAMILIAR RETRO.MATERNAL",
+      "ASIG.RESPONSABILIDAD",
+      "11-VIATICOS",
+      "127-DIF.BONO SALA CUNA Y MOVILIZACION",
+      "140-ENCARGADO/A  CALIDAD",
+      "152-COORDINACION UAPO",
+      "16-PLANILLA SUPLEMENTARIA",
+      "166-ENCARGADO/A DE SECTOR",
+      "173-BONO MEDICINA FAMILIAR",
+      "181-ART.45-MUNICIPAL",
+      "183-ART.45-MUNICIPAL VIVIENDA",
+      "190-REMUNERACION CAUSA O-31-2017",
+      "21-ASIGNACION DE CAJA",
+      "212-BONO SALA CUNA Y MOVILIZACIÓN",
+      "22-DIFERENCIA SUELDO",
+      "222-ENCARGADO COMUNAL INFORMATICA",
+      "223-ENCARGADO PROGRAMA ODONTOL.COMUNAL",
+      "227-COORDINADOR SAR",
+      "230-HORAS EXTRAS 50% SUR",
+      "232-TURNO SUR",
+      "25-ASIGNACION RESP. DIRECTIVA",
+      "26-JEFATURA ADMINISTRATIVA",
+      "27-JEFATURA DE PROGRAMA",
+      "29-EXT.HORARIA PROGRAMA APS",
+      "33-JEFATURA SOME",
+      "38-REMUNERACION COMPENSATORIA",
+      "73-BONIF.CONDUCTORES LEY N*20157",
+      "78-ASIGNACION MUNICIPAL FIJO",
+      "98-RESPONSABILIDAD DIRECTIVA"
+    ];
+
+    const resumenMap = new Map<string, { total_monto: number; total_funcionarios: number }>();
+    haberesTarget.forEach(h => resumenMap.set(h, { total_monto: 0, total_funcionarios: 0 }));
+
+    const detalle = liquidaciones.map(l => {
+      const funcDetalle = l.detalle_json as any;
+      const haberesFunc: Record<string, number> = {};
+      let total_funcionario = 0;
+
+      haberesTarget.forEach(h => {
+        const val = Number(funcDetalle[h]);
+        if (!isNaN(val) && val > 0) {
+          haberesFunc[h] = val;
+          total_funcionario += val;
+          const stat = resumenMap.get(h)!;
+          stat.total_monto += val;
+          stat.total_funcionarios += 1;
+        }
+      });
+
+      return {
+        rut: l.funcionario_rut,
+        nombre: l.funcionario.nombre_completo,
+        haberes: haberesFunc,
+        total_haberes_seleccionados: total_funcionario
+      };
+    }).filter(d => d.total_haberes_seleccionados > 0);
+
+    const resumen = Array.from(resumenMap.entries())
+      .map(([nombre_haber, stats]) => ({
+        nombre_haber,
+        ...stats
+      }))
+      .filter(r => r.total_monto > 0)
+      .sort((a, b) => b.total_monto - a.total_monto);
+
+    return { resumen, detalle };
   }
 }
