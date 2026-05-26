@@ -205,6 +205,9 @@ export class ReportesService {
       return acc;
     }, {} as Record<number, any>);
 
+    return Object.values(centrosMap).sort((a: any, b: any) => b.costo_total - a.costo_total);
+  }
+
   async getHaberesStats(periodoIds?: number[]) {
     const periodFilter = await this.getPeriodsFilter(periodoIds);
     if (!periodFilter || periodFilter === 0) return { resumen: [], detalle: [] };
