@@ -206,7 +206,7 @@ export default function ReportesPage() {
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-2">Dotación Activa (Headcount)</p>
               <h3 className="text-5xl font-black text-on-surface tracking-tighter">
-                {hrStats?.headcount.toLocaleString('es-CL')}
+                {(hrStats?.headcount || 0).toLocaleString('es-CL')}
               </h3>
             </div>
             <div className="w-12 h-12 bg-primary/5 rounded-2xl flex items-center justify-center">
@@ -215,7 +215,7 @@ export default function ReportesPage() {
           </div>
           <div className="mt-8 space-y-3">
             <p className="text-[10px] font-black text-outline uppercase tracking-wider mb-2">Distribución por Profesión (Top 3)</p>
-            {hrStats?.by_profesion.slice(0, 3).map((prof, i) => (
+            {(hrStats?.by_profesion || []).slice(0, 3).map((prof, i) => (
               <div key={i} className="flex justify-between items-center text-xs font-bold text-on-surface-variant">
                 <span>{prof.name}</span>
                 <span className="text-primary">{prof.value}</span>
@@ -334,12 +334,12 @@ export default function ReportesPage() {
           
           <div className="relative w-full aspect-square flex items-center justify-center mb-8">
             <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-              {financialStats?.distribucion_gasto.map((item, idx) => {
-                const total = financialStats.total_haberes || 1;
+              {(financialStats?.distribucion_gasto || []).map((item, idx) => {
+                const total = financialStats?.total_haberes || 1;
                 const percentage = (item.value / total) * 100;
                 let offset = 0;
                 for (let i = 0; i < idx; i++) {
-                  offset += (financialStats.distribucion_gasto[i].value / total) * 100;
+                  offset += ((financialStats?.distribucion_gasto[i].value || 0) / total) * 100;
                 }
                 return (
                   <motion.circle
@@ -364,13 +364,13 @@ export default function ReportesPage() {
             <div className="absolute flex flex-col items-center">
               <span className="text-[10px] font-black text-outline uppercase tracking-widest">Gasto Dominante</span>
               <span className="text-lg font-black text-primary">
-                {financialStats?.distribucion_gasto[0] ? `${((financialStats.distribucion_gasto[0].value / (financialStats.total_haberes || 1)) * 100).toFixed(1)}%` : '0%'}
+                {financialStats?.distribucion_gasto && financialStats.distribucion_gasto[0] ? `${((financialStats.distribucion_gasto[0].value / (financialStats.total_haberes || 1)) * 100).toFixed(1)}%` : '0%'}
               </span>
             </div>
           </div>
 
           <div className="space-y-4">
-            {financialStats?.distribucion_gasto.map((item, idx) => (
+            {(financialStats?.distribucion_gasto || []).map((item, idx) => (
               <div key={item.name} className="flex items-center justify-between group">
                 <div className="flex items-center gap-3">
                   <div className={cn(
@@ -380,7 +380,7 @@ export default function ReportesPage() {
                   <span className="text-xs font-bold text-on-surface-variant group-hover:text-primary transition-colors">{item.name}</span>
                 </div>
                 <span className="text-xs font-black text-on-surface">
-                  {((item.value / (financialStats.total_haberes || 1)) * 100).toFixed(1)}%
+                  {((item.value / (financialStats?.total_haberes || 1)) * 100).toFixed(1)}%
                 </span>
               </div>
             ))}
