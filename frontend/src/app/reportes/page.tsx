@@ -493,26 +493,46 @@ export default function ReportesPage() {
                     </p>
                   </div>
                 </div>
-                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                  {haberesDetalle
-                    .filter(d => d.haberes[selectedHaber])
-                    .sort((a, b) => b.haberes[selectedHaber] - a.haberes[selectedHaber])
-                    .map(d => (
-                    <div key={d.rut} className="flex justify-between items-center p-4 bg-white rounded-xl border border-outline-variant/10 hover:border-primary/30 transition-colors">
-                      <div className="flex-1 min-w-0 pr-4">
-                        <div className="flex items-center gap-3 mb-1">
-                          <span className="text-xs font-black text-on-surface truncate">{d.nombre}</span>
-                          <span className="text-[10px] text-outline font-mono bg-surface-container px-2 py-0.5 rounded shrink-0">{d.rut}</span>
+                <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                  {(() => {
+                    const filtered = haberesDetalle
+                      .filter(d => d.haberes[selectedHaber])
+                      .sort((a, b) => b.haberes[selectedHaber] - a.haberes[selectedHaber]);
+                    
+                    const grouped = filtered.reduce((acc, d) => {
+                      if (!acc[d.establecimiento]) acc[d.establecimiento] = [];
+                      acc[d.establecimiento].push(d);
+                      return acc;
+                    }, {} as Record<string, typeof haberesDetalle>);
+
+                    return Object.entries(grouped)
+                      .sort(([estA], [estB]) => estA.localeCompare(estB))
+                      .map(([establecimiento, funcionarios]) => (
+                      <div key={establecimiento} className="bg-surface-container-low rounded-2xl border border-outline-variant/20 overflow-hidden">
+                        <div className="bg-surface-container py-2 px-4 border-b border-outline-variant/10 flex justify-between items-center">
+                          <h5 className="text-[10px] font-black uppercase tracking-widest text-secondary flex items-center gap-2">
+                            <Building2 className="w-3 h-3" /> {establecimiento}
+                          </h5>
+                          <span className="text-[10px] font-bold text-outline">{funcionarios.length} func.</span>
                         </div>
-                        <span className="text-[10px] font-bold text-secondary uppercase flex items-center gap-1 truncate">
-                          <Building2 className="w-3 h-3 shrink-0" /> {d.establecimiento}
-                        </span>
+                        <div className="divide-y divide-outline-variant/10">
+                          {funcionarios.map(d => (
+                            <div key={d.rut} className="flex justify-between items-center p-3 bg-white hover:bg-surface-container/50 transition-colors">
+                              <div className="flex-1 min-w-0 pr-4">
+                                <div className="flex items-center gap-3">
+                                  <span className="text-xs font-black text-on-surface truncate">{d.nombre}</span>
+                                  <span className="text-[10px] text-outline font-mono bg-surface-container px-2 py-0.5 rounded shrink-0">{d.rut}</span>
+                                </div>
+                              </div>
+                              <span className="text-sm font-black text-primary shrink-0">
+                                ${(d.haberes[selectedHaber] || 0).toLocaleString('es-CL')}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <span className="text-sm font-black text-primary shrink-0">
-                        ${d.haberes[selectedHaber].toLocaleString('es-CL')}
-                      </span>
-                    </div>
-                  ))}
+                    ));
+                  })()}
                 </div>
               </>
             ) : (
