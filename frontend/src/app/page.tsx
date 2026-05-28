@@ -152,11 +152,13 @@ export default function Dashboard() {
       <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl flex justify-between items-center w-full px-12 py-4 border-b border-white/50 shadow-sm">
         <div className="flex items-center gap-8">
           <div>
-            <h2 className="text-xl font-black text-slate-800 tracking-tight font-headline uppercase">
-              Motor Financiero <span className="text-primary text-[0.7em] align-middle">y Gestión de Personas</span>
+            <h2 className="text-xl font-black text-slate-800 tracking-tight font-headline uppercase leading-tight">
+              Motor Financiero <span className="text-primary">y</span><br />
+              <span className="text-primary">Gestión de Personas</span>
             </h2>
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">
-              Panel Financiero • Maestro • {lastRefresh.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mt-1">
+              Panel Financiero • Maestro • <br />
+              {lastRefresh.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
 
