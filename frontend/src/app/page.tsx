@@ -153,12 +153,10 @@ export default function Dashboard() {
         <div className="flex items-center gap-8">
           <div>
             <h2 className="text-xl font-black text-slate-800 tracking-tight font-headline uppercase leading-tight">
-              Motor Financiero <span className="text-primary">y</span><br />
-              <span className="text-primary">Gestión de Personas</span>
+              Motor Financiero <span className="text-primary text-[0.8em]">Y</span> <span className="text-primary">Gestión de Personas</span>
             </h2>
             <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mt-1">
-              Panel Financiero • Maestro • <br />
-              {lastRefresh.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
+              Panel Financiero • Maestro • {lastRefresh.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
 
