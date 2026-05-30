@@ -506,7 +506,11 @@ export default function ReportesPage() {
                     }, {} as Record<string, typeof haberesDetalle>);
 
                     return Object.entries(grouped)
-                      .sort(([estA], [estB]) => estA.localeCompare(estB))
+                      .sort(([, funcA], [, funcB]) => {
+                        const sumA = funcA.reduce((sum, f) => sum + (f.haberes[selectedHaber] || 0), 0);
+                        const sumB = funcB.reduce((sum, f) => sum + (f.haberes[selectedHaber] || 0), 0);
+                        return sumB - sumA;
+                      })
                       .map(([establecimiento, funcionarios]) => (
                       <div key={establecimiento} className="bg-surface-container-low rounded-2xl border border-outline-variant/20 overflow-hidden">
                         <div className="bg-surface-container py-2 px-4 border-b border-outline-variant/10 flex justify-between items-center">
