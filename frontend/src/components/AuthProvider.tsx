@@ -73,14 +73,39 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
   };
 
-  const logout = () => {
+  const logout = React.useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('usuario');
     setToken(null);
     setUser(null);
     delete axios.defaults.headers.common['Authorization'];
     router.push('/login');
-  };
+  }, [router]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    let timeoutId: NodeJS.Timeout;
+
+    const resetTimer = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      // 15 minutos de inactividad
+      timeoutId = setTimeout(() => {
+        logout();
+      }, 15 * 60 * 1000);
+    };
+
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+    
+    events.forEach(event => document.addEventListener(event, resetTimer));
+    resetTimer();
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      events.forEach(event => document.removeEventListener(event, resetTimer));
+    };
+  }, [token, logout]);
 
   return (
     <AuthContext.Provider value={{ user, token, setSession, logout, loading }}>
