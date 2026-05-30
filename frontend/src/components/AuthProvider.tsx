@@ -90,10 +90,10 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
     const resetTimer = () => {
       if (timeoutId) clearTimeout(timeoutId);
-      // 15 minutos de inactividad
+      // 30 minutos de inactividad
       timeoutId = setTimeout(() => {
         logout();
-      }, 15 * 60 * 1000);
+      }, 30 * 60 * 1000);
     };
 
     const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
