@@ -156,6 +156,11 @@ export default function ControlAsignacionesPage() {
     }
   };
 
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    return dateStr.split('T')[0].split('-').reverse().join('-');
+  };
+
   const filteredAsignaciones = todasAsignaciones.filter(a => {
     if (filterCentroId && a.funcionario?.centro_salud_id?.toString() !== filterCentroId) return false;
     if (filterCatalogoId && a.asignacion_id?.toString() !== filterCatalogoId) return false;
@@ -379,13 +384,13 @@ export default function ControlAsignacionesPage() {
                           {a.num_resolucion ? (
                             <>
                               N° {a.num_resolucion}
-                              {a.fecha_resolucion && <><br/><span className="text-[10px] text-slate-400 font-normal">({new Date(a.fecha_resolucion).toLocaleDateString('es-CL')})</span></>}
+                              {a.fecha_resolucion && <><br/><span className="text-[10px] text-slate-400 font-normal">({formatDate(a.fecha_resolucion)})</span></>}
                             </>
                           ) : 'S/N'}
                         </td>
                         <td className="px-6 py-4">
-                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Inicio: <span className="text-slate-700">{new Date(a.fecha_inicio).toLocaleDateString('es-CL')}</span></p>
-                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">Término: <span className="text-slate-700">{a.fecha_termino ? new Date(a.fecha_termino).toLocaleDateString('es-CL') : 'Indefinido'}</span></p>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Inicio: <span className="text-slate-700">{formatDate(a.fecha_inicio)}</span></p>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">Término: <span className="text-slate-700">{a.fecha_termino ? formatDate(a.fecha_termino) : 'Indefinido'}</span></p>
                         </td>
                         <td className="px-6 py-4 text-center">
                           <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md ${a.estado === 'ACTIVO' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
