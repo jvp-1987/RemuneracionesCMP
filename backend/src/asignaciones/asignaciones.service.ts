@@ -84,6 +84,25 @@ export class AsignacionesService {
     });
   }
 
+  async createAsignacionesEnMasa(data: {
+    asignaciones: {
+      funcionario_rut: string;
+      asignacion_id: number;
+      tipo_calculo: string;
+      valor: number;
+      fecha_inicio: string;
+      fecha_termino?: string;
+      num_resolucion?: string;
+    }[]
+  }) {
+    const results = [];
+    for (const item of data.asignaciones) {
+      const res = await this.createAsignacionFuncionario(item);
+      results.push(res);
+    }
+    return { success: true, creados: results.length };
+  }
+
   async updateAsignacionFuncionario(id: number, data: any) {
     if (data.fecha_inicio) data.fecha_inicio = new Date(data.fecha_inicio);
     if (data.fecha_termino) data.fecha_termino = new Date(data.fecha_termino);

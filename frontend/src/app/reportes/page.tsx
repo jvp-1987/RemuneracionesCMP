@@ -70,6 +70,71 @@ export default function ReportesPage() {
   const [selectedPeriods, setSelectedPeriods] = useState<number[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
+  const [selectedRuts, setSelectedRuts] = useState<string[]>([]);
+  const [isDerivarModalOpen, setIsDerivarModalOpen] = useState(false);
+  const [catalog, setCatalog] = useState<any[]>([]);
+  const [derivarAsignacionId, setDerivarAsignacionId] = useState<number | ''>('');
+  
+  const today = new Date();
+  const defaultDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
+  const [derivarFechaInicio, setDerivarFechaInicio] = useState<string>(defaultDate);
+  const [isDerivando, setIsDerivando] = useState(false);
+
+  const toggleRut = (rut: string) => {
+    setSelectedRuts(prev => prev.includes(rut) ? prev.filter(r => r !== rut) : [...prev, rut]);
+  };
+
+  const selectAllRuts = (ruts: string[]) => {
+    const allSelected = ruts.every(r => selectedRuts.includes(r));
+    if (allSelected) {
+      setSelectedRuts(prev => prev.filter(r => !ruts.includes(r)));
+    } else {
+      const newSelections = new Set([...selectedRuts, ...ruts]);
+      setSelectedRuts(Array.from(newSelections));
+    }
+  };
+
+  const openDerivarModal = async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      const res = await axios.get(`${apiUrl}/asignaciones/catalogo`);
+      setCatalog(res.data);
+      setIsDerivarModalOpen(true);
+    } catch (e) {
+      console.error(e);
+      alert('Error cargando catálogo');
+    }
+  };
+
+  const handleDerivarSubmit = async () => {
+    if (!derivarAsignacionId || !derivarFechaInicio) return alert('Complete todos los campos');
+    setIsDerivando(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      const asignaciones = selectedRuts.map(rut => {
+        const funcionario = haberesDetalle.find(d => d.rut === rut);
+        return {
+          funcionario_rut: rut,
+          asignacion_id: Number(derivarAsignacionId),
+          tipo_calculo: 'MONTO_FIJO',
+          valor: funcionario?.haberes[selectedHaber!] || 0,
+          fecha_inicio: derivarFechaInicio
+        };
+      });
+
+      await axios.post(`${apiUrl}/asignaciones/funcionario/bulk`, { asignaciones });
+      alert(`Derivación exitosa: ${asignaciones.length} funcionarios procesados.`);
+      setIsDerivarModalOpen(false);
+      setSelectedRuts([]);
+      setDerivarAsignacionId('');
+    } catch (e) {
+      console.error(e);
+      alert('Error al derivar asignaciones');
+    } finally {
+      setIsDerivando(false);
+    }
+  };
+
   useEffect(() => {
     const init = async () => {
       try {
@@ -114,6 +179,7 @@ export default function ReportesPage() {
         setHaberesResumen(habRes.data.resumen);
         setHaberesDetalle(habRes.data.detalle);
         setSelectedHaber(null);
+        setSelectedRuts([]);
       } catch (err: any) {
         console.error('Error fetching report stats:', err);
       } finally {
@@ -492,6 +558,15 @@ export default function ReportesPage() {
                       {haberesResumen.find(h => h.nombre_haber === selectedHaber)?.total_funcionarios} Funcionarios
                     </p>
                   </div>
+                  {selectedRuts.length > 0 && (
+                    <button 
+                      onClick={openDerivarModal}
+                      className="px-4 py-2 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-md hover:bg-primary/90 transition flex items-center gap-2"
+                    >
+                      <Download className="w-4 h-4" />
+                      Derivar ({selectedRuts.length})
+                    </button>
+                  )}
                 </div>
                 <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                   {(() => {
@@ -514,15 +589,29 @@ export default function ReportesPage() {
                       .map(([establecimiento, funcionarios]) => (
                       <div key={establecimiento} className="bg-surface-container-low rounded-2xl border border-outline-variant/20 overflow-hidden">
                         <div className="bg-surface-container py-2 px-4 border-b border-outline-variant/10 flex justify-between items-center">
-                          <h5 className="text-[10px] font-black uppercase tracking-widest text-secondary flex items-center gap-2">
-                            <Building2 className="w-3 h-3" /> {establecimiento}
-                          </h5>
+                          <div className="flex items-center gap-3">
+                            <input 
+                              type="checkbox" 
+                              checked={funcionarios.every(f => selectedRuts.includes(f.rut))} 
+                              onChange={() => selectAllRuts(funcionarios.map(f => f.rut))}
+                              className="w-3.5 h-3.5 text-primary rounded border-outline-variant/30 focus:ring-primary/20 cursor-pointer"
+                            />
+                            <h5 className="text-[10px] font-black uppercase tracking-widest text-secondary flex items-center gap-2">
+                              <Building2 className="w-3 h-3" /> {establecimiento}
+                            </h5>
+                          </div>
                           <span className="text-[10px] font-bold text-outline">{funcionarios.length} func.</span>
                         </div>
                         <div className="divide-y divide-outline-variant/10">
                           {funcionarios.map(d => (
                             <div key={d.rut} className="flex justify-between items-center p-3 bg-white hover:bg-surface-container/50 transition-colors">
-                              <div className="flex-1 min-w-0 pr-4">
+                              <div className="flex-1 min-w-0 pr-4 flex items-center gap-3">
+                                <input 
+                                  type="checkbox" 
+                                  checked={selectedRuts.includes(d.rut)} 
+                                  onChange={() => toggleRut(d.rut)}
+                                  className="w-4 h-4 text-primary rounded border-outline-variant/30 focus:ring-primary/20 cursor-pointer shrink-0"
+                                />
                                 <div className="flex items-center gap-3">
                                   <span className="text-xs font-black text-on-surface truncate">{d.nombre}</span>
                                   <span className="text-[10px] text-outline font-mono bg-surface-container px-2 py-0.5 rounded shrink-0">{d.rut}</span>
@@ -560,6 +649,86 @@ export default function ReportesPage() {
           <span className="text-[10px] font-black text-outline uppercase tracking-widest italic">Confidencial - Jefaturas RRHH</span>
         </div>
       </footer>
+
+      {/* Modal Derivación */}
+      <AnimatePresence>
+        {isDerivarModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col"
+            >
+              <div className="p-6 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-low">
+                <div>
+                  <h3 className="text-lg font-black text-on-surface font-headline uppercase tracking-tight">Derivar a Asignación Fija</h3>
+                  <p className="text-[10px] font-bold text-secondary uppercase tracking-widest mt-1">
+                    {selectedRuts.length} Funcionarios seleccionados
+                  </p>
+                </div>
+                <button 
+                  onClick={() => setIsDerivarModalOpen(false)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 text-outline transition-colors"
+                >
+                  <span className="material-symbols-outlined text-lg select-none">&#xe5cd;</span>
+                </button>
+              </div>
+
+              <div className="p-6 space-y-6 flex-1 overflow-y-auto">
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-on-surface uppercase tracking-widest">Catálogo de Asignación</label>
+                  <select 
+                    value={derivarAsignacionId}
+                    onChange={(e) => setDerivarAsignacionId(e.target.value ? Number(e.target.value) : '')}
+                    className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant/20 rounded-xl text-sm font-bold text-on-surface focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                  >
+                    <option value="">Seleccione una asignación...</option>
+                    {catalog.map(c => (
+                      <option key={c.id} value={c.id}>{c.nombre}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-on-surface uppercase tracking-widest">Fecha de Inicio</label>
+                  <input 
+                    type="date" 
+                    value={derivarFechaInicio}
+                    onChange={(e) => setDerivarFechaInicio(e.target.value)}
+                    className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant/20 rounded-xl text-sm font-bold text-on-surface focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-outline-variant/10 bg-surface-container-lowest flex gap-3">
+                <button 
+                  onClick={() => setIsDerivarModalOpen(false)}
+                  className="flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-widest text-on-surface bg-surface-container hover:bg-surface-container-high transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  onClick={handleDerivarSubmit}
+                  disabled={isDerivando || !derivarAsignacionId || !derivarFechaInicio}
+                  className="flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-widest text-white bg-primary hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isDerivando ? (
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    'Confirmar'
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

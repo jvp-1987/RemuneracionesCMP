@@ -40,6 +40,11 @@ export class AsignacionesController {
     return this.asignacionesService.getAsignacionesFuncionario(rut);
   }
 
+  @Post('funcionario/bulk')
+  createAsignacionesEnMasa(@Body() data: any) {
+    return this.asignacionesService.createAsignacionesEnMasa(data);
+  }
+
   @Post('funcionario')
   createAsignacionFuncionario(@Body() data: any) {
     return this.asignacionesService.createAsignacionFuncionario(data);
