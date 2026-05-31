@@ -33,6 +33,14 @@ export default function ControlAsignacionesPage() {
   const [filterEstado, setFilterEstado] = useState<string>('');
   const [loadingGlobal, setLoadingGlobal] = useState(false);
 
+  // Edit State
+  const [editingAsig, setEditingAsig] = useState<any>(null);
+  const [editFechaInicio, setEditFechaInicio] = useState('');
+  const [editFechaTermino, setEditFechaTermino] = useState('');
+  const [editNumResolucion, setEditNumResolucion] = useState('');
+  const [editFechaResolucion, setEditFechaResolucion] = useState('');
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+
   useEffect(() => {
     fetchPeriodos();
   }, []);
@@ -115,6 +123,36 @@ export default function ControlAsignacionesPage() {
       setVerificaciones(prev => prev.map(v => v.id === id ? { ...v, estado_verificacion } : v));
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const openEditModal = (asig: any) => {
+    setEditingAsig(asig);
+    setEditFechaInicio(asig.fecha_inicio ? new Date(asig.fecha_inicio).toISOString().split('T')[0] : '');
+    setEditFechaTermino(asig.fecha_termino ? new Date(asig.fecha_termino).toISOString().split('T')[0] : '');
+    setEditNumResolucion(asig.num_resolucion || '');
+    setEditFechaResolucion(asig.fecha_resolucion ? new Date(asig.fecha_resolucion).toISOString().split('T')[0] : '');
+  };
+
+  const handleEditSubmit = async () => {
+    if (!editingAsig) return;
+    setIsSavingEdit(true);
+    try {
+      const url = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      await axios.put(`${url}/asignaciones/funcionario/${editingAsig.id}`, {
+        fecha_inicio: editFechaInicio,
+        fecha_termino: editFechaTermino || null,
+        num_resolucion: editNumResolucion || null,
+        fecha_resolucion: editFechaResolucion || null,
+      });
+      alert('Asignación actualizada correctamente');
+      setEditingAsig(null);
+      fetchGlobalData(); // refresh the list
+    } catch (e) {
+      console.error(e);
+      alert('Error al actualizar asignación');
+    } finally {
+      setIsSavingEdit(false);
     }
   };
 
@@ -317,6 +355,7 @@ export default function ControlAsignacionesPage() {
                       <th className="px-6 py-4">Resolución</th>
                       <th className="px-6 py-4">Período</th>
                       <th className="px-6 py-4 text-center">Estado</th>
+                      <th className="px-6 py-4 text-center">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -337,7 +376,12 @@ export default function ControlAsignacionesPage() {
                           </p>
                         </td>
                         <td className="px-6 py-4 text-xs text-slate-500 font-bold">
-                          {a.num_resolucion || 'S/N'}
+                          {a.num_resolucion ? (
+                            <>
+                              N° {a.num_resolucion}
+                              {a.fecha_resolucion && <><br/><span className="text-[10px] text-slate-400 font-normal">({new Date(a.fecha_resolucion).toLocaleDateString('es-CL')})</span></>}
+                            </>
+                          ) : 'S/N'}
                         </td>
                         <td className="px-6 py-4">
                           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Inicio: <span className="text-slate-700">{new Date(a.fecha_inicio).toLocaleDateString('es-CL')}</span></p>
@@ -348,6 +392,15 @@ export default function ControlAsignacionesPage() {
                             {a.estado}
                           </span>
                         </td>
+                        <td className="px-6 py-4 text-center">
+                          <button
+                            onClick={() => openEditModal(a)}
+                            className="p-2 text-slate-400 hover:text-primary transition-colors bg-white rounded-lg border border-slate-200 hover:border-primary/50 shadow-sm"
+                            title="Editar Asignación"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">&#xe3c9;</span>
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -356,6 +409,92 @@ export default function ControlAsignacionesPage() {
             </div>
           )}
         </motion.div>
+      )}
+      
+      {/* Edit Modal */}
+      {editingAsig && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden flex flex-col"
+          >
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <div>
+                <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Editar Asignación</h3>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+                  {editingAsig.funcionario?.nombre_completo}
+                </p>
+              </div>
+              <button 
+                onClick={() => setEditingAsig(null)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 text-slate-500 transition-colors"
+              >
+                <span className="material-symbols-outlined text-lg select-none">&#xe5cd;</span>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4 flex-1 overflow-y-auto">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-slate-700 uppercase tracking-widest">Fecha Inicio</label>
+                  <input 
+                    type="date" 
+                    value={editFechaInicio}
+                    onChange={(e) => setEditFechaInicio(e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-slate-700 uppercase tracking-widest">Fecha Término (Opcional)</label>
+                  <input 
+                    type="date" 
+                    value={editFechaTermino}
+                    onChange={(e) => setEditFechaTermino(e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-slate-700 uppercase tracking-widest">N° Resolución (Opcional)</label>
+                  <input 
+                    type="text" 
+                    value={editNumResolucion}
+                    onChange={(e) => setEditNumResolucion(e.target.value)}
+                    placeholder="Ej: 1234"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-slate-700 uppercase tracking-widest">Fecha Resol. (Opcional)</label>
+                  <input 
+                    type="date" 
+                    value={editFechaResolucion}
+                    onChange={(e) => setEditFechaResolucion(e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex gap-3">
+              <button 
+                onClick={() => setEditingAsig(null)}
+                className="flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-widest text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleEditSubmit}
+                disabled={isSavingEdit || !editFechaInicio}
+                className="flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-widest text-white bg-primary hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+              >
+                {isSavingEdit ? 'Guardando...' : 'Guardar'}
+              </button>
+            </div>
+          </motion.div>
+        </div>
       )}
     </div>
   );

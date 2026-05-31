@@ -320,6 +320,7 @@ model AsignacionFuncionario {
   fecha_inicio    DateTime
   fecha_termino   DateTime?
   num_resolucion  String?
+  fecha_resolucion DateTime?
   estado          String                          @default("ACTIVO")
   catalogo        CatalogoAsignacion              @relation(fields: [asignacion_id], references: [id])
   funcionario     Funcionario                     @relation(fields: [funcionario_rut], references: [rut])

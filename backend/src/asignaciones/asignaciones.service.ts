@@ -105,7 +105,19 @@ export class AsignacionesService {
 
   async updateAsignacionFuncionario(id: number, data: any) {
     if (data.fecha_inicio) data.fecha_inicio = new Date(data.fecha_inicio);
-    if (data.fecha_termino) data.fecha_termino = new Date(data.fecha_termino);
+    
+    if (data.fecha_termino) {
+      data.fecha_termino = new Date(data.fecha_termino);
+    } else if (data.fecha_termino === "" || data.fecha_termino === null) {
+      data.fecha_termino = null;
+    }
+
+    if (data.fecha_resolucion) {
+      data.fecha_resolucion = new Date(data.fecha_resolucion);
+    } else if (data.fecha_resolucion === "" || data.fecha_resolucion === null) {
+      data.fecha_resolucion = null;
+    }
+
     return this.prisma.asignacionFuncionario.update({
       where: { id },
       data,

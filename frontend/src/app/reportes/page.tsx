@@ -78,6 +78,8 @@ export default function ReportesPage() {
   const today = new Date();
   const defaultDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
   const [derivarFechaInicio, setDerivarFechaInicio] = useState<string>(defaultDate);
+  const [derivarTipoCalculo, setDerivarTipoCalculo] = useState<'MONTO_FIJO' | 'PORCENTAJE'>('MONTO_FIJO');
+  const [derivarPorcentaje, setDerivarPorcentaje] = useState<string>('');
   const [isDerivando, setIsDerivando] = useState(false);
 
   const toggleRut = (rut: string) => {
@@ -108,6 +110,9 @@ export default function ReportesPage() {
 
   const handleDerivarSubmit = async () => {
     if (!derivarAsignacionId || !derivarFechaInicio) return alert('Complete todos los campos');
+    if (derivarTipoCalculo === 'PORCENTAJE' && (!derivarPorcentaje || isNaN(Number(derivarPorcentaje)))) {
+      return alert('Ingrese un porcentaje válido');
+    }
     setIsDerivando(true);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
@@ -116,8 +121,8 @@ export default function ReportesPage() {
         return {
           funcionario_rut: rut,
           asignacion_id: Number(derivarAsignacionId),
-          tipo_calculo: 'MONTO_FIJO',
-          valor: funcionario?.haberes[selectedHaber!] || 0,
+          tipo_calculo: derivarTipoCalculo,
+          valor: derivarTipoCalculo === 'PORCENTAJE' ? Number(derivarPorcentaje) : (funcionario?.haberes[selectedHaber!] || 0),
           fecha_inicio: derivarFechaInicio
         };
       });
@@ -127,6 +132,8 @@ export default function ReportesPage() {
       setIsDerivarModalOpen(false);
       setSelectedRuts([]);
       setDerivarAsignacionId('');
+      setDerivarPorcentaje('');
+      setDerivarTipoCalculo('MONTO_FIJO');
     } catch (e) {
       console.error(e);
       alert('Error al derivar asignaciones');
@@ -704,6 +711,39 @@ export default function ReportesPage() {
                     className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant/20 rounded-xl text-sm font-bold text-on-surface focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-on-surface uppercase tracking-widest">Tipo de Cálculo</label>
+                  <select 
+                    value={derivarTipoCalculo}
+                    onChange={(e) => setDerivarTipoCalculo(e.target.value as 'MONTO_FIJO' | 'PORCENTAJE')}
+                    className="w-full px-4 py-3 bg-surface-container-lowest border border-outline-variant/20 rounded-xl text-sm font-bold text-on-surface focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                  >
+                    <option value="MONTO_FIJO">Monto Fijo (Según haber actual)</option>
+                    <option value="PORCENTAJE">Porcentaje (%)</option>
+                  </select>
+                </div>
+
+                {derivarTipoCalculo === 'PORCENTAJE' && (
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-black text-on-surface uppercase tracking-widest">Porcentaje</label>
+                    <div className="relative">
+                      <input 
+                        type="number" 
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        value={derivarPorcentaje}
+                        onChange={(e) => setDerivarPorcentaje(e.target.value)}
+                        placeholder="Ej: 15"
+                        className="w-full pl-4 pr-12 py-3 bg-surface-container-lowest border border-outline-variant/20 rounded-xl text-sm font-bold text-on-surface focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                      />
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-outline font-bold">
+                        %
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="p-6 border-t border-outline-variant/10 bg-surface-container-lowest flex gap-3">
@@ -715,7 +755,7 @@ export default function ReportesPage() {
                 </button>
                 <button 
                   onClick={handleDerivarSubmit}
-                  disabled={isDerivando || !derivarAsignacionId || !derivarFechaInicio}
+                  disabled={isDerivando || !derivarAsignacionId || !derivarFechaInicio || (derivarTipoCalculo === 'PORCENTAJE' && !derivarPorcentaje)}
                   className="flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-widest text-white bg-primary hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isDerivando ? (
