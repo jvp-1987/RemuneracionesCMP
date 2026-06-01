@@ -71,6 +71,7 @@ export default function ConsolidadoDetailPage() {
   const [activeTab, setActiveTab] = useState<'horas' | 'viaticos' | 'atrasos' | 'procedimientos' | 'turnos'>('horas');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'TODOS' | 'PENDIENTE' | 'APROBADO' | 'RECHAZADO'>('TODOS');
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [editingRecord, setEditingRecord] = useState<any>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -450,6 +451,16 @@ export default function ConsolidadoDetailPage() {
       return true;
     });
 
+    if (statusFilter !== 'TODOS') {
+      list = list.filter(item => {
+        if (activeTab === 'horas') {
+          return item.estado_25 === statusFilter || item.estado_50 === statusFilter;
+        } else {
+          return item.estado === statusFilter;
+        }
+      });
+    }
+
     return list.filter(t => 
       t.funcionario.nombre_completo.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.funcionario.rut.includes(searchQuery) ||
@@ -540,15 +551,25 @@ export default function ConsolidadoDetailPage() {
         </div>
 
         <div className="flex items-center gap-6">
-          <div className="relative group w-72">
+          <div className="relative group w-56">
             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface text-lg select-none" dangerouslySetInnerHTML={{ __html: '&#xe8b6;' }} />
             <input 
               className="bg-surface-container-low border border-outline rounded-xl pl-11 pr-4 py-2.5 text-xs w-full focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-on-surface font-bold placeholder:text-outline"
-              placeholder="Buscar funcionario, RUT o centro..."
+              placeholder="Buscar..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as any)}
+            className="bg-surface-container-low border border-outline rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-on-surface font-bold outline-none cursor-pointer"
+          >
+            <option value="TODOS">Todos los Estados</option>
+            <option value="PENDIENTE">Pendientes</option>
+            <option value="APROBADO">Validados</option>
+            <option value="RECHAZADO">Hallazgos</option>
+          </select>
           <div className="h-8 w-[1px] bg-outline-variant/15 mx-2" />
           <div className="flex gap-4">
             <button 
