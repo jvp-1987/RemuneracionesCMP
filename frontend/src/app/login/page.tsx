@@ -68,13 +68,22 @@ export default function LoginPage() {
       >
         {/* Logo Section */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-28 h-28 bg-white/95 backdrop-blur-md rounded-[2rem] flex items-center justify-center shadow-xl mb-5 group hover:rotate-6 transition-transform duration-500 p-4 overflow-hidden border border-white/20">
-            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain mix-blend-multiply" />
+          <div className="relative mb-5 group">
+            {/* Liquid Glow Outline */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/50 to-teal-400/50 rounded-full blur opacity-60 group-hover:opacity-80 transition duration-500" />
+            {/* Circular Contour Container */}
+            <div className="relative w-28 h-28 rounded-full border-2 border-white/40 bg-white flex items-center justify-center shadow-xl p-4 overflow-hidden transition-transform duration-500 group-hover:scale-105">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+            </div>
           </div>
-          <h1 className="text-3xl font-black text-white tracking-tighter text-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
+          <h1 className="text-3.5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-200 tracking-tight text-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] pb-1">
             Motor Financiero
           </h1>
-          <p className="text-[10px] font-black text-blue-100 uppercase tracking-[0.3em] mt-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">y Gestión de Personas</p>
+          <div className="mt-2 px-4 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg">
+            <p className="text-[10px] font-black text-blue-200 uppercase tracking-[0.25em] text-center drop-shadow-sm">
+              y Gestión de Personas
+            </p>
+          </div>
         </div>
 
         {/* Login Card - Liquid Crystal / Glassmorphism */}
