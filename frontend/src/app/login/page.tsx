@@ -157,7 +157,7 @@ export default function LoginPage() {
         {/* Footer Meta */}
         <div className="mt-8 text-center flex flex-col items-center gap-3">
           <div className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg">
-            <Building2 className="w-3.5 h-3.5 text-white" />
+            <img src="/cmp-logo.jpeg" alt="CMP" className="w-4 h-4 rounded-full object-cover mix-blend-screen" />
             <span className="text-[10px] font-black text-white uppercase tracking-widest">Corporación Municipal Panguipulli</span>
           </div>
           <p className="text-[9px] text-slate-300 font-bold drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">Audit Console v2.0 • Sistema Seguro de Alta Disponibilidad</p>
