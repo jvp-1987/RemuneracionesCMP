@@ -66,25 +66,19 @@ export default function LoginPage() {
         transition={{ delay: 0.2, duration: 0.8 }}
         className="w-full max-w-md relative z-10"
       >
-        {/* Logo and Title Glass Card */}
-        <div className="bg-white/10 backdrop-blur-2xl rounded-[2.5rem] p-6 mb-6 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] border border-white/20 flex flex-col items-center gap-3">
-          <div className="relative group">
-            {/* Liquid Glow Outline */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/50 to-teal-400/50 rounded-full blur opacity-60 group-hover:opacity-80 transition duration-500" />
-            {/* Circular Contour Container */}
-            <div className="relative w-24 h-24 rounded-full border-2 border-white/40 bg-white flex items-center justify-center shadow-xl p-3.5 overflow-hidden transition-transform duration-500 group-hover:scale-105">
-              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
-            </div>
-          </div>
-          
-          <div className="text-center space-y-1">
-            <h1 className="text-2xl font-black text-white tracking-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)] uppercase">
-              Motor Financiero
-            </h1>
-            <p className="text-sm font-black text-blue-200 tracking-wider uppercase drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
-              y Gestión de Personas
-            </p>
-          </div>
+        {/* Logo Section - No background, no glass */}
+        <div className="flex flex-col items-center mb-6">
+          <img src="/logo.png" alt="Logo" className="w-28 h-28 object-contain drop-shadow-2xl mb-4 transition-transform duration-500 hover:scale-105" />
+        </div>
+        
+        {/* Title Glass Card */}
+        <div className="bg-white/10 backdrop-blur-2xl rounded-[2rem] p-5 mb-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] border border-white/20 text-center space-y-1">
+          <h1 className="text-2xl font-black text-white tracking-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)] uppercase">
+            Motor Financiero
+          </h1>
+          <p className="text-sm font-black text-blue-200 tracking-wider uppercase drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
+            y Gestión de Personas
+          </p>
         </div>
 
         {/* Login Card - Liquid Crystal / Glassmorphism */}
