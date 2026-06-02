@@ -47,8 +47,8 @@ export default function Sidebar() {
             <img src="/logo.png" alt="Logo" className="w-full h-full object-contain mix-blend-multiply" />
           </div>
           <div className="text-center px-2">
-            <h1 className="text-[15px] font-black text-primary tracking-tight leading-tight font-headline">Motor Financiero</h1>
-            <p className="text-[11px] text-secondary font-bold tracking-wide uppercase mt-0.5">y Gestión de Personas</p>
+            <h1 className="text-[15px] font-black text-primary tracking-tight leading-tight uppercase">Motor Financiero</h1>
+            <p className="text-[11px] text-primary font-black tracking-widest uppercase mt-0.5">Y Gestión de Personas</p>
           </div>
         </div>
       </div>
