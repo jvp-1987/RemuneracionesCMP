@@ -912,7 +912,7 @@ export default function ConsolidadoDetailPage() {
                   {activeTab === 'viaticos' && (
                     <div className="grid grid-cols-2 gap-8">
                       <div className="space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Base Viático ($)</label>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Total Base Viático ($)</label>
                         <input 
                           type="number"
                           defaultValue={editingRecord.monto_calculado}
@@ -921,7 +921,7 @@ export default function ConsolidadoDetailPage() {
                         />
                       </div>
                       <div className="space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Pasajes/Bencina ($)</label>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Total Pasajes ($)</label>
                         <input 
                           type="number"
                           defaultValue={editingRecord.rendicion_pasajes || 0}

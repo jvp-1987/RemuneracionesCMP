@@ -53,6 +53,8 @@ interface RowData {
   valor_inhabil: string;
   url_respaldo?: string;
   rendicion_pasajes: string;
+  cantidad_dias?: string;
+  cantidad_pasajes?: string;
 }
 
 interface PeriodoConfig {
@@ -402,7 +404,9 @@ export default function IngresoPage() {
       valor_habil: lastRow?.valor_habil || '0',
       cant_inhabil: '0',
       valor_inhabil: lastRow?.valor_inhabil || '0',
-      rendicion_pasajes: lastRow?.rendicion_pasajes || '0'
+      rendicion_pasajes: lastRow?.rendicion_pasajes || '0',
+      cantidad_dias: lastRow?.cantidad_dias || '1',
+      cantidad_pasajes: lastRow?.cantidad_pasajes || '1'
     }]);
   };
 
@@ -482,10 +486,10 @@ export default function IngresoPage() {
     try {
       const transacciones = validRows.map(r => {
         if (activeTab === 'viaticos') {
-          const days = getDaysCount(r.fecha_inicio, r.fecha_termino);
           return {
             ...r,
-            monto: String(Number(r.monto || 0) * days)
+            monto: String(Number(r.monto || 0) * Number(r.cantidad_dias || 1)),
+            rendicion_pasajes: String(Number(r.rendicion_pasajes || 0) * Number(r.cantidad_pasajes || 1))
           };
         }
         return { ...r };
@@ -559,8 +563,9 @@ export default function IngresoPage() {
       return (Number(r.cant_habil) * Number(r.valor_habil)) + (Number(r.cant_inhabil) * Number(r.valor_inhabil));
     }
     if (activeTab === 'viaticos') {
-      const days = getDaysCount(r.fecha_inicio, r.fecha_termino);
-      return (Number(r.monto || 0) * days) + Number(r.rendicion_pasajes || 0);
+      const baseTotal = Number(r.monto || 0) * Number(r.cantidad_dias || 1);
+      const pasajesTotal = Number(r.rendicion_pasajes || 0) * Number(r.cantidad_pasajes || 1);
+      return baseTotal + pasajesTotal;
     }
     return 0;
   };
@@ -1091,17 +1096,37 @@ export default function IngresoPage() {
                             <option value="FUERA COMUNA">Fuera de Comuna</option>
                           </select>
                           <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-emerald-50 rounded-[1.5rem] p-4 flex flex-col justify-center border border-emerald-100">
-                              <span className="text-[10px] font-black uppercase text-emerald-800 mb-2">Base Diario</span>
-                              <input type="number" value={row.monto} onChange={e => updateRow(row.id, 'monto', e.target.value)} className="w-full bg-transparent text-left text-2xl font-black text-emerald-600 outline-none" />
+                            <div className="bg-emerald-50 rounded-[1.5rem] p-4 flex flex-col justify-center border border-emerald-100 relative group overflow-hidden">
+                              <div className="absolute top-0 right-0 p-3 opacity-10">
+                                <span className="material-symbols-outlined text-4xl">payments</span>
+                              </div>
+                              <span className="text-[10px] font-black uppercase text-emerald-800 mb-2">Cantidad (Días)</span>
+                              <input type="number" value={row.cantidad_dias || 1} onChange={e => updateRow(row.id, 'cantidad_dias', e.target.value)} className="w-full bg-transparent text-left text-2xl font-black text-emerald-600 outline-none relative z-10" min="1" />
                             </div>
-                            <div className="bg-amber-50 rounded-[1.5rem] p-4 flex flex-col justify-center border border-amber-100">
-                              <span className="text-[10px] font-black uppercase text-amber-800 mb-2">Pasajes/Bencina</span>
-                              <input type="number" value={row.rendicion_pasajes} onChange={e => updateRow(row.id, 'rendicion_pasajes', e.target.value)} className="w-full bg-transparent text-left text-2xl font-black text-amber-600 outline-none" placeholder="0" />
+                            <div className="bg-emerald-50/50 rounded-[1.5rem] p-4 flex flex-col justify-center border border-emerald-100/50">
+                              <span className="text-[10px] font-black uppercase text-emerald-800/70 mb-2">Valor Base Diario</span>
+                              <input type="number" value={row.monto} onChange={e => updateRow(row.id, 'monto', e.target.value)} className="w-full bg-transparent text-left text-2xl font-black text-emerald-600/70 outline-none" />
+                            </div>
+                            
+                            <div className="bg-amber-50 rounded-[1.5rem] p-4 flex flex-col justify-center border border-amber-100 relative group overflow-hidden">
+                              <div className="absolute top-0 right-0 p-3 opacity-10">
+                                <span className="material-symbols-outlined text-4xl">directions_car</span>
+                              </div>
+                              <span className="text-[10px] font-black uppercase text-amber-800 mb-2">Cantidad Pasajes</span>
+                              <input type="number" value={row.cantidad_pasajes || 1} onChange={e => updateRow(row.id, 'cantidad_pasajes', e.target.value)} className="w-full bg-transparent text-left text-2xl font-black text-amber-600 outline-none relative z-10" min="0" placeholder="0" />
+                            </div>
+                            <div className="bg-amber-50/50 rounded-[1.5rem] p-4 flex flex-col justify-center border border-amber-100/50">
+                              <span className="text-[10px] font-black uppercase text-amber-800/70 mb-2">Valor Unitario Pasaje</span>
+                              <input type="number" value={row.rendicion_pasajes} onChange={e => updateRow(row.id, 'rendicion_pasajes', e.target.value)} className="w-full bg-transparent text-left text-2xl font-black text-amber-600/70 outline-none" placeholder="0" />
                             </div>
                           </div>
-                          <div className="text-[10px] font-black uppercase tracking-wider text-slate-400 text-center mt-2 bg-slate-50 py-2 rounded-xl">
-                            Cálculo Base: ${Number(row.monto || 0).toLocaleString('es-CL')} × {getDaysCount(row.fecha_inicio, row.fecha_termino)} {getDaysCount(row.fecha_inicio, row.fecha_termino) === 1 ? 'día' : 'días'} = ${(Number(row.monto || 0) * getDaysCount(row.fecha_inicio, row.fecha_termino)).toLocaleString('es-CL')}
+                          <div className="flex gap-2">
+                            <div className="flex-1 text-[9px] font-black uppercase tracking-wider text-emerald-600 text-center mt-2 bg-emerald-50 py-2 rounded-xl">
+                              Subtotal Base: ${(Number(row.monto || 0) * Number(row.cantidad_dias || 1)).toLocaleString('es-CL')}
+                            </div>
+                            <div className="flex-1 text-[9px] font-black uppercase tracking-wider text-amber-600 text-center mt-2 bg-amber-50 py-2 rounded-xl">
+                              Subtotal Pasajes: ${(Number(row.rendicion_pasajes || 0) * Number(row.cantidad_pasajes || 1)).toLocaleString('es-CL')}
+                            </div>
                           </div>
                           <div className="bg-slate-900 rounded-[2rem] p-6 text-white flex justify-between items-center">
                             <div>
