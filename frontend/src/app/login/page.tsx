@@ -57,8 +57,8 @@ export default function LoginPage() {
         }}
       />
 
-      {/* Premium Dark Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-900/50 to-slate-950/80 backdrop-blur-[3px]" />
+      {/* Premium Light Overlay */}
+      <div className="absolute inset-0 bg-white/15 backdrop-blur-[1px]" />
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -68,17 +68,17 @@ export default function LoginPage() {
       >
         {/* Logo Section */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-28 h-28 bg-white/95 backdrop-blur-md rounded-[2rem] flex items-center justify-center shadow-2xl mb-5 group hover:rotate-6 transition-transform duration-500 p-4 overflow-hidden border border-white/20">
+          <div className="w-28 h-28 bg-white/95 backdrop-blur-md rounded-[2rem] flex items-center justify-center shadow-xl mb-5 group hover:rotate-6 transition-transform duration-500 p-4 overflow-hidden border border-slate-100">
             <img src="/logo.png" alt="Logo" className="w-full h-full object-contain mix-blend-multiply" />
           </div>
-          <h1 className="text-3xl font-black text-white tracking-tighter text-center drop-shadow-xl">
+          <h1 className="text-3xl font-black text-slate-900 tracking-tighter text-center drop-shadow-sm">
             Motor Financiero
           </h1>
-          <p className="text-[10px] font-black text-slate-200 uppercase tracking-[0.3em] mt-2 drop-shadow-md">y Gestión de Personas</p>
+          <p className="text-[10px] font-black text-slate-700 uppercase tracking-[0.3em] mt-2 drop-shadow-sm">y Gestión de Personas</p>
         </div>
 
         {/* Login Card */}
-        <div className="bg-white/90 backdrop-blur-xl rounded-[2.5rem] p-10 shadow-2xl shadow-slate-950/40 border border-white/20">
+        <div className="bg-white/95 backdrop-blur-xl rounded-[2.5rem] p-10 shadow-2xl shadow-slate-200/50 border border-slate-100">
           <div className="mb-8">
             <h2 className="text-xl font-black text-slate-900">Bienvenido de nuevo</h2>
             <p className="text-xs text-slate-500 font-bold mt-1">Ingresa tus credenciales para acceder al panel</p>
@@ -152,11 +152,11 @@ export default function LoginPage() {
 
         {/* Footer Meta */}
         <div className="mt-8 text-center flex flex-col items-center gap-3">
-          <div className="flex items-center gap-2 px-4 py-2 bg-slate-900/40 backdrop-blur-md rounded-full border border-white/10">
-            <Building2 className="w-3.5 h-3.5 text-slate-200" />
-            <span className="text-[10px] font-black text-slate-200 uppercase tracking-widest">Corporación Municipal Panguipulli</span>
+          <div className="flex items-center gap-2 px-4 py-2 bg-white/70 backdrop-blur-md rounded-full border border-slate-200 shadow-sm">
+            <Building2 className="w-3.5 h-3.5 text-slate-700" />
+            <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">Corporación Municipal Panguipulli</span>
           </div>
-          <p className="text-[9px] text-slate-300 font-bold drop-shadow">Audit Console v2.0 • Sistema Seguro de Alta Disponibilidad</p>
+          <p className="text-[9px] text-slate-500 font-bold">Audit Console v2.0 • Sistema Seguro de Alta Disponibilidad</p>
         </div>
       </motion.div>
     </div>
