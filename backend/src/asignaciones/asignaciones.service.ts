@@ -5,6 +5,15 @@ import { PrismaService } from '../prisma/prisma.service';
 export class AsignacionesService {
   constructor(private prisma: PrismaService) {}
 
+  private async getCenterIds(centerId: number): Promise<number[]> {
+    const center = await this.prisma.centroSalud.findUnique({
+      where: { id: centerId },
+      include: { dependientes: true }
+    });
+    if (!center) return [centerId];
+    return [centerId, ...center.dependientes.map(d => d.id)];
+  }
+
   // ================= CATÁLOGO =================
   async getCatalogo() {
     return this.prisma.catalogoAsignacion.findMany({
@@ -134,8 +143,17 @@ export class AsignacionesService {
   }
 
   // ================= TODAS LAS ASIGNACIONES (VISTA GLOBAL) =================
-  async getAsignacionesTodas() {
+  async getAsignacionesTodas(user?: any) {
+    let whereClause: any = {};
+    if (user?.rol === 'CENTRO_SALUD' && user.centro_salud_id) {
+      const ids = await this.getCenterIds(user.centro_salud_id);
+      whereClause = {
+        funcionario: { centro_salud_id: { in: ids } }
+      };
+    }
+
     return this.prisma.asignacionFuncionario.findMany({
+      where: whereClause,
       include: {
         catalogo: true,
         funcionario: {
@@ -192,9 +210,21 @@ export class AsignacionesService {
     return this.getVerificacionMensual(periodoId);
   }
 
-  async getVerificacionMensual(periodoId: number) {
+  async getVerificacionMensual(periodoId: number, user?: any) {
+    let whereClause: any = { periodo_id: periodoId };
+    
+    if (user?.rol === 'CENTRO_SALUD' && user.centro_salud_id) {
+      const ids = await this.getCenterIds(user.centro_salud_id);
+      whereClause = {
+        ...whereClause,
+        asignacion: {
+          funcionario: { centro_salud_id: { in: ids } }
+        }
+      };
+    }
+
     return this.prisma.verificacionMensualAsignacion.findMany({
-      where: { periodo_id: periodoId },
+      where: whereClause,
       include: {
         asignacion: {
           include: {

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { AsignacionesService } from './asignaciones.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -62,8 +62,8 @@ export class AsignacionesController {
 
   // ================= TODAS LAS ASIGNACIONES =================
   @Get('todas')
-  getAsignacionesTodas() {
-    return this.asignacionesService.getAsignacionesTodas();
+  getAsignacionesTodas(@Req() req: any) {
+    return this.asignacionesService.getAsignacionesTodas(req.user);
   }
 
   // ================= VERIFICACIÓN MENSUAL =================
@@ -73,8 +73,8 @@ export class AsignacionesController {
   }
 
   @Get('verificacion/:periodoId')
-  getVerificacionMensual(@Param('periodoId') periodoId: string) {
-    return this.asignacionesService.getVerificacionMensual(Number(periodoId));
+  getVerificacionMensual(@Param('periodoId') periodoId: string, @Req() req: any) {
+    return this.asignacionesService.getVerificacionMensual(Number(periodoId), req.user);
   }
 
   @Put('verificacion/:id/estado')
