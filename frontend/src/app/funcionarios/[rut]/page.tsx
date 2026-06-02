@@ -13,6 +13,7 @@ interface Funcionario {
   categoria_aps: string;
   nivel_aps: number;
   jornada_horas: number;
+  activo: boolean;
   sueldo_base?: number;
   remuneracion_presupuesto?: {
     escala_base: number;
@@ -91,6 +92,18 @@ export default function FuncionarioDetailPage() {
   if (loading) return <div className="p-20 text-center animate-pulse text-primary font-black uppercase tracking-widest text-xs">Sincronizando Hoja de Vida...</div>;
   if (!funcionario) return <div className="p-20 text-center text-error font-extrabold whitespace-pre-line uppercase tracking-widest text-xs">Error de Carga: {rut} No Encontrado</div>;
 
+  const toggleStatus = async () => {
+    if (!confirm(`¿Estás seguro de que deseas ${funcionario.activo ? 'desactivar' : 'activar'} a este funcionario?`)) return;
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      await axios.patch(`${apiUrl}/funcionarios/${rut}`, { activo: !funcionario.activo });
+      setFuncionario({ ...funcionario, activo: !funcionario.activo });
+    } catch (err) {
+      console.error('Error toggling status:', err);
+      alert('Error al actualizar el estado del funcionario.');
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-surface">
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-outline-variant/10 px-12 h-20 flex items-center justify-between">
@@ -105,6 +118,19 @@ export default function FuncionarioDetailPage() {
           <h2 className="text-xs font-black tracking-[0.1em] text-on-surface uppercase">
             Escalafón <span className="text-primary mx-2">/</span> {funcionario.nombre_completo}
           </h2>
+        </div>
+        <div>
+          <button 
+            onClick={toggleStatus}
+            className={cn(
+              "px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all",
+              funcionario.activo 
+                ? "bg-rose-50 text-rose-600 hover:bg-rose-100 hover:shadow-lg shadow-rose-100/50" 
+                : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:shadow-lg shadow-emerald-100/50"
+            )}
+          >
+            {funcionario.activo ? 'Desactivar Funcionario' : 'Reactivar Funcionario'}
+          </button>
         </div>
       </header>
 
@@ -133,9 +159,21 @@ export default function FuncionarioDetailPage() {
                 <div className="flex flex-col items-center text-center">
                   <div className="w-44 h-44 rounded-[3rem] overflow-hidden mb-8 shadow-2xl relative group">
                     <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${funcionario.rut}`} alt={funcionario.nombre_completo} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" />
+                    {!funcionario.activo && (
+                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                        <span className="text-white font-black text-xs tracking-widest uppercase rotate-[-15deg] border-2 border-white/50 px-4 py-2 rounded-xl">INACTIVO</span>
+                      </div>
+                    )}
                   </div>
-                  <h1 className="text-3xl font-black text-on-surface tracking-tighter uppercase mb-2">{funcionario.nombre_completo}</h1>
-                  <span className="px-5 py-1.5 bg-primary/10 text-primary font-black text-[10px] uppercase tracking-[0.2em] rounded-full">{funcionario.profesion_enum}</span>
+                  <h1 className="text-3xl font-black text-on-surface tracking-tighter uppercase mb-2">
+                    {funcionario.nombre_completo}
+                  </h1>
+                  <div className="flex items-center gap-2">
+                    <span className="px-5 py-1.5 bg-primary/10 text-primary font-black text-[10px] uppercase tracking-[0.2em] rounded-full">{funcionario.profesion_enum}</span>
+                    {!funcionario.activo && (
+                      <span className="px-5 py-1.5 bg-rose-100 text-rose-700 font-black text-[10px] uppercase tracking-[0.2em] rounded-full">INACTIVO</span>
+                    )}
+                  </div>
                 </div>
                 <div className="mt-12 space-y-6 pt-8 border-t border-outline-variant/5">
                   <HeroField label="Establecimiento" value={funcionario.centro_salud?.nombre || 'Sin asignar'} />

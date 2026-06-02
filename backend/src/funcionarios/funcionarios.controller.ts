@@ -43,16 +43,16 @@ export class FuncionariosController {
   @Get('search')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
-  search(@Req() req: any, @Query('q') query: string) {
+  search(@Req() req: any, @Query('q') query: string, @Query('inactivos') inactivos?: string) {
     if (!query || query.length < 2) return [];
-    return this.funcionariosService.search(req.user, query);
+    return this.funcionariosService.search(req.user, query, inactivos === 'true');
   }
 
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
-  findAll(@Req() req: any, @Query('centroId') centroId?: string) {
-    return this.funcionariosService.findAll(req.user, centroId ? +centroId : undefined);
+  findAll(@Req() req: any, @Query('centroId') centroId?: string, @Query('inactivos') inactivos?: string) {
+    return this.funcionariosService.findAll(req.user, centroId ? +centroId : undefined, inactivos === 'true');
   }
 
   @Get(':rut')

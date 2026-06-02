@@ -46,6 +46,7 @@ model Funcionario {
   jornada_horas         Int?
   centro_salud_id       Int?
   fecha_nacimiento      DateTime?
+  activo                Boolean                 @default(true)
   asignaciones          AsignacionEspecial[]
   AsignacionFuncionario AsignacionFuncionario[]
   atrasos               Atrasos[]

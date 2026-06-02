@@ -187,10 +187,14 @@ export class FuncionariosService {
     return [centerId, ...center.dependientes.map(d => d.id)];
   }
 
-  async findAll(user: any, centroId?: number) {
+  async findAll(user: any, centroId?: number, includeInactive: boolean = false) {
     const isCentroSalud = user.rol_enum === 'CENTRO_SALUD';
     const where: any = {};
     
+    if (!includeInactive) {
+      where.activo = true;
+    }
+
     if (centroId) {
       const ids = await this.getCenterIds(centroId);
       where.centro_salud_id = { in: ids };
@@ -298,7 +302,7 @@ export class FuncionariosService {
     return this.prisma.funcionario.update({ where: { rut }, data: dto });
   }
 
-  async search(user: any, query: string) {
+  async search(user: any, query: string, includeInactive: boolean = false) {
     const where: any = {
       OR: [
         { rut: { contains: query } },
@@ -306,6 +310,10 @@ export class FuncionariosService {
       ]
     };
     
+    if (!includeInactive) {
+      where.activo = true;
+    }
+
     if (user.rol_enum === 'CENTRO_SALUD' && user.centro_salud_id) {
       const ids = await this.getCenterIds(user.centro_salud_id);
       where.centro_salud_id = { in: ids };
@@ -314,7 +322,7 @@ export class FuncionariosService {
     return this.prisma.funcionario.findMany({
       where,
       take: 5,
-      select: { rut: true, nombre_completo: true, categoria_aps: true, nivel_aps: true }
+      select: { rut: true, nombre_completo: true, categoria_aps: true, nivel_aps: true, activo: true }
     });
   }
 

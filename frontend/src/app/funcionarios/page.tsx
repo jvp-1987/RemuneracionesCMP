@@ -43,6 +43,7 @@ export default function FuncionariosPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showInactivos, setShowInactivos] = useState(false);
   const router = useRouter();
 
   // Form State
@@ -67,8 +68,10 @@ export default function FuncionariosPage() {
 
   const fetchData = async () => {
     try {
+      setLoading(true);
+      const url = `${process.env.NEXT_PUBLIC_API_URL || ''}/funcionarios${showInactivos ? '?inactivos=true' : ''}`;
       const [resFuncs, resCentros] = await Promise.all([
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL || ''}/funcionarios`),
+        axios.get(url),
         axios.get(`${process.env.NEXT_PUBLIC_API_URL || ''}/centro-salud`).catch(() => ({ data: [] }))
       ]);
       setFuncionarios(resFuncs.data);
@@ -82,7 +85,7 @@ export default function FuncionariosPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [showInactivos]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -419,6 +422,18 @@ export default function FuncionariosPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+        </div>
+        <div className="flex items-center gap-3 shrink-0 px-4">
+          <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Inactivos</span>
+          <button 
+            onClick={() => setShowInactivos(!showInactivos)}
+            className={cn(
+              "w-12 h-6 rounded-full p-1 transition-all flex items-center shadow-inner",
+              showInactivos ? "bg-primary justify-end" : "bg-slate-200 justify-start"
+            )}
+          >
+            <div className="w-4 h-4 rounded-full bg-white shadow-sm" />
+          </button>
         </div>
       </div>
 

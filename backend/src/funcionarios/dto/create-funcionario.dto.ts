@@ -29,4 +29,7 @@ export class CreateFuncionarioDto {
 
   @ApiProperty({ example: 1, required: false })
   centro_salud_id?: number;
+
+  @ApiProperty({ example: true, required: false })
+  activo?: boolean;
 }
