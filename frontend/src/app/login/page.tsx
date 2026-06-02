@@ -76,9 +76,9 @@ export default function LoginPage() {
           <h1 className="text-2xl font-black text-white tracking-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)] uppercase">
             Motor Financiero
           </h1>
-          <p className="text-sm font-black text-blue-200 tracking-wider uppercase drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
+          <h2 className="text-2xl font-black text-white tracking-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)] uppercase">
             y Gestión de Personas
-          </p>
+          </h2>
         </div>
 
         {/* Login Card - Liquid Crystal / Glassmorphism */}
