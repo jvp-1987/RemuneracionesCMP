@@ -66,31 +66,33 @@ export default function LoginPage() {
         transition={{ delay: 0.2, duration: 0.8 }}
         className="w-full max-w-md relative z-10"
       >
-        {/* Logo Section */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="relative mb-5 group">
-            {/* Liquid Glow Outline */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/50 to-teal-400/50 rounded-full blur opacity-60 group-hover:opacity-80 transition duration-500" />
-            {/* Circular Contour Container */}
-            <div className="relative w-28 h-28 rounded-full border-2 border-white/40 bg-white flex items-center justify-center shadow-xl p-4 overflow-hidden transition-transform duration-500 group-hover:scale-105">
-              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
-            </div>
-          </div>
-          <h1 className="text-3.5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-200 tracking-tight text-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] pb-1">
-            Motor Financiero
-          </h1>
-          <div className="mt-2 px-4 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-lg">
-            <p className="text-[10px] font-black text-blue-200 uppercase tracking-[0.25em] text-center drop-shadow-sm">
-              y Gestión de Personas
-            </p>
-          </div>
-        </div>
-
         {/* Login Card - Liquid Crystal / Glassmorphism */}
         <div className="bg-white/10 backdrop-blur-2xl rounded-[2.5rem] p-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] border border-white/20">
-          <div className="mb-8">
-            <h2 className="text-xl font-black text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.4)]">Bienvenido de nuevo</h2>
-            <p className="text-xs text-slate-200 font-medium mt-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">Ingresa tus credenciales para acceder al panel</p>
+          
+          {/* Logo & Branding Section inside the Card */}
+          <div className="flex flex-col items-center mb-6">
+            <div className="relative mb-4 group">
+              {/* Liquid Glow Outline */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/40 to-teal-400/40 rounded-full blur opacity-50 group-hover:opacity-75 transition duration-500" />
+              {/* Circular Contour Container */}
+              <div className="relative w-20 h-20 rounded-full border-2 border-white/40 bg-white flex items-center justify-center shadow-lg p-3 overflow-hidden transition-transform duration-500 group-hover:scale-105">
+                <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+              </div>
+            </div>
+            
+            <h1 className="text-2.5xl font-black text-white tracking-tight text-center drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
+              Motor Financiero
+            </h1>
+            <p className="text-[9px] font-bold text-blue-200 uppercase tracking-[0.25em] mt-1 text-center drop-shadow-sm">
+              y Gestión de Personas
+            </p>
+
+            <div className="w-full border-b border-white/10 mt-6" />
+          </div>
+
+          <div className="mb-6">
+            <h2 className="text-lg font-black text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]">Bienvenido de nuevo</h2>
+            <p className="text-xs text-slate-200 font-medium mt-1">Ingresa tus credenciales para acceder al panel</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
