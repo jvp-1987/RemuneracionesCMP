@@ -169,7 +169,19 @@ export default function FuncionarioDetailPage() {
                     {funcionario.nombre_completo}
                   </h1>
                   <div className="flex items-center gap-2">
-                    <span className="px-5 py-1.5 bg-primary/10 text-primary font-black text-[10px] uppercase tracking-[0.2em] rounded-full">{funcionario.profesion_enum}</span>
+                    <span className="px-5 py-1.5 bg-primary/10 text-primary font-black text-[10px] uppercase tracking-[0.2em] rounded-full">
+                      {(() => {
+                        switch (funcionario.categoria_aps?.toUpperCase()) {
+                          case 'A': return 'Médicos, Químicos y Dentistas';
+                          case 'B': return 'Otros profesionales';
+                          case 'C': return 'Técnicos de nivel superior';
+                          case 'D': return 'Técnicos de Salud';
+                          case 'E': return 'Administrativos de Salud';
+                          case 'F': return 'Auxiliares de servicios de Salud';
+                          default: return funcionario.profesion_enum || 'Sin Asignar';
+                        }
+                      })()}
+                    </span>
                     {!funcionario.activo && (
                       <span className="px-5 py-1.5 bg-rose-100 text-rose-700 font-black text-[10px] uppercase tracking-[0.2em] rounded-full">INACTIVO</span>
                     )}
