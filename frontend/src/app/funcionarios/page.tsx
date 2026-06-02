@@ -533,7 +533,19 @@ export default function FuncionariosPage() {
                     </td>
                     <td className="px-12 py-8 text-left">
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] bg-slate-50 px-4 py-2 border border-slate-100 rounded-xl group-hover/row:bg-white transition-all">{f.profesion_enum}</span>
+                        <span className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] bg-slate-50 px-4 py-2 border border-slate-100 rounded-xl group-hover/row:bg-white transition-all">
+                          {(() => {
+                            switch (f.categoria_aps?.toUpperCase()) {
+                              case 'A': return 'Médicos, Químicos y Dentistas';
+                              case 'B': return 'Otros profesionales';
+                              case 'C': return 'Técnicos de nivel superior';
+                              case 'D': return 'Técnicos de Salud';
+                              case 'E': return 'Administrativos de Salud';
+                              case 'F': return 'Auxiliares de servicios de Salud';
+                              default: return f.profesion_enum || 'Sin Asignar';
+                            }
+                          })()}
+                        </span>
                         {!f.centro_salud && (
                           <select 
                             className="text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-xl px-3 py-2 outline-none cursor-pointer hover:bg-emerald-100 transition-colors"
