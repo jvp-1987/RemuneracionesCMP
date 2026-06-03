@@ -17,7 +17,14 @@ export class UsuariosService {
   }
 
   async create(createUsuarioDto: CreateUsuarioDto) {
-    const password = createUsuarioDto.password || '123456';
+    let password = createUsuarioDto.password;
+    if (!password && createUsuarioDto.rut) {
+      password = createUsuarioDto.rut.split('-')[0].replace(/\./g, '');
+    }
+    if (!password) {
+      password = 'changeMe'; // Fallback
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     
     // Create a copy of the DTO to avoid mutating the original

@@ -372,7 +372,7 @@ export default function UsuariosPage() {
                   </div>
                   <div className="space-y-3 col-span-2 md:col-span-1">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
-                      Contraseña {editingId && <span className="text-slate-400 font-normal lowercase">(Dejar en blanco para mantener actual)</span>}
+                      Contraseña {editingId ? <span className="text-slate-400 font-normal lowercase">(Dejar en blanco para mantener)</span> : <span className="text-slate-400 font-normal lowercase">(Opcional, por defecto será RUT sin dígito)</span>}
                     </label>
                     <div className="relative">
                       <Shield className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -380,8 +380,7 @@ export default function UsuariosPage() {
                         type="text" 
                         value={formData.password}
                         onChange={e => setFormData({...formData, password: e.target.value})}
-                        placeholder="••••••••"
-                        required={!editingId}
+                        placeholder={editingId ? "••••••••" : "Ej: 16853223"}
                         className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
                       />
                     </div>
