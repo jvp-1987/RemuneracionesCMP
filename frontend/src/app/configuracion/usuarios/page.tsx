@@ -49,6 +49,7 @@ export default function UsuariosPage() {
     rut: '',
     nombre: '',
     email: '',
+    password: '',
     rol_enum: 'CENTRO_SALUD',
     centro_salud_id: ''
   });
@@ -75,10 +76,14 @@ export default function UsuariosPage() {
     e.preventDefault();
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-      const dataToSend = {
+      const dataToSend: any = {
         ...formData,
         centro_salud_id: formData.centro_salud_id ? parseInt(formData.centro_salud_id) : null
       };
+
+      if (!dataToSend.password) {
+        delete dataToSend.password; // Don't send empty password
+      }
 
       if (editingId) {
         await axios.patch(`${apiUrl}/usuarios/${editingId}`, dataToSend);
@@ -88,7 +93,7 @@ export default function UsuariosPage() {
 
       setIsModalOpen(false);
       setEditingId(null);
-      setFormData({ rut: '', nombre: '', email: '', rol_enum: 'CENTRO_SALUD', centro_salud_id: '' });
+      setFormData({ rut: '', nombre: '', email: '', password: '', rol_enum: 'CENTRO_SALUD', centro_salud_id: '' });
       fetchData();
     } catch (error) {
       console.error('Error creating/updating user:', error);
@@ -102,6 +107,7 @@ export default function UsuariosPage() {
       rut: user.rut,
       nombre: user.nombre,
       email: user.email,
+      password: '',
       rol_enum: user.rol_enum,
       centro_salud_id: user.centro_salud_id ? String(user.centro_salud_id) : ''
     });
@@ -150,6 +156,7 @@ export default function UsuariosPage() {
                   nombre: '',
                   rut: '',
                   email: '',
+                  password: '',
                   rol_enum: 'INVITADO',
                   centro_salud_id: ''
                 });
@@ -290,7 +297,7 @@ export default function UsuariosPage() {
               onClick={() => {
                 setIsModalOpen(false);
                 setEditingId(null);
-                setFormData({ rut: '', nombre: '', email: '', rol_enum: 'CENTRO_SALUD', centro_salud_id: '' });
+                setFormData({ rut: '', nombre: '', email: '', password: '', rol_enum: 'CENTRO_SALUD', centro_salud_id: '' });
               }}
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
             />
@@ -315,7 +322,7 @@ export default function UsuariosPage() {
                     onClick={() => {
                       setIsModalOpen(false);
                       setEditingId(null);
-                      setFormData({ rut: '', nombre: '', email: '', rol_enum: 'CENTRO_SALUD', centro_salud_id: '' });
+                      setFormData({ rut: '', nombre: '', email: '', password: '', rol_enum: 'CENTRO_SALUD', centro_salud_id: '' });
                     }}
                     className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:text-rose-600 transition-all"
                   >
@@ -349,7 +356,7 @@ export default function UsuariosPage() {
                       className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
                     />
                   </div>
-                  <div className="space-y-3 col-span-2">
+                  <div className="space-y-3 col-span-2 md:col-span-1">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Correo Electrónico</label>
                     <div className="relative">
                       <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -359,6 +366,22 @@ export default function UsuariosPage() {
                         value={formData.email}
                         onChange={e => setFormData({...formData, email: e.target.value})}
                         placeholder="usuario@panguipulli.cl"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-3 col-span-2 md:col-span-1">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
+                      Contraseña {editingId && <span className="text-slate-400 font-normal lowercase">(Dejar en blanco para mantener actual)</span>}
+                    </label>
+                    <div className="relative">
+                      <Shield className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input 
+                        type="text" 
+                        value={formData.password}
+                        onChange={e => setFormData({...formData, password: e.target.value})}
+                        placeholder="••••••••"
+                        required={!editingId}
                         className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all"
                       />
                     </div>
@@ -406,7 +429,7 @@ export default function UsuariosPage() {
                     onClick={() => {
                       setIsModalOpen(false);
                       setEditingId(null);
-                      setFormData({ rut: '', nombre: '', email: '', rol_enum: 'CENTRO_SALUD', centro_salud_id: '' });
+                      setFormData({ rut: '', nombre: '', email: '', password: '', rol_enum: 'CENTRO_SALUD', centro_salud_id: '' });
                     }}
                     className="flex-1 py-4 rounded-2xl bg-slate-100 text-slate-600 font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all"
                   >

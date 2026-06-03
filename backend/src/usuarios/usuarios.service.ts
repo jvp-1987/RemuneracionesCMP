@@ -47,9 +47,15 @@ export class UsuariosService {
 
   async update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
     await this.findOne(id);
+    const updateData = { ...updateUsuarioDto };
+    if (updateData.password) {
+      updateData.password = await bcrypt.hash(updateData.password, 10);
+    } else {
+      delete updateData.password; // Prevent saving empty password
+    }
     return this.prisma.usuario.update({
       where: { id },
-      data: updateUsuarioDto,
+      data: updateData,
     });
   }
 
