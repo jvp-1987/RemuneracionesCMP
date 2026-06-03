@@ -16,7 +16,7 @@ interface Periodo {
 
 export default function ControlAsignacionesPage() {
   const router = useRouter();
-  const { isReadOnly } = useAuth();
+  const { isReadOnly, user } = useAuth();
   const [activeTab, setActiveTab] = useState<'auditoria' | 'global'>('auditoria');
 
   // Auditoria State
@@ -311,9 +311,10 @@ export default function ControlAsignacionesPage() {
               <select 
                 value={filterCentroId} 
                 onChange={(e) => setFilterCentroId(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                disabled={user?.rol === 'CENTRO_SALUD'}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
               >
-                <option value="">Todos los Centros</option>
+                <option value="">{user?.rol === 'CENTRO_SALUD' ? 'Mi Centro Asignado' : 'Todos los Centros'}</option>
                 {centros.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
               </select>
             </div>
