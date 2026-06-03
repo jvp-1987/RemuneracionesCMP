@@ -173,6 +173,7 @@ export default function LoginPage() {
               )}
             </button>
             
+            {/* 
             <div className="flex items-center gap-4 py-2">
               <div className="h-px bg-white/20 flex-1"></div>
               <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest">O ingresar con</span>
@@ -189,6 +190,7 @@ export default function LoginPage() {
                 text="continue_with"
               />
             </div>
+            */}
           </form>
           
         </div>
