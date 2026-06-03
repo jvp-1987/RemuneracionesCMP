@@ -18,6 +18,8 @@ interface AuthContextType {
   setSession: (token: string, user: User) => void;
   logout: () => void;
   loading: boolean;
+  isReadOnly: boolean;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -26,6 +28,8 @@ const AuthContext = createContext<AuthContextType>({
   setSession: () => {},
   logout: () => {},
   loading: true,
+  isReadOnly: false,
+  isAdmin: false,
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -107,8 +111,11 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     };
   }, [token, logout]);
 
+  const isReadOnly = user?.rol === 'INVITADO';
+  const isAdmin = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO';
+
   return (
-    <AuthContext.Provider value={{ user, token, setSession, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, setSession, logout, loading, isReadOnly, isAdmin }}>
       {!loading && children}
     </AuthContext.Provider>
   );

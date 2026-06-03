@@ -89,8 +89,8 @@ export default function ConsolidadoDetailPage() {
   const canValidateFinanzas = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'FINANZAS';
   const canFinalize = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO';
   
-  // A record is locked for CENTRO_SALUD if Control Interno already gave V°B°
-  const isLocked = data?.vb_control_interno && user?.rol === 'CENTRO_SALUD';
+  // A record is locked for CENTRO_SALUD if Control Interno already gave V°B°, or if user is INVITADO
+  const isLocked = (data?.vb_control_interno && user?.rol === 'CENTRO_SALUD') || user?.rol === 'INVITADO';
 
   const fetchData = async () => {
     try {
@@ -623,11 +623,11 @@ export default function ConsolidadoDetailPage() {
 
             <label className={cn(
               "flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-indigo-700 transition-all shadow-lg",
-              isRelojLoading ? "opacity-50 pointer-events-none" : ""
+              isRelojLoading || user?.rol === 'INVITADO' ? "opacity-50 pointer-events-none" : ""
             )}>
               <span className="material-symbols-outlined text-sm">{isRelojLoading ? 'sync' : 'schedule'}</span>
               {isRelojLoading ? 'Procesando...' : 'Proyectar Asistencia (Reloj)'}
-              <input type="file" className="hidden" onChange={handleAttendanceUpload} accept=".xls,.xlsx" />
+              <input type="file" className="hidden" onChange={handleAttendanceUpload} accept=".xls,.xlsx" disabled={user?.rol === 'INVITADO'} />
             </label>
           </div>
         </div>

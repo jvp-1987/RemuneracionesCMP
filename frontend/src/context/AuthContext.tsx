@@ -15,6 +15,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isAdmin: boolean;
+  isReadOnly: boolean;
   isLoading: boolean;
   login: (userData: User, token: string) => void;
   logout: () => void;
@@ -68,9 +69,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const isAdmin = user?.rol === 'ADMIN' || user?.rol_enum === 'ADMIN';
+  const isReadOnly = user?.rol === 'INVITADO' || user?.rol_enum === 'INVITADO';
 
   return (
-    <AuthContext.Provider value={{ user, isAdmin, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isAdmin, isReadOnly, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

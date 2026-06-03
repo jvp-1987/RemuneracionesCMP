@@ -5,6 +5,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/AuthProvider';
 
 interface Periodo {
   id: number;
@@ -15,6 +16,7 @@ interface Periodo {
 
 export default function ControlAsignacionesPage() {
   const router = useRouter();
+  const { isReadOnly } = useAuth();
   const [activeTab, setActiveTab] = useState<'auditoria' | 'global'>('auditoria');
 
   // Auditoria State
@@ -353,14 +355,13 @@ export default function ControlAsignacionesPage() {
               <div className="max-h-[600px] overflow-y-auto">
                 <table className="w-full text-left border-collapse relative">
                   <thead className="sticky top-0 bg-slate-50/90 backdrop-blur-sm z-10">
-                    <tr className="border-b border-slate-200 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 shadow-sm">
-                      <th className="px-6 py-4">Funcionario / Centro</th>
-                      <th className="px-6 py-4">Asignación</th>
-                      <th className="px-6 py-4">Monto / Tipo</th>
-                      <th className="px-6 py-4">Resolución</th>
-                      <th className="px-6 py-4">Período</th>
-                      <th className="px-6 py-4 text-center">Estado</th>
-                      <th className="px-6 py-4 text-center">Acciones</th>
+                    <tr className="bg-slate-50/50">
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Funcionario</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Asignación</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Resolución</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Vigencia</th>
+                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Estado</th>
+                      {!isReadOnly && <th className="px-6 py-4 text-right"></th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -374,9 +375,7 @@ export default function ControlAsignacionesPage() {
                         </td>
                         <td className="px-6 py-4">
                           <p className="text-xs font-bold text-slate-700">{a.catalogo?.nombre}</p>
-                        </td>
-                        <td className="px-6 py-4">
-                          <p className="text-sm font-black text-slate-900">
+                          <p className="text-[10px] text-slate-900 font-black mt-1">
                             {a.tipo_calculo === 'PORCENTAJE' ? `${a.valor}%` : `$${Number(a.valor || 0).toLocaleString('es-CL')}`}
                           </p>
                         </td>
@@ -397,15 +396,17 @@ export default function ControlAsignacionesPage() {
                             {a.estado}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-center">
-                          <button
+                        {!isReadOnly && (
+                        <td className="px-6 py-4 text-right">
+                          <button 
                             onClick={() => openEditModal(a)}
-                            className="p-2 text-slate-400 hover:text-primary transition-colors bg-white rounded-lg border border-slate-200 hover:border-primary/50 shadow-sm"
-                            title="Editar Asignación"
+                            className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:text-primary hover:bg-primary/10 transition-all border border-slate-200 hover:border-primary/30"
+                            title="Editar Datos de Resolución y Fechas"
                           >
-                            <span className="material-symbols-outlined text-[16px]">&#xe3c9;</span>
+                            <span className="material-symbols-outlined text-[16px]">edit</span>
                           </button>
                         </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>

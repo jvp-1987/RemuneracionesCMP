@@ -6,9 +6,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   UserPlus, Shield, Building2, Mail, Fingerprint, 
   Trash2, Edit3, Check, X, Search, ChevronRight,
-  MoreVertical, ShieldCheck, ShieldAlert
+  MoreVertical, ShieldCheck, ShieldAlert, Eye
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
+import { useAuth } from '@/components/AuthProvider';
 
 interface Usuario {
   id: number;
@@ -31,9 +32,11 @@ const ROLES = [
   { id: 'CONTROL', label: 'Unidad de Control', icon: Shield, color: 'text-blue-600 bg-blue-50' },
   { id: 'FINANZAS', label: 'Finanzas / Remuneraciones', icon: Shield, color: 'text-emerald-600 bg-emerald-50' },
   { id: 'CENTRO_SALUD', label: 'Gestor de Centro', icon: Building2, color: 'text-amber-600 bg-amber-50' },
+  { id: 'INVITADO', label: 'Invitado (Solo Lectura)', icon: Eye, color: 'text-slate-600 bg-slate-100' },
 ];
 
 export default function UsuariosPage() {
+  const { isReadOnly } = useAuth();
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [centros, setCentros] = useState<CentroSalud[]>([]);
   const [loading, setLoading] = useState(true);
@@ -138,13 +141,27 @@ export default function UsuariosPage() {
             <p className="text-slate-500 font-bold text-[11px] tracking-widest uppercase">Perfiles de Acceso y Permisos</p>
           </div>
         </div>
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-8 py-4 rounded-2xl bg-primary text-white font-black hover:brightness-110 transition-all text-xs uppercase tracking-widest shadow-xl shadow-primary/20 group"
-        >
-          <UserPlus className="w-4 h-4 group-hover:scale-110 transition-transform" />
-          Nuevo Usuario
-        </button>
+        <div className="flex items-center gap-4">
+          {!isReadOnly && (
+            <button 
+              onClick={() => {
+                setEditingId(null);
+                setFormData({
+                  nombre: '',
+                  rut: '',
+                  email: '',
+                  rol_enum: 'INVITADO',
+                  centro_salud_id: ''
+                });
+                setIsModalOpen(true);
+              }}
+              className="flex items-center gap-2 px-8 py-4 rounded-2xl bg-primary text-white font-black hover:brightness-110 transition-all text-xs uppercase tracking-widest shadow-xl shadow-primary/20 group"
+            >
+              <UserPlus className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              Nuevo Usuario
+            </button>
+          )}
+        </div>
       </motion.div>
 
       {/* Search & Stats Bar */}
@@ -225,20 +242,24 @@ export default function UsuariosPage() {
                       </div>
                     </td>
                     <td className="px-10 py-8 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button 
-                          onClick={() => handleEditClick(user)}
-                          className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-primary hover:border-primary/30 transition-all shadow-sm"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(user.id)}
-                          className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                      <div className="flex justify-end gap-2">
+                      {!isReadOnly && (
+                        <>
+                          <button
+                            onClick={() => handleEditClick(user)}
+                            className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-primary hover:border-primary/30 transition-all shadow-sm"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(user.id)}
+                            className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
                     </td>
                   </motion.tr>
                 );
@@ -359,7 +380,7 @@ export default function UsuariosPage() {
                     <select 
                       value={formData.centro_salud_id}
                       onChange={e => setFormData({...formData, centro_salud_id: e.target.value})}
-                      disabled={formData.rol_enum === 'ADMIN' || formData.rol_enum === 'CONTROL' || formData.rol_enum === 'FINANZAS'}
+                      disabled={formData.rol_enum === 'ADMIN' || formData.rol_enum === 'CONTROL' || formData.rol_enum === 'FINANZAS' || formData.rol_enum === 'INVITADO'}
                       required={formData.rol_enum === 'CENTRO_SALUD'}
                       className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all appearance-none disabled:opacity-50"
                     >

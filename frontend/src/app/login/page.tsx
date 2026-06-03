@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Fingerprint, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Building2 } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 export default function LoginPage() {
   const { setSession } = useAuth();
@@ -43,7 +44,28 @@ export default function LoginPage() {
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    setLoading(true);
+    setError('');
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || 'https://backend-production-7269.up.railway.app';
+      const response = await axios.post(`${baseUrl}/auth/google`, {
+        credential: credentialResponse.credential,
+      });
+
+      const { access_token, usuario } = response.data;
+      setSession(access_token, usuario);
+      router.push('/');
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || 'Error desconocido';
+      setError(`[Error Google]: ${msg}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'your_google_client_id_here'}>
     <div className="min-h-screen flex items-center justify-center p-6 font-manrope relative overflow-hidden">
       
       {/* Background Image with Ken Burns Effect */}
@@ -90,7 +112,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-200 uppercase tracking-widest ml-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">RUT del Usuario</label>
+              <label className="text-[10px] font-black text-slate-200 uppercase tracking-widest ml-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">RUT o Correo Electrónico</label>
               <div className="relative group">
                 <Fingerprint className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 group-focus-within:text-white transition-colors" />
                 <input 
@@ -98,7 +120,7 @@ export default function LoginPage() {
                   type="text" 
                   value={rut}
                   onChange={(e) => setRut(e.target.value)}
-                  placeholder="12.345.678-9"
+                  placeholder="Ej: 12.345.678-9 o usuario@email.com"
                   className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-white placeholder-white/40 focus:ring-4 focus:ring-white/10 focus:border-white/40 focus:bg-white/15 transition-all outline-none"
                 />
               </div>
@@ -150,6 +172,23 @@ export default function LoginPage() {
                 </>
               )}
             </button>
+            
+            <div className="flex items-center gap-4 py-2">
+              <div className="h-px bg-white/20 flex-1"></div>
+              <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest">O ingresar con</span>
+              <div className="h-px bg-white/20 flex-1"></div>
+            </div>
+
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Error al conectar con Google')}
+                useOneTap
+                theme="filled_black"
+                shape="pill"
+                text="continue_with"
+              />
+            </div>
           </form>
           
         </div>
@@ -164,5 +203,6 @@ export default function LoginPage() {
         </div>
       </motion.div>
     </div>
+    </GoogleOAuthProvider>
   );
 }

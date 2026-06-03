@@ -19,6 +19,7 @@ import {
   RefreshCcw,
   CheckCircle2
 } from 'lucide-react';
+import { useAuth } from '@/components/AuthProvider';
 
 interface Funcionario {
   rut: string;
@@ -34,6 +35,7 @@ interface Funcionario {
 }
 
 export default function FuncionariosPage() {
+  const { isReadOnly } = useAuth();
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [centros, setCentros] = useState<{id: number, nombre: string}[]>([]);
   const [selectedEstablishment, setSelectedEstablishment] = useState<string | null>(null);
@@ -387,27 +389,31 @@ export default function FuncionariosPage() {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <input 
-            type="file" 
-            id="excel-upload" 
-            className="hidden" 
-            accept=".xlsx, .xls"
-            onChange={handleFileUpload}
-          />
-          <label 
-            htmlFor="excel-upload"
-            className="px-8 py-4 rounded-2xl bg-white border-2 border-primary/20 text-primary font-black hover:bg-primary/5 active:scale-95 transition-all flex items-center gap-3 shadow-xl text-[11px] uppercase tracking-widest cursor-pointer group"
-          >
-            <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">upload_file</span>
-            Importar Maestro
-          </label>
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="px-8 py-4 rounded-2xl bg-primary text-white font-black hover:brightness-110 active:scale-95 transition-all flex items-center gap-3 shadow-2xl shadow-primary/20 text-[11px] uppercase tracking-widest group"
-          >
-            <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">person_add</span>
-            Incorporar Nuevo
-          </button>
+          {!isReadOnly && (
+            <>
+              <input 
+                type="file" 
+                id="excel-upload" 
+                className="hidden" 
+                accept=".xlsx, .xls"
+                onChange={handleFileUpload}
+              />
+              <label 
+                htmlFor="excel-upload"
+                className="px-8 py-4 rounded-2xl bg-white border-2 border-primary/20 text-primary font-black hover:bg-primary/5 active:scale-95 transition-all flex items-center gap-3 shadow-xl text-[11px] uppercase tracking-widest cursor-pointer group"
+              >
+                <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">upload_file</span>
+                Importar Maestro
+              </label>
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="px-8 py-4 rounded-2xl bg-primary text-white font-black hover:brightness-110 active:scale-95 transition-all flex items-center gap-3 shadow-2xl shadow-primary/20 text-[11px] uppercase tracking-widest group"
+              >
+                <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">person_add</span>
+                Incorporar Nuevo
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -561,7 +567,7 @@ export default function FuncionariosPage() {
                             }
                           })()}
                         </span>
-                        {!f.centro_salud && (
+                        {!f.centro_salud && !isReadOnly && (
                           <select 
                             className="text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-xl px-3 py-2 outline-none cursor-pointer hover:bg-emerald-100 transition-colors"
                             onClick={(e) => e.stopPropagation()}

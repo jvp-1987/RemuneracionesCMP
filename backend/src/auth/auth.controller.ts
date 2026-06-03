@@ -15,6 +15,13 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
+  @Post('google')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Iniciar sesión con Google OAuth' })
+  googleLogin(@Body('credential') credential: string) {
+    return this.authService.googleLogin(credential);
+  }
+
   @Get('bootstrap')
   @ApiOperation({ summary: 'Crear el primer usuario administrador (solo si la tabla está vacía)' })
   bootstrap() {

@@ -294,7 +294,7 @@ function MiniCalendar({ startDate, endDate, onChange, periodoInicio, periodoFin,
 // ─── Página Principal ──────────────────────────────────────────────────────────
 export default function IngresoPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isReadOnly } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('fondos_presupuestarios');
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [rows, setRows] = useState<RowData[]>([]);
@@ -679,13 +679,15 @@ export default function IngresoPage() {
               <span className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Registro Centralizado de Haberes</span>
             </div>
             
-            <button 
-              onClick={() => setShowMaestroModal(true)}
-              className="flex items-center gap-2 px-5 py-2 rounded-full bg-slate-900 text-white hover:bg-primary transition-all shadow-xl shadow-slate-200 group"
-            >
-              <RefreshCcw className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-700" />
-              <span className="text-[9px] font-black uppercase tracking-widest">Sincronizar Maestro</span>
-            </button>
+            {!isReadOnly && (
+              <button 
+                onClick={() => setShowMaestroModal(true)}
+                className="flex items-center gap-2 px-5 py-2 rounded-full bg-slate-900 text-white hover:bg-primary transition-all shadow-xl shadow-slate-200 group"
+              >
+                <RefreshCcw className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-700" />
+                <span className="text-[9px] font-black uppercase tracking-widest">Sincronizar Maestro</span>
+              </button>
+            )}
           </motion.div>
           <h1 className="text-3xl xl:text-5xl font-black text-slate-900 leading-[0.9] tracking-tighter">
             Editor de <br/><span className="text-primary italic">Novedades</span>
@@ -1418,6 +1420,7 @@ export default function IngresoPage() {
             </AnimatePresence>
             <button
               onClick={() => {
+                if (isReadOnly) return;
                 const storageKey = `draft_ingreso_${user?.id}_${activeTab}_${periodoId}`;
                 localStorage.setItem(storageKey, JSON.stringify(rows));
                 setShowSuccess(true);
@@ -1430,7 +1433,7 @@ export default function IngresoPage() {
             </button>
             <button
               onClick={handleSave}
-              disabled={loading || rows.every(r => !r.rut)}
+              disabled={loading || rows.every(r => !r.rut) || isReadOnly}
               className={cn(
                 "flex items-center gap-2 bg-gradient-to-br from-slate-800 to-slate-900 text-white px-6 py-3.5 rounded-full font-black uppercase tracking-widest shadow-lg hover:shadow-primary/20 transition-all text-[10px] disabled:opacity-50 whitespace-nowrap",
                 !loading && "hover:from-primary hover:to-indigo-600"

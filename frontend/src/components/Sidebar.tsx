@@ -34,6 +34,10 @@ export default function Sidebar() {
     if (user.rol === 'CONTROL' || user.rol === 'FINANZAS') {
       return ['Dashboard', 'Consolidados', 'Funcionarios', 'Reportes', 'Asignaciones Fijas'].includes(item.name);
     }
+
+    if (user.rol === 'INVITADO') {
+      return ['Dashboard', 'Consolidados', 'Funcionarios', 'Reportes', 'Asignaciones Fijas'].includes(item.name);
+    }
     
     return false;
   });
