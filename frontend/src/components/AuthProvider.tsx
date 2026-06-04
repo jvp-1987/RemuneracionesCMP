@@ -42,19 +42,22 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const pathname = usePathname();
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
-
-    // Configurar URL base global
+    // Configurar URL base global y credenciales
     axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://backend-production-7269.up.railway.app';
+    axios.defaults.withCredentials = true;
 
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(JSON.parse(savedUser));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
-    }
-
-    setLoading(false);
+    // Verificar sesión con el backend
+    axios.get('/auth/me')
+      .then(res => {
+        setUser(res.data.usuario);
+        setToken('cookie-session'); // Marcador
+        setLoading(false);
+      })
+      .catch(() => {
+        setUser(null);
+        setToken(null);
+        setLoading(false);
+      });
   }, []);
 
   useEffect(() => {
@@ -70,20 +73,19 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   }, [loading, token, pathname, router]);
 
   const setSession = (newToken: string, newUser: User) => {
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('user', JSON.stringify(newUser));
-    setToken(newToken);
+    // El token real ya viene en la cookie HttpOnly
+    setToken('cookie-session');
     setUser(newUser);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
   };
 
-  const logout = React.useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('usuario');
+  const logout = React.useCallback(async () => {
+    try {
+      await axios.post('/auth/logout');
+    } catch (e) {
+      console.error('Logout error', e);
+    }
     setToken(null);
     setUser(null);
-    delete axios.defaults.headers.common['Authorization'];
     router.push('/login');
   }, [router]);
 
