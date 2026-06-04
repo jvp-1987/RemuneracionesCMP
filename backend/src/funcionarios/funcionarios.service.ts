@@ -95,7 +95,7 @@ export class FuncionariosService {
     const fullNomIdx = headers.findIndex((h: string) => h && (h.includes('nombre completo') || h === 'nombre' || h === 'full_name'));
     const catIdx = headers.findIndex((h: string) => h === 'categoria' || h === 'categoria_aps' || h === 'category');
     const nivIdx = headers.findIndex((h: string) => h === 'nivel' || h === 'nivel_aps' || h === 'current_level');
-    const estIdx = headers.findIndex((h: string) => h === 'establecimiento' || h === 'department');
+    const estIdx = headers.findIndex((h: string) => h === 'establecimiento' || h === 'department' || h === 'lugar de trabajo' || h === 'centro de costo' || h.includes('establecimiento'));
     
     let profIdx = headers.findIndex((h: string) => h === 'cargo' || h === 'position');
     if (profIdx === -1) {
