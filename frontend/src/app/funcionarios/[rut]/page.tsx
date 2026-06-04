@@ -188,58 +188,78 @@ export default function FuncionarioDetailPage() {
                   </div>
                 </div>
                 <div className="mt-12 space-y-6 pt-8 border-t border-outline-variant/5">
-                  <HeroField label="Establecimiento" value={funcionario.centro_salud?.nombre || 'Sin asignar'} />
-                  <HeroField 
-                    label="Sueldo Base" 
-                    value={`$${Math.round(
-                      (funcionario.remuneracion_presupuesto?.escala_base || 0) + (funcionario.remuneracion_presupuesto?.asignacion_aps || 0) || funcionario.sueldo_base || 0
-                    ).toLocaleString('es-CL')}`} 
-                  />
-                  <HeroField label="Ley Médica" value={`Cat. ${funcionario.categoria_aps} • Niv. ${funcionario.nivel_aps}`} />
-                  <HeroField label="Tipo de Contrato" value={
-                    (() => {
-                      let contratoKey: string | undefined;
-                      let matchedDetalle: any = {};
+                  {(() => {
+                    const detalle = funcionario.liquidaciones?.find((l: any) => l.detalle_json && Object.keys(l.detalle_json).length > 5)?.detalle_json || funcionario.liquidaciones?.[0]?.detalle_json || {};
+                    
+                    let centroNombre = funcionario.centro_salud?.nombre;
+                    if (!centroNombre && detalle) {
+                       const centroKey = Object.keys(detalle).find(k => {
+                         const key = k.toUpperCase();
+                         return key === 'ESTABLECIMIENTO' || key === 'LUGAR DE TRABAJO' || key === 'CENTRO DE COSTO' || key.includes('ESTABLECIMIENTO');
+                       });
+                       if (centroKey && detalle[centroKey]) {
+                          centroNombre = String(detalle[centroKey]).trim();
+                       }
+                    }
+                    
+                    let jornada = funcionario.jornada_horas;
+                    if (!jornada && detalle) {
+                       const jornadaKey = Object.keys(detalle).find(k => {
+                         const key = k.toUpperCase();
+                         return key === 'N° HORAS JORNADA' || key === 'N° HORAS' || key === 'JORNADA' || key === 'N° DE HORAS' || key.includes('HORAS JORNADA');
+                       });
+                       if (jornadaKey && detalle[jornadaKey]) {
+                          jornada = Number(detalle[jornadaKey]);
+                       }
+                    }
+                    
+                    let finalTipo = 'Sin Contrato';
+                    if (detalle && Object.keys(detalle).length > 0) {
+                       let contratoKey = Object.keys(detalle).find(k => {
+                          const key = k.toUpperCase();
+                          return key === 'TIPO CONTRATO EN PERSONAL' || key === 'CALIDAD JURIDICA' || key === 'TIPO DE CONTRATO';
+                       });
+                       if (!contratoKey) {
+                          contratoKey = Object.keys(detalle).find(k => {
+                             const key = k.toUpperCase();
+                             return (key.includes('TIPO') && key.includes('CONTRATO')) || key.includes('CALIDAD JURIDICA');
+                          });
+                       }
+                       if (!contratoKey) {
+                          contratoKey = Object.keys(detalle).find(k => {
+                             const key = k.toUpperCase();
+                             return key.includes('CONTRATO') && !key.includes('DURACION') && !key.includes('FECHA') && !key.includes('Nº') && !key.includes('N°');
+                          });
+                       }
 
-                      if (funcionario.liquidaciones) {
-                        for (const liq of funcionario.liquidaciones) {
-                          const detalle = liq.detalle_json || {};
-                          
-                          contratoKey = Object.keys(detalle).find(k => k.toUpperCase().includes('TIPO CONTRATO EN PERSONAL'));
-                          if (!contratoKey) {
-                            contratoKey = Object.keys(detalle).find(k => {
-                              const key = k.toUpperCase();
-                              return key.includes('TIPO DE CONTRATO') || key.includes('CALIDAD JURIDICA');
-                            });
-                          }
-                          if (!contratoKey) {
-                            contratoKey = Object.keys(detalle).find(k => {
-                              const key = k.toUpperCase();
-                              return key.includes('CONTRATO') && !key.includes('FECHA') && !key.includes('Nº') && !key.includes('N°');
-                            });
-                          }
+                       if (contratoKey && detalle[contratoKey]) {
+                          finalTipo = String(detalle[contratoKey]).trim().toUpperCase();
+                       } else if (funcionario.contratos && funcionario.contratos.length > 0) {
+                          finalTipo = String(funcionario.contratos[0].tipo_contrato).trim().toUpperCase();
+                       }
+                    }
 
-                          if (contratoKey) {
-                            matchedDetalle = detalle;
-                            break;
-                          }
-                        }
-                      }
-                      
-                      let finalTipo = 'Sin Contrato';
-                      if (contratoKey && matchedDetalle[contratoKey]) {
-                        finalTipo = String(matchedDetalle[contratoKey]).trim().toUpperCase();
-                      } else if (funcionario.contratos && funcionario.contratos.length > 0) {
-                        finalTipo = String(funcionario.contratos[0].tipo_contrato).trim().toUpperCase();
-                      }
-
-                      if (finalTipo === 'CONTRATA') finalTipo = 'PLAZO FIJO';
-                      if (finalTipo === 'PLANTA') finalTipo = 'INDEFINIDO';
-                      
-                      return finalTipo;
-                    })()
-                  } />
-                  <HeroField label="Jornada" value={`${funcionario.jornada_horas} hrs / Semanal`} border={false} />
+                    if (finalTipo === 'CONTRATA') finalTipo = 'PLAZO FIJO';
+                    if (finalTipo === 'PLANTA') finalTipo = 'INDEFINIDO';
+                    if (finalTipo === 'INDEFINIDO' && detalle['CALIDAD JURIDICA'] && String(detalle['CALIDAD JURIDICA']).toUpperCase() === 'PLAZO FIJO') {
+                       finalTipo = 'PLAZO FIJO';
+                    }
+                    
+                    return (
+                       <>
+                          <HeroField label="Establecimiento" value={centroNombre || 'Sin asignar'} />
+                          <HeroField 
+                            label="Sueldo Base" 
+                            value={`$${Math.round(
+                              (funcionario.remuneracion_presupuesto?.escala_base || 0) + (funcionario.remuneracion_presupuesto?.asignacion_aps || 0) || funcionario.sueldo_base || 0
+                            ).toLocaleString('es-CL')}`} 
+                          />
+                          <HeroField label="Ley Médica" value={`Cat. ${funcionario.categoria_aps || '?'} • Niv. ${funcionario.nivel_aps || '?'}`} />
+                          <HeroField label="Tipo de Contrato" value={finalTipo} />
+                          <HeroField label="Jornada" value={`${jornada || 44} hrs / Semanal`} border={false} />
+                       </>
+                    );
+                  })()}
                 </div>
              </div>
              
