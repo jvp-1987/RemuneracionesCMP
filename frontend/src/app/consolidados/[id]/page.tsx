@@ -527,6 +527,11 @@ export default function ConsolidadoDetailPage() {
   };
 
   const stats = getTabStats();
+  const allAudited = (stats.horas.count === 0 || stats.horas.complete) &&
+                     (stats.viaticos.count === 0 || stats.viaticos.complete) &&
+                     (stats.atrasos.count === 0 || stats.atrasos.complete) &&
+                     (stats.procedimientos.count === 0 || stats.procedimientos.complete) &&
+                     (stats.turnos.count === 0 || stats.turnos.complete);
 
   return (
     <div className="flex flex-col min-h-screen bg-surface">
@@ -573,26 +578,26 @@ export default function ConsolidadoDetailPage() {
           <div className="h-8 w-[1px] bg-outline-variant/15 mx-2" />
           <div className="flex gap-4">
             <button 
-              disabled={!canValidateControl}
+              disabled={(!canValidateControl) || (!data.vb_control_interno && !allAudited)}
               onClick={() => handleToggleValidation('vb_control_interno', !data.vb_control_interno)}
               className={cn(
                 "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all shadow-sm",
                 data.vb_control_interno ? "bg-primary text-white border-primary shadow-primary/20" : "bg-white border-outline-variant/20 text-outline hover:border-primary/50",
-                !canValidateControl && "opacity-40 cursor-not-allowed grayscale"
+                (!canValidateControl || (!data.vb_control_interno && !allAudited)) && "opacity-40 cursor-not-allowed grayscale"
               )}
-              title={!canValidateControl ? "Solo perfil CONTROL puede validar" : ""}
+              title={!canValidateControl ? "Solo perfil CONTROL puede validar" : (!data.vb_control_interno && !allAudited) ? "Debe auditar (validar o rechazar) todos los registros antes de dar el visto bueno" : ""}
             >
               V°B° CONTROL INTERNO
             </button>
             <button 
-              disabled={!canValidateFinanzas}
+              disabled={(!canValidateFinanzas) || (!data.vb_finanzas && !allAudited)}
               onClick={() => handleToggleValidation('vb_finanzas', !data.vb_finanzas)}
               className={cn(
                 "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all shadow-sm",
                 data.vb_finanzas ? "bg-primary text-white border-primary shadow-primary/20" : "bg-white border-outline-variant/20 text-outline hover:border-primary/50",
-                !canValidateFinanzas && "opacity-40 cursor-not-allowed grayscale"
+                (!canValidateFinanzas || (!data.vb_finanzas && !allAudited)) && "opacity-40 cursor-not-allowed grayscale"
               )}
-              title={!canValidateFinanzas ? "Solo perfil FINANZAS puede validar" : ""}
+              title={!canValidateFinanzas ? "Solo perfil FINANZAS puede validar" : (!data.vb_finanzas && !allAudited) ? "Debe auditar (validar o rechazar) todos los registros antes de dar el visto bueno" : ""}
             >
               V°B° FINANZAS
             </button>
