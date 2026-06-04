@@ -477,13 +477,32 @@ export default function ConsolidadoDetailPage() {
   };
 
   const auditProgress = () => {
-    const list = activeTab === 'horas' ? data.horas_extras : 
+    let list = activeTab === 'horas' ? data.horas_extras : 
                  activeTab === 'viaticos' ? data.viaticos : 
                  activeTab === 'atrasos' ? data.atrasos :
                  activeTab === 'procedimientos' ? data.procedimientos :
                  data.turnos_urgencia;
-    if (list.length === 0) return 0;
-    const reviewed = list.filter(t => activeTab === 'horas' ? (t.estado_25 !== 'PENDIENTE' && t.estado_50 !== 'PENDIENTE') : t.estado !== 'PENDIENTE').length;
+
+    list = list.filter(item => {
+      if (activeTab === 'horas') return (Number(item.cantidad_25 || 0) > 0 || Number(item.cantidad_50 || 0) > 0);
+      if (activeTab === 'viaticos') return Number(item.monto_calculado || 0) > 0;
+      if (activeTab === 'atrasos') return Number(item.minutos || 0) > 0 || (item.tiempo_descuento && item.tiempo_descuento !== '0 min');
+      if (activeTab === 'procedimientos') return Number(item.total_procedimientos || 0) > 0;
+      if (activeTab === 'turnos') return (Number(item.cant_turnos_habiles || 0) > 0 || Number(item.cant_turnos_inhabiles || 0) > 0);
+      return true;
+    });
+
+    if (list.length === 0) return 100;
+    
+    const reviewed = list.filter(t => {
+      if (activeTab === 'horas') {
+        const ok25 = Number(t.cantidad_25 || 0) === 0 || t.estado_25 !== 'PENDIENTE';
+        const ok50 = Number(t.cantidad_50 || 0) === 0 || t.estado_50 !== 'PENDIENTE';
+        return ok25 && ok50;
+      }
+      return t.estado !== 'PENDIENTE';
+    }).length;
+    
     return Math.round((reviewed / list.length) * 100);
   };
 
@@ -505,7 +524,10 @@ export default function ConsolidadoDetailPage() {
     return {
       horas: { 
         count: horasList.length, 
-        complete: horasList.length > 0 && horasList.every(t => t.estado_25 !== 'PENDIENTE' && t.estado_50 !== 'PENDIENTE') 
+        complete: horasList.length > 0 && horasList.every(t => 
+          (Number(t.cantidad_25 || 0) === 0 || t.estado_25 !== 'PENDIENTE') && 
+          (Number(t.cantidad_50 || 0) === 0 || t.estado_50 !== 'PENDIENTE')
+        ) 
       },
       viaticos: { 
         count: viaticosList.length, 
@@ -525,6 +547,7 @@ export default function ConsolidadoDetailPage() {
       },
     };
   };
+
 
   const stats = getTabStats();
   const allAudited = (stats.horas.count === 0 || stats.horas.complete) &&
