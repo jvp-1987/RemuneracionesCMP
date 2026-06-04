@@ -116,9 +116,27 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const isReadOnly = user?.rol === 'INVITADO';
   const isAdmin = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO';
 
+  // Mostrar spinner o pantalla blanca si está cargando
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-surface">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  // Prevenir renderizado de la app si no hay token y no estamos en login (evita destellos)
+  if (!token && pathname !== '/login') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-surface">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
     <AuthContext.Provider value={{ user, token, setSession, logout, loading, isReadOnly, isAdmin }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 }
