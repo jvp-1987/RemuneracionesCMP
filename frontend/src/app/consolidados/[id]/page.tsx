@@ -461,11 +461,15 @@ export default function ConsolidadoDetailPage() {
       });
     }
 
-    return list.filter(t => 
-      t.funcionario.nombre_completo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.funcionario.rut.includes(searchQuery) ||
-      t.funcionario.centro_salud?.nombre.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    return list.filter(t => {
+      const nombre = t.funcionario?.nombre_completo || '';
+      const rut = t.funcionario?.rut || '';
+      const centro = t.funcionario?.centro_salud?.nombre || '';
+      const query = searchQuery.toLowerCase();
+      return nombre.toLowerCase().includes(query) ||
+             rut.includes(searchQuery) ||
+             centro.toLowerCase().includes(query);
+    });
   };
 
   const approvedSum = () => {
@@ -1297,7 +1301,13 @@ const EmployeeTableRow = React.memo(({
   const [obs50, setObs50] = useState(item.observaciones_50 || '');
   const [obs, setObs] = useState(item.observaciones || '');
 
-  const initials = item.funcionario.nombre_completo.split(' ').map((n: any) => n[0]).join('').slice(0, 2);
+  const initials = (item.funcionario?.nombre_completo || '')
+    .split(' ')
+    .filter(Boolean)
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
   const totalAmount = activeTab === 'horas' ? (Number(item.monto_25) + Number(item.monto_50)) : 
                       activeTab === 'viaticos' ? (Number(item.monto_calculado || 0) + Number(item.rendicion_pasajes || 0)) :
                       activeTab === 'procedimientos' ? Number(item.monto_calculado || 0) :
