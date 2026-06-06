@@ -562,31 +562,31 @@ export default function ConsolidadoDetailPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-surface">
-      <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl flex justify-between items-center w-full px-8 h-20 border-b border-outline-variant/10">
-        <div className="flex items-center gap-8">
-          <button onClick={() => router.push('/consolidados')} className="p-3 bg-surface-container-low hover:bg-surface-container rounded-2xl transition-all active:scale-95 group overflow-hidden">
-            <span className="material-symbols-outlined text-secondary group-hover:text-primary transition-colors select-none" dangerouslySetInnerHTML={{ __html: '&#xe5c4;' }} />
+      <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl flex justify-between items-center w-full px-8 h-24 border-b border-outline-variant/10">
+        <div className="flex items-center gap-6">
+          <button onClick={() => router.push('/consolidados')} className="p-2.5 bg-surface-container-low hover:bg-surface-container rounded-xl transition-all active:scale-95 group overflow-hidden">
+            <span className="material-symbols-outlined text-secondary group-hover:text-primary transition-colors select-none text-base" dangerouslySetInnerHTML={{ __html: '&#xe5c4;' }} />
           </button>
           
-          <div className="flex items-center gap-6">
-            <HealthCenterLogo name={data.centro_salud.nombre} isLarge />
+          <div className="flex items-center gap-4">
+            <HealthCenterLogo name={data.centro_salud.nombre} isLarge={false} />
             <div>
-              <h2 className="font-headline text-2xl font-black text-primary tracking-tight leading-none uppercase">{data.centro_salud.nombre}</h2>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface mt-1.5 flex items-center gap-2">
-                <span className="material-symbols-outlined text-[12px] text-primary select-none" dangerouslySetInnerHTML={{ __html: '&#xe935;' }} />
+              <h2 className="font-headline text-lg font-black text-primary tracking-tight leading-none uppercase">{data.centro_salud.nombre}</h2>
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface mt-1 flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[10px] text-primary select-none" dangerouslySetInnerHTML={{ __html: '&#xe935;' }} />
                 {new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(new Date(2026, data.periodo.mes - 1))} {data.periodo.anio} 
-                <span className="mx-2">•</span>
+                <span className="mx-1.5 text-outline-variant/50">•</span>
                 Gestor: {data.usuario_gestor?.nombre || 'Sincronización Automática'}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
-          <div className="relative group w-56">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface text-lg select-none" dangerouslySetInnerHTML={{ __html: '&#xe8b6;' }} />
+        <div className="flex items-center gap-3">
+          <div className="relative group w-36 transition-all duration-300 focus-within:w-48">
+            <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface text-base select-none" dangerouslySetInnerHTML={{ __html: '&#xe8b6;' }} />
             <input 
-              className="bg-surface-container-low border border-outline rounded-xl pl-11 pr-4 py-2.5 text-xs w-full focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-on-surface font-bold placeholder:text-outline"
+              className="bg-surface-container-low border border-outline rounded-lg pl-9 pr-3 py-2 text-[11px] w-full focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-on-surface font-bold placeholder:text-outline/50"
               placeholder="Buscar..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -595,32 +595,32 @@ export default function ConsolidadoDetailPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="bg-surface-container-low border border-outline rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-on-surface font-bold outline-none cursor-pointer"
+            className="bg-surface-container-low border border-outline rounded-lg px-3 py-2 text-[11px] focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-on-surface font-bold outline-none cursor-pointer"
           >
             <option value="TODOS">Todos los Estados</option>
             <option value="PENDIENTE">Pendientes</option>
             <option value="APROBADO">Validados</option>
             <option value="RECHAZADO">Hallazgos</option>
           </select>
-          <div className="h-8 w-[1px] bg-outline-variant/15 mx-2" />
-          <div className="flex gap-4">
+          <div className="h-6 w-[1px] bg-outline-variant/15 mx-1" />
+          <div className="flex gap-2">
             <button 
               disabled={(!canValidateControl) || (!data.vb_control_interno && !allAudited)}
               onClick={() => handleToggleValidation('vb_control_interno', !data.vb_control_interno)}
               className={cn(
-                "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all shadow-sm",
+                "px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all shadow-sm",
                 data.vb_control_interno ? "bg-primary text-white border-primary shadow-primary/20" : "bg-white border-outline-variant/20 text-outline hover:border-primary/50",
                 (!canValidateControl || (!data.vb_control_interno && !allAudited)) && "opacity-40 cursor-not-allowed grayscale"
               )}
               title={!canValidateControl ? "Solo perfil CONTROL puede validar" : (!data.vb_control_interno && !allAudited) ? "Debe auditar (validar o rechazar) todos los registros antes de dar el visto bueno" : ""}
             >
-              V°B° CONTROL INTERNO
+              V°B° CONTROL
             </button>
             <button 
               disabled={(!canValidateFinanzas) || (!data.vb_finanzas && !allAudited)}
               onClick={() => handleToggleValidation('vb_finanzas', !data.vb_finanzas)}
               className={cn(
-                "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all shadow-sm",
+                "px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all shadow-sm",
                 data.vb_finanzas ? "bg-primary text-white border-primary shadow-primary/20" : "bg-white border-outline-variant/20 text-outline hover:border-primary/50",
                 (!canValidateFinanzas || (!data.vb_finanzas && !allAudited)) && "opacity-40 cursor-not-allowed grayscale"
               )}
@@ -629,36 +629,36 @@ export default function ConsolidadoDetailPage() {
               V°B° FINANZAS
             </button>
             
-            <div className="h-8 w-[1px] bg-outline-variant/15 mx-2" />
+            <div className="h-6 w-[1px] bg-outline-variant/15 mx-1" />
             
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               {data.url_respaldo && (
                 <button 
                   onClick={() => handleOpenRespaldo(data.url_respaldo!)}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-200 transition-all hover:scale-105"
+                  className="flex items-center gap-1.5 px-4 py-2 bg-emerald-500 text-white rounded-lg text-[9px] font-black uppercase tracking-widest shadow-md transition-all hover:brightness-110"
                 >
-                  <span className="material-symbols-outlined text-sm">visibility</span>
-                  Ver Respaldo
+                  <span className="material-symbols-outlined text-xs">visibility</span>
+                  Ver PDF
                 </button>
               )}
               <label className={cn(
-                "flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-700 transition-all shadow-lg",
+                "flex items-center gap-1.5 px-4 py-2 bg-slate-800 text-white rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-700 transition-all shadow-md",
                 user?.rol === 'CENTRO_SALUD' || user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' ? "" : "opacity-50 pointer-events-none"
               )}>
-                <span className="material-symbols-outlined text-sm">{data.url_respaldo ? 'refresh' : 'attach_file'}</span>
-                {data.url_respaldo ? 'Cambiar Respaldo' : 'Adjuntar Respaldo'}
+                <span className="material-symbols-outlined text-xs">{data.url_respaldo ? 'refresh' : 'attach_file'}</span>
+                {data.url_respaldo ? 'Cambiar PDF' : 'Subir PDF'}
                 <input type="file" className="hidden" onChange={handleRespaldoUpload} accept=".pdf,.jpg,.jpeg,.png" />
               </label>
             </div>
 
-            <div className="h-8 w-[1px] bg-outline-variant/15 mx-2" />
+            <div className="h-6 w-[1px] bg-outline-variant/15 mx-1" />
 
             <label className={cn(
-              "flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer hover:bg-indigo-700 transition-all shadow-lg",
+              "flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-indigo-700 transition-all shadow-md",
               isRelojLoading || user?.rol === 'INVITADO' ? "opacity-50 pointer-events-none" : ""
             )}>
-              <span className="material-symbols-outlined text-sm">{isRelojLoading ? 'sync' : 'schedule'}</span>
-              {isRelojLoading ? 'Procesando...' : 'Proyectar Asistencia (Reloj)'}
+              <span className="material-symbols-outlined text-xs">{isRelojLoading ? 'sync' : 'schedule'}</span>
+              {isRelojLoading ? 'Procesando...' : 'Proyectar Reloj'}
               <input type="file" className="hidden" onChange={handleAttendanceUpload} accept=".xls,.xlsx" disabled={user?.rol === 'INVITADO'} />
             </label>
           </div>
