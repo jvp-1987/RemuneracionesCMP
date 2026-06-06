@@ -558,7 +558,7 @@ export default function ConsolidadoDetailPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-surface">
-      <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl flex justify-between items-center w-full px-12 h-24 border-b border-outline-variant/10">
+      <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl flex justify-between items-center w-full px-8 h-20 border-b border-outline-variant/10">
         <div className="flex items-center gap-8">
           <button onClick={() => router.push('/consolidados')} className="p-3 bg-surface-container-low hover:bg-surface-container rounded-2xl transition-all active:scale-95 group overflow-hidden">
             <span className="material-symbols-outlined text-secondary group-hover:text-primary transition-colors select-none" dangerouslySetInnerHTML={{ __html: '&#xe5c4;' }} />
@@ -661,11 +661,11 @@ export default function ConsolidadoDetailPage() {
         </div>
       </header>
 
-      <section className="p-12 space-y-12">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="space-y-4">
-            <h1 className="text-5xl font-black text-on-surface tracking-tighter uppercase font-headline">Validador Pro</h1>
-            <p className="text-secondary font-black text-xs tracking-[0.2em] uppercase">Consolidación de Haberes • Ciclo Mensual {new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(new Date(2026, data.periodo.mes - 1))} {data.periodo.anio}</p>
+      <section className="p-8 space-y-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-black text-on-surface tracking-tighter uppercase font-headline">Validador Pro</h1>
+            <p className="text-secondary font-black text-[10px] tracking-[0.2em] uppercase">Consolidación de Haberes • Ciclo Mensual {new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(new Date(2026, data.periodo.mes - 1))} {data.periodo.anio}</p>
           </div>
           <div className="w-full md:w-[400px] space-y-4">
             <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-[0.2em] text-on-surface">
@@ -682,13 +682,13 @@ export default function ConsolidadoDetailPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-2 bg-surface-container-low p-10 rounded-[3rem] border border-outline-variant/10 flex flex-col justify-between group overflow-hidden relative shadow-sm hover:shadow-md transition-shadow">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="md:col-span-2 bg-surface-container-low p-8 rounded-[2rem] border border-outline-variant/10 flex flex-col justify-between group overflow-hidden relative shadow-sm hover:shadow-md transition-shadow">
             <div className="relative z-10">
-              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-secondary mb-6 block">Impacto Presupuestario Total</span>
-              <div className="text-6xl font-black text-primary tracking-tighter">${(approvedSum() * 1.25).toLocaleString('es-CL')}</div>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-4 block">Impacto Presupuestario Total</span>
+              <div className="text-4xl font-black text-primary tracking-tighter">${(approvedSum() * 1.25).toLocaleString('es-CL')}</div>
             </div>
-            <div className="mt-8 flex items-center gap-3 relative z-10">
+            <div className="mt-6 flex items-center gap-2 relative z-10">
               <span className="material-symbols-outlined text-primary text-lg select-none" style={{ fontVariationSettings: "'FILL' 1" }} dangerouslySetInnerHTML={{ __html: '&#xe8e5;' }} />
               <span className="text-[11px] font-black text-primary uppercase tracking-widest">+12.4% vs Periodo Anterior</span>
             </div>
@@ -697,33 +697,33 @@ export default function ConsolidadoDetailPage() {
             </div>
           </div>
           
-          <div className="bg-surface-container-lowest p-10 rounded-[3rem] border border-outline-variant/10 shadow-sm hover:shadow-md transition-all group">
-            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-secondary mb-6 block">Haberes Pendientes</span>
-            <div className="text-4xl font-black text-on-surface tracking-tighter group-hover:text-primary transition-colors">
+          <div className="bg-surface-container-lowest p-8 rounded-[2rem] border border-outline-variant/10 shadow-sm hover:shadow-md transition-all group">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-4 block">Haberes Pendientes</span>
+            <div className="text-3xl font-black text-on-surface tracking-tighter group-hover:text-primary transition-colors">
               {data.horas_extras.filter(t => t.estado_25 === 'PENDIENTE' || t.estado_50 === 'PENDIENTE').length}
             </div>
-            <div className="mt-6 text-[11px] text-secondary font-bold uppercase tracking-widest leading-relaxed">Requiere V°B° manual de auditores senior</div>
+            <div className="mt-4 text-[10px] text-secondary font-bold uppercase tracking-widest leading-relaxed">Requiere V°B° manual de auditores senior</div>
           </div>
 
-          <div className="bg-error-container/20 p-10 rounded-[3rem] border border-error/10 shadow-sm hover:shadow-error/10 transition-all group">
-            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-error mb-6 block font-black">Alertas de Riesgo</span>
-            <div className="text-4xl font-black text-error tracking-tighter">
+          <div className="bg-error-container/20 p-8 rounded-[2rem] border border-error/10 shadow-sm hover:shadow-error/10 transition-all group">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-error mb-4 block font-black">Alertas de Riesgo</span>
+            <div className="text-3xl font-black text-error tracking-tighter">
               {data.horas_extras.filter(t => Number(t.cantidad_50) > 40).length}
             </div>
-            <div className="mt-6 text-[11px] text-error font-black uppercase tracking-widest leading-relaxed">Exceden parámetros críticos establecidos</div>
+            <div className="mt-4 text-[10px] text-error font-black uppercase tracking-widest leading-relaxed">Exceden parámetros críticos establecidos</div>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-6 border-t border-outline-variant/10">
-          <div className="flex gap-3 p-2 bg-surface-container rounded-[2rem] border border-outline-variant/5 shadow-inner overflow-x-auto no-scrollbar">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-4 border-t border-outline-variant/10">
+          <div className="flex gap-2 p-1.5 bg-surface-container rounded-[1.5rem] border border-outline-variant/5 shadow-inner overflow-x-auto no-scrollbar w-full lg:w-auto">
             {(['horas', 'viaticos', 'atrasos', 'procedimientos', 'turnos'] as const).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  "px-8 py-3.5 text-xs font-black rounded-[1.5rem] tracking-widest uppercase transition-all duration-300 flex items-center gap-3 whitespace-nowrap",
+                  "px-5 py-2.5 text-[10px] font-black rounded-xl tracking-widest uppercase transition-all duration-300 flex items-center gap-2 whitespace-nowrap",
                   activeTab === tab 
-                    ? "bg-white text-primary shadow-lg shadow-slate-200/50" 
+                    ? "bg-white text-primary shadow-sm shadow-slate-200/50" 
                     : "text-secondary hover:text-primary hover:bg-white/40"
                 )}
               >
@@ -744,17 +744,17 @@ export default function ConsolidadoDetailPage() {
               </button>
             ))}
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-3 w-full lg:w-auto justify-end">
             <button 
               disabled={!canValidateControl && !canValidateFinanzas}
               onClick={() => handleBulkUpdate('APROBADO')}
               className={cn(
-                "group flex items-center gap-3 px-8 py-4 text-[11px] font-black bg-white text-primary border border-primary/20 shadow-xl shadow-slate-200/40 rounded-[2rem] hover:bg-primary hover:text-white transition-all uppercase tracking-widest active:scale-95 overflow-hidden",
+                "group flex items-center gap-2 px-6 py-3 text-[10px] font-black bg-white text-primary border border-primary/20 shadow-md shadow-slate-200/40 rounded-full hover:bg-primary hover:text-white transition-all uppercase tracking-widest active:scale-95 overflow-hidden",
                 (!canValidateControl && !canValidateFinanzas) && "opacity-40 cursor-not-allowed"
               )}
             >
-              <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform select-none" dangerouslySetInnerHTML={{ __html: '&#xe877;' }} />
-              Certificar Todo el Lote
+              <span className="material-symbols-outlined text-base group-hover:rotate-12 transition-transform select-none" dangerouslySetInnerHTML={{ __html: '&#xe877;' }} />
+              Certificar Lote
             </button>
 
             <button 
@@ -765,21 +765,21 @@ export default function ConsolidadoDetailPage() {
                 setIsAddModalOpen(true);
               }}
               className={cn(
-                "group flex items-center gap-3 px-8 py-4 text-[11px] font-black bg-primary text-white shadow-xl shadow-primary/30 rounded-[2rem] hover:brightness-110 transition-all uppercase tracking-widest active:scale-95",
+                "group flex items-center gap-2 px-6 py-3 text-[10px] font-black bg-primary text-white shadow-md shadow-primary/30 rounded-full hover:brightness-110 transition-all uppercase tracking-widest active:scale-95",
                 isLocked && "opacity-40 cursor-not-allowed"
               )}
             >
-              <span className="material-symbols-outlined text-lg group-hover:rotate-90 transition-transform select-none" dangerouslySetInnerHTML={{ __html: '&#xe145;' }} />
+              <span className="material-symbols-outlined text-base group-hover:rotate-90 transition-transform select-none" dangerouslySetInnerHTML={{ __html: '&#xe145;' }} />
               Agregar Registro
             </button>
           </div>
         </div>
 
-        <div className="bg-white rounded-[3.5rem] shadow-2xl shadow-slate-200/40 overflow-hidden border border-outline-variant/5">
-          <div className="p-10 border-b border-outline-variant/5 flex items-center justify-between bg-surface-container-lowest/30">
-            <div className="flex items-center gap-4">
-              <div className="w-2 h-8 bg-primary rounded-full" />
-              <h3 className="font-black text-on-surface text-xl tracking-tight uppercase font-headline">Matriz de Validación Clínica</h3>
+        <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 overflow-hidden border border-outline-variant/5">
+          <div className="p-6 border-b border-outline-variant/5 flex items-center justify-between bg-surface-container-lowest/30">
+            <div className="flex items-center gap-3">
+              <div className="w-1.5 h-6 bg-primary rounded-full" />
+              <h3 className="font-black text-on-surface text-lg tracking-tight uppercase font-headline">Matriz de Validación Clínica</h3>
             </div>
           </div>
           <div className="overflow-x-auto">
