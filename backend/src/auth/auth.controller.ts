@@ -1,6 +1,4 @@
-import { Controller, Post, Get, Body, HttpCode, HttpStatus, Res, Req, UseGuards } from '@nestjs/common';
-import type { Response } from 'express';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { Controller, Post, Get, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -12,52 +10,16 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Iniciar sesión y obtener token JWT en cookie' })
-  async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response) {
-    const result = await this.authService.login(loginDto);
-    res.cookie('token', result.access_token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      path: '/',
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 dias
-    });
-    return { usuario: result.usuario };
+  @ApiOperation({ summary: 'Iniciar sesión y obtener token JWT' })
+  login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
   }
 
   @Post('google')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Iniciar sesión con Google OAuth y guardar en cookie' })
-  async googleLogin(@Body('credential') credential: string, @Res({ passthrough: true }) res: Response) {
-    const result = await this.authService.googleLogin(credential);
-    res.cookie('token', result.access_token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      path: '/',
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-    });
-    return { usuario: result.usuario };
-  }
-
-  @Post('logout')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Cerrar sesión (limpiar cookie)' })
-  logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('token', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      path: '/',
-    });
-    return { message: 'Sesión cerrada' };
-  }
-
-  @Get('me')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Obtener usuario actual a partir de la cookie' })
-  getMe(@Req() req: any) {
-    return { usuario: req.user };
+  @ApiOperation({ summary: 'Iniciar sesión con Google OAuth' })
+  googleLogin(@Body('credential') credential: string) {
+    return this.authService.googleLogin(credential);
   }
 
   @Get('bootstrap')

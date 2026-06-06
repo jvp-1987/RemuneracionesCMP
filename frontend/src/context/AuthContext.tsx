@@ -27,34 +27,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Configuración global de Axios para incluir credenciales
-  if (typeof window !== 'undefined') {
-    axios.defaults.withCredentials = true;
-  }
+  // Configuración global de Axios para incluir el Token automáticamente
+  useEffect(() => {
+    const interceptor = axios.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem('token');
+        if (token && config.headers) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    // Limpieza al desmontar (aunque AuthProvider suele persistir)
+    return () => axios.interceptors.request.eject(interceptor);
+  }, []);
 
   useEffect(() => {
-    axios.get('/auth/me')
-      .then(res => {
-        setUser(res.data.usuario);
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setUser(null);
-        setIsLoading(false);
-      });
+    const authData = localStorage.getItem('usuario');
+    if (authData) {
+      try {
+        setUser(JSON.parse(authData));
+      } catch (e) {
+        console.error('Error al parsear usuario local');
+      }
+    }
+    setIsLoading(false);
   }, []);
 
   const login = (userData: User, token: string) => {
     setUser(userData);
+    localStorage.setItem('usuario', JSON.stringify(userData));
+    localStorage.setItem('token', token);
   };
 
-  const logout = async () => {
-    try {
-      await axios.post('/auth/logout');
-    } catch (e) {
-      console.error(e);
-    }
+  const logout = () => {
     setUser(null);
+    localStorage.removeItem('usuario');
+    localStorage.removeItem('token');
   };
 
   const isAdmin = user?.rol === 'ADMIN' || user?.rol_enum === 'ADMIN';
