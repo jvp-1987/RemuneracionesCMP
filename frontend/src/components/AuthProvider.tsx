@@ -41,11 +41,13 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    // Configurar URL base global y credenciales
+  // Configurar URL base global y credenciales fuera de useEffect para evitar race conditions
+  if (typeof window !== 'undefined') {
     axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://backend-production-7269.up.railway.app';
     axios.defaults.withCredentials = true;
+  }
 
+  useEffect(() => {
     // Verificar sesión con el backend
     axios.get('/auth/me')
       .then(res => {

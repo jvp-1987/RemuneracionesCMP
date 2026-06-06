@@ -28,9 +28,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   // Configuración global de Axios para incluir credenciales
-  useEffect(() => {
+  if (typeof window !== 'undefined') {
     axios.defaults.withCredentials = true;
-  }, []);
+  }
 
   useEffect(() => {
     axios.get('/auth/me')

@@ -17,8 +17,8 @@ export class AuthController {
     const result = await this.authService.login(loginDto);
     res.cookie('token', result.access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: true,
+      sameSite: 'none',
       path: '/',
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 dias
     });
@@ -32,8 +32,8 @@ export class AuthController {
     const result = await this.authService.googleLogin(credential);
     res.cookie('token', result.access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: true,
+      sameSite: 'none',
       path: '/',
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
@@ -46,8 +46,8 @@ export class AuthController {
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('token', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: true,
+      sameSite: 'none',
       path: '/',
     });
     return { message: 'Sesión cerrada' };
