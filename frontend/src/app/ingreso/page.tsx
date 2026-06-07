@@ -22,6 +22,7 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Info,
   DollarSign,
   LayoutGrid,
@@ -696,68 +697,86 @@ export default function IngresoPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full xl:w-auto">
           {/* Selector Centro */}
-          <div className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all">
-            <div className="flex items-center gap-3 mb-3">
+          <div className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all relative flex flex-col justify-between min-h-[108px]">
+            <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
                 <Stethoscope className="w-4 h-4" />
               </div>
               <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Unidad de Salud</span>
             </div>
-            <select 
-              disabled={user?.rol === 'CENTRO_SALUD'}
-              value={centroId} 
-              onChange={(e) => setCentroId(e.target.value)}
-              className={cn(
-                "font-black text-slate-800 text-base outline-none bg-transparent appearance-none w-full",
-                user?.rol === 'CENTRO_SALUD' ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+            <div className="relative w-full">
+              <select 
+                disabled={user?.rol === 'CENTRO_SALUD'}
+                value={centroId} 
+                onChange={(e) => setCentroId(e.target.value)}
+                className={cn(
+                  "font-black text-slate-800 text-base outline-none bg-transparent appearance-none w-full pr-8 truncate cursor-pointer",
+                  user?.rol === 'CENTRO_SALUD' && "cursor-not-allowed opacity-50"
+                )}
+              >
+                {centros.map(c => (
+                  <option key={c.id} value={c.id}>{c.nombre}</option>
+                ))}
+              </select>
+              {user?.rol !== 'CENTRO_SALUD' && (
+                <ChevronDown className="w-4 h-4 text-slate-400 absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" />
               )}
-            >
-              {centros.map(c => (
-                <option key={c.id} value={c.id}>{c.nombre}</option>
-              ))}
-            </select>
+            </div>
           </div>
 
           {/* Selector Período */}
-          <div className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all">
-            <div className="flex items-center gap-3 mb-3">
+          <div className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all relative flex flex-col justify-between min-h-[108px]">
+            <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
                 <Calendar className="w-4 h-4" />
               </div>
               <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Período de Nómina</span>
             </div>
-            <select value={periodoId} onChange={(e) => setPeriodoId(e.target.value)}
-              className="font-black text-slate-800 text-base outline-none bg-transparent appearance-none cursor-pointer w-full"
-            >
-              {PERIODOS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
-            </select>
+            <div className="relative w-full">
+              <select value={periodoId} onChange={(e) => setPeriodoId(e.target.value)}
+                className="font-black text-slate-800 text-base outline-none bg-transparent appearance-none cursor-pointer w-full pr-8 truncate"
+              >
+                {PERIODOS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+              </select>
+              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
           </div>
 
           {/* Info del período de medición */}
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-[2rem] p-6 shadow-2xl relative overflow-hidden group">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-[2rem] p-6 shadow-2xl relative overflow-hidden group flex flex-col justify-between min-h-[108px]">
             <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:scale-150 transition-transform duration-700" />
-            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-white/40 mb-3 flex items-center gap-2">
+            <p className="text-[8px] font-black uppercase tracking-[0.2em] text-white/40 mb-2 flex items-center gap-2">
               <Clock className="w-3 h-3" /> Ventana de Medición
             </p>
-            <p className="text-sm font-black tracking-tight flex items-center gap-2">
-              {new Date(periodoActual.inicio + 'T00:00:00').toLocaleDateString('es-CL', { day: '2-digit', month: 'short' })}
-              <ChevronRight className="w-4 h-4 text-primary" />
-              {new Date(periodoActual.fin + 'T00:00:00').toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' })}
+            <p className="text-sm font-black tracking-tight flex items-center gap-2 whitespace-nowrap">
+              <span>{new Date(periodoActual.inicio + 'T00:00:00').toLocaleDateString('es-CL', { day: '2-digit', month: 'short' })}</span>
+              <ChevronRight className="w-4 h-4 text-primary shrink-0" />
+              <span>{new Date(periodoActual.fin + 'T00:00:00').toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
             </p>
           </div>
 
           {/* Toggle vista */}
-          <div className="flex items-center justify-center bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-2 shadow-sm">
+          <div className="flex items-center justify-between bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-2 shadow-sm gap-2 min-h-[108px]">
             <button
               onClick={() => setViewMode('cards')}
-              className={cn("flex-1 h-full rounded-[1.5rem] flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-widest", viewMode === 'cards' ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-slate-600")}
+              className={cn(
+                "flex-1 h-full py-3 rounded-[1.5rem] flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-widest",
+                viewMode === 'cards' 
+                  ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                  : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+              )}
             >
               <LayoutGrid className="w-4 h-4" />
               <span className="hidden sm:inline">Tarjetas</span>
             </button>
             <button
               onClick={() => setViewMode('table')}
-              className={cn("flex-1 h-full rounded-[1.5rem] flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-widest", viewMode === 'table' ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-slate-600")}
+              className={cn(
+                "flex-1 h-full py-3 rounded-[1.5rem] flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-widest",
+                viewMode === 'table' 
+                  ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                  : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+              )}
             >
               <Table2 className="w-4 h-4" />
               <span className="hidden sm:inline">Tabla</span>
