@@ -668,34 +668,36 @@ export default function IngresoPage() {
 
 
       {/* ── Header ───────────────────────────────────────────────────────────── */}
-      <header className="relative z-10 flex flex-col xl:flex-row justify-between items-start xl:items-end gap-10 mb-16">
-        <div>
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }} 
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-4 mb-6"
-          >
-            <div className="flex items-center gap-3 px-5 py-2 rounded-full bg-white shadow-sm border border-slate-200/50 backdrop-blur-md">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse" />
-              <span className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Registro Centralizado de Haberes</span>
-            </div>
-            
-            {!isReadOnly && (
-              <button 
-                onClick={() => setShowMaestroModal(true)}
-                className="flex items-center gap-2 px-5 py-2 rounded-full bg-slate-900 text-white hover:bg-primary transition-all shadow-xl shadow-slate-200 group"
-              >
-                <RefreshCcw className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-700" />
-                <span className="text-[9px] font-black uppercase tracking-widest">Sincronizar Maestro</span>
-              </button>
-            )}
-          </motion.div>
-          <h1 className="text-3xl xl:text-5xl font-black text-slate-900 leading-[0.9] tracking-tighter">
-            Editor de <br/><span className="text-primary italic">Novedades</span>
-          </h1>
+      <header className="relative z-10 flex flex-col gap-8 mb-12">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }} 
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-4 mb-4"
+            >
+              <div className="flex items-center gap-3 px-5 py-2 rounded-full bg-white shadow-sm border border-slate-200/50 backdrop-blur-md">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse" />
+                <span className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">Registro Centralizado de Haberes</span>
+              </div>
+              
+              {!isReadOnly && (
+                <button 
+                  onClick={() => setShowMaestroModal(true)}
+                  className="flex items-center gap-2 px-5 py-2 rounded-full bg-slate-900 text-white hover:bg-primary transition-all shadow-xl shadow-slate-200 group"
+                >
+                  <RefreshCcw className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-700" />
+                  <span className="text-[9px] font-black uppercase tracking-widest">Sincronizar Maestro</span>
+                </button>
+              )}
+            </motion.div>
+            <h1 className="text-3xl xl:text-5xl font-black text-slate-900 leading-[0.9] tracking-tighter">
+              Editor de <span className="text-primary italic">Novedades</span>
+            </h1>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full xl:flex-1 xl:max-w-4xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
           {/* Selector Centro */}
           <div className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-4 xl:p-5 shadow-sm hover:shadow-md transition-all relative flex flex-col justify-between min-h-[108px]">
             <div className="flex items-center gap-2 mb-1">
@@ -710,7 +712,7 @@ export default function IngresoPage() {
                 value={centroId} 
                 onChange={(e) => setCentroId(e.target.value)}
                 className={cn(
-                  "font-black text-slate-800 text-xs xl:text-sm outline-none bg-transparent appearance-none w-full pr-7 truncate cursor-pointer",
+                  "font-black text-slate-800 text-xs xl:text-sm outline-none bg-transparent appearance-none w-full pr-7 cursor-pointer",
                   user?.rol === 'CENTRO_SALUD' && "cursor-not-allowed opacity-50"
                 )}
               >
@@ -734,7 +736,7 @@ export default function IngresoPage() {
             </div>
             <div className="relative w-full">
               <select value={periodoId} onChange={(e) => setPeriodoId(e.target.value)}
-                className="font-black text-slate-800 text-xs xl:text-sm outline-none bg-transparent appearance-none cursor-pointer w-full pr-7 truncate"
+                className="font-black text-slate-800 text-xs xl:text-sm outline-none bg-transparent appearance-none cursor-pointer w-full pr-7"
               >
                 {PERIODOS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
               </select>
