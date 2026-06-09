@@ -125,11 +125,11 @@ export default function ConfigurationPage() {
             <div className="space-y-6">
                <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 underline decoration-primary decoration-2 underline-offset-4 uppercase tracking-widest block mb-1">Nombre Visual Firma</label>
-                  <input type="text" defaultValue="ANGELICA MARIA NAVIA JOFRE" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-primary/10 mr-2" />
+                  <input type="text" defaultValue="JUAN VIDAL PACHECO" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-primary/10 mr-2" />
                </div>
                <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 underline decoration-primary decoration-2 underline-offset-4 uppercase tracking-widest block mb-1">Cargo Ejecutivo</label>
-                  <input type="text" defaultValue="Jefa de Personal Panguipulli" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-primary/10 mr-2" />
+                  <input type="text" defaultValue="Jefe de Recursos Humanos" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-primary/10 mr-2" />
                </div>
                
                <Link href="/configuracion/usuarios" className="flex items-center justify-center gap-3 w-full py-4 mt-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-primary transition-all group">
