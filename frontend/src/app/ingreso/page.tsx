@@ -736,7 +736,7 @@ export default function IngresoPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
           {/* Selector Centro */}
-          <div className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-4 xl:p-5 shadow-sm hover:shadow-md transition-all relative flex flex-col justify-between min-h-[108px]">
+          <div className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-4 xl:p-5 shadow-sm hover:shadow-md transition-all relative flex flex-col justify-between h-[108px]">
             <div className="flex items-center gap-2 mb-1">
               <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400">
                 <Stethoscope className="w-3.5 h-3.5" />
@@ -764,7 +764,7 @@ export default function IngresoPage() {
           </div>
 
           {/* Selector Período */}
-          <div className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-4 xl:p-5 shadow-sm hover:shadow-md transition-all relative flex flex-col justify-between min-h-[108px]">
+          <div className="bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-4 xl:p-5 shadow-sm hover:shadow-md transition-all relative flex flex-col justify-between h-[108px]">
             <div className="flex items-center gap-2 mb-1">
               <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400">
                 <Calendar className="w-3.5 h-3.5" />
@@ -782,7 +782,7 @@ export default function IngresoPage() {
           </div>
 
           {/* Info del período de medición */}
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-[2rem] p-4 xl:p-5 shadow-2xl relative overflow-hidden group flex flex-col justify-between min-h-[108px]">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-[2rem] p-4 xl:p-5 shadow-2xl relative overflow-hidden group flex flex-col justify-between h-[108px]">
             <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:scale-150 transition-transform duration-700" />
             <p className="text-[8px] font-black uppercase tracking-[0.2em] text-white/40 mb-1 flex items-center gap-2">
               <Clock className="w-3 h-3" /> Ventana de Medición
@@ -795,7 +795,7 @@ export default function IngresoPage() {
           </div>
 
           {/* Toggle vista */}
-          <div className="flex items-stretch justify-between bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-1.5 shadow-sm gap-1 min-h-[108px]">
+          <div className="flex items-stretch justify-between bg-white/60 backdrop-blur-md border border-white rounded-[2rem] p-1.5 shadow-sm gap-1 h-[108px]">
             <button
               onClick={() => setViewMode('cards')}
               className={cn(
