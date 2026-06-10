@@ -2,6 +2,29 @@ import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/com
 import { PrismaService } from '../prisma/prisma.service';
 import * as xlsx from 'xlsx';
 
+const parseExcelDate = (val: any): Date => {
+  if (!val) return new Date();
+  if (val instanceof Date) return val;
+  if (typeof val === 'number') {
+    // Excel base date is 1899-12-30
+    const date = new Date((val - 25569) * 86400 * 1000);
+    return date;
+  }
+  const parsed = Date.parse(val);
+  if (!isNaN(parsed)) return new Date(parsed);
+  // Try DD-MM-YYYY format
+  const parts = String(val).split(/[-/]/);
+  if (parts.length === 3) {
+    const day = parseInt(parts[0]);
+    const month = parseInt(parts[1]) - 1;
+    const year = parseInt(parts[2]);
+    if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+      return new Date(year, month, day);
+    }
+  }
+  return new Date();
+};
+
 @Injectable()
 export class RemuneracionesService {
   constructor(private prisma: PrismaService) {}
@@ -335,10 +358,25 @@ export class RemuneracionesService {
               cant_inhabil: Number(findValue(row, ['INHABIL']) || 0),
             });
           } else if (category === 'VIATICOS') {
+            const comunalQty = Number(row['VIATICO COMUNAL'] || 0);
+            const fueraQty = Number(row['VIATICO FUERA COMUNA'] || 0);
+            let tipoDestino = 'DENTRO COMUNA';
+            if (fueraQty > 0) {
+              tipoDestino = 'FUERA COMUNA';
+            } else if (comunalQty > 0) {
+              tipoDestino = 'DENTRO COMUNA';
+            }
+            
+            const startVal = row['FECHA INICIO'] || row['INICIO'] || null;
+            const endVal = row['FECHA TERMINO'] || row['TERMINO'] || null;
+
             addEntry(rut, {
               category,
               concept,
-              viaticos: Number(findValue(row, ['TOTAL', 'MONTO']) || 0),
+              viaticos: Number(row['TOTAL'] || findValue(row, ['TOTAL', 'MONTO']) || 0),
+              tipo_destino: tipoDestino,
+              fecha_inicio: startVal ? parseExcelDate(startVal) : null,
+              fecha_termino: endVal ? parseExcelDate(endVal) : null,
             });
           } else if (category === 'ATRASOS') {
             const minutosRaw = String(findValue(row, ['MINUTOS', 'ATRASO']) || '0');
@@ -470,9 +508,9 @@ export class RemuneracionesService {
               data: {
                 consolidado_id: consolidado.id,
                 funcionario_rut: rut,
-                tipo_destino: 'NACIONAL',
-                fecha_inicio: new Date(),
-                fecha_termino: new Date(),
+                tipo_destino: entry.tipo_destino || 'DENTRO COMUNA',
+                fecha_inicio: entry.fecha_inicio || new Date(),
+                fecha_termino: entry.fecha_termino || new Date(),
                 monto_calculado: entry.viaticos || 0,
                 concepto: entry.concept,
               }
