@@ -27,7 +27,8 @@ import {
   DollarSign,
   LayoutGrid,
   Table2,
-  Users
+  Users,
+  Eye
 } from 'lucide-react';
 
 // ─── Tipos ─────────────────────────────────────────────────────────────────────
@@ -474,6 +475,42 @@ export default function IngresoPage() {
       setRows(prev => prev.map(r => r.id === id ? { ...r, url_respaldo: base64String } : r));
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleOpenRespaldo = async (url: string) => {
+    if (!url) return;
+    
+    if (url.startsWith('data:')) {
+      try {
+        const parts = url.split(';base64,');
+        const contentType = parts[0].split(':')[1];
+        const raw = window.atob(parts[1]);
+        const rawLength = raw.length;
+        const uInt8Array = new Uint8Array(rawLength);
+        for (let i = 0; i < rawLength; ++i) {
+          uInt8Array[i] = raw.charCodeAt(i);
+        }
+        const blob = new Blob([uInt8Array], { type: contentType });
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+      } catch (err) {
+        console.error('Error opening data URI:', err);
+        window.open(url, '_blank');
+      }
+    } else {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+        const res = await axios.post(`${apiUrl}/consolidados/respaldo/presigned-url`, { key: url });
+        if (res.data && res.data.url) {
+          window.open(res.data.url, '_blank');
+        } else {
+          window.open(url, '_blank');
+        }
+      } catch (err) {
+        console.error('Error fetching presigned url:', err);
+        alert('No se pudo obtener el enlace del archivo.');
+      }
+    }
   };
 
   // ─── Guardar ───────────────────────────────────────────────────────────────
@@ -973,9 +1010,14 @@ export default function IngresoPage() {
                       {/* Respaldo Inline en Header */}
                       <div className="flex items-center gap-2">
                         {row.url_respaldo && (
-                          <a href={row.url_respaldo} target="_blank" rel="noopener noreferrer" className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-all">
-                            <Activity className="w-4 h-4" />
-                          </a>
+                          <button 
+                            type="button"
+                            onClick={() => handleOpenRespaldo(row.url_respaldo!)}
+                            className="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-all flex items-center justify-center border border-emerald-100"
+                            title="Ver Respaldo"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
                         )}
                         <label className={cn(
                           "flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer transition-all border",
@@ -1359,10 +1401,15 @@ export default function IngresoPage() {
 
                       <td className="px-4 py-3 text-center">
                         <div className="flex items-center justify-center gap-2">
-                          {row.url_respaldo && (
-                            <a href={row.url_respaldo} target="_blank" rel="noopener noreferrer" className="p-1.5 bg-emerald-50 text-emerald-500 rounded-lg hover:bg-emerald-100 transition-colors">
-                              <Activity className="w-3.5 h-3.5" />
-                            </a>
+                           {row.url_respaldo && (
+                            <button 
+                              type="button"
+                              onClick={() => handleOpenRespaldo(row.url_respaldo!)}
+                              className="p-1.5 bg-emerald-50 text-emerald-500 rounded-lg hover:bg-emerald-100 transition-colors flex items-center justify-center border border-emerald-100"
+                              title="Ver Respaldo"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
                           )}
                           <label className="cursor-pointer group">
                             <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => handleFilePerRow(row.id, e.target.files?.[0] || null)} />
