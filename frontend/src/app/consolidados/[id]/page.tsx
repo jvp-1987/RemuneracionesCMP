@@ -300,9 +300,30 @@ export default function ConsolidadoDetailPage() {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
       await axios.patch(`${apiUrl}/consolidados/${id}`, { estado_actual_enum: 'Aprobado' });
-      router.push('/consolidados');
+      await fetchData();
     } catch (err) { console.error('Error finalizing:', err); }
   };
+
+  const handleDownloadExcel = async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      const response = await axios.get(`${apiUrl}/consolidados/${id}/export`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const filename = `consolidado_${data?.centro_salud.nombre.replace(/\s+/g, '_')}_${data?.periodo.mes}_${data?.periodo.anio}.xlsx`;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error('Error downloading consolidado:', err);
+      alert('Error al descargar el consolidado');
+    }
+  };
+
 
   const handleToggleValidation = async (field: 'vb_control_interno' | 'vb_finanzas', value: boolean) => {
     const fieldName = field === 'vb_control_interno' ? 'V°B° CONTROL INTERNO' : 'V°B° FINANZAS';
@@ -407,7 +428,7 @@ export default function ConsolidadoDetailPage() {
     }
   };
 
-  const handleOpenRespaldo = (url: string) => {
+  const handleOpenRespaldo = async (url: string) => {
     if (!url) return;
     
     if (url.startsWith('data:')) {
@@ -428,7 +449,18 @@ export default function ConsolidadoDetailPage() {
         window.open(url, '_blank');
       }
     } else {
-      window.open(url, '_blank');
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+        const res = await axios.post(`${apiUrl}/consolidados/respaldo/presigned-url`, { key: url });
+        if (res.data && res.data.url) {
+          window.open(res.data.url, '_blank');
+        } else {
+          window.open(url, '_blank');
+        }
+      } catch (err) {
+        console.error('Error fetching presigned url:', err);
+        alert('No se pudo obtener el enlace del archivo.');
+      }
     }
   };
 
@@ -839,19 +871,33 @@ export default function ConsolidadoDetailPage() {
           <span className="text-[9px] font-bold text-outline-variant uppercase tracking-widest mt-1">Estado: {auditProgress()}% Auditado</span>
         </div>
         <div className="flex gap-6">
-          <button 
-            disabled={!canFinalize || !data.vb_control_interno || !data.vb_finanzas}
-            onClick={handleFinalizeConsolidado}
-            className={cn(
-              "px-12 py-3.5 text-xs font-black rounded-2xl uppercase tracking-[0.15em] transition-all shadow-2xl",
-              (canFinalize && data.vb_control_interno && data.vb_finanzas)
-                ? "bg-primary text-white hover:brightness-110 active:scale-95 shadow-primary/40" 
-                : "bg-surface-container text-outline/50 cursor-not-allowed border border-outline-variant/20"
-            )}
-            title={!canFinalize ? "Solo ADMIN puede cerrar el consolidado" : ""}
-          >
-            EJECUTAR CIERRE FINAL
-          </button>
+          {data.estado_actual_enum === 'Aprobado' && (
+            <button 
+              onClick={handleDownloadExcel}
+              className="px-12 py-3.5 text-xs font-black rounded-2xl uppercase tracking-[0.15em] bg-emerald-500 hover:bg-emerald-600 text-white transition-all shadow-2xl shadow-emerald-400/20 active:scale-95"
+            >
+              DESCARGAR EXCEL CONSOLIDADO
+            </button>
+          )}
+          {data.estado_actual_enum !== 'Aprobado' ? (
+            <button 
+              disabled={!canFinalize || !data.vb_control_interno || !data.vb_finanzas}
+              onClick={handleFinalizeConsolidado}
+              className={cn(
+                "px-12 py-3.5 text-xs font-black rounded-2xl uppercase tracking-[0.15em] transition-all shadow-2xl",
+                (canFinalize && data.vb_control_interno && data.vb_finanzas)
+                  ? "bg-primary text-white hover:brightness-110 active:scale-95 shadow-primary/40" 
+                  : "bg-surface-container text-outline/50 cursor-not-allowed border border-outline-variant/20"
+              )}
+              title={!canFinalize ? "Solo ADMIN puede cerrar el consolidado" : ""}
+            >
+              EJECUTAR CIERRE FINAL
+            </button>
+          ) : (
+            <div className="px-12 py-3.5 text-xs font-black rounded-2xl uppercase tracking-[0.15em] bg-surface-container text-primary border border-primary/20 flex items-center">
+              CIERRE COMPLETADO
+            </div>
+          )}
         </div>
       </footer>
 

@@ -2,10 +2,24 @@ import { Injectable, NotFoundException, BadRequestException, ForbiddenException 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateConsolidadoDto } from './dto/create-consolidado.dto';
 import { UpdateConsolidadoDto } from './dto/update-consolidado.dto';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class ConsolidadosService {
-  constructor(private readonly prisma: PrismaService) {}
+  private s3: S3Client;
+
+  constructor(private readonly prisma: PrismaService) {
+    this.s3 = new S3Client({
+      region: 'auto',
+      endpoint: process.env.R2_ENDPOINT_URL || '',
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+      },
+    });
+  }
 
   create(dto: CreateConsolidadoDto) {
     return this.prisma.consolidado.create({ data: dto });
@@ -192,21 +206,34 @@ export class ConsolidadosService {
   async uploadRespaldo(id: number, file: any) {
     if (!file) throw new BadRequestException('Archivo no proporcionado');
     
-    // Convertir a base64 para persistencia simple sin S3
-    const base64 = file.buffer.toString('base64');
-    const dataUri = `data:${file.mimetype};base64,${base64}`;
+    const extension = file.originalname.split('.').pop();
+    const uniqueName = `respaldos/consolidados/${id}/${crypto.randomUUID()}.${extension}`;
+    
+    await this.s3.send(new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME || '',
+      Key: uniqueName,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    }));
     
     return this.prisma.consolidado.update({
       where: { id },
-      data: { url_respaldo: dataUri }
+      data: { url_respaldo: uniqueName }
     });
   }
 
   async uploadRecordRespaldo(consolidadoId: number, type: string, recordId: number, file: any) {
     if (!file) throw new BadRequestException('Archivo no proporcionado');
     
-    const base64 = file.buffer.toString('base64');
-    const dataUri = `data:${file.mimetype};base64,${base64}`;
+    const extension = file.originalname.split('.').pop();
+    const uniqueName = `respaldos/records/${type}/${recordId}/${crypto.randomUUID()}.${extension}`;
+    
+    await this.s3.send(new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME || '',
+      Key: uniqueName,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    }));
 
     let model: any;
     switch (type) {
@@ -220,8 +247,23 @@ export class ConsolidadosService {
 
     return model.update({
       where: { id: recordId },
-      data: { url_respaldo: dataUri }
+      data: { url_respaldo: uniqueName }
     });
+  }
+
+  async getPresignedUrl(key: string) {
+    if (!key) throw new BadRequestException('Se requiere una clave (Key) del archivo');
+    // Si la ruta sigue siendo Base64 por retrocompatibilidad, la devolvemos directamente
+    if (key.startsWith('data:')) {
+      return { url: key };
+    }
+    const command = new GetObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME || '',
+      Key: key,
+    });
+    // URL válida por 1 hora
+    const url = await getSignedUrl(this.s3, command, { expiresIn: 3600 });
+    return { url };
   }
 
   async getDashboardKpis(user: any, periodoId?: number, requestedFuente?: string, centroIdOverride?: number) {
@@ -372,7 +414,7 @@ export class ConsolidadosService {
       }
     }
 
-    return {
+  return {
       periodo: periodoActual,
       fuente,
       kpis,
@@ -380,4 +422,119 @@ export class ConsolidadosService {
       ultimos_consolidados: ultimosConsolidados,
     };
   }
+
+  async exportExcel(id: number, user: any): Promise<Buffer> {
+    const consolidado = await this.prisma.consolidado.findUnique({
+      where: { id },
+      include: {
+        centro_salud: true,
+        periodo: true,
+        usuario_gestor: true,
+        horas_extras: { include: { funcionario: true, programa: true } },
+        turnos_urgencia: { include: { funcionario: true } },
+        viaticos: { include: { funcionario: true } },
+        atrasos: { include: { funcionario: true } },
+        procedimientos: { include: { funcionario: true } },
+      },
+    });
+
+    if (!consolidado) throw new NotFoundException(`Consolidado #${id} no encontrado`);
+
+    // Security check
+    if (user && user.rol_enum === 'CENTRO_SALUD' && user.centro_salud_id && consolidado.centro_salud_id !== user.centro_salud_id) {
+      throw new ForbiddenException(`No tiene acceso a este consolidado`);
+    }
+
+    const xlsx = require('xlsx');
+    const wb = xlsx.utils.book_new();
+
+    // 1. Sheet Resumen
+    const resumenData = [
+      { Campo: 'Establecimiento / CESFAM', Valor: consolidado.centro_salud.nombre },
+      { Campo: 'Período', Valor: `${consolidado.periodo.mes}/${consolidado.periodo.anio}` },
+      { Campo: 'Estado actual', Valor: consolidado.estado_actual_enum },
+      { Campo: 'V°B° Control Interno', Valor: consolidado.vb_control_interno ? 'Sí' : 'No' },
+      { Campo: 'Fecha V°B° Control Interno', Valor: consolidado.fecha_vb_control_interno ? consolidado.fecha_vb_control_interno.toISOString() : 'N/A' },
+      { Campo: 'Firma V°B° Control Interno', Valor: consolidado.firma_vb_control_interno || 'N/A' },
+      { Campo: 'V°B° Finanzas', Valor: consolidado.vb_finanzas ? 'Sí' : 'No' },
+      { Campo: 'Fecha V°B° Finanzas', Valor: consolidado.fecha_vb_finanzas ? consolidado.fecha_vb_finanzas.toISOString() : 'N/A' },
+      { Campo: 'Firma V°B° Finanzas', Valor: consolidado.firma_vb_finanzas || 'N/A' },
+      { Campo: 'Usuario Gestor', Valor: consolidado.usuario_gestor?.nombre || 'Sincronización Automática' },
+      { Campo: 'Fecha Exportación', Valor: new Date().toISOString() },
+    ];
+    const wsResumen = xlsx.utils.json_to_sheet(resumenData);
+    xlsx.utils.book_append_sheet(wb, wsResumen, 'Resumen');
+
+    // 2. Sheet Horas Extras
+    const heData = consolidado.horas_extras.map(he => ({
+      RUT: he.funcionario.rut,
+      Nombre: he.funcionario.nombre_completo,
+      Programa: he.programa.nombre,
+      'Cantidad 25%': Number(he.cantidad_25),
+      'Monto 25%': Number(he.monto_25),
+      'Estado 25%': he.estado_25,
+      'Observaciones 25%': he.observaciones_25 || '',
+      'Cantidad 50%': Number(he.cantidad_50),
+      'Monto 50%': Number(he.monto_50),
+      'Estado 50%': he.estado_50,
+      'Observaciones 50%': he.observaciones_50 || '',
+    }));
+    const wsHE = xlsx.utils.json_to_sheet(heData);
+    xlsx.utils.book_append_sheet(wb, wsHE, 'Horas Extras');
+
+    // 3. Sheet Viáticos
+    const viaticosData = consolidado.viaticos.map(v => ({
+      RUT: v.funcionario.rut,
+      Nombre: v.funcionario.nombre_completo,
+      Destino: v.tipo_destino,
+      Justificacion: v.justificacion || '',
+      Concepto: v.concepto || '',
+      'Monto Calculado': Number(v.monto_calculado),
+      'Rendicion Pasajes': Number(v.rendicion_pasajes),
+      Estado: v.estado,
+    }));
+    const wsViaticos = xlsx.utils.json_to_sheet(viaticosData);
+    xlsx.utils.book_append_sheet(wb, wsViaticos, 'Viáticos');
+
+    // 4. Sheet Atrasos
+    const atrasosData = consolidado.atrasos.map(a => ({
+      RUT: a.funcionario.rut,
+      Nombre: a.funcionario.nombre_completo,
+      Minutos: a.minutos,
+      'Tiempo Descuento': a.tiempo_descuento,
+      'Monto Descuento': Number(a.monto_descuento),
+      Estado: a.estado,
+      Concepto: a.concepto || '',
+    }));
+    const wsAtrasos = xlsx.utils.json_to_sheet(atrasosData);
+    xlsx.utils.book_append_sheet(wb, wsAtrasos, 'Atrasos');
+
+    // 5. Sheet Procedimientos
+    const procData = consolidado.procedimientos.map(p => ({
+      RUT: p.funcionario.rut,
+      Nombre: p.funcionario.nombre_completo,
+      'Total Procedimientos': p.total_procedimientos,
+      'Monto Calculado': Number(p.monto_calculado),
+      Estado: p.estado,
+    }));
+    const wsProcedimientos = xlsx.utils.json_to_sheet(procData);
+    xlsx.utils.book_append_sheet(wb, wsProcedimientos, 'Procedimientos');
+
+    // 6. Sheet Turnos de Urgencia
+    const turnosData = consolidado.turnos_urgencia.map(t => ({
+      RUT: t.funcionario.rut,
+      Nombre: t.funcionario.nombre_completo,
+      'Cant. Turnos Hábiles': t.cant_turnos_habiles,
+      'Cant. Turnos Inhábiles': t.cant_turnos_inhabiles,
+      'Valor Hábil': Number(t.valor_habil || 0),
+      'Valor Inhábil': Number(t.valor_inhabil || 0),
+      'Monto Calculado': Number(t.monto_calculado),
+      Estado: t.estado,
+    }));
+    const wsTurnos = xlsx.utils.json_to_sheet(turnosData);
+    xlsx.utils.book_append_sheet(wb, wsTurnos, 'Turnos Urgencia');
+
+    return xlsx.write(wb, { type: 'buffer', bookType: 'xlsx' }) as Buffer;
+  }
 }
+

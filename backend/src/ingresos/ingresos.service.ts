@@ -1,9 +1,22 @@
 import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class IngresosService {
-  constructor(private prisma: PrismaService) {}
+  private s3: S3Client;
+
+  constructor(private prisma: PrismaService) {
+    this.s3 = new S3Client({
+      region: 'auto',
+      endpoint: process.env.R2_ENDPOINT_URL || '',
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+      },
+    });
+  }
 
   async guardarIngresos(data: any, user: any) {
     const { centro_salud_id, periodo_id, tipo, transacciones } = data;
@@ -72,7 +85,27 @@ export class IngresosService {
             });
 
             // Extracción flexible del documento de respaldo
-            const urlRespaldo = trx.url_respaldo || trx.documento_respaldo || trx.respaldo || trx.archivo || null;
+            let urlRespaldo = trx.url_respaldo || trx.documento_respaldo || trx.respaldo || trx.archivo || null;
+
+            if (urlRespaldo && urlRespaldo.startsWith('data:')) {
+              const matches = urlRespaldo.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
+              if (matches) {
+                const mimeType = matches[1];
+                const base64Data = matches[2];
+                const buffer = Buffer.from(base64Data, 'base64');
+                let extension = mimeType.split('/')[1] || 'pdf';
+                if (extension === 'jpeg') extension = 'jpg';
+                const uniqueName = `respaldos/ingresos/${crypto.randomUUID()}.${extension}`;
+                
+                await this.s3.send(new PutObjectCommand({
+                  Bucket: process.env.R2_BUCKET_NAME || '',
+                  Key: uniqueName,
+                  Body: buffer,
+                  ContentType: mimeType,
+                }));
+                urlRespaldo = uniqueName;
+              }
+            }
 
             // Función auxiliar para obtener ID numérico real (evita NaN en findUnique)
             const getRealId = (id: any): number | null => {

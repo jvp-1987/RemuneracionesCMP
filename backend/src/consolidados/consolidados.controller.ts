@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Request, Req, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Request, Req, UseInterceptors, UploadedFile, UseGuards, Res } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { ConsolidadosService } from './consolidados.service';
@@ -31,11 +31,27 @@ export class ConsolidadosController {
     return this.consolidadosService.findAll(req.user, centroId ? +centroId : undefined);
   }
 
+  @Get(':id/export')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  async exportExcel(@Param('id') id: string, @Req() req: any, @Res() res: any) {
+    const buffer = await this.consolidadosService.exportExcel(+id, req.user);
+    // Fetch info for filename
+    const data = await this.consolidadosService.findOne(+id, req.user);
+    const filename = `consolidado_${data.centro_salud.nombre.replace(/\s+/g, '_')}_${data.periodo.mes}_${data.periodo.anio}.xlsx`;
+    res.set({
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename="${filename}"`,
+      'Content-Length': buffer.length,
+    });
+    res.end(buffer);
+  }
+
   @Get(':id')
   @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
   findOne(@Param('id') id: string, @Req() req: any) {
     return this.consolidadosService.findOne(+id, req.user);
   }
+
 
   @Patch(':id')
   @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
@@ -63,5 +79,11 @@ export class ConsolidadosController {
     @UploadedFile() file: any
   ) {
     return this.consolidadosService.uploadRecordRespaldo(+id, type, +recordId, file);
+  }
+
+  @Post('respaldo/presigned-url')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  getPresignedUrl(@Body('key') key: string) {
+    return this.consolidadosService.getPresignedUrl(key);
   }
 }

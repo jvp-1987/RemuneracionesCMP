@@ -82,12 +82,34 @@ export default function ConsolidadosPage() {
     fetchData();
   }, []);
 
+  const handleDownloadExcelList = async (e: React.MouseEvent, id: number, name: string, mes: number, anio: number) => {
+    e.stopPropagation(); // prevent navigating to details
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      const response = await axios.get(`${apiUrl}/consolidados/${id}/export`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const filename = `consolidado_${name.replace(/\s+/g, '_')}_${mes}_${anio}.xlsx`;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error('Error downloading consolidado:', err);
+      alert('Error al descargar el consolidado');
+    }
+  };
+
   const filtered = consolidados.filter(c => 
     c.periodo.mes === selectedMonth && 
     c.centro_salud.nombre.toLowerCase().includes(search.toLowerCase())
   );
 
   const canBatchApprove = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'CONTROL' || user?.rol === 'FINANZAS';
+
 
   return (
     <div className="flex flex-col min-h-screen bg-surface p-12 pb-32">
@@ -200,10 +222,21 @@ export default function ConsolidadosPage() {
                   </span>
                   <span className="text-[10px] font-bold text-outline uppercase tracking-widest ml-1.5">Regs</span>
                 </td>
-                <td className="px-8 py-6 text-right">
-                  <button className="p-2 border border-outline-variant/10 rounded-xl text-primary hover:bg-primary hover:text-white transition-all shadow-sm">
-                    <span className="material-symbols-outlined text-lg select-none" dangerouslySetInnerHTML={{ __html: '&#xe5cc;' }} />
-                  </button>
+                 <td className="px-8 py-6 text-right">
+                  <div className="flex justify-end gap-2">
+                    {c.estado_actual_enum === 'Aprobado' && (
+                      <button 
+                        onClick={(e) => handleDownloadExcelList(e, c.id, c.centro_salud.nombre, c.periodo.mes, c.periodo.anio)}
+                        className="p-2 border border-emerald-200/50 rounded-xl text-emerald-600 bg-emerald-50 hover:bg-emerald-600 hover:text-white transition-all shadow-sm flex items-center justify-center"
+                        title="Descargar Excel Consolidado"
+                      >
+                        <span className="material-symbols-outlined text-lg select-none">download</span>
+                      </button>
+                    )}
+                    <button className="p-2 border border-outline-variant/10 rounded-xl text-primary hover:bg-primary hover:text-white transition-all shadow-sm flex items-center justify-center">
+                      <span className="material-symbols-outlined text-lg select-none" dangerouslySetInnerHTML={{ __html: '&#xe5cc;' }} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
