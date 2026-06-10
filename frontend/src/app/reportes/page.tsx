@@ -17,6 +17,8 @@ import {
   DollarSign,
   Activity
 } from 'lucide-react';
+import { useAuth } from '@/components/AuthProvider';
+import { useRouter } from 'next/navigation';
 
 interface HRStats {
   headcount: number;
@@ -56,6 +58,15 @@ interface HaberDetalleFuncionario {
 }
 
 export default function ReportesPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user && (user.rol === 'CONTROL' || user.rol === 'CENTRO_SALUD')) {
+      router.push('/');
+    }
+  }, [user, router]);
+
   const [hrStats, setHrStats] = useState<HRStats | null>(null);
   const [financialStats, setFinancialStats] = useState<FinancialStats | null>(null);
   const [centros, setCentros] = useState<CentroStat[]>([]);
@@ -143,6 +154,9 @@ export default function ReportesPage() {
   };
 
   useEffect(() => {
+    if (user && (user.rol === 'CONTROL' || user.rol === 'CENTRO_SALUD')) {
+      return;
+    }
     const init = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
@@ -166,6 +180,9 @@ export default function ReportesPage() {
   }, []);
 
   useEffect(() => {
+    if (user && (user.rol === 'CONTROL' || user.rol === 'CENTRO_SALUD')) {
+      return;
+    }
     if (selectedPeriods.length === 0 && availablePeriods.length > 0) return;
     if (availablePeriods.length === 0) return;
 
@@ -195,6 +212,10 @@ export default function ReportesPage() {
     };
     fetchData();
   }, [selectedPeriods, availablePeriods]);
+
+  if (user && (user.rol === 'CONTROL' || user.rol === 'CENTRO_SALUD')) {
+    return null;
+  }
 
   if (loading) {
     return (
