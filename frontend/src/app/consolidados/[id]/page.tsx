@@ -1360,6 +1360,10 @@ const EmployeeTableRow = React.memo(({
                       activeTab === 'turnos' ? (Number(item.cant_turnos_habiles || 0) * Number(item.valor_habil || 0) + Number(item.cant_turnos_inhabiles || 0) * Number(item.valor_inhabil || 0)) :
                       0;
 
+  const isFullyApproved = activeTab === 'horas' 
+    ? ((Number(item.cantidad_25 || 0) === 0 || item.estado_25 === 'APROBADO') && (Number(item.cantidad_50 || 0) === 0 || item.estado_50 === 'APROBADO')) 
+    : (item.estado === 'APROBADO');
+
   return (
     <>
       <tr className={cn("hover:bg-primary/5 transition-all duration-300 group cursor-pointer border-l-4 border-transparent", expanded && "bg-surface-container-low border-l-primary shadow-inner")}>
@@ -1487,6 +1491,32 @@ const EmployeeTableRow = React.memo(({
               <span className="material-symbols-outlined text-sm select-none" dangerouslySetInnerHTML={{ __html: isLocked ? '&#xf033;' : '&#xe3c9;' }} />
               {isLocked ? 'Bloqueado' : 'Editar'}
             </button>
+
+            {canAudit && (
+              <button 
+                disabled={isLocked}
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  if (activeTab === 'horas') {
+                    if (Number(item.cantidad_25 || 0) > 0) onUpdateStatus('horas', item.id, 'estado_25', 'APROBADO');
+                    if (Number(item.cantidad_50 || 0) > 0) onUpdateStatus('horas', item.id, 'estado_50', 'APROBADO');
+                  } else {
+                    onUpdateStatus(activeTab, item.id, 'estado', 'APROBADO');
+                  }
+                }}
+                className={cn(
+                  "p-2 rounded-xl transition-all shadow-sm flex items-center justify-center border",
+                  isLocked 
+                    ? "bg-surface-container text-outline/20 border-outline-variant/5 cursor-not-allowed" 
+                    : isFullyApproved 
+                      ? "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20 active:scale-95" 
+                      : "bg-white border-emerald-500/30 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-500 active:scale-95"
+                )}
+                title={isLocked ? "Validación bloqueada" : isFullyApproved ? "Validado" : "Validar Rápido"}
+              >
+                <span className="material-symbols-outlined text-[16px] select-none">check_circle</span>
+              </button>
+            )}
 
             <button 
               onClick={(e) => { e.stopPropagation(); onToggle(); }}
