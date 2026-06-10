@@ -361,6 +361,8 @@ export class ConsolidadosService {
       total_liquido: Number(totalesMaestro._sum.monto_liquido ?? 0),
       cantidad_funcionarios: totalesMaestro._count.funcionario_rut,
       total_he: Number(totalesMaestro._sum.monto_he_pagado ?? 0),
+      total_he_25: 0,
+      total_he_50: 0,
       cantidad_he_25: Number(totalesMaestro._sum.cantidad_he_25_real ?? 0),
       cantidad_he_50: Number(totalesMaestro._sum.cantidad_he_50_real ?? 0),
       total_viaticos: Number(totalesMaestro._sum.monto_viaticos_real ?? 0),
@@ -378,38 +380,112 @@ export class ConsolidadosService {
     if (useNovedades && targetPeriodoId) {
       fuente = 'novedades_en_proceso';
       
-      const consolidadoId = ultimosConsolidados.find(c => c.periodo_id === targetPeriodoId)?.id;
+      const matchingConsolidados = await this.prisma.consolidado.findMany({
+        where: whereConsolidado,
+        select: { id: true }
+      });
+      const consolidadoIds = matchingConsolidados.map(c => c.id);
       
-      if (consolidadoId) {
-        const [he, viat, atrasos, turnos] = await Promise.all([
-          this.prisma.horasExtras.aggregate({
-            where: { consolidado_id: consolidadoId },
-            _sum: { cantidad_25: true, cantidad_50: true, monto_25: true, monto_50: true }
-          }),
-          this.prisma.viaticos.aggregate({
-            where: { consolidado_id: consolidadoId },
-            _sum: { monto_calculado: true, rendicion_pasajes: true }
-          }),
-          this.prisma.atrasos.aggregate({
-            where: { consolidado_id: consolidadoId },
-            _sum: { minutos: true, monto_descuento: true }
-          })
-          ,this.prisma.turnosUrgencia.aggregate({
-            where: { consolidado_id: consolidadoId },
-            _sum: { monto_calculado: true }
-          })
-        ]);
+      if (consolidadoIds.length > 0) {
+        // Query approved/validated hours extras
+        const allHe = await this.prisma.horasExtras.findMany({
+          where: { consolidado_id: { in: consolidadoIds } }
+        });
+        
+        let totalMontoHe = 0;
+        let totalMontoHe25 = 0;
+        let totalMontoHe50 = 0;
+        let totalCant25 = 0;
+        let totalCant50 = 0;
+        const uniqueFuns = new Set<string>();
+        
+        for (const item of allHe) {
+          if (item.estado_25 === 'APROBADO') {
+            totalMontoHe += Number(item.monto_25 ?? 0);
+            totalMontoHe25 += Number(item.monto_25 ?? 0);
+            totalCant25 += Number(item.cantidad_25 ?? 0);
+            uniqueFuns.add(item.funcionario_rut);
+          }
+          if (item.estado_50 === 'APROBADO') {
+            totalMontoHe += Number(item.monto_50 ?? 0);
+            totalMontoHe50 += Number(item.monto_50 ?? 0);
+            totalCant50 += Number(item.cantidad_50 ?? 0);
+            uniqueFuns.add(item.funcionario_rut);
+          }
+        }
+        
+        // Query approved/validated viaticos
+        const viat = await this.prisma.viaticos.aggregate({
+          where: { 
+            consolidado_id: { in: consolidadoIds },
+            estado: 'APROBADO'
+          },
+          _sum: { monto_calculado: true, rendicion_pasajes: true }
+        });
+        const totalViaticosVal = Number(viat._sum.monto_calculado ?? 0) + Number(viat._sum.rendicion_pasajes ?? 0);
+        
+        const approvedViaticos = await this.prisma.viaticos.findMany({
+          where: { consolidado_id: { in: consolidadoIds }, estado: 'APROBADO' },
+          select: { funcionario_rut: true }
+        });
+        approvedViaticos.forEach(v => uniqueFuns.add(v.funcionario_rut));
+
+        // Query approved/validated atrasos
+        const atrasosVal = await this.prisma.atrasos.aggregate({
+          where: { 
+            consolidado_id: { in: consolidadoIds },
+            estado: 'APROBADO'
+          },
+          _sum: { minutos: true, monto_descuento: true }
+        });
+        
+        const approvedAtrasos = await this.prisma.atrasos.findMany({
+          where: { consolidado_id: { in: consolidadoIds }, estado: 'APROBADO' },
+          select: { funcionario_rut: true }
+        });
+        approvedAtrasos.forEach(a => uniqueFuns.add(a.funcionario_rut));
+
+        // Query approved/validated turnos
+        const turnosVal = await this.prisma.turnosUrgencia.aggregate({
+          where: { 
+            consolidado_id: { in: consolidadoIds },
+            estado: 'APROBADO'
+          },
+          _sum: { monto_calculado: true }
+        });
+        
+        const approvedTurnos = await this.prisma.turnosUrgencia.findMany({
+          where: { consolidado_id: { in: consolidadoIds }, estado: 'APROBADO' },
+          select: { funcionario_rut: true }
+        });
+        approvedTurnos.forEach(t => uniqueFuns.add(t.funcionario_rut));
 
         kpis = {
           ...kpis,
-          total_he: Number(he._sum.monto_25 ?? 0) + Number(he._sum.monto_50 ?? 0),
-          cantidad_he_25: Number(he._sum.cantidad_25 ?? 0),
-          cantidad_he_50: Number(he._sum.cantidad_50 ?? 0),
-          total_viaticos: Number(viat._sum.monto_calculado ?? 0) + Number(viat._sum.rendicion_pasajes ?? 0),
-          total_atrasos_descuento: Number(atrasos._sum.monto_descuento ?? 0),
-          minutos_atraso_total: Number(atrasos._sum.minutos ?? 0),
-          cantidad_funcionarios: await this.prisma.funcionario.count({ where: { centro_salud_id: user.centro_salud_id } }),
-          total_turnos: Number(turnos._sum.monto_calculado ?? 0),
+          total_he: totalMontoHe,
+          total_he_25: totalMontoHe25,
+          total_he_50: totalMontoHe50,
+          cantidad_he_25: totalCant25,
+          cantidad_he_50: totalCant50,
+          total_viaticos: totalViaticosVal,
+          total_atrasos_descuento: Number(atrasosVal._sum.monto_descuento ?? 0),
+          minutos_atraso_total: Number(atrasosVal._sum.minutos ?? 0),
+          cantidad_funcionarios: uniqueFuns.size,
+          total_turnos: Number(turnosVal._sum.monto_calculado ?? 0),
+        };
+      } else {
+        kpis = {
+          ...kpis,
+          total_he: 0,
+          total_he_25: 0,
+          total_he_50: 0,
+          cantidad_he_25: 0,
+          cantidad_he_50: 0,
+          total_viaticos: 0,
+          total_atrasos_descuento: 0,
+          minutos_atraso_total: 0,
+          cantidad_funcionarios: 0,
+          total_turnos: 0,
         };
       }
     }

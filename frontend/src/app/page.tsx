@@ -27,6 +27,8 @@ interface KpiData {
     total_liquido: number;
     cantidad_funcionarios: number;
     total_he: number;
+    total_he_25?: number;
+    total_he_50?: number;
     cantidad_he_25: number;
     cantidad_he_50: number;
     total_viaticos: number;
@@ -333,32 +335,65 @@ export default function Dashboard() {
 
         {/* KPI Grid — datos del Maestro */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-          <KpiCard
-            label="Horas Extras 25%"
-            value={loading ? '—' : `${(data?.kpis.cantidad_he_25 ?? 0).toFixed(1)} hrs`}
-            sub={`Pagado: ${formatCLP(data?.kpis.total_he ?? 0)}`}
-            icon={Clock}
-            color="bg-blue-50 text-blue-600"
-            delay={0.05}
-            trend="up"
-          />
-          <KpiCard
-            label="Horas Extras 50%"
-            value={loading ? '—' : `${(data?.kpis.cantidad_he_50 ?? 0).toFixed(1)} hrs`}
-            sub="Recargo mayor sobre base"
-            icon={Activity}
-            color="bg-violet-50 text-violet-600"
-            delay={0.1}
-            trend="up"
-          />
-          <KpiCard
-            label="Viáticos"
-            value={loading ? '—' : formatCLP(data?.kpis.total_viaticos ?? 0)}
-            sub="Monto real según maestro"
-            icon={Car}
-            color="bg-amber-50 text-amber-600"
-            delay={0.15}
-          />
+          {data?.fuente === 'maestro_remuneraciones' ? (
+            <>
+              <KpiCard
+                label="Horas Extras (Monto)"
+                value={loading ? '—' : formatCLP(data?.kpis.total_he ?? 0)}
+                sub="Monto total pagado según maestro"
+                icon={DollarSign}
+                color="bg-blue-50 text-blue-600"
+                delay={0.05}
+                trend="up"
+              />
+              <KpiCard
+                label="Horas Extras (Horas)"
+                value={loading ? '—' : `${((data?.kpis.cantidad_he_25 ?? 0) + (data?.kpis.cantidad_he_50 ?? 0)).toFixed(1)} hrs`}
+                sub={`25%: ${(data?.kpis.cantidad_he_25 ?? 0).toFixed(1)}h | 50%: ${(data?.kpis.cantidad_he_50 ?? 0).toFixed(1)}h`}
+                icon={Clock}
+                color="bg-violet-50 text-violet-600"
+                delay={0.1}
+                trend="up"
+              />
+              <KpiCard
+                label="Viáticos"
+                value={loading ? '—' : formatCLP(data?.kpis.total_viaticos ?? 0)}
+                sub="Monto real según maestro"
+                icon={Car}
+                color="bg-amber-50 text-amber-600"
+                delay={0.15}
+              />
+            </>
+          ) : (
+            <>
+              <KpiCard
+                label="Horas Extras 25%"
+                value={loading ? '—' : `${(data?.kpis.cantidad_he_25 ?? 0).toFixed(1)} hrs`}
+                sub={`Valorizado: ${formatCLP(data?.kpis.total_he_25 ?? 0)}`}
+                icon={Clock}
+                color="bg-blue-50 text-blue-600"
+                delay={0.05}
+                trend="up"
+              />
+              <KpiCard
+                label="Horas Extras 50%"
+                value={loading ? '—' : `${(data?.kpis.cantidad_he_50 ?? 0).toFixed(1)} hrs`}
+                sub={`Valorizado: ${formatCLP(data?.kpis.total_he_50 ?? 0)}`}
+                icon={Activity}
+                color="bg-violet-50 text-violet-600"
+                delay={0.1}
+                trend="up"
+              />
+              <KpiCard
+                label="Viáticos"
+                value={loading ? '—' : formatCLP(data?.kpis.total_viaticos ?? 0)}
+                sub="Monto novedades validadas"
+                icon={Car}
+                color="bg-amber-50 text-amber-600"
+                delay={0.15}
+              />
+            </>
+          )}
           <KpiCard
             label="Funcionarios Activos"
             value={loading ? '—' : `${data?.kpis.cantidad_funcionarios ?? 0}`}
