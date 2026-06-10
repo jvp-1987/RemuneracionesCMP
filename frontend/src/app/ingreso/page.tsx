@@ -953,7 +953,7 @@ export default function IngresoPage() {
                             <h4 className="text-lg font-black text-slate-800 leading-none tracking-tighter">{row.nombre}</h4>
                             <div className="flex items-center gap-2">
                               <span className="text-[9px] font-black bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg uppercase tracking-widest">{row.rut}</span>
-                              <span className={cn("text-[9px] font-black text-white px-2.5 py-1 rounded-lg uppercase tracking-widest shadow-md", activeTabInfo.color)}>
+                              <span className={cn("text-[9px] font-black text-white px-2.5 py-1 rounded-lg uppercase tracking-widest shadow-md bg-gradient-to-br", activeTabInfo.color)}>
                                 Cat {row.categoria_aps} • Niv {row.nivel_aps}
                               </span>
                             </div>
