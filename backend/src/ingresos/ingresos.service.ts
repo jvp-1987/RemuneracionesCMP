@@ -107,10 +107,11 @@ export class IngresosService {
               }
             }
 
-            // Función auxiliar para obtener ID numérico real (evita NaN en findUnique)
+            // Función auxiliar para obtener ID numérico real (evita parseInt tomando '1abc' como 1)
             const getRealId = (id: any): number | null => {
               if (!id) return null;
-              const parsed = parseInt(String(id));
+              if (typeof id === 'string' && !/^\d+$/.test(id)) return null;
+              const parsed = Number(id);
               return isNaN(parsed) ? null : parsed;
             };
 
