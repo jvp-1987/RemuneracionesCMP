@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { useAuth } from '@/components/AuthProvider';
+import { X, Save, RefreshCcw, CheckCircle2 } from 'lucide-react';
 
 interface Funcionario {
   rut: string;
@@ -27,6 +28,7 @@ interface Funcionario {
     valor_hora: number;
   };
   centro_salud?: {
+    id: number;
     nombre: string;
   };
   stats?: {
@@ -62,13 +64,27 @@ interface Funcionario {
 export default function FuncionarioDetailPage() {
   const { rut } = useParams();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const isCentroSalud = ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '');
   const [funcionario, setFuncionario] = useState<Funcionario | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'perfil' | 'historial' | 'contratos' | 'ausentismos' | 'resoluciones' | 'asignaciones'>('perfil');
   const [selectedRawData, setSelectedRawData] = useState<any | null>(null);
   const [catalogo, setCatalogo] = useState<any[]>([]);
+  const [centros, setCentros] = useState<{id: number, nombre: string}[]>([]);
+
+  // Edit Modal State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editSaving, setEditSaving] = useState(false);
+  const [editSuccess, setEditSuccess] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    nombre_completo: '',
+    profesion_enum: '',
+    categoria_aps: '',
+    nivel_aps: 1,
+    jornada_horas: 44,
+    centro_salud_id: 0
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,13 +92,15 @@ export default function FuncionarioDetailPage() {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
         
         // Fetch data in parallel
-        const [funcRes, catRes] = await Promise.all([
+        const [funcRes, catRes, centrosRes] = await Promise.all([
           axios.get(`${apiUrl}/funcionarios/${rut}`),
-          axios.get(`${apiUrl}/asignaciones/catalogo`).catch(() => ({ data: [] }))
+          axios.get(`${apiUrl}/asignaciones/catalogo`).catch(() => ({ data: [] })),
+          axios.get(`${apiUrl}/centro-salud`).catch(() => ({ data: [] }))
         ]);
         
         setFuncionario(funcRes.data);
         setCatalogo(catRes.data.filter((c: any) => c.estado === 'ACTIVO'));
+        setCentros(centrosRes.data);
       } catch (err) {
         console.error('Error fetching data:', err);
       } finally {
@@ -107,8 +125,185 @@ export default function FuncionarioDetailPage() {
     }
   };
 
+  const openEditModal = () => {
+    setEditFormData({
+      nombre_completo: funcionario.nombre_completo || '',
+      profesion_enum: funcionario.profesion_enum || '',
+      categoria_aps: funcionario.categoria_aps || 'A',
+      nivel_aps: funcionario.nivel_aps || 1,
+      jornada_horas: funcionario.jornada_horas || 44,
+      centro_salud_id: funcionario.centro_salud?.id || 0
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEditSaving(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      await axios.patch(`${apiUrl}/funcionarios/${rut}`, editFormData);
+      setEditSuccess(true);
+      
+      setTimeout(() => {
+        setEditSuccess(false);
+        setIsEditModalOpen(false);
+        window.location.reload();
+      }, 1000);
+    } catch (err) {
+      console.error('Error updating funcionario:', err);
+      alert('Error al actualizar funcionario.');
+      setEditSaving(false);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-surface">
+      <AnimatePresence>
+        {isEditModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !editSaving && setIsEditModalOpen(false)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
+            />
+            
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] overflow-hidden"
+            >
+              {/* Modal Header */}
+              <div className="p-10 pb-6 flex justify-between items-center group">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-3xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                    <span className="material-symbols-outlined text-2xl">edit</span>
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-slate-800 tracking-tight leading-none mb-2">Editar Ficha</h3>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                       {funcionario.rut}
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all border border-slate-100"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Form */}
+              <form onSubmit={handleEditSubmit} className="p-10 pt-0 space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  
+                  <div className="col-span-2 space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Nombre Completo</label>
+                    <input 
+                      required
+                      type="text" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 transition-all shadow-sm"
+                      value={editFormData.nombre_completo}
+                      onChange={(e) => setEditFormData({...editFormData, nombre_completo: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Profesión / Estalafón</label>
+                    <select 
+                      required
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 transition-all appearance-none cursor-pointer"
+                      value={editFormData.profesion_enum}
+                      onChange={(e) => setEditFormData({...editFormData, profesion_enum: e.target.value})}
+                    >
+                      <option value="">Seleccione profesión...</option>
+                      <option value="MEDICO">MÉDICO</option>
+                      <option value="ENFERMERA">ENFERMERO/A</option>
+                      <option value="KINESIOLOGO">KINESIÓLOGO/A</option>
+                      <option value="TENS">TENS</option>
+                      <option value="ADMINISTRATIVO">ADMINISTRATIVO/A</option>
+                      <option value="AUXILIAR">AUXILIAR</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Centro de Salud</label>
+                    <select 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 transition-all appearance-none cursor-pointer"
+                      value={editFormData.centro_salud_id}
+                      onChange={(e) => setEditFormData({...editFormData, centro_salud_id: parseInt(e.target.value)})}
+                    >
+                      <option value={0}>Sin Asignar</option>
+                      {centros.map(c => (
+                        <option key={c.id} value={c.id}>{c.nombre}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-4 block">Categoría APS</label>
+                    <select 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-black text-slate-700 outline-none focus:ring-4 focus:ring-emerald-500/5"
+                      value={editFormData.categoria_aps}
+                      onChange={(e) => setEditFormData({...editFormData, categoria_aps: e.target.value})}
+                    >
+                      <option value="">Ninguna</option>
+                      {['A','B','C','D','E','F'].map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-4 block">Nivel APS</label>
+                    <select 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-black text-slate-700 outline-none focus:ring-4 focus:ring-emerald-500/5"
+                      value={editFormData.nivel_aps}
+                      onChange={(e) => setEditFormData({...editFormData, nivel_aps: parseInt(e.target.value)})}
+                    >
+                      <option value={0}>Ninguno</option>
+                      {Array.from({length: 15}, (_, i) => i + 1).map(n => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </div>
+                  <div className="col-span-2 md:col-span-1 space-y-2">
+                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-4 block">
+                       Jornada (Horas)
+                     </label>
+                     <input 
+                       type="number" 
+                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-black outline-none focus:ring-4 focus:ring-emerald-500/5"
+                       value={editFormData.jornada_horas}
+                       onChange={(e) => setEditFormData({...editFormData, jornada_horas: parseInt(e.target.value)})}
+                     />
+                  </div>
+                </div>
+
+                <div className="pt-6">
+                  <button 
+                    disabled={editSaving || editSuccess}
+                    type="submit"
+                    className={cn(
+                      "w-full py-6 rounded-[2rem] font-black uppercase text-xs tracking-[0.3em] flex items-center justify-center gap-4 transition-all shadow-xl",
+                      editSuccess ? "bg-emerald-500 text-white shadow-emerald-500/20" : "bg-slate-900 text-white hover:bg-emerald-600 shadow-slate-900/10 active:scale-95"
+                    )}
+                  >
+                    {editSaving ? (
+                      <RefreshCcw className="w-5 h-5 animate-spin" />
+                    ) : editSuccess ? (
+                      <CheckCircle2 className="w-5 h-5" />
+                    ) : (
+                      <Save className="w-5 h-5" />
+                    )}
+                    {editSuccess ? "Actualizado Exitosamente" : editSaving ? "Guardando..." : "Guardar Cambios"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-outline-variant/10 px-12 h-20 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <button 
@@ -122,7 +317,15 @@ export default function FuncionarioDetailPage() {
             Escalafón <span className="text-primary mx-2">/</span> {funcionario.nombre_completo}
           </h2>
         </div>
-        <div>
+        <div className="flex items-center gap-3">
+          {isAdmin && (
+            <button 
+              onClick={openEditModal}
+              className="px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all bg-slate-100 text-slate-600 hover:bg-slate-200"
+            >
+              Editar Ficha
+            </button>
+          )}
           <button 
             onClick={toggleStatus}
             className={cn(
