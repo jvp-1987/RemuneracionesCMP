@@ -596,6 +596,93 @@ export default function IngresoPage() {
     }
   };
 
+  const handleExcelImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const XLSX = await import('xlsx');
+      const reader = new FileReader();
+      
+      reader.onload = (evt) => {
+        const bstr = evt.target?.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const data = XLSX.utils.sheet_to_json(ws);
+
+        if (!data || data.length === 0) {
+          alert('El archivo Excel está vacío.');
+          return;
+        }
+
+        const newRows: RowData[] = [];
+        
+        data.forEach((row: any) => {
+          const keys = Object.keys(row);
+          
+          const rutKey = keys.find(k => k.toUpperCase().includes('RUT') || k.toUpperCase() === 'R.U.T' || k.toUpperCase() === 'R.U.T.');
+          const nameKey = keys.find(k => k.toUpperCase().includes('NOMBRE') || k.toUpperCase().includes('FUNCIONARIO'));
+          const minKey = keys.find(k => k.toUpperCase().includes('MINUTO') || k.toUpperCase().includes('ATRASO') || k.toUpperCase().includes('TIEMPO'));
+          const obsKey = keys.find(k => k.toUpperCase().includes('OBSERVACION') || k.toUpperCase().includes('CONCEPTO') || k.toUpperCase().includes('MOTIVO'));
+
+          const rut = rutKey ? String(row[rutKey]).trim() : '';
+          const nombre = nameKey ? String(row[nameKey]).trim() : '';
+          let minutos = minKey ? String(row[minKey]).trim() : '0';
+          const observaciones = obsKey ? String(row[obsKey]).trim() : '';
+
+          if (rut) {
+            let minutosNumber = minutos.replace(/[^0-9]/g, '');
+            if (!minutosNumber) minutosNumber = '0';
+
+            const lastRow = rows[rows.length > 0 ? rows.length - 1 : 0];
+            newRows.push({
+              id: Math.random().toString(36).substring(7),
+              rut: rut,
+              nombre: nombre,
+              categoria_aps: '',
+              nivel_aps: '',
+              fecha_inicio: lastRow?.fecha_inicio || today,
+              fecha_termino: lastRow?.fecha_termino || today,
+              observaciones: observaciones,
+              cantidad_25: '',
+              cantidad_50: '',
+              programa_nombre: '',
+              tipo_destino: 'DENTRO COMUNA',
+              monto: '7000',
+              tiempo: `${minutosNumber} min`,
+              cant_habil: '0',
+              valor_habil: '0',
+              cant_inhabil: '0',
+              valor_inhabil: '0',
+              rendicion_pasajes: '0',
+              cantidad_dias: '1',
+              cantidad_pasajes: '1'
+            });
+          }
+        });
+
+        if (newRows.length > 0) {
+          setRows(prev => {
+            const hasOnlyEmptyRow = prev.length === 1 && !prev[0].rut;
+            if (hasOnlyEmptyRow) return newRows;
+            return [...prev, ...newRows];
+          });
+          alert(`Se importaron ${newRows.length} registros de atrasos exitosamente.`);
+        } else {
+          alert('No se encontraron registros válidos con columna RUT en el Excel.');
+        }
+      };
+      
+      reader.readAsBinaryString(file);
+    } catch (error) {
+      console.error('Error importing Excel:', error);
+      alert('Hubo un error al procesar el archivo Excel.');
+    }
+    
+    e.target.value = '';
+  };
+
   const handleMaestroUpload = async () => {
     if (!maestroFile || !periodoId) return;
     setUploadingMaestro(true);
@@ -931,31 +1018,52 @@ export default function IngresoPage() {
       </AnimatePresence>
 
       {/* ── Tabs ─────────────────────────────────────────────────────────────── */}
-      <nav className="relative z-10 flex items-center p-1.5 bg-white/60 backdrop-blur-md rounded-3xl border border-white mb-8 self-start max-w-full overflow-x-auto no-scrollbar shadow-sm">
-        {TABS.map(tab => {
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => { setActiveTab(tab.id as TabType); setRows([]); addRow(); }}
-              className={cn(
-                "relative flex items-center gap-3 px-6 py-3 rounded-full transition-all duration-500 whitespace-nowrap group",
-                isActive ? "text-white" : "text-slate-400 hover:text-slate-600"
-              )}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8 w-full">
+        <nav className="relative z-10 flex items-center p-1.5 bg-white/60 backdrop-blur-md rounded-3xl border border-white self-start max-w-full overflow-x-auto no-scrollbar shadow-sm">
+          {TABS.map(tab => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => { setActiveTab(tab.id as TabType); setRows([]); addRow(); }}
+                className={cn(
+                  "relative flex items-center gap-3 px-6 py-3 rounded-full transition-all duration-500 whitespace-nowrap group",
+                  isActive ? "text-white" : "text-slate-400 hover:text-slate-600"
+                )}
+              >
+                <tab.icon className={cn("w-4 h-4 transition-all", isActive ? "scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]" : "group-hover:scale-110")} />
+                <span className="text-[10px] font-black uppercase tracking-[0.1em] leading-none">{tab.label}</span>
+                {isActive && (
+                  <motion.div
+                    layoutId="activeTabBg"
+                    className={cn("absolute inset-0 bg-gradient-to-br rounded-full -z-10 shadow-2xl", tab.color)}
+                    transition={{ type: "spring", bounce: 0.15, duration: 0.8 }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </nav>
+        
+        {activeTab === 'atrasos' && (
+          <div className="relative z-10">
+            <input 
+              type="file" 
+              id="excel-upload-atrasos" 
+              className="hidden" 
+              accept=".xlsx, .xls" 
+              onChange={handleExcelImport} 
+            />
+            <button 
+              onClick={() => document.getElementById('excel-upload-atrasos')?.click()}
+              className="flex items-center gap-2 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
             >
-              <tab.icon className={cn("w-4 h-4 transition-all", isActive ? "scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]" : "group-hover:scale-110")} />
-              <span className="text-[10px] font-black uppercase tracking-[0.1em] leading-none">{tab.label}</span>
-              {isActive && (
-                <motion.div
-                  layoutId="activeTabBg"
-                  className={cn("absolute inset-0 bg-gradient-to-br rounded-full -z-10 shadow-2xl", tab.color)}
-                  transition={{ type: "spring", bounce: 0.15, duration: 0.8 }}
-                />
-              )}
+              <span className="material-symbols-outlined text-base">upload_file</span>
+              Importar Excel
             </button>
-          );
-        })}
-      </nav>
+          </div>
+        )}
+      </div>
 
       {/* ══════════════════════════════════════════════════════════════════════
           VISTA TARJETAS — REDISEÑADA "PREMIUM"
