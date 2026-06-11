@@ -21,6 +21,16 @@ export class ConsolidadosService {
     });
   }
 
+  async clearTestData() {
+    await this.prisma.turnosUrgencia.deleteMany();
+    await this.prisma.procedimientos.deleteMany();
+    await this.prisma.atrasos.deleteMany();
+    await this.prisma.viaticos.deleteMany();
+    await this.prisma.horasExtras.deleteMany();
+    await this.prisma.consolidado.deleteMany();
+    return { success: true, message: 'Datos de prueba eliminados exitosamente.' };
+  }
+
   create(dto: CreateConsolidadoDto) {
     return this.prisma.consolidado.create({ data: dto });
   }

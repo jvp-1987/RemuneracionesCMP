@@ -19,6 +19,12 @@ export class ConsolidadosController {
     return this.consolidadosService.create(dto);
   }
 
+  @Delete('clear/all/test-data')
+  @Roles('ADMIN')
+  clearTestData() {
+    return this.consolidadosService.clearTestData();
+  }
+
   @Get('dashboard')
   @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
   getDashboardKpis(@Req() req: any, @Query('periodoId') periodoId?: string, @Query('fuente') fuente?: string, @Query('centroId') centroId?: string) {

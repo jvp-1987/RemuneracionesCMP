@@ -2,11 +2,32 @@
 
 import React from 'react';
 import Link from 'next/link';
+import axios from 'axios';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import ChangePasswordForm from "@/components/ChangePasswordForm";
 
 export default function ConfigurationPage() {
+  const handleClearTestData = async () => {
+    if (!confirm('ATENCIÓN: Esto eliminará todas las novedades operativas (Atrasos, Horas Extras, Viáticos, Turnos) y Consolidados de la base de datos permanentemente. Se mantendrán los funcionarios y el maestro. ¿Estás seguro?')) return;
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+      await axios.delete(`${apiUrl}/consolidados/clear/all/test-data`);
+      
+      // Clear localStorage drafts
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('draft_ingreso_')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      alert('¡Base de datos limpia! Ya no deberías ver novedades de prueba.');
+    } catch (err) {
+      console.error(err);
+      alert('Error al intentar limpiar la base de datos.');
+    }
+  };
+
   return (
     <div className="space-y-12 p-2 font-manrope">
       {/* Header Section */}
@@ -146,6 +167,11 @@ export default function ConfigurationPage() {
                   <span className="material-symbols-outlined text-base group-hover:rotate-12 transition-transform">list_alt</span>
                   Catálogo de Asignaciones
                </Link>
+
+               <button onClick={handleClearTestData} className="flex items-center justify-center gap-3 w-full py-4 mt-4 bg-rose-50 text-rose-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all border border-rose-200 group">
+                  <span className="material-symbols-outlined text-base group-hover:rotate-12 transition-transform">delete_forever</span>
+                  Purgar Novedades (DB Real)
+               </button>
             </div>
           </div>
 
