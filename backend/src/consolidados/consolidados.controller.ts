@@ -20,7 +20,7 @@ export class ConsolidadosController {
   }
 
   @Delete('clear/all/test-data')
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'ADMIN_MAESTRO')
   clearTestData() {
     return this.consolidadosService.clearTestData();
   }
