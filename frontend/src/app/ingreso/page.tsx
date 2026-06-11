@@ -1169,12 +1169,12 @@ export default function IngresoPage() {
                               </label>
                               <div className="flex items-center gap-2 relative z-10">
                                 <div className="flex items-center justify-between w-full bg-white/60 p-1.5 rounded-xl border border-blue-100/50">
-                                  <span className="text-[8px] font-black text-blue-400/80 uppercase tracking-wider ml-1">Cant.</span>
-                                  <input type="number" value={row.cant_habil} onChange={e => updateRow(row.id, 'cant_habil', e.target.value)} className="w-12 bg-transparent text-sm font-black text-slate-800 outline-none focus:ring-0 text-right" placeholder="0" />
+                                  <span className="text-[8px] font-black text-blue-400/80 uppercase tracking-wider ml-1 whitespace-nowrap">Cant.</span>
+                                  <input type="number" value={row.cant_habil} onChange={e => updateRow(row.id, 'cant_habil', e.target.value)} className="w-10 bg-transparent text-sm font-black text-slate-800 outline-none focus:ring-0 text-right pr-1" placeholder="0" />
                                 </div>
                                 <div className="flex items-center justify-between w-full bg-white/60 p-1.5 rounded-xl border border-blue-100/50">
-                                  <span className="text-[8px] font-black text-blue-400/80 uppercase tracking-wider ml-1">Valor $</span>
-                                  <input type="number" value={row.valor_habil} onChange={e => updateRow(row.id, 'valor_habil', e.target.value)} className="w-20 bg-transparent text-sm font-black text-blue-600 outline-none focus:ring-0 text-right" placeholder="0" />
+                                  <span className="text-[8px] font-black text-blue-400/80 uppercase tracking-wider ml-1 whitespace-nowrap">Valor $</span>
+                                  <input type="number" value={row.valor_habil} onChange={e => updateRow(row.id, 'valor_habil', e.target.value)} className="w-16 bg-transparent text-sm font-black text-blue-600 outline-none focus:ring-0 text-right pr-1" placeholder="0" />
                                 </div>
                               </div>
                             </div>
@@ -1186,12 +1186,12 @@ export default function IngresoPage() {
                               </label>
                               <div className="flex items-center gap-2 relative z-10">
                                 <div className="flex items-center justify-between w-full bg-white/60 p-1.5 rounded-xl border border-purple-100/50">
-                                  <span className="text-[8px] font-black text-purple-400/80 uppercase tracking-wider ml-1">Cant.</span>
-                                  <input type="number" value={row.cant_inhabil} onChange={e => updateRow(row.id, 'cant_inhabil', e.target.value)} className="w-12 bg-transparent text-sm font-black text-slate-800 outline-none focus:ring-0 text-right" placeholder="0" />
+                                  <span className="text-[8px] font-black text-purple-400/80 uppercase tracking-wider ml-1 whitespace-nowrap">Cant.</span>
+                                  <input type="number" value={row.cant_inhabil} onChange={e => updateRow(row.id, 'cant_inhabil', e.target.value)} className="w-10 bg-transparent text-sm font-black text-slate-800 outline-none focus:ring-0 text-right pr-1" placeholder="0" />
                                 </div>
                                 <div className="flex items-center justify-between w-full bg-white/60 p-1.5 rounded-xl border border-purple-100/50">
-                                  <span className="text-[8px] font-black text-purple-400/80 uppercase tracking-wider ml-1">Valor $</span>
-                                  <input type="number" value={row.valor_inhabil} onChange={e => updateRow(row.id, 'valor_inhabil', e.target.value)} className="w-20 bg-transparent text-sm font-black text-purple-600 outline-none focus:ring-0 text-right" placeholder="0" />
+                                  <span className="text-[8px] font-black text-purple-400/80 uppercase tracking-wider ml-1 whitespace-nowrap">Valor $</span>
+                                  <input type="number" value={row.valor_inhabil} onChange={e => updateRow(row.id, 'valor_inhabil', e.target.value)} className="w-16 bg-transparent text-sm font-black text-purple-600 outline-none focus:ring-0 text-right pr-1" placeholder="0" />
                                 </div>
                               </div>
                             </div>
