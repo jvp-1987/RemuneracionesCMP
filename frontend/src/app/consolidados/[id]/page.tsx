@@ -871,14 +871,12 @@ export default function ConsolidadoDetailPage() {
           <span className="text-[9px] font-bold text-outline-variant uppercase tracking-widest mt-1">Estado: {auditProgress()}% Auditado</span>
         </div>
         <div className="flex gap-6">
-          {data.estado_actual_enum === 'Aprobado' && (
-            <button 
-              onClick={handleDownloadExcel}
-              className="px-12 py-3.5 text-xs font-black rounded-2xl uppercase tracking-[0.15em] bg-emerald-500 hover:bg-emerald-600 text-white transition-all shadow-2xl shadow-emerald-400/20 active:scale-95"
-            >
-              DESCARGAR EXCEL CONSOLIDADO
-            </button>
-          )}
+          <button 
+            onClick={handleDownloadExcel}
+            className="px-12 py-3.5 text-xs font-black rounded-2xl uppercase tracking-[0.15em] bg-emerald-500 hover:bg-emerald-600 text-white transition-all shadow-2xl shadow-emerald-400/20 active:scale-95"
+          >
+            DESCARGAR EXCEL CONSOLIDADO
+          </button>
           {data.estado_actual_enum !== 'Aprobado' ? (
             <button 
               disabled={!canFinalize || !data.vb_control_interno || !data.vb_finanzas}

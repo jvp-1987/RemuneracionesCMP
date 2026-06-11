@@ -224,15 +224,13 @@ export default function ConsolidadosPage() {
                 </td>
                  <td className="px-8 py-6 text-right">
                   <div className="flex justify-end gap-2">
-                    {c.estado_actual_enum === 'Aprobado' && (
-                      <button 
-                        onClick={(e) => handleDownloadExcelList(e, c.id, c.centro_salud.nombre, c.periodo.mes, c.periodo.anio)}
-                        className="p-2 border border-emerald-200/50 rounded-xl text-emerald-600 bg-emerald-50 hover:bg-emerald-600 hover:text-white transition-all shadow-sm flex items-center justify-center"
-                        title="Descargar Excel Consolidado"
-                      >
-                        <span className="material-symbols-outlined text-lg select-none">download</span>
-                      </button>
-                    )}
+                    <button 
+                      onClick={(e) => handleDownloadExcelList(e, c.id, c.centro_salud.nombre, c.periodo.mes, c.periodo.anio)}
+                      className="p-2 border border-emerald-200/50 rounded-xl text-emerald-600 bg-emerald-50 hover:bg-emerald-600 hover:text-white transition-all shadow-sm flex items-center justify-center"
+                      title="Descargar Excel Consolidado"
+                    >
+                      <span className="material-symbols-outlined text-lg select-none">download</span>
+                    </button>
                     <button className="p-2 border border-outline-variant/10 rounded-xl text-primary hover:bg-primary hover:text-white transition-all shadow-sm flex items-center justify-center">
                       <span className="material-symbols-outlined text-lg select-none" dangerouslySetInnerHTML={{ __html: '&#xe5cc;' }} />
                     </button>
