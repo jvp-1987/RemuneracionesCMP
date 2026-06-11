@@ -284,12 +284,23 @@ export default function FuncionariosPage() {
                       onChange={(e) => setFormData({...formData, profesion_enum: e.target.value})}
                     >
                       <option value="">Seleccione profesión...</option>
-                      <option value="MEDICO">MÉDICO</option>
+                      <option value="MEDICO">MÉDICO CIRUJANO</option>
+                      <option value="ODONTOLOGO">ODONTÓLOGO/A (DENTISTA)</option>
                       <option value="ENFERMERA">ENFERMERO/A</option>
+                      <option value="MATRONA">MATRÓN/A</option>
                       <option value="KINESIOLOGO">KINESIÓLOGO/A</option>
-                      <option value="TENS">TENS</option>
+                      <option value="PSICOLOGO">PSICÓLOGO/A</option>
+                      <option value="NUTRICIONISTA">NUTRICIONISTA</option>
+                      <option value="TRABAJADOR_SOCIAL">ASISTENTE / TRABAJADOR SOCIAL</option>
+                      <option value="FONOAUDIOLOGO">FONOAUDIÓLOGO/A</option>
+                      <option value="TERAPEUTA_OCUPACIONAL">TERAPEUTA OCUPACIONAL</option>
+                      <option value="QUIMICO_FARMACEUTICO">QUÍMICO FARMACÉUTICO</option>
+                      <option value="TECNOLOGO_MEDICO">TECNÓLOGO MÉDICO</option>
+                      <option value="TENS">TENS (Téc. Enfermería)</option>
+                      <option value="TONS">TONS (Téc. Odontología)</option>
                       <option value="ADMINISTRATIVO">ADMINISTRATIVO/A</option>
-                      <option value="AUXILIAR">AUXILIAR</option>
+                      <option value="CONDUCTOR">CONDUCTOR/A</option>
+                      <option value="AUXILIAR">AUXILIAR DE SERVICIO</option>
                     </select>
                   </div>
 
