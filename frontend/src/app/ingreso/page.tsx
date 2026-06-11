@@ -309,6 +309,7 @@ export default function IngresoPage() {
   const [centros, setCentros] = useState<any[]>([]);
   const [activeRowId, setActiveRowId] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
   // ─── Persistencia Local (Borradores) ──────────────────────────────────────────
   useEffect(() => {
@@ -326,7 +327,7 @@ export default function IngresoPage() {
       } catch (e) { console.error("Error loading draft:", e); }
     } else {
         setRows([]); 
-    }
+      }
     
     if (user?.rol === 'CENTRO_SALUD' && user.centro_salud_id) {
       setCentroId(String(user.centro_salud_id));
@@ -352,8 +353,24 @@ export default function IngresoPage() {
 
   useEffect(() => {
     if (!user || rows.length === 0) return;
-    const storageKey = `draft_ingreso_${user.id}_${activeTab}_${periodoId}`;
-    localStorage.setItem(storageKey, JSON.stringify(rows));
+    
+    setAutoSaveStatus('saving');
+    const timer = setTimeout(() => {
+      try {
+        const storageKey = `draft_ingreso_${user.id}_${activeTab}_${periodoId}`;
+        localStorage.setItem(storageKey, JSON.stringify(rows));
+        setAutoSaveStatus('saved');
+        const resetTimer = setTimeout(() => {
+          setAutoSaveStatus('idle');
+        }, 2000);
+        return () => clearTimeout(resetTimer);
+      } catch (e) {
+        console.error("Error saving draft:", e);
+        setAutoSaveStatus('idle');
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, [rows, user, activeTab, periodoId]);
   
   // Maestro Upload States
@@ -1486,19 +1503,19 @@ export default function IngresoPage() {
                 </motion.div>
               )}
             </AnimatePresence>
-            <button
-              onClick={() => {
-                if (isReadOnly) return;
-                const storageKey = `draft_ingreso_${user?.id}_${activeTab}_${periodoId}`;
-                localStorage.setItem(storageKey, JSON.stringify(rows));
-                setShowSuccess(true);
-                setTimeout(() => setShowSuccess(false), 2000);
-              }}
-              className="flex items-center gap-2 bg-white text-slate-500 px-4 py-3.5 rounded-full font-black uppercase tracking-widest border border-slate-100 hover:bg-slate-50 transition-all text-[9px] whitespace-nowrap"
-            >
-              <Clock className="w-4 h-4 text-slate-400" />
-              Borrador
-            </button>
+            <div className="flex items-center gap-2 px-4 py-3 bg-slate-50/80 rounded-full border border-slate-100/80 text-slate-500 text-[9px] font-black uppercase tracking-widest select-none whitespace-nowrap">
+              {autoSaveStatus === 'saving' ? (
+                <>
+                  <RefreshCcw className="w-3.5 h-3.5 animate-spin text-primary" />
+                  <span>Guardando...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className={cn("w-3.5 h-3.5", autoSaveStatus === 'saved' ? "text-emerald-500 animate-bounce" : "text-emerald-400")} />
+                  <span className={cn(autoSaveStatus === 'saved' ? "text-emerald-600" : "text-slate-500")}>Autoguardado</span>
+                </>
+              )}
+            </div>
             <button
               onClick={handleSave}
               disabled={loading || rows.every(r => !r.rut) || isReadOnly}
