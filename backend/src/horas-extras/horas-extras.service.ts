@@ -40,7 +40,7 @@ export class HorasExtrasService {
     if (!current) throw new NotFoundException(`Horas Extras #${id} no encontrada`);
 
     // Lock check: If reviewed by Control Interno and user is CENTRO_SALUD, block editing
-    if (current.consolidado.vb_control_interno && user.rol_enum === 'CENTRO_SALUD') {
+    if (current.consolidado.vb_control_interno && ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol_enum)) {
       throw new ForbiddenException('Edición bloqueada: El consolidado ya está en revisión por Control Interno');
     }
     
@@ -66,7 +66,7 @@ export class HorasExtrasService {
     const consolidado = await this.prisma.consolidado.findUnique({ where: { id: consolidadoId } });
     if (!consolidado) throw new NotFoundException(`Consolidado #${consolidadoId} no encontrado`);
 
-    if (consolidado.vb_control_interno && user.rol_enum === 'CENTRO_SALUD') {
+    if (consolidado.vb_control_interno && ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol_enum)) {
       throw new ForbiddenException('Edición masiva bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 
@@ -106,7 +106,7 @@ export class HorasExtrasService {
     if (!current) throw new NotFoundException(`Horas Extras #${id} no encontrada`);
 
     // Lock check
-    if (current.consolidado.vb_control_interno && user.rol_enum === 'CENTRO_SALUD') {
+    if (current.consolidado.vb_control_interno && ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol_enum)) {
       throw new ForbiddenException('Eliminación bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 

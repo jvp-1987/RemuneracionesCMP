@@ -335,7 +335,8 @@ export default function IngresoPage() {
         setRows([]); 
       }
     
-    if (user?.rol === 'CENTRO_SALUD' && user.centro_salud_id) {
+    // Default center to user's assigned center if they are CENTRO_SALUD or SECRETARIA
+    if (['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '') && user?.centro_salud_id) {
       setCentroId(String(user.centro_salud_id));
     }
 
@@ -851,12 +852,12 @@ export default function IngresoPage() {
             </div>
             <div className="relative w-full">
               <select 
-                disabled={user?.rol === 'CENTRO_SALUD'}
+                disabled={['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '')}
                 value={centroId} 
                 onChange={(e) => setCentroId(e.target.value)}
                 className={cn(
                   "font-black text-slate-800 text-xs xl:text-sm outline-none bg-transparent appearance-none w-full pr-7 cursor-pointer",
-                  user?.rol === 'CENTRO_SALUD' && "cursor-not-allowed opacity-50"
+                  ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '') && "cursor-not-allowed opacity-50"
                 )}
               >
                 {centros.map(c => (

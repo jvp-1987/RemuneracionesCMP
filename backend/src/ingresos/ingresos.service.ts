@@ -49,7 +49,7 @@ export class IngresosService {
           where: { centro_salud_id: centro.id, periodo_id: periodo.id }
         });
 
-        if (consolidado && consolidado.vb_control_interno && user?.rol_enum === 'CENTRO_SALUD') {
+        if (consolidado && consolidado.vb_control_interno && ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol_enum || '')) {
           throw new ForbiddenException('Edición bloqueada: El consolidado ya está validado por Control Interno.');
         }
 

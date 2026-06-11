@@ -188,7 +188,7 @@ export class FuncionariosService {
   }
 
   async findAll(user: any, centroId?: number, includeInactive: boolean = false) {
-    const isCentroSalud = user.rol_enum === 'CENTRO_SALUD';
+    const isCentroSalud = ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol_enum);
     const where: any = {};
     
     if (!includeInactive) {
@@ -229,7 +229,7 @@ export class FuncionariosService {
     if (!funcionario) throw new NotFoundException(`Funcionario ${rut} no encontrado`);
 
     // Security Check
-    if (user && user.rol_enum === 'CENTRO_SALUD' && user.centro_salud_id) {
+    if (user && ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol_enum) && user.centro_salud_id) {
       const ids = await this.getCenterIds(user.centro_salud_id);
       if (!funcionario.centro_salud_id || !ids.includes(funcionario.centro_salud_id)) {
         throw new NotFoundException(`Funcionario ${rut} no pertenece a su establecimiento ni dependientes`);
@@ -314,7 +314,7 @@ export class FuncionariosService {
       where.activo = true;
     }
 
-    if (user.rol_enum === 'CENTRO_SALUD' && user.centro_salud_id) {
+    if (['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol_enum) && user.centro_salud_id) {
       const ids = await this.getCenterIds(user.centro_salud_id);
       where.centro_salud_id = { in: ids };
     }

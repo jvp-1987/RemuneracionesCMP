@@ -42,7 +42,7 @@ export class FuncionariosController {
 
   @Get('search')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
   search(@Req() req: any, @Query('q') query: string, @Query('inactivos') inactivos?: string) {
     if (!query || query.length < 2) return [];
     return this.funcionariosService.search(req.user, query, inactivos === 'true');
@@ -50,14 +50,14 @@ export class FuncionariosController {
 
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
   findAll(@Req() req: any, @Query('centroId') centroId?: string, @Query('inactivos') inactivos?: string) {
     return this.funcionariosService.findAll(req.user, centroId ? +centroId : undefined, inactivos === 'true');
   }
 
   @Get(':rut')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
   findOne(@Param('rut') rut: string, @Req() req: any) {
     return this.funcionariosService.findOne(rut, req.user);
   }

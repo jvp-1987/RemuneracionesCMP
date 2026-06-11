@@ -35,7 +35,7 @@ export class ConsolidadosService {
   }
 
   async findAll(user: any, centroId?: number) {
-    const isCentroSalud = user.rol_enum === 'CENTRO_SALUD';
+    const isCentroSalud = ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol_enum);
     const where: any = {};
     
     // Explicit filter from query param
@@ -73,7 +73,7 @@ export class ConsolidadosService {
     if (!consolidado) throw new NotFoundException(`Consolidado #${id} no encontrado`);
 
     // Security check
-    if (user && user.rol_enum === 'CENTRO_SALUD' && user.centro_salud_id && consolidado.centro_salud_id !== user.centro_salud_id) {
+    if (user && ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol_enum) && user.centro_salud_id && consolidado.centro_salud_id !== user.centro_salud_id) {
       throw new NotFoundException(`Consolidado #${id} no pertenece a su establecimiento`);
     }
 
@@ -143,7 +143,7 @@ export class ConsolidadosService {
     }
     
     // Bloqueo de seguridad: El Gestor de Centro no puede alterar el consolidado si Control ya lo validó
-    if (user.rol_enum === 'CENTRO_SALUD' && consolidado.vb_control_interno) {
+    if (['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol_enum) && consolidado.vb_control_interno) {
       throw new ForbiddenException('Edición bloqueada: El consolidado ya está validado por Control Interno y no puede ser alterado por el Centro de Salud.');
     }
 
@@ -178,7 +178,7 @@ export class ConsolidadosService {
     }
 
     // General updates
-    if (user.rol_enum === 'ADMIN' || user.rol_enum === 'ADMIN_MAESTRO' || user.rol_enum === 'CENTRO_SALUD') {
+    if (user.rol_enum === 'ADMIN' || user.rol_enum === 'ADMIN_MAESTRO' || ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol_enum)) {
       if (dto.estado_actual_enum) updateData.estado_actual_enum = dto.estado_actual_enum;
       if ((user.rol_enum === 'ADMIN' || user.rol_enum === 'ADMIN_MAESTRO') && dto.usuario_gestor_id) {
         updateData.usuario_gestor_id = dto.usuario_gestor_id;
@@ -279,7 +279,7 @@ export class ConsolidadosService {
     }
 
     // ── Paso 2: Determinar filtros de Rol & Centro ────────────────────────────
-    const isCentroSalud = user.rol_enum === 'CENTRO_SALUD';
+    const isCentroSalud = ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol_enum);
     const effectiveCentroId = centroIdOverride || (isCentroSalud ? user.centro_salud_id : null);
     
     const whereMaestro: any = targetPeriodoId ? { periodo_id: targetPeriodoId } : {};
@@ -517,7 +517,7 @@ export class ConsolidadosService {
     if (!consolidado) throw new NotFoundException(`Consolidado #${id} no encontrado`);
 
     // Security check
-    if (user && user.rol_enum === 'CENTRO_SALUD' && user.centro_salud_id && consolidado.centro_salud_id !== user.centro_salud_id) {
+    if (user && ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol_enum) && user.centro_salud_id && consolidado.centro_salud_id !== user.centro_salud_id) {
       throw new ForbiddenException(`No tiene acceso a este consolidado`);
     }
 

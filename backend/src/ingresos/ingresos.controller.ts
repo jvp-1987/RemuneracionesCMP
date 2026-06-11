@@ -10,7 +10,7 @@ export class IngresosController {
   constructor(private readonly ingresosService: IngresosService) {}
 
   @Post('manual')
-  @Roles('ADMIN', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  @Roles('ADMIN', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
   guardarIngresos(@Body() data: any, @Req() req: any) {
     return this.ingresosService.guardarIngresos(data, req.user);
   }

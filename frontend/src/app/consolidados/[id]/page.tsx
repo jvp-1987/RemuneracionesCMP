@@ -89,8 +89,8 @@ export default function ConsolidadoDetailPage() {
   const canValidateFinanzas = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'FINANZAS';
   const canFinalize = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO';
   
-  // A record is locked for CENTRO_SALUD if Control Interno already gave V°B°, or if user is INVITADO
-  const isLocked = (data?.vb_control_interno && user?.rol === 'CENTRO_SALUD') || user?.rol === 'INVITADO';
+  // A record is locked for CENTRO_SALUD/SECRETARIA if Control Interno already gave V°B°, or if user is INVITADO
+  const isLocked = (data?.vb_control_interno && ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '')) || user?.rol === 'INVITADO';
 
   const fetchData = async () => {
     try {
@@ -98,8 +98,8 @@ export default function ConsolidadoDetailPage() {
       const res = await axios.get(`${apiUrl}/consolidados/${id}`);
       const consolidadoData = res.data;
 
-      // Security check: If CENTRO_SALUD, must match their assigned center
-      if (user?.rol === 'CENTRO_SALUD' && user.centro_salud_id && consolidadoData.centro_salud.id !== user.centro_salud_id) {
+      // Security check: If CENTRO_SALUD or SECRETARIA, must match their assigned center
+      if (['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '') && user?.centro_salud_id && consolidadoData.centro_salud.id !== user?.centro_salud_id) {
         console.warn('Unauthorized access to consolidado of another center');
         router.push('/consolidados');
         return;
@@ -675,7 +675,7 @@ export default function ConsolidadoDetailPage() {
               )}
               <label className={cn(
                 "flex items-center gap-1.5 px-4 py-2 bg-slate-800 text-white rounded-lg text-[9px] font-black uppercase tracking-widest cursor-pointer hover:bg-slate-700 transition-all shadow-md",
-                user?.rol === 'CENTRO_SALUD' || user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' ? "" : "opacity-50 pointer-events-none"
+                ['CENTRO_SALUD', 'SECRETARIA', 'ADMIN', 'ADMIN_MAESTRO'].includes(user?.rol || '') ? "" : "opacity-50 pointer-events-none"
               )}>
                 <span className="material-symbols-outlined text-xs">{data.url_respaldo ? 'refresh' : 'attach_file'}</span>
                 {data.url_respaldo ? 'Cambiar PDF' : 'Subir PDF'}
@@ -854,7 +854,7 @@ export default function ConsolidadoDetailPage() {
                     onRespaldoUpload={(e) => handleRecordRespaldoUpload(item.id, e)}
                     onViewRespaldo={() => handleOpenRespaldo(item.url_respaldo!)}
                     attendanceLogs={relojData ? relojData[item.funcionario.rut.replace(/\./g, '').replace(/^0+/, '')] : undefined}
-                    canEdit={((canValidateControl || canValidateFinanzas) || user?.rol === 'CENTRO_SALUD') && !isLocked}
+                    canEdit={((canValidateControl || canValidateFinanzas) || ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '')) && !isLocked}
                     canAudit={canValidateControl || canValidateFinanzas}
                     isLocked={!!isLocked}
                   />

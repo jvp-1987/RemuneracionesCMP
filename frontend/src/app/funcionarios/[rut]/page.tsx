@@ -63,7 +63,7 @@ export default function FuncionarioDetailPage() {
   const { rut } = useParams();
   const router = useRouter();
   const { user } = useAuth();
-  const isCentroSalud = user?.rol_enum === 'CENTRO_SALUD';
+  const isCentroSalud = ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '');
   const [funcionario, setFuncionario] = useState<Funcionario | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'perfil' | 'historial' | 'contratos' | 'ausentismos' | 'resoluciones' | 'asignaciones'>('perfil');

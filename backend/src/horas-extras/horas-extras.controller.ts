@@ -31,21 +31,21 @@ export class HorasExtrasController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
   update(@Req() req: any, @Param('id') id: string, @Body() dto: UpdateHorasExtrasDto) {
     return this.horasExtrasService.update(req.user, +id, dto);
   }
 
   @Patch('bulk/:consolidadoId')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
   bulkUpdate(@Req() req: any, @Param('consolidadoId') consolidadoId: string, @Body() dto: UpdateHorasExtrasDto) {
     return this.horasExtrasService.bulkUpdate(req.user, +consolidadoId, dto);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'ADMIN_MAESTRO')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
   remove(@Req() req: any, @Param('id') id: string) {
     return this.horasExtrasService.remove(req.user, +id);
   }

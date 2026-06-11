@@ -17,7 +17,7 @@ export class RelojControlController {
   ) {}
 
   @Post('proyectar-asistencia/:consolidadoId')
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'ADMIN_MAESTRO', 'CENTRO_SALUD')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'ADMIN_MAESTRO', 'CENTRO_SALUD', 'SECRETARIA')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {

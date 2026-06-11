@@ -27,7 +27,7 @@ export default function Sidebar() {
     if (!user) return false;
     if (user.rol === 'ADMIN' || user.rol === 'ADMIN_MAESTRO') return true;
     
-    if (user.rol === 'CENTRO_SALUD') {
+    if (['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol)) {
       return ['Dashboard', 'Ingresar Novedades', 'Consolidados', 'Funcionarios', 'Asignaciones Fijas'].includes(item.name);
     }
     

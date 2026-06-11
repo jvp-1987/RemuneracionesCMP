@@ -29,13 +29,13 @@ export class TurnosUrgenciaController {
   }
 
   @Patch(':id')
-  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD')
+  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA')
   update(@Param('id') id: string, @Body() dto: UpdateTurnoUrgenciaDto, @Req() req: any) {
     return this.turnosUrgenciaService.update(+id, dto, req.user);
   }
 
   @Delete(':id')
-  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD')
+  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA')
   remove(@Param('id') id: string, @Req() req: any) {
     return this.turnosUrgenciaService.remove(+id, req.user);
   }

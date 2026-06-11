@@ -28,7 +28,7 @@ export class AtrasosService {
   async update(user: any, id: number, dto: UpdateAtrasoDto) {
     const current = await this.findOne(id);
 
-    if (current.consolidado.vb_control_interno && user.rol_enum === 'CENTRO_SALUD') {
+    if (current.consolidado.vb_control_interno && ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol_enum)) {
       throw new ForbiddenException('Edición bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 
@@ -52,7 +52,7 @@ export class AtrasosService {
   async remove(user: any, id: number) {
     const current = await this.findOne(id);
 
-    if (current.consolidado.vb_control_interno && user.rol_enum === 'CENTRO_SALUD') {
+    if (current.consolidado.vb_control_interno && ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol_enum)) {
       throw new ForbiddenException('Eliminación bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 

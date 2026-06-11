@@ -32,7 +32,7 @@ export class TurnosUrgenciaService {
     const oldData = await this.findOne(id);
 
     // Lock check
-    if ((oldData.consolidado as any)?.vb_control_interno && user?.rol_enum === 'CENTRO_SALUD') {
+    if ((oldData.consolidado as any)?.vb_control_interno && ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol_enum)) {
       throw new ForbiddenException('Edición bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 
@@ -61,7 +61,7 @@ export class TurnosUrgenciaService {
     const current = await this.findOne(id);
 
     // Lock check
-    if ((current.consolidado as any)?.vb_control_interno && user?.rol_enum === 'CENTRO_SALUD') {
+    if ((current.consolidado as any)?.vb_control_interno && ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol_enum)) {
       throw new ForbiddenException('Eliminación bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 

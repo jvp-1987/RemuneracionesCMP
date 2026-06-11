@@ -32,6 +32,7 @@ const ROLES = [
   { id: 'CONTROL', label: 'Unidad de Control', icon: Shield, color: 'text-blue-600 bg-blue-50' },
   { id: 'FINANZAS', label: 'Finanzas / Remuneraciones', icon: Shield, color: 'text-emerald-600 bg-emerald-50' },
   { id: 'CENTRO_SALUD', label: 'Gestor de Centro', icon: Building2, color: 'text-amber-600 bg-amber-50' },
+  { id: 'SECRETARIA', label: 'Secretaria', icon: UserPlus, color: 'text-pink-600 bg-pink-50' },
   { id: 'INVITADO', label: 'Invitado (Solo Lectura)', icon: Eye, color: 'text-slate-600 bg-slate-100' },
 ];
 
@@ -402,11 +403,11 @@ export default function UsuariosPage() {
                     <select 
                       value={formData.centro_salud_id}
                       onChange={e => setFormData({...formData, centro_salud_id: e.target.value})}
-                      disabled={formData.rol_enum === 'ADMIN' || formData.rol_enum === 'CONTROL' || formData.rol_enum === 'FINANZAS' || formData.rol_enum === 'INVITADO'}
-                      required={formData.rol_enum === 'CENTRO_SALUD'}
+                      disabled={['ADMIN', 'CONTROL', 'FINANZAS', 'INVITADO'].includes(formData.rol_enum)}
+                      required={['CENTRO_SALUD', 'SECRETARIA'].includes(formData.rol_enum)}
                       className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all appearance-none disabled:opacity-50"
                     >
-                      <option value="">{formData.rol_enum === 'CENTRO_SALUD' ? 'Seleccione un Centro...' : 'Acceso Global (Todos)'}</option>
+                      <option value="">{['CENTRO_SALUD', 'SECRETARIA'].includes(formData.rol_enum) ? 'Seleccione un Centro...' : 'Acceso Global (Todos)'}</option>
                       {centros
                         .filter(c => !c.parent_id && (
                           c.nombre.toUpperCase().includes('CESFAM PANGUIPULLI') || 

@@ -37,7 +37,7 @@ export class RemuneracionesController {
   }
 
   @Post('importar-validacion')
-  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CENTRO_SALUD', 'CONTROL')
+  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CENTRO_SALUD', 'SECRETARIA', 'CONTROL')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {

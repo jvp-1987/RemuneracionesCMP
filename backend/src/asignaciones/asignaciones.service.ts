@@ -145,7 +145,7 @@ export class AsignacionesService {
   // ================= TODAS LAS ASIGNACIONES (VISTA GLOBAL) =================
   async getAsignacionesTodas(user?: any) {
     let whereClause: any = {};
-    if (user?.rol_enum === 'CENTRO_SALUD' && user.centro_salud_id) {
+    if (['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol_enum || '') && user.centro_salud_id) {
       const ids = await this.getCenterIds(user.centro_salud_id);
       whereClause = {
         funcionario: { centro_salud_id: { in: ids } }
@@ -213,7 +213,7 @@ export class AsignacionesService {
   async getVerificacionMensual(periodoId: number, user?: any) {
     let whereClause: any = { periodo_id: periodoId };
     
-    if (user?.rol_enum === 'CENTRO_SALUD' && user.centro_salud_id) {
+    if (['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol_enum || '') && user.centro_salud_id) {
       const ids = await this.getCenterIds(user.centro_salud_id);
       whereClause = {
         ...whereClause,

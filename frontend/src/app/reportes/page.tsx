@@ -62,7 +62,7 @@ export default function ReportesPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (user && (user.rol === 'CONTROL' || user.rol === 'CENTRO_SALUD')) {
+    if (user && (user.rol === 'CONTROL' || ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol))) {
       router.push('/');
     }
   }, [user, router]);
@@ -154,7 +154,7 @@ export default function ReportesPage() {
   };
 
   useEffect(() => {
-    if (user && (user.rol === 'CONTROL' || user.rol === 'CENTRO_SALUD')) {
+    if (user && (user.rol === 'CONTROL' || ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol))) {
       return;
     }
     const init = async () => {
@@ -180,7 +180,7 @@ export default function ReportesPage() {
   }, []);
 
   useEffect(() => {
-    if (user && (user.rol === 'CONTROL' || user.rol === 'CENTRO_SALUD')) {
+    if (user && (user.rol === 'CONTROL' || ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol))) {
       return;
     }
     if (selectedPeriods.length === 0 && availablePeriods.length > 0) return;
@@ -213,7 +213,7 @@ export default function ReportesPage() {
     fetchData();
   }, [selectedPeriods, availablePeriods]);
 
-  if (user && (user.rol === 'CONTROL' || user.rol === 'CENTRO_SALUD')) {
+  if (user && (user.rol === 'CONTROL' || ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol))) {
     return null;
   }
 
