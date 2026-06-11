@@ -626,7 +626,7 @@ export default function IngresoPage() {
           const minKey = keys.find(k => k.toUpperCase().includes('MINUTO') || k.toUpperCase().includes('ATRASO') || k.toUpperCase().includes('TIEMPO'));
           const obsKey = keys.find(k => k.toUpperCase().includes('OBSERVACION') || k.toUpperCase().includes('CONCEPTO') || k.toUpperCase().includes('MOTIVO'));
 
-          const rut = rutKey ? String(row[rutKey]).trim() : '';
+          const rut = rutKey ? String(row[rutKey]).trim().replace(/\./g, '') : '';
           const nombre = nameKey ? String(row[nameKey]).trim() : '';
           let minutos = minKey ? String(row[minKey]).trim() : '0';
           const observaciones = obsKey ? String(row[obsKey]).trim() : '';
@@ -663,11 +663,7 @@ export default function IngresoPage() {
         });
 
         if (newRows.length > 0) {
-          setRows(prev => {
-            const hasOnlyEmptyRow = prev.length === 1 && !prev[0].rut;
-            if (hasOnlyEmptyRow) return newRows;
-            return [...prev, ...newRows];
-          });
+          setRows(newRows);
           alert(`Se importaron ${newRows.length} registros de atrasos exitosamente.`);
         } else {
           alert('No se encontraron registros válidos con columna RUT en el Excel.');
