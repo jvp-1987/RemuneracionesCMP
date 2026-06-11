@@ -304,7 +304,11 @@ export default function IngresoPage() {
   const [rows, setRows] = useState<RowData[]>([]);
   const [loading, setLoading] = useState(false);
   const [centroId, setCentroId] = useState('1');
-  const [periodoId, setPeriodoId] = useState('5');
+  const [periodoId, setPeriodoId] = useState(() => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const found = PERIODOS.find(p => todayStr >= p.inicio && todayStr <= p.fin);
+    return found ? found.id : '5';
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
