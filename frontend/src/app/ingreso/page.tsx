@@ -1131,7 +1131,7 @@ export default function IngresoPage() {
                               <span className="material-symbols-outlined text-lg">expand_more</span>
                             </div>
                           </div>
-                          <div className="grid grid-cols-2 gap-3">
+                          <div className="flex flex-col gap-3">
                             <div className="bg-gradient-to-br from-teal-50/80 to-teal-50/30 p-4 rounded-[1.5rem] border border-teal-200/50 shadow-sm relative overflow-hidden group/he25">
                               <div className="absolute top-0 right-0 p-2 opacity-5 group-hover/he25:scale-110 group-hover/he25:opacity-10 transition-all">
                                 <span className="material-symbols-outlined text-4xl text-teal-600">schedule</span>
@@ -1180,12 +1180,12 @@ export default function IngresoPage() {
                                 <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
                                 Turnos Hábiles
                               </label>
-                              <div className="flex gap-3 relative z-10">
-                                <div className="flex-1 bg-white/60 p-3 rounded-xl border border-blue-100/50">
+                              <div className="flex flex-col gap-3 relative z-10">
+                                <div className="w-full bg-white/60 p-3 rounded-xl border border-blue-100/50">
                                   <span className="text-[8px] font-black text-blue-400/80 block mb-1 uppercase tracking-wider">Cantidad</span>
                                   <input type="number" value={row.cant_habil} onChange={e => updateRow(row.id, 'cant_habil', e.target.value)} className="w-full bg-transparent text-xl font-black text-slate-800 outline-none focus:ring-0 transition-all" placeholder="0" />
                                 </div>
-                                <div className="flex-1 bg-white/60 p-3 rounded-xl border border-blue-100/50">
+                                <div className="w-full bg-white/60 p-3 rounded-xl border border-blue-100/50">
                                   <span className="text-[8px] font-black text-blue-400/80 block mb-1 uppercase tracking-wider">Valor Unitario $</span>
                                   <input type="number" value={row.valor_habil} onChange={e => updateRow(row.id, 'valor_habil', e.target.value)} className="w-full bg-transparent text-xl font-black text-blue-600 outline-none focus:ring-0 transition-all" placeholder="0" />
                                 </div>
@@ -1200,12 +1200,12 @@ export default function IngresoPage() {
                                 <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
                                 Turnos Inhábiles
                               </label>
-                              <div className="flex gap-3 relative z-10">
-                                <div className="flex-1 bg-white/60 p-3 rounded-xl border border-purple-100/50">
+                              <div className="flex flex-col gap-3 relative z-10">
+                                <div className="w-full bg-white/60 p-3 rounded-xl border border-purple-100/50">
                                   <span className="text-[8px] font-black text-purple-400/80 block mb-1 uppercase tracking-wider">Cantidad</span>
                                   <input type="number" value={row.cant_inhabil} onChange={e => updateRow(row.id, 'cant_inhabil', e.target.value)} className="w-full bg-transparent text-xl font-black text-slate-800 outline-none focus:ring-0 transition-all" placeholder="0" />
                                 </div>
-                                <div className="flex-1 bg-white/60 p-3 rounded-xl border border-purple-100/50">
+                                <div className="w-full bg-white/60 p-3 rounded-xl border border-purple-100/50">
                                   <span className="text-[8px] font-black text-purple-400/80 block mb-1 uppercase tracking-wider">Valor Unitario $</span>
                                   <input type="number" value={row.valor_inhabil} onChange={e => updateRow(row.id, 'valor_inhabil', e.target.value)} className="w-full bg-transparent text-xl font-black text-purple-600 outline-none focus:ring-0 transition-all" placeholder="0" />
                                 </div>
@@ -1237,15 +1237,15 @@ export default function IngresoPage() {
                             </div>
                           </div>
                           
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-emerald-50/80 to-emerald-50/30 p-4 rounded-[1.5rem] border border-emerald-200/50 shadow-sm relative overflow-hidden group/dias">
+                          <div className="flex flex-col gap-3">
+                            <div className="w-full bg-gradient-to-br from-emerald-50/80 to-emerald-50/30 p-4 rounded-[1.5rem] border border-emerald-200/50 shadow-sm relative overflow-hidden group/dias">
                               <div className="absolute top-0 right-0 p-2 opacity-5 group-hover/dias:scale-110 group-hover/dias:opacity-10 transition-all">
                                 <span className="material-symbols-outlined text-4xl text-emerald-600">event</span>
                               </div>
                               <span className="text-[8px] font-black uppercase text-emerald-600 tracking-wider mb-2 block">Cantidad (Días)</span>
                               <input type="number" value={row.cantidad_dias || 1} onChange={e => updateRow(row.id, 'cantidad_dias', e.target.value)} className="w-full bg-white/60 p-2 rounded-xl border border-emerald-100/50 text-lg font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" min="1" />
                             </div>
-                            <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-emerald-50/50 to-emerald-50/10 p-4 rounded-[1.5rem] border border-emerald-200/30 shadow-sm relative overflow-hidden group/valord">
+                            <div className="w-full bg-gradient-to-br from-emerald-50/50 to-emerald-50/10 p-4 rounded-[1.5rem] border border-emerald-200/30 shadow-sm relative overflow-hidden group/valord">
                               <div className="absolute top-0 right-0 p-2 opacity-5 group-hover/valord:scale-110 group-hover/valord:opacity-10 transition-all">
                                 <span className="material-symbols-outlined text-4xl text-emerald-600">payments</span>
                               </div>
@@ -1253,14 +1253,14 @@ export default function IngresoPage() {
                               <input type="number" value={row.monto} onChange={e => updateRow(row.id, 'monto', e.target.value)} className="w-full bg-white/60 p-2 rounded-xl border border-emerald-100/30 text-lg font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" />
                             </div>
                             
-                            <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-amber-50/80 to-amber-50/30 p-4 rounded-[1.5rem] border border-amber-200/50 shadow-sm relative overflow-hidden group/pasajes">
+                            <div className="w-full bg-gradient-to-br from-amber-50/80 to-amber-50/30 p-4 rounded-[1.5rem] border border-amber-200/50 shadow-sm relative overflow-hidden group/pasajes">
                               <div className="absolute top-0 right-0 p-2 opacity-5 group-hover/pasajes:scale-110 group-hover/pasajes:opacity-10 transition-all">
                                 <span className="material-symbols-outlined text-4xl text-amber-600">directions_car</span>
                               </div>
                               <span className="text-[8px] font-black uppercase text-amber-600 tracking-wider mb-2 block">Cantidad Pasajes</span>
                               <input type="number" value={row.cantidad_pasajes || 1} onChange={e => updateRow(row.id, 'cantidad_pasajes', e.target.value)} className="w-full bg-white/60 p-2 rounded-xl border border-amber-100/50 text-lg font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" min="0" placeholder="0" />
                             </div>
-                            <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-amber-50/50 to-amber-50/10 p-4 rounded-[1.5rem] border border-amber-200/30 shadow-sm relative overflow-hidden group/valorp">
+                            <div className="w-full bg-gradient-to-br from-amber-50/50 to-amber-50/10 p-4 rounded-[1.5rem] border border-amber-200/30 shadow-sm relative overflow-hidden group/valorp">
                               <div className="absolute top-0 right-0 p-2 opacity-5 group-hover/valorp:scale-110 group-hover/valorp:opacity-10 transition-all">
                                 <span className="material-symbols-outlined text-4xl text-amber-600">local_activity</span>
                               </div>
@@ -1269,11 +1269,11 @@ export default function IngresoPage() {
                             </div>
                           </div>
                           
-                          <div className="flex gap-2">
-                            <div className="flex-1 text-[9px] font-black uppercase tracking-wider text-emerald-600 text-center bg-emerald-50/80 border border-emerald-200/50 py-2 rounded-[1rem] shadow-sm">
+                          <div className="flex flex-col gap-2">
+                            <div className="w-full text-[9px] font-black uppercase tracking-wider text-emerald-600 text-center bg-emerald-50/80 border border-emerald-200/50 py-2 rounded-[1rem] shadow-sm">
                               Subtotal Base: ${(Number(row.monto || 0) * Number(row.cantidad_dias || 1)).toLocaleString('es-CL')}
                             </div>
-                            <div className="flex-1 text-[9px] font-black uppercase tracking-wider text-amber-600 text-center bg-amber-50/80 border border-amber-200/50 py-2 rounded-[1rem] shadow-sm">
+                            <div className="w-full text-[9px] font-black uppercase tracking-wider text-amber-600 text-center bg-amber-50/80 border border-amber-200/50 py-2 rounded-[1rem] shadow-sm">
                               Subtotal Pasajes: ${(Number(row.rendicion_pasajes || 0) * Number(row.cantidad_pasajes || 1)).toLocaleString('es-CL')}
                             </div>
                           </div>
