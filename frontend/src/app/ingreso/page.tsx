@@ -957,7 +957,7 @@ export default function IngresoPage() {
           VISTA TARJETAS — REDISEÑADA "PREMIUM"
        ══════════════════════════════════════════════════════════════════════ */}
       {viewMode === 'cards' ? (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-10 items-start relative z-10">
+        <div className="flex flex-col gap-8 items-stretch relative z-10">
           <AnimatePresence mode="popLayout">
             {rows.map((row, index) => {
               const outOfPeriod = isOutOfPeriod(row.fecha_inicio, row.fecha_termino);
@@ -971,7 +971,7 @@ export default function IngresoPage() {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9, y: -30, transition: { duration: 0.3 } }}
                     className={cn(
-                      "group bg-white/95 backdrop-blur-2xl rounded-[2.5rem] p-6 shadow-[0_15px_40px_rgba(0,0,0,0.03)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.06)] border transition-all duration-700 relative overflow-hidden",
+                      "group bg-white/95 backdrop-blur-2xl rounded-[2.5rem] p-6 shadow-[0_15px_40px_rgba(0,0,0,0.03)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.06)] border transition-all duration-700 relative",
                       outOfPeriod ? "border-amber-200 ring-1 ring-amber-100/20" : "border-white hover:border-primary/10"
                     )}
                   >
@@ -1333,16 +1333,18 @@ export default function IngresoPage() {
 
           {/* Botón Añadir */}
           <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
             onClick={addRow}
-            className="flex flex-col items-center justify-center p-12 rounded-[2.5rem] border-4 border-dashed border-slate-200 hover:border-primary/30 hover:bg-primary/5 transition-all group min-h-[400px]"
+            className="flex items-center justify-center gap-4 py-6 px-8 rounded-[2rem] border-2 border-dashed border-slate-200 hover:border-primary/30 hover:bg-primary/5 transition-all group"
           >
-            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-all">
-              <Plus className="w-8 h-8" />
+            <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+              <Plus className="w-6 h-6" />
             </div>
-            <span className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 group-hover:text-primary transition-all">Agregar Registro</span>
-            <p className="text-[10px] font-bold text-slate-300 mt-2 text-center max-w-xs">Haga clic para añadir una nueva novedad clínica</p>
+            <div className="text-left">
+              <span className="text-sm font-black uppercase tracking-[0.15em] text-slate-400 group-hover:text-primary transition-all block">Agregar Registro</span>
+              <p className="text-[10px] font-bold text-slate-300 mt-0.5">Haga clic para añadir una nueva novedad clínica</p>
+            </div>
           </motion.button>
         </div>
 
