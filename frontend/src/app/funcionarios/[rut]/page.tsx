@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
+import { useAuth } from '@/components/AuthProvider';
 
 interface Funcionario {
   rut: string;
@@ -61,6 +62,8 @@ interface Funcionario {
 export default function FuncionarioDetailPage() {
   const { rut } = useParams();
   const router = useRouter();
+  const { user } = useAuth();
+  const isCentroSalud = user?.rol_enum === 'CENTRO_SALUD';
   const [funcionario, setFuncionario] = useState<Funcionario | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'perfil' | 'historial' | 'contratos' | 'ausentismos' | 'resoluciones' | 'asignaciones'>('perfil');
@@ -136,7 +139,12 @@ export default function FuncionarioDetailPage() {
 
       <div className="px-12 max-w-7xl mx-auto w-full pt-8">
         <div className="flex gap-10 border-b border-outline-variant/10 overflow-x-auto no-scrollbar">
-          {(['perfil', 'asignaciones', 'historial', 'contratos', 'ausentismos', 'resoluciones'] as const).map((tab) => (
+          {(['perfil', 'asignaciones', 'historial', 'contratos', 'ausentismos', 'resoluciones'] as const)
+            .filter(tab => {
+               if (isCentroSalud && (tab === 'historial' || tab === 'asignaciones' || tab === 'resoluciones')) return false;
+               return true;
+            })
+            .map((tab) => (
             <button 
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -155,7 +163,7 @@ export default function FuncionarioDetailPage() {
       <div className="p-12 max-w-7xl mx-auto w-full space-y-12">
         {activeTab === 'perfil' && (
            <section className="flex flex-col lg:flex-row gap-12 items-start animate-in fade-in slide-in-from-bottom-4 duration-700">
-             <div className="w-full lg:w-1/3 bg-white rounded-[3rem] p-10 shadow-2xl shadow-slate-200/30 border border-outline-variant/5">
+             <div className={cn("bg-white rounded-[3rem] p-10 shadow-2xl shadow-slate-200/30 border border-outline-variant/5", isCentroSalud ? "w-full max-w-2xl mx-auto" : "w-full lg:w-1/3")}>
                 <div className="flex flex-col items-center text-center">
                   <div className="w-44 h-44 rounded-[3rem] overflow-hidden mb-8 shadow-2xl relative group">
                     <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${funcionario.rut}`} alt={funcionario.nombre_completo} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" />
@@ -248,22 +256,25 @@ export default function FuncionarioDetailPage() {
                     return (
                        <>
                           <HeroField label="Establecimiento" value={centroNombre || 'Sin asignar'} />
-                          <HeroField 
-                            label="Sueldo Base" 
-                            value={`$${Math.round(
-                              (funcionario.remuneracion_presupuesto?.escala_base || 0) + (funcionario.remuneracion_presupuesto?.asignacion_aps || 0) || funcionario.sueldo_base || 0
-                            ).toLocaleString('es-CL')}`} 
-                          />
+                          {!isCentroSalud && (
+                            <HeroField 
+                              label="Sueldo Base" 
+                              value={`$${Math.round(
+                                (funcionario.remuneracion_presupuesto?.escala_base || 0) + (funcionario.remuneracion_presupuesto?.asignacion_aps || 0) || funcionario.sueldo_base || 0
+                              ).toLocaleString('es-CL')}`} 
+                            />
+                          )}
                           <HeroField label="Ley Médica" value={`Cat. ${funcionario.categoria_aps || '?'} • Niv. ${funcionario.nivel_aps || '?'}`} />
                           <HeroField label="Tipo de Contrato" value={finalTipo} />
                           <HeroField label="Jornada" value={`${jornada || 44} hrs / Semanal`} border={false} />
                        </>
                     );
                   })()}
-                </div>
+                 </div>
              </div>
              
-             <div className="w-full lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-8">
+             {!isCentroSalud && (
+               <div className="w-full lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="bg-white rounded-[3rem] p-10 shadow-2xl border border-outline-variant/5 flex flex-col justify-between group overflow-hidden relative transition-all">
                     <div>
                       <div className="flex justify-between items-start mb-4">
@@ -400,6 +411,7 @@ export default function FuncionarioDetailPage() {
                   );
                 })()}
              </div>
+             )}
          </section>
         )}
 
