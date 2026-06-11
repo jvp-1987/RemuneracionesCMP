@@ -1091,216 +1091,216 @@ export default function IngresoPage() {
                     {/* Columna 2: Inputs de Totales */}
                     <div className="flex flex-col justify-center">
                       {activeTab === 'fondos_presupuestarios' && (
-                        <div className="space-y-5">
-                          <div className="bg-gradient-to-br from-teal-50/80 to-teal-50/30 p-6 rounded-[2rem] border border-teal-200/50 shadow-sm relative overflow-hidden group/he">
+                        <div className="space-y-4">
+                          <div className="bg-gradient-to-br from-teal-50/80 to-teal-50/30 p-5 rounded-[2rem] border border-teal-200/50 shadow-sm relative overflow-hidden group/he">
                             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover/he:scale-110 group-hover/he:opacity-10 transition-all">
                               <span className="material-symbols-outlined text-5xl text-teal-600">schedule</span>
                             </div>
-                            <label className="text-[10px] font-black text-teal-600 uppercase tracking-widest mb-4 flex items-center gap-2 relative z-10">
+                            <label className="text-[10px] font-black text-teal-600 uppercase tracking-wider mb-3 flex items-center gap-2 relative z-10">
                               <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
                               Total Horas 25%
                             </label>
-                            <input type="number" step="0.01" value={row.cantidad_25} onChange={e => updateRow(row.id, 'cantidad_25', e.target.value)} className="w-full bg-white/60 p-4 rounded-2xl border border-teal-100/50 text-3xl font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" placeholder="0.00" />
+                            <input type="number" step="0.01" value={row.cantidad_25} onChange={e => updateRow(row.id, 'cantidad_25', e.target.value)} className="w-full bg-white/60 p-3 rounded-2xl border border-teal-100/50 text-xl font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" placeholder="0.00" />
                           </div>
-                          <div className="bg-gradient-to-br from-emerald-50/80 to-emerald-50/30 p-6 rounded-[2rem] border border-emerald-200/50 shadow-sm relative overflow-hidden group/he50">
+                          <div className="bg-gradient-to-br from-emerald-50/80 to-emerald-50/30 p-5 rounded-[2rem] border border-emerald-200/50 shadow-sm relative overflow-hidden group/he50">
                             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover/he50:scale-110 group-hover/he50:opacity-10 transition-all">
                               <span className="material-symbols-outlined text-5xl text-emerald-600">more_time</span>
                             </div>
-                            <label className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-4 flex items-center gap-2 relative z-10">
+                            <label className="text-[10px] font-black text-emerald-600 uppercase tracking-wider mb-3 flex items-center gap-2 relative z-10">
                               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                               Total Horas 50%
                             </label>
-                            <input type="number" step="0.01" value={row.cantidad_50} onChange={e => updateRow(row.id, 'cantidad_50', e.target.value)} className="w-full bg-white/60 p-4 rounded-2xl border border-emerald-100/50 text-3xl font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" placeholder="0.00" />
+                            <input type="number" step="0.01" value={row.cantidad_50} onChange={e => updateRow(row.id, 'cantidad_50', e.target.value)} className="w-full bg-white/60 p-3 rounded-2xl border border-emerald-100/50 text-xl font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" placeholder="0.00" />
                           </div>
                         </div>
                       )}
 
                       {activeTab === 'programas_he' && (
-                        <div className="space-y-5">
-                          <div className="bg-gradient-to-br from-slate-50 to-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm relative overflow-hidden group/program">
-                            <div className="absolute top-0 right-0 p-4 opacity-5">
+                        <div className="space-y-4">
+                          <div className="bg-gradient-to-br from-slate-50 to-white p-5 rounded-[2rem] border border-slate-200/60 shadow-sm relative overflow-hidden group/program">
+                            <div className="absolute top-0 right-0 p-3 opacity-5">
                               <span className="material-symbols-outlined text-5xl">domain</span>
                             </div>
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 block">Programa (Convenio)</label>
-                            <select value={row.programa_nombre} onChange={e => updateRow(row.id, 'programa_nombre', e.target.value)} className="w-full bg-white rounded-2xl px-5 py-4 text-sm font-black text-slate-800 outline-none focus:ring-4 focus:ring-slate-100 uppercase shadow-sm border border-slate-200 transition-all cursor-pointer hover:border-slate-300 relative z-10 appearance-none">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-2 block">Programa (Convenio)</label>
+                            <select value={row.programa_nombre} onChange={e => updateRow(row.id, 'programa_nombre', e.target.value)} className="w-full bg-white rounded-2xl px-4 py-3 text-sm font-black text-slate-800 outline-none focus:ring-4 focus:ring-slate-100 uppercase shadow-sm border border-slate-200 transition-all cursor-pointer hover:border-slate-300 relative z-10 appearance-none">
                               {PROGRAMAS_HE_LIST.map(p => <option key={p} value={p}>{p}</option>)}
                             </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-6 flex items-center pt-8 text-slate-400 z-10">
+                            <div className="pointer-events-none absolute inset-y-0 right-6 flex items-center pt-6 text-slate-400 z-10">
                               <span className="material-symbols-outlined text-lg">expand_more</span>
                             </div>
                           </div>
-                          <div className="grid grid-cols-2 gap-5">
-                            <div className="bg-gradient-to-br from-teal-50/80 to-teal-50/30 p-6 rounded-[2rem] border border-teal-200/50 shadow-sm relative overflow-hidden group/he25">
-                              <div className="absolute top-0 right-0 p-3 opacity-5 group-hover/he25:scale-110 group-hover/he25:opacity-10 transition-all">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-gradient-to-br from-teal-50/80 to-teal-50/30 p-4 rounded-[1.5rem] border border-teal-200/50 shadow-sm relative overflow-hidden group/he25">
+                              <div className="absolute top-0 right-0 p-2 opacity-5 group-hover/he25:scale-110 group-hover/he25:opacity-10 transition-all">
                                 <span className="material-symbols-outlined text-4xl text-teal-600">schedule</span>
                               </div>
-                              <label className="text-[9px] font-black text-teal-600 uppercase tracking-widest mb-3 flex items-center gap-2 relative z-10">
+                              <label className="text-[8px] font-black text-teal-600 uppercase tracking-wider mb-2 flex items-center gap-2 relative z-10">
                                 <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse"></span>
                                 Total 25%
                               </label>
-                              <input type="number" step="0.01" value={row.cantidad_25} onChange={e => updateRow(row.id, 'cantidad_25', e.target.value)} className="w-full bg-white/60 p-3 rounded-xl border border-teal-100/50 text-2xl font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" placeholder="0.00" />
+                              <input type="number" step="0.01" value={row.cantidad_25} onChange={e => updateRow(row.id, 'cantidad_25', e.target.value)} className="w-full bg-white/60 p-2 rounded-xl border border-teal-100/50 text-lg font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" placeholder="0.00" />
                             </div>
-                            <div className="bg-gradient-to-br from-emerald-50/80 to-emerald-50/30 p-6 rounded-[2rem] border border-emerald-200/50 shadow-sm relative overflow-hidden group/he50">
-                              <div className="absolute top-0 right-0 p-3 opacity-5 group-hover/he50:scale-110 group-hover/he50:opacity-10 transition-all">
+                            <div className="bg-gradient-to-br from-emerald-50/80 to-emerald-50/30 p-4 rounded-[1.5rem] border border-emerald-200/50 shadow-sm relative overflow-hidden group/he50">
+                              <div className="absolute top-0 right-0 p-2 opacity-5 group-hover/he50:scale-110 group-hover/he50:opacity-10 transition-all">
                                 <span className="material-symbols-outlined text-4xl text-emerald-600">more_time</span>
                               </div>
-                              <label className="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-3 flex items-center gap-2 relative z-10">
+                              <label className="text-[8px] font-black text-emerald-600 uppercase tracking-wider mb-2 flex items-center gap-2 relative z-10">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 Total 50%
                               </label>
-                              <input type="number" step="0.01" value={row.cantidad_50} onChange={e => updateRow(row.id, 'cantidad_50', e.target.value)} className="w-full bg-white/60 p-3 rounded-xl border border-emerald-100/50 text-2xl font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" placeholder="0.00" />
+                              <input type="number" step="0.01" value={row.cantidad_50} onChange={e => updateRow(row.id, 'cantidad_50', e.target.value)} className="w-full bg-white/60 p-2 rounded-xl border border-emerald-100/50 text-lg font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" placeholder="0.00" />
                             </div>
                           </div>
                         </div>
                       )}
 
                       {activeTab === 'programas_turno' && (
-                        <div className="space-y-5">
-                          <div className="bg-gradient-to-br from-slate-50 to-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm relative overflow-hidden group/program">
-                            <div className="absolute top-0 right-0 p-4 opacity-5">
+                        <div className="space-y-4">
+                          <div className="bg-gradient-to-br from-slate-50 to-white p-5 rounded-[2rem] border border-slate-200/60 shadow-sm relative overflow-hidden group/program">
+                            <div className="absolute top-0 right-0 p-3 opacity-5">
                               <span className="material-symbols-outlined text-5xl">domain</span>
                             </div>
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 block">Programa / Sector</label>
-                            <select value={row.programa_nombre} onChange={e => updateRow(row.id, 'programa_nombre', e.target.value)} className="w-full bg-white rounded-2xl px-5 py-4 text-sm font-black text-slate-800 outline-none focus:ring-4 focus:ring-slate-100 uppercase shadow-sm border border-slate-200 transition-all cursor-pointer hover:border-slate-300 relative z-10 appearance-none">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-2 block">Programa / Sector</label>
+                            <select value={row.programa_nombre} onChange={e => updateRow(row.id, 'programa_nombre', e.target.value)} className="w-full bg-white rounded-2xl px-4 py-3 text-sm font-black text-slate-800 outline-none focus:ring-4 focus:ring-slate-100 uppercase shadow-sm border border-slate-200 transition-all cursor-pointer hover:border-slate-300 relative z-10 appearance-none">
                               {PROGRAMAS_TURNO_LIST.map(p => <option key={p} value={p}>{p}</option>)}
                             </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-6 flex items-center pt-8 text-slate-400 z-10">
+                            <div className="pointer-events-none absolute inset-y-0 right-6 flex items-center pt-6 text-slate-400 z-10">
                               <span className="material-symbols-outlined text-lg">expand_more</span>
                             </div>
                           </div>
                           
-                          <div className="grid grid-cols-1 gap-5">
-                            <div className="bg-gradient-to-br from-blue-50/80 to-blue-50/30 p-6 rounded-[2rem] border border-blue-200/50 shadow-sm relative overflow-hidden group/habil">
-                              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover/habil:scale-110 group-hover/habil:opacity-10 transition-all">
+                          <div className="grid grid-cols-1 gap-4">
+                            <div className="bg-gradient-to-br from-blue-50/80 to-blue-50/30 p-5 rounded-[1.5rem] border border-blue-200/50 shadow-sm relative overflow-hidden group/habil">
+                              <div className="absolute top-0 right-0 p-3 opacity-5 group-hover/habil:scale-110 group-hover/habil:opacity-10 transition-all">
                                 <span className="material-symbols-outlined text-5xl text-blue-600">light_mode</span>
                               </div>
-                              <label className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4 flex items-center gap-2 relative z-10">
+                              <label className="text-[10px] font-black text-blue-600 uppercase tracking-wider mb-3 flex items-center gap-2 relative z-10">
                                 <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
                                 Turnos Hábiles
                               </label>
-                              <div className="flex gap-4 relative z-10">
-                                <div className="flex-1 bg-white/60 p-4 rounded-2xl border border-blue-100/50">
-                                  <span className="text-[9px] font-black text-blue-400/80 block mb-2 uppercase tracking-widest">Cantidad</span>
-                                  <input type="number" value={row.cant_habil} onChange={e => updateRow(row.id, 'cant_habil', e.target.value)} className="w-full bg-transparent text-2xl font-black text-slate-800 outline-none focus:ring-0 transition-all" placeholder="0" />
+                              <div className="flex gap-3 relative z-10">
+                                <div className="flex-1 bg-white/60 p-3 rounded-xl border border-blue-100/50">
+                                  <span className="text-[8px] font-black text-blue-400/80 block mb-1 uppercase tracking-wider">Cantidad</span>
+                                  <input type="number" value={row.cant_habil} onChange={e => updateRow(row.id, 'cant_habil', e.target.value)} className="w-full bg-transparent text-xl font-black text-slate-800 outline-none focus:ring-0 transition-all" placeholder="0" />
                                 </div>
-                                <div className="flex-1 bg-white/60 p-4 rounded-2xl border border-blue-100/50">
-                                  <span className="text-[9px] font-black text-blue-400/80 block mb-2 uppercase tracking-widest">Valor Unitario $</span>
-                                  <input type="number" value={row.valor_habil} onChange={e => updateRow(row.id, 'valor_habil', e.target.value)} className="w-full bg-transparent text-2xl font-black text-blue-600 outline-none focus:ring-0 transition-all" placeholder="0" />
+                                <div className="flex-1 bg-white/60 p-3 rounded-xl border border-blue-100/50">
+                                  <span className="text-[8px] font-black text-blue-400/80 block mb-1 uppercase tracking-wider">Valor Unitario $</span>
+                                  <input type="number" value={row.valor_habil} onChange={e => updateRow(row.id, 'valor_habil', e.target.value)} className="w-full bg-transparent text-xl font-black text-blue-600 outline-none focus:ring-0 transition-all" placeholder="0" />
                                 </div>
                               </div>
                             </div>
 
-                            <div className="bg-gradient-to-br from-purple-50/80 to-purple-50/30 p-6 rounded-[2rem] border border-purple-200/50 shadow-sm relative overflow-hidden group/inhabil">
-                              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover/inhabil:scale-110 group-hover/inhabil:opacity-10 transition-all">
+                            <div className="bg-gradient-to-br from-purple-50/80 to-purple-50/30 p-5 rounded-[1.5rem] border border-purple-200/50 shadow-sm relative overflow-hidden group/inhabil">
+                              <div className="absolute top-0 right-0 p-3 opacity-5 group-hover/inhabil:scale-110 group-hover/inhabil:opacity-10 transition-all">
                                 <span className="material-symbols-outlined text-5xl text-purple-600">dark_mode</span>
                               </div>
-                              <label className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-4 flex items-center gap-2 relative z-10">
+                              <label className="text-[10px] font-black text-purple-600 uppercase tracking-wider mb-3 flex items-center gap-2 relative z-10">
                                 <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
                                 Turnos Inhábiles
                               </label>
-                              <div className="flex gap-4 relative z-10">
-                                <div className="flex-1 bg-white/60 p-4 rounded-2xl border border-purple-100/50">
-                                  <span className="text-[9px] font-black text-purple-400/80 block mb-2 uppercase tracking-widest">Cantidad</span>
-                                  <input type="number" value={row.cant_inhabil} onChange={e => updateRow(row.id, 'cant_inhabil', e.target.value)} className="w-full bg-transparent text-2xl font-black text-slate-800 outline-none focus:ring-0 transition-all" placeholder="0" />
+                              <div className="flex gap-3 relative z-10">
+                                <div className="flex-1 bg-white/60 p-3 rounded-xl border border-purple-100/50">
+                                  <span className="text-[8px] font-black text-purple-400/80 block mb-1 uppercase tracking-wider">Cantidad</span>
+                                  <input type="number" value={row.cant_inhabil} onChange={e => updateRow(row.id, 'cant_inhabil', e.target.value)} className="w-full bg-transparent text-xl font-black text-slate-800 outline-none focus:ring-0 transition-all" placeholder="0" />
                                 </div>
-                                <div className="flex-1 bg-white/60 p-4 rounded-2xl border border-purple-100/50">
-                                  <span className="text-[9px] font-black text-purple-400/80 block mb-2 uppercase tracking-widest">Valor Unitario $</span>
-                                  <input type="number" value={row.valor_inhabil} onChange={e => updateRow(row.id, 'valor_inhabil', e.target.value)} className="w-full bg-transparent text-2xl font-black text-purple-600 outline-none focus:ring-0 transition-all" placeholder="0" />
+                                <div className="flex-1 bg-white/60 p-3 rounded-xl border border-purple-100/50">
+                                  <span className="text-[8px] font-black text-purple-400/80 block mb-1 uppercase tracking-wider">Valor Unitario $</span>
+                                  <input type="number" value={row.valor_inhabil} onChange={e => updateRow(row.id, 'valor_inhabil', e.target.value)} className="w-full bg-transparent text-xl font-black text-purple-600 outline-none focus:ring-0 transition-all" placeholder="0" />
                                 </div>
                               </div>
                             </div>
                           </div>
 
-                          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-8 text-white flex justify-between items-center shadow-lg relative overflow-hidden">
+                          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-6 text-white flex justify-between items-center shadow-lg relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl"></div>
                             <div className="relative z-10">
-                              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-400/80 mb-1">Total Turnos</p>
-                              <p className="text-4xl font-black text-emerald-400 tracking-tight">${getRowTotal(row).toLocaleString('es-CL')}</p>
+                              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400/80 mb-1">Total Turnos</p>
+                              <p className="text-3xl font-black text-emerald-400 tracking-tight">${getRowTotal(row).toLocaleString('es-CL')}</p>
                             </div>
-                            <DollarSign className="w-12 h-12 text-emerald-400/20 relative z-10" />
+                            <DollarSign className="w-10 h-10 text-emerald-400/20 relative z-10" />
                           </div>
                         </div>
                       )}
 
                       {activeTab === 'viaticos' && (
-                        <div className="space-y-5">
-                          <div className="bg-gradient-to-br from-slate-50 to-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm relative overflow-hidden">
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 block">Tipo de Destino</label>
-                            <select value={row.tipo_destino} onChange={e => updateRow(row.id, 'tipo_destino', e.target.value as any)} className="w-full bg-white rounded-2xl px-5 py-4 text-sm font-black text-slate-800 outline-none focus:ring-4 focus:ring-slate-100 uppercase shadow-sm border border-slate-200 transition-all cursor-pointer hover:border-slate-300 relative z-10 appearance-none">
+                        <div className="space-y-4">
+                          <div className="bg-gradient-to-br from-slate-50 to-white p-5 rounded-[2rem] border border-slate-200/60 shadow-sm relative overflow-hidden">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-2 block">Tipo de Destino</label>
+                            <select value={row.tipo_destino} onChange={e => updateRow(row.id, 'tipo_destino', e.target.value as any)} className="w-full bg-white rounded-2xl px-4 py-3 text-sm font-black text-slate-800 outline-none focus:ring-4 focus:ring-slate-100 uppercase shadow-sm border border-slate-200 transition-all cursor-pointer hover:border-slate-300 relative z-10 appearance-none">
                               <option value="DENTRO COMUNA">Dentro de Comuna</option>
                               <option value="FUERA COMUNA">Fuera de Comuna</option>
                             </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-6 flex items-center pt-8 text-slate-400 z-10">
+                            <div className="pointer-events-none absolute inset-y-0 right-6 flex items-center pt-6 text-slate-400 z-10">
                               <span className="material-symbols-outlined text-lg">expand_more</span>
                             </div>
                           </div>
                           
-                          <div className="grid grid-cols-2 gap-5">
-                            <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-emerald-50/80 to-emerald-50/30 p-6 rounded-[2rem] border border-emerald-200/50 shadow-sm relative overflow-hidden group/dias">
-                              <div className="absolute top-0 right-0 p-3 opacity-5 group-hover/dias:scale-110 group-hover/dias:opacity-10 transition-all">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-emerald-50/80 to-emerald-50/30 p-4 rounded-[1.5rem] border border-emerald-200/50 shadow-sm relative overflow-hidden group/dias">
+                              <div className="absolute top-0 right-0 p-2 opacity-5 group-hover/dias:scale-110 group-hover/dias:opacity-10 transition-all">
                                 <span className="material-symbols-outlined text-4xl text-emerald-600">event</span>
                               </div>
-                              <span className="text-[9px] font-black uppercase text-emerald-600 tracking-widest mb-3 block">Cantidad (Días)</span>
-                              <input type="number" value={row.cantidad_dias || 1} onChange={e => updateRow(row.id, 'cantidad_dias', e.target.value)} className="w-full bg-white/60 p-3 rounded-xl border border-emerald-100/50 text-2xl font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" min="1" />
+                              <span className="text-[8px] font-black uppercase text-emerald-600 tracking-wider mb-2 block">Cantidad (Días)</span>
+                              <input type="number" value={row.cantidad_dias || 1} onChange={e => updateRow(row.id, 'cantidad_dias', e.target.value)} className="w-full bg-white/60 p-2 rounded-xl border border-emerald-100/50 text-lg font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" min="1" />
                             </div>
-                            <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-emerald-50/50 to-emerald-50/10 p-6 rounded-[2rem] border border-emerald-200/30 shadow-sm relative overflow-hidden group/valord">
-                              <div className="absolute top-0 right-0 p-3 opacity-5 group-hover/valord:scale-110 group-hover/valord:opacity-10 transition-all">
+                            <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-emerald-50/50 to-emerald-50/10 p-4 rounded-[1.5rem] border border-emerald-200/30 shadow-sm relative overflow-hidden group/valord">
+                              <div className="absolute top-0 right-0 p-2 opacity-5 group-hover/valord:scale-110 group-hover/valord:opacity-10 transition-all">
                                 <span className="material-symbols-outlined text-4xl text-emerald-600">payments</span>
                               </div>
-                              <span className="text-[9px] font-black uppercase text-emerald-600/70 tracking-widest mb-3 block">Valor Base Diario</span>
-                              <input type="number" value={row.monto} onChange={e => updateRow(row.id, 'monto', e.target.value)} className="w-full bg-white/60 p-3 rounded-xl border border-emerald-100/30 text-2xl font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" />
+                              <span className="text-[8px] font-black uppercase text-emerald-600/70 tracking-wider mb-2 block">Valor Base Diario</span>
+                              <input type="number" value={row.monto} onChange={e => updateRow(row.id, 'monto', e.target.value)} className="w-full bg-white/60 p-2 rounded-xl border border-emerald-100/30 text-lg font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" />
                             </div>
                             
-                            <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-amber-50/80 to-amber-50/30 p-6 rounded-[2rem] border border-amber-200/50 shadow-sm relative overflow-hidden group/pasajes">
-                              <div className="absolute top-0 right-0 p-3 opacity-5 group-hover/pasajes:scale-110 group-hover/pasajes:opacity-10 transition-all">
+                            <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-amber-50/80 to-amber-50/30 p-4 rounded-[1.5rem] border border-amber-200/50 shadow-sm relative overflow-hidden group/pasajes">
+                              <div className="absolute top-0 right-0 p-2 opacity-5 group-hover/pasajes:scale-110 group-hover/pasajes:opacity-10 transition-all">
                                 <span className="material-symbols-outlined text-4xl text-amber-600">directions_car</span>
                               </div>
-                              <span className="text-[9px] font-black uppercase text-amber-600 tracking-widest mb-3 block">Cantidad Pasajes</span>
-                              <input type="number" value={row.cantidad_pasajes || 1} onChange={e => updateRow(row.id, 'cantidad_pasajes', e.target.value)} className="w-full bg-white/60 p-3 rounded-xl border border-amber-100/50 text-2xl font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" min="0" placeholder="0" />
+                              <span className="text-[8px] font-black uppercase text-amber-600 tracking-wider mb-2 block">Cantidad Pasajes</span>
+                              <input type="number" value={row.cantidad_pasajes || 1} onChange={e => updateRow(row.id, 'cantidad_pasajes', e.target.value)} className="w-full bg-white/60 p-2 rounded-xl border border-amber-100/50 text-lg font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" min="0" placeholder="0" />
                             </div>
-                            <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-amber-50/50 to-amber-50/10 p-6 rounded-[2rem] border border-amber-200/30 shadow-sm relative overflow-hidden group/valorp">
-                              <div className="absolute top-0 right-0 p-3 opacity-5 group-hover/valorp:scale-110 group-hover/valorp:opacity-10 transition-all">
+                            <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-amber-50/50 to-amber-50/10 p-4 rounded-[1.5rem] border border-amber-200/30 shadow-sm relative overflow-hidden group/valorp">
+                              <div className="absolute top-0 right-0 p-2 opacity-5 group-hover/valorp:scale-110 group-hover/valorp:opacity-10 transition-all">
                                 <span className="material-symbols-outlined text-4xl text-amber-600">local_activity</span>
                               </div>
-                              <span className="text-[9px] font-black uppercase text-amber-600/70 tracking-widest mb-3 block">Valor Unit. Pasaje</span>
-                              <input type="number" value={row.rendicion_pasajes} onChange={e => updateRow(row.id, 'rendicion_pasajes', e.target.value)} className="w-full bg-white/60 p-3 rounded-xl border border-amber-100/30 text-2xl font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" placeholder="0" />
+                              <span className="text-[8px] font-black uppercase text-amber-600/70 tracking-wider mb-2 block">Valor Unit. Pasaje</span>
+                              <input type="number" value={row.rendicion_pasajes} onChange={e => updateRow(row.id, 'rendicion_pasajes', e.target.value)} className="w-full bg-white/60 p-2 rounded-xl border border-amber-100/30 text-lg font-black text-slate-800 outline-none focus:ring-0 transition-all relative z-10" placeholder="0" />
                             </div>
                           </div>
                           
-                          <div className="flex gap-3">
-                            <div className="flex-1 text-[10px] font-black uppercase tracking-widest text-emerald-600 text-center bg-emerald-50/80 border border-emerald-200/50 py-3 rounded-[1rem] shadow-sm">
+                          <div className="flex gap-2">
+                            <div className="flex-1 text-[9px] font-black uppercase tracking-wider text-emerald-600 text-center bg-emerald-50/80 border border-emerald-200/50 py-2 rounded-[1rem] shadow-sm">
                               Subtotal Base: ${(Number(row.monto || 0) * Number(row.cantidad_dias || 1)).toLocaleString('es-CL')}
                             </div>
-                            <div className="flex-1 text-[10px] font-black uppercase tracking-widest text-amber-600 text-center bg-amber-50/80 border border-amber-200/50 py-3 rounded-[1rem] shadow-sm">
+                            <div className="flex-1 text-[9px] font-black uppercase tracking-wider text-amber-600 text-center bg-amber-50/80 border border-amber-200/50 py-2 rounded-[1rem] shadow-sm">
                               Subtotal Pasajes: ${(Number(row.rendicion_pasajes || 0) * Number(row.cantidad_pasajes || 1)).toLocaleString('es-CL')}
                             </div>
                           </div>
                           
-                          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-8 text-white flex justify-between items-center shadow-lg relative overflow-hidden">
+                          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-6 text-white flex justify-between items-center shadow-lg relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl"></div>
                             <div className="relative z-10">
-                              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-400/80 mb-1">Total Viático</p>
-                              <p className="text-4xl font-black text-emerald-400 tracking-tight">${getRowTotal(row).toLocaleString('es-CL')}</p>
+                              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400/80 mb-1">Total Viático</p>
+                              <p className="text-3xl font-black text-emerald-400 tracking-tight">${getRowTotal(row).toLocaleString('es-CL')}</p>
                             </div>
-                            <DollarSign className="w-12 h-12 text-emerald-400/20 relative z-10" />
+                            <DollarSign className="w-10 h-10 text-emerald-400/20 relative z-10" />
                           </div>
                         </div>
                       )}
 
                       {activeTab === 'atrasos' && (
-                        <div className="space-y-5">
-                          <div className="bg-gradient-to-br from-rose-50/80 to-rose-50/30 p-8 rounded-[2.5rem] border border-rose-200/50 shadow-sm relative overflow-hidden group/atraso">
+                        <div className="space-y-4">
+                          <div className="bg-gradient-to-br from-rose-50/80 to-rose-50/30 p-6 rounded-[2rem] border border-rose-200/50 shadow-sm relative overflow-hidden group/atraso">
                             <div className="absolute top-0 right-0 w-48 h-48 bg-rose-500/5 rounded-full blur-3xl"></div>
-                            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover/atraso:scale-110 group-hover/atraso:opacity-10 transition-all">
-                              <span className="material-symbols-outlined text-6xl text-rose-600">timer</span>
+                            <div className="absolute top-0 right-0 p-5 opacity-5 group-hover/atraso:scale-110 group-hover/atraso:opacity-10 transition-all">
+                              <span className="material-symbols-outlined text-5xl text-rose-600">timer</span>
                             </div>
-                            <label className="text-[11px] font-black text-rose-600 uppercase tracking-widest mb-4 flex items-center gap-2 relative z-10">
-                              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+                            <label className="text-[10px] font-black text-rose-600 uppercase tracking-wider mb-3 flex items-center gap-2 relative z-10">
+                              <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
                               Tiempo a Descontar (HH:MM)
                             </label>
                             <div className="relative z-10 mt-2">
-                              <Clock className="absolute left-6 top-1/2 -translate-y-1/2 text-rose-300 w-8 h-8" />
-                              <input type="text" value={row.tiempo} onChange={e => updateRow(row.id, 'tiempo', e.target.value)} className="w-full bg-white/80 border border-rose-100/50 rounded-[2rem] pl-20 pr-6 py-8 text-5xl font-black text-slate-800 outline-none focus:ring-4 focus:ring-rose-100 transition-all shadow-inner" placeholder="00:00" />
+                              <Clock className="absolute left-6 top-1/2 -translate-y-1/2 text-rose-300 w-6 h-6" />
+                              <input type="text" value={row.tiempo} onChange={e => updateRow(row.id, 'tiempo', e.target.value)} className="w-full bg-white/80 border border-rose-100/50 rounded-[1.5rem] pl-16 pr-6 py-6 text-3xl font-black text-slate-800 outline-none focus:ring-4 focus:ring-rose-100 transition-all shadow-inner" placeholder="00:00" />
                             </div>
                           </div>
                         </div>
