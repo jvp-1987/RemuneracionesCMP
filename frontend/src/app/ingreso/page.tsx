@@ -1125,47 +1125,69 @@ export default function IngresoPage() {
                       )}
 
                       {activeTab === 'programas_turno' && (
-                        <div className="space-y-4">
-                          <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
-                            <label className="text-[10px] font-black text-slate-400 uppercase mb-2 block">Programa / Sector</label>
-                            <select value={row.programa_nombre} onChange={e => updateRow(row.id, 'programa_nombre', e.target.value)} className="w-full bg-white rounded-2xl px-4 py-3 text-xs font-black text-slate-700 outline-none focus:ring-2 focus:ring-slate-300 uppercase shadow-sm border border-slate-100 transition-all cursor-pointer hover:border-slate-300">
+                        <div className="space-y-5">
+                          <div className="bg-gradient-to-br from-slate-50 to-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm relative overflow-hidden group/program">
+                            <div className="absolute top-0 right-0 p-4 opacity-5">
+                              <span className="material-symbols-outlined text-5xl">domain</span>
+                            </div>
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 block">Programa / Sector</label>
+                            <select value={row.programa_nombre} onChange={e => updateRow(row.id, 'programa_nombre', e.target.value)} className="w-full bg-white rounded-2xl px-5 py-4 text-sm font-black text-slate-800 outline-none focus:ring-4 focus:ring-slate-100 uppercase shadow-sm border border-slate-200 transition-all cursor-pointer hover:border-slate-300 relative z-10 appearance-none">
                               {PROGRAMAS_TURNO_LIST.map(p => <option key={p} value={p}>{p}</option>)}
                             </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-6 flex items-center pt-8 text-slate-400 z-10">
+                              <span className="material-symbols-outlined text-lg">expand_more</span>
+                            </div>
                           </div>
-                          <div className="grid grid-cols-1 gap-4">
-                            <div className="bg-blue-50/30 p-5 rounded-3xl border border-blue-100/30">
-                              <label className="text-[9px] font-black text-blue-500 uppercase mb-3 block text-center">Turnos Hábiles</label>
-                              <div className="flex gap-4">
-                                <div className="flex-1">
-                                  <span className="text-[8px] font-bold text-slate-300 block mb-1">CANT</span>
-                                  <input type="number" value={row.cant_habil} onChange={e => updateRow(row.id, 'cant_habil', e.target.value)} className="w-full bg-white rounded-xl px-4 py-2 font-black text-center outline-none focus:ring-2 focus:ring-blue-400/50 transition-all shadow-sm" />
+                          
+                          <div className="grid grid-cols-1 gap-5">
+                            <div className="bg-gradient-to-br from-blue-50/80 to-blue-50/30 p-6 rounded-[2rem] border border-blue-200/50 shadow-sm relative overflow-hidden group/habil">
+                              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover/habil:scale-110 group-hover/habil:opacity-10 transition-all">
+                                <span className="material-symbols-outlined text-5xl text-blue-600">light_mode</span>
+                              </div>
+                              <label className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4 flex items-center gap-2 relative z-10">
+                                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                                Turnos Hábiles
+                              </label>
+                              <div className="flex gap-4 relative z-10">
+                                <div className="flex-1 bg-white/60 p-4 rounded-2xl border border-blue-100/50">
+                                  <span className="text-[9px] font-black text-blue-400/80 block mb-2 uppercase tracking-widest">Cantidad</span>
+                                  <input type="number" value={row.cant_habil} onChange={e => updateRow(row.id, 'cant_habil', e.target.value)} className="w-full bg-transparent text-2xl font-black text-slate-800 outline-none focus:ring-0 transition-all" placeholder="0" />
                                 </div>
-                                <div className="flex-1">
-                                  <span className="text-[8px] font-bold text-slate-300 block mb-1">VALOR $</span>
-                                  <input type="number" value={row.valor_habil} onChange={e => updateRow(row.id, 'valor_habil', e.target.value)} className="w-full bg-white rounded-xl px-4 py-2 font-black text-center text-blue-600 outline-none focus:ring-2 focus:ring-blue-400/50 transition-all shadow-sm" />
+                                <div className="flex-1 bg-white/60 p-4 rounded-2xl border border-blue-100/50">
+                                  <span className="text-[9px] font-black text-blue-400/80 block mb-2 uppercase tracking-widest">Valor Unitario $</span>
+                                  <input type="number" value={row.valor_habil} onChange={e => updateRow(row.id, 'valor_habil', e.target.value)} className="w-full bg-transparent text-2xl font-black text-blue-600 outline-none focus:ring-0 transition-all" placeholder="0" />
                                 </div>
                               </div>
                             </div>
-                            <div className="bg-purple-50/30 p-5 rounded-3xl border border-purple-100/30">
-                              <label className="text-[9px] font-black text-purple-500 uppercase mb-3 block text-center">Turnos Inhábiles</label>
-                              <div className="flex gap-4">
-                                <div className="flex-1">
-                                  <span className="text-[8px] font-bold text-slate-300 block mb-1">CANT</span>
-                                  <input type="number" value={row.cant_inhabil} onChange={e => updateRow(row.id, 'cant_inhabil', e.target.value)} className="w-full bg-white rounded-xl px-4 py-2 font-black text-center outline-none focus:ring-2 focus:ring-purple-400/50 transition-all shadow-sm" />
+
+                            <div className="bg-gradient-to-br from-purple-50/80 to-purple-50/30 p-6 rounded-[2rem] border border-purple-200/50 shadow-sm relative overflow-hidden group/inhabil">
+                              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover/inhabil:scale-110 group-hover/inhabil:opacity-10 transition-all">
+                                <span className="material-symbols-outlined text-5xl text-purple-600">dark_mode</span>
+                              </div>
+                              <label className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-4 flex items-center gap-2 relative z-10">
+                                <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
+                                Turnos Inhábiles
+                              </label>
+                              <div className="flex gap-4 relative z-10">
+                                <div className="flex-1 bg-white/60 p-4 rounded-2xl border border-purple-100/50">
+                                  <span className="text-[9px] font-black text-purple-400/80 block mb-2 uppercase tracking-widest">Cantidad</span>
+                                  <input type="number" value={row.cant_inhabil} onChange={e => updateRow(row.id, 'cant_inhabil', e.target.value)} className="w-full bg-transparent text-2xl font-black text-slate-800 outline-none focus:ring-0 transition-all" placeholder="0" />
                                 </div>
-                                <div className="flex-1">
-                                  <span className="text-[8px] font-bold text-slate-300 block mb-1">VALOR $</span>
-                                  <input type="number" value={row.valor_inhabil} onChange={e => updateRow(row.id, 'valor_inhabil', e.target.value)} className="w-full bg-white rounded-xl px-4 py-2 font-black text-center text-purple-600 outline-none focus:ring-2 focus:ring-purple-400/50 transition-all shadow-sm" />
+                                <div className="flex-1 bg-white/60 p-4 rounded-2xl border border-purple-100/50">
+                                  <span className="text-[9px] font-black text-purple-400/80 block mb-2 uppercase tracking-widest">Valor Unitario $</span>
+                                  <input type="number" value={row.valor_inhabil} onChange={e => updateRow(row.id, 'valor_inhabil', e.target.value)} className="w-full bg-transparent text-2xl font-black text-purple-600 outline-none focus:ring-0 transition-all" placeholder="0" />
                                 </div>
                               </div>
                             </div>
                           </div>
-                          <div className="bg-slate-900 rounded-[2rem] p-6 text-white flex justify-between items-center">
-                            <div>
-                              <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Total</p>
-                              <p className="text-2xl font-black text-emerald-400">${getRowTotal(row).toLocaleString('es-CL')}</p>
+
+                          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-8 text-white flex justify-between items-center shadow-lg relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl"></div>
+                            <div className="relative z-10">
+                              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-400/80 mb-1">Total Turnos</p>
+                              <p className="text-4xl font-black text-emerald-400 tracking-tight">${getRowTotal(row).toLocaleString('es-CL')}</p>
                             </div>
-                            <DollarSign className="w-8 h-8 opacity-20" />
+                            <DollarSign className="w-12 h-12 text-emerald-400/20 relative z-10" />
                           </div>
                         </div>
                       )}
