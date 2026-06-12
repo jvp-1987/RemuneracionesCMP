@@ -40,6 +40,12 @@ export class PeriodosController {
     return this.periodosService.findOne(+id);
   }
 
+  @Post(':id/suplementario')
+  @Roles('ADMIN', 'ADMIN_MAESTRO')
+  createSuplementario(@Param('id') id: string) {
+    return this.periodosService.createSuplementario(+id);
+  }
+
   @Patch(':id')
   @Roles('ADMIN', 'ADMIN_MAESTRO')
   update(@Param('id') id: string, @Body() dto: UpdatePeriodoDto) {

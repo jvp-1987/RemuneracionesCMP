@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePeriodoDto } from './dto/create-periodo.dto';
 import { UpdatePeriodoDto } from './dto/update-periodo.dto';
@@ -57,11 +57,40 @@ export class PeriodosService {
         mes: p.mes,
         anio: p.anio,
         estado: p.estado,
+        tipo: p.tipo,
+        parent_id: p.parent_id,
         hasMaestro: p._count.liquidaciones > 0,
         maestroCount: p._count.liquidaciones,
         auditProgress: totalConsolidados > 0 ? Math.round((totalVbs / totalConsolidados) * 100) : 0,
         isClosed: p.estado === 'Cerrado'
       };
+    });
+  }
+
+  async createSuplementario(parentId: number) {
+    const parent = await this.findOne(parentId);
+    if (parent.estado !== 'Cerrado') {
+      throw new BadRequestException('El período original debe estar CERRADO antes de iniciar un proceso suplementario.');
+    }
+
+    const existingOpen = await this.prisma.periodo.findFirst({
+      where: {
+        parent_id: parentId,
+        estado: 'Abierto'
+      }
+    });
+    if (existingOpen) {
+      throw new BadRequestException('Ya existe un proceso suplementario ABIERTO para este período.');
+    }
+
+    return this.prisma.periodo.create({
+      data: {
+        mes: parent.mes,
+        anio: parent.anio,
+        estado: 'Abierto',
+        tipo: 'SUPLEMENTARIO',
+        parent_id: parentId
+      }
     });
   }
 

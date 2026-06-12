@@ -28,6 +28,8 @@ interface PeriodStatus {
   maestroCount: number;
   auditProgress: number;
   isClosed: boolean;
+  tipo?: string;
+  parent_id?: number;
 }
 
 const MESES_LARGOS = [
@@ -79,12 +81,26 @@ export default function PeriodControlPage() {
     if (!isAdmin) return;
     
     const newStatus = currentStatus === 'Abierto' ? 'Cerrado' : 'Abierto';
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
     try {
       await axios.patch(`${apiUrl}/periodos/${id}`, { estado: newStatus });
       setPeriodos(prev => prev.map(p => p.id === id ? { ...p, estado: newStatus, isClosed: newStatus === 'Cerrado' } : p));
     } catch (err) {
       console.error('Error toggling period status:', err);
+    }
+  };
+
+  const createSuplementario = async (id: number) => {
+    if (!isAdmin) return;
+    if (!window.confirm('¿Deseas iniciar un proceso de remuneraciones suplementario para este mes? Esto creará un período de carga independiente.')) return;
+    
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+    try {
+      await axios.post(`${apiUrl}/periodos/${id}/suplementario`);
+      await fetchStatus();
+    } catch (err: any) {
+      console.error('Error creating supplementary period:', err);
+      alert(err.response?.data?.message || 'Error al iniciar el proceso suplementario');
     }
   };
 
@@ -150,25 +166,35 @@ export default function PeriodControlPage() {
               transition={{ delay: index * 0.05 }}
               className={cn(
                 "group relative bg-white rounded-[2.5rem] p-8 border transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200/50 hover:-translate-y-1 overflow-hidden",
-                p.isClosed ? "border-rose-100 bg-rose-50/10" : "border-slate-100 shadow-sm"
+                p.tipo === 'SUPLEMENTARIO'
+                  ? (p.isClosed ? "border-amber-200 bg-amber-50/5 shadow-inner" : "border-amber-400 bg-amber-50/15 shadow-sm shadow-amber-500/10")
+                  : (p.isClosed ? "border-rose-100 bg-rose-50/10" : "border-slate-100 shadow-sm")
               )}
             >
               {/* Month Indicator */}
               <div className="flex justify-between items-start mb-10">
                 <div>
-                  <h3 className="text-2xl font-black text-slate-800 tracking-tighter leading-none mb-1">
+                  <h3 className="text-2xl font-black text-slate-800 tracking-tighter leading-none mb-1 flex items-center gap-2">
                     {MESES_LARGOS[p.mes - 1]}
+                    {p.tipo === 'SUPLEMENTARIO' && (
+                      <span className="text-[9px] bg-amber-500 text-white px-2 py-0.5 rounded font-black tracking-normal uppercase">Supl.</span>
+                    )}
                   </h3>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{p.anio}</p>
                 </div>
                 
                 <span className={cn(
                   "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2",
-                  p.isClosed 
-                    ? "bg-rose-100 text-rose-600 border border-rose-200" 
-                    : "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                  p.tipo === 'SUPLEMENTARIO'
+                    ? (p.isClosed ? "bg-amber-100 text-amber-700 border border-amber-200" : "bg-amber-500 text-white shadow-md shadow-amber-200/20")
+                    : (p.isClosed 
+                        ? "bg-rose-100 text-rose-600 border border-rose-200" 
+                        : "bg-emerald-50 text-emerald-600 border border-emerald-100")
                 )}>
-                  <span className={cn("w-2 h-2 rounded-full", p.isClosed ? "bg-rose-500" : "bg-emerald-500 animate-pulse")} />
+                  <span className={cn(
+                    "w-2 h-2 rounded-full",
+                    p.tipo === 'SUPLEMENTARIO' && !p.isClosed ? "bg-white animate-pulse" : (p.isClosed ? "bg-rose-500" : "bg-emerald-500 animate-pulse")
+                  )} />
                   {p.estado}
                 </span>
               </div>
@@ -189,7 +215,7 @@ export default function PeriodControlPage() {
                       "text-xs font-black",
                       p.hasMaestro ? "text-slate-700" : "text-slate-400 italic"
                     )}>
-                      {p.hasMaestro ? `${p.maestroCount} funcionarios` : 'Pendiente cargar'}
+                      {p.hasMaestro ? `${p.maestroCount} funcionarios` : (p.tipo === 'SUPLEMENTARIO' ? 'No requiere Maestro' : 'Pendiente cargar')}
                     </p>
                   </div>
                 </div>
@@ -214,39 +240,51 @@ export default function PeriodControlPage() {
               </div>
 
               {/* Bottom Actions */}
-              <div className="pt-8 border-t border-slate-50 flex items-center justify-between gap-4">
-                {isAdmin ? (
-                  <button 
-                    onClick={() => togglePeriodStatus(p.id, p.estado)}
-                    className={cn(
-                      "flex-1 py-4 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all active:scale-95",
-                      p.isClosed 
-                        ? "bg-slate-100 text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 border border-transparent hover:border-emerald-200" 
-                        : "bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 shadow-sm"
-                    )}
-                  >
-                    {p.isClosed ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-                    {p.isClosed ? 'Reabrir Mes' : 'Cerrar Mes'}
-                  </button>
-                ) : (
-                  <div className="flex-1 flex items-center justify-center gap-2 py-4 text-slate-300 font-bold text-[9px] uppercase tracking-widest bg-slate-50 rounded-2xl border border-slate-100">
-                    <ShieldCheck className="w-4 h-4" />
-                    Vista de Lectura
-                  </div>
-                )}
-                
-                <a 
-                  href={p.isClosed ? '#' : `/ingreso?periodo=${p.id}`}
-                  className={cn(
-                    "p-4 rounded-2xl transition-all",
-                    p.isClosed 
-                      ? "bg-slate-50 text-slate-300 cursor-not-allowed" 
-                      : "bg-primary/5 text-primary hover:bg-primary hover:text-white shadow-inner active:scale-90"
+              <div className="pt-8 border-t border-slate-50 flex flex-col gap-4">
+                <div className="flex items-center justify-between gap-4">
+                  {isAdmin ? (
+                    <button 
+                      onClick={() => togglePeriodStatus(p.id, p.estado)}
+                      className={cn(
+                        "flex-1 py-4 rounded-2xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all active:scale-95",
+                        p.isClosed 
+                          ? "bg-slate-100 text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 border border-transparent hover:border-emerald-200" 
+                          : "bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 shadow-sm"
+                      )}
+                    >
+                      {p.isClosed ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                      {p.isClosed ? 'Reabrir' : 'Cerrar'}
+                    </button>
+                  ) : (
+                    <div className="flex-1 flex items-center justify-center gap-2 py-4 text-slate-300 font-bold text-[9px] uppercase tracking-widest bg-slate-50 rounded-2xl border border-slate-100">
+                      <ShieldCheck className="w-4 h-4" />
+                      Vista de Lectura
+                    </div>
                   )}
-                  title="Gestionar Novedades"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </a>
+                  
+                  <a 
+                    href={p.isClosed ? '#' : `/ingreso?periodo=${p.id}`}
+                    className={cn(
+                      "p-4 rounded-2xl transition-all",
+                      p.isClosed 
+                        ? "bg-slate-50 text-slate-300 cursor-not-allowed" 
+                        : "bg-primary/5 text-primary hover:bg-primary hover:text-white shadow-inner active:scale-90"
+                    )}
+                    title="Gestionar Novedades"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </a>
+                </div>
+
+                {isAdmin && p.isClosed && p.tipo === 'ORDINARIO' && (
+                  <button
+                    onClick={() => createSuplementario(p.id)}
+                    className="w-full py-3.5 rounded-2xl bg-amber-50 text-amber-700 border border-amber-200/50 hover:bg-amber-500 hover:text-white hover:border-amber-500 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-sm group"
+                  >
+                    <Zap className="w-4 h-4 text-amber-500 group-hover:text-white transition-colors" />
+                    Iniciar Suplementario
+                  </button>
+                )}
               </div>
 
               {/* Decorative month number background */}

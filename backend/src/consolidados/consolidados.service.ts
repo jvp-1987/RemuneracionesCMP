@@ -96,7 +96,7 @@ export class ConsolidadosService {
     }
 
     const prevPeriodo = await this.prisma.periodo.findFirst({
-      where: { mes: prevMes, anio: prevAnio }
+      where: { mes: prevMes, anio: prevAnio, tipo: 'ORDINARIO' }
     });
 
     const prevConsolidado = prevPeriodo ? await this.prisma.consolidado.findFirst({

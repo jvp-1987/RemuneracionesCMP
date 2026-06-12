@@ -1,4 +1,4 @@
-import { IsInt, IsString, IsNotEmpty, Min, Max } from 'class-validator';
+import { IsInt, IsString, IsNotEmpty, IsOptional, Min, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreatePeriodoDto {
@@ -16,4 +16,14 @@ export class CreatePeriodoDto {
   @IsString()
   @IsNotEmpty()
   estado: string;
+
+  @ApiProperty({ example: 'ORDINARIO', description: 'Tipo de periodo (ORDINARIO / SUPLEMENTARIO)', required: false })
+  @IsString()
+  @IsOptional()
+  tipo?: string;
+
+  @ApiProperty({ example: 1, description: 'ID del periodo padre si es suplementario', required: false })
+  @IsInt()
+  @IsOptional()
+  parent_id?: number;
 }

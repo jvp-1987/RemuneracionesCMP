@@ -18,7 +18,7 @@ const formatCLP = (n: number) =>
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
 interface KpiData {
-  periodo: { id: number; mes: number; anio: number; estado: string } | null;
+  periodo: { id: number; mes: number; anio: number; estado: string; tipo?: string } | null;
   fuente: string;
   kpis: {
     total_sueldo_base: number;
@@ -144,7 +144,7 @@ export default function Dashboard() {
   const totalGastoCentros = data?.por_centro.reduce((acc, c) => acc + c.gasto_total, 0) || 1;
 
   const periodoLabel = data?.periodo
-    ? `${MESES[(data.periodo.mes ?? 1) - 1]} ${data.periodo.anio}`
+    ? `${MESES[(data.periodo.mes ?? 1) - 1]} ${data.periodo.anio}${data.periodo.tipo === 'SUPLEMENTARIO' ? ' (Suplementario)' : ''}`
     : 'Sin período';
 
   return (
@@ -175,7 +175,7 @@ export default function Dashboard() {
               <option value="">Cargando período...</option>
               {periods.map(p => (
                 <option key={p.id} value={p.id}>
-                  {MESES[p.mes - 1]} {p.anio}
+                  {MESES[p.mes - 1]} {p.anio} {p.tipo === 'SUPLEMENTARIO' ? ' (Suplementario)' : ''}
                 </option>
               ))}
             </select>

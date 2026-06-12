@@ -14,7 +14,7 @@ interface Consolidado {
   vb_control_interno: boolean;
   vb_finanzas: boolean;
   centro_salud: { nombre: string };
-  periodo: { mes: number; anio: number };
+  periodo: { mes: number; anio: number; tipo?: string };
   _count?: {
     horas_extras: number;
     viaticos: number;
@@ -82,7 +82,7 @@ export default function ConsolidadosPage() {
     fetchData();
   }, []);
 
-  const handleDownloadExcelList = async (e: React.MouseEvent, id: number, name: string, mes: number, anio: number) => {
+  const handleDownloadExcelList = async (e: React.MouseEvent, id: number, name: string, mes: number, anio: number, tipo?: string) => {
     e.stopPropagation(); // prevent navigating to details
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
@@ -92,7 +92,8 @@ export default function ConsolidadosPage() {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      const filename = `consolidado_${name.replace(/\s+/g, '_')}_${mes}_${anio}.xlsx`;
+      const suffix = tipo === 'SUPLEMENTARIO' ? '_suplementario' : '';
+      const filename = `consolidado_${name.replace(/\s+/g, '_')}_${mes}_${anio}${suffix}.xlsx`;
       link.setAttribute('download', filename);
       document.body.appendChild(link);
       link.click();
@@ -188,7 +189,12 @@ export default function ConsolidadosPage() {
                   <div className="flex items-center gap-4">
                     <HealthCenterLogo name={c.centro_salud.nombre} className="group-hover:border-primary/30" />
                     <div>
-                      <p className="font-black text-[15px] group-hover:text-primary transition-colors">{c.centro_salud.nombre}</p>
+                      <p className="font-black text-[15px] group-hover:text-primary transition-colors flex items-center gap-2">
+                        {c.centro_salud.nombre}
+                        {c.periodo.tipo === 'SUPLEMENTARIO' && (
+                          <span className="text-[9px] bg-amber-500 text-white px-2 py-0.5 rounded font-black tracking-normal uppercase">Supl.</span>
+                        )}
+                      </p>
                       <p className="text-[10px] font-bold text-outline uppercase tracking-widest mt-1">Audit-ID: CMP-{c.id}</p>
                     </div>
                   </div>
@@ -225,7 +231,7 @@ export default function ConsolidadosPage() {
                  <td className="px-8 py-6 text-right">
                   <div className="flex justify-end gap-2">
                     <button 
-                      onClick={(e) => handleDownloadExcelList(e, c.id, c.centro_salud.nombre, c.periodo.mes, c.periodo.anio)}
+                      onClick={(e) => handleDownloadExcelList(e, c.id, c.centro_salud.nombre, c.periodo.mes, c.periodo.anio, c.periodo.tipo)}
                       className="p-2 border border-emerald-200/50 rounded-xl text-emerald-600 bg-emerald-50 hover:bg-emerald-600 hover:text-white transition-all shadow-sm flex items-center justify-center"
                       title="Descargar Excel Consolidado"
                     >

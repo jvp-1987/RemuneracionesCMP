@@ -83,6 +83,10 @@ model Periodo {
   mes                           Int
   anio                          Int
   estado                        String
+  tipo                          String                          @default("ORDINARIO")
+  parent_id                     Int?
+  parent                        Periodo?                        @relation("PeriodoSuplementos", fields: [parent_id], references: [id])
+  suplementos                   Periodo[]                       @relation("PeriodoSuplementos")
   consolidados                  Consolidado[]
   liquidaciones                 LiquidacionMensual[]
   VerificacionMensualAsignacion VerificacionMensualAsignacion[]
