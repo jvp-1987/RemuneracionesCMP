@@ -198,7 +198,7 @@ export class IngresosService {
               const existingTurno = realId 
                 ? await tx.turnosUrgencia.findUnique({ where: { id: realId } }) 
                 : await tx.turnosUrgencia.findFirst({
-                    where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut, programa_id }
+                    where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut }
                   });
 
               const turnoData = {
