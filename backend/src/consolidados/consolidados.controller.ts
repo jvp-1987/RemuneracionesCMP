@@ -31,12 +31,6 @@ export class ConsolidadosController {
     return this.consolidadosService.getDashboardKpis(req.user, periodoId ? +periodoId : undefined, fuente, centroId ? +centroId : undefined);
   }
 
-  @Get('fix-all-turnos-programs')
-  @Roles('ADMIN', 'ADMIN_MAESTRO')
-  fixAllTurnosPrograms() {
-    return this.consolidadosService.fixAllTurnosPrograms();
-  }
-
   @Get()
   @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
   findAll(@Req() req: any, @Query('centroId') centroId?: string) {
