@@ -164,10 +164,38 @@ export class IngresosService {
               const cantInh = parseInt(trx.cant_inhabil || 0) || 0;
               const subtotal = (cantHab * valHab) + (cantInh * valInh);
 
+              let programa_id = 1;
+              const checkProg = await tx.programa.findUnique({ where: { id: 1 } });
+              if (!checkProg) {
+                await tx.programa.create({
+                  data: { id: 1, nombre: 'PRESUPUESTARIO', categoria_enum: 'PRESUPUESTARIO' }
+                });
+              }
+
+              const progName = trx.programa_nombre || trx.programa;
+              if (progName) {
+                const prog = await tx.programa.findFirst({
+                  where: { nombre: { contains: String(progName).substring(0, 15) } }
+                });
+                if (prog) {
+                  programa_id = prog.id;
+                } else {
+                  const newProg = await tx.programa.create({
+                    data: {
+                      nombre: String(progName).substring(0, 50),
+                      categoria_enum: 'PROGRAMAS_TURNO'
+                    }
+                  });
+                  programa_id = newProg.id;
+                }
+              } else if (trx.programa_id) {
+                programa_id = Number(trx.programa_id);
+              }
+
               const existingTurno = realId 
                 ? await tx.turnosUrgencia.findUnique({ where: { id: realId } }) 
                 : await tx.turnosUrgencia.findFirst({
-                    where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut }
+                    where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut, programa_id }
                   });
 
               const turnoData = {
@@ -179,6 +207,7 @@ export class IngresosService {
                 fecha_inicio: trx.fecha_inicio ? new Date(trx.fecha_inicio) : new Date(),
                 fecha_termino: trx.fecha_termino ? new Date(trx.fecha_termino) : new Date(),
                 url_respaldo: urlRespaldo,
+                programa_id,
               };
 
               if (existingTurno) {

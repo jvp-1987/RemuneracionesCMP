@@ -1206,6 +1206,12 @@ export default function ConsolidadoDetailPage() {
 
                       {activeTab === "turnos" && (
                         <>
+                          <div className="col-span-2 space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Programa</label>
+                            <select id="add_programa_id" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all">
+                              {programas.map((p: any) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                            </select>
+                          </div>
                           <div className="space-y-3">
                             <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Cant. Hábiles</label>
                             <input type="number" id="add_cant_turnos_habiles" defaultValue="0" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all" />
@@ -1265,6 +1271,7 @@ export default function ConsolidadoDetailPage() {
                           } else if (activeTab === "procedimientos") {
                             payload.total_procedimientos = Number((document.getElementById("add_total_procedimientos") as any).value);
                           } else if (activeTab === "turnos") {
+                            payload.programa_id = Number((document.getElementById("add_programa_id") as any).value);
                             payload.cant_turnos_habiles = Number((document.getElementById("add_cant_turnos_habiles") as any).value);
                             payload.cant_turnos_inhabiles = Number((document.getElementById("add_cant_turnos_inhabiles") as any).value);
                           }
@@ -1371,6 +1378,8 @@ const EmployeeTableRow = React.memo(({
               <div className="font-black text-on-surface text-[15px] uppercase tracking-tight leading-none mb-1.5 group-hover:text-primary transition-colors">{item.funcionario.nombre_completo}</div>
               <div className="text-[10px] font-bold text-secondary uppercase tracking-widest leading-none">
                 {item.funcionario.centro_salud?.nombre || 'Personal de Planta • APS'}
+                {activeTab === 'horas' && item.programa && ` • ${item.programa.nombre}`}
+                {activeTab === 'turnos' && (item as any).programa && ` • ${(item as any).programa.nombre}`}
               </div>
             </div>
           </div>

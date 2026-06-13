@@ -72,10 +72,11 @@ model EscalaSueldo {
 }
 
 model Programa {
-  id             Int           @id @default(autoincrement())
+  id             Int              @id @default(autoincrement())
   nombre         String
   categoria_enum String
   horas_extras   HorasExtras[]
+  turnos         TurnosUrgencia[]
 }
 
 model Periodo {
@@ -158,11 +159,14 @@ model TurnosUrgencia {
   valor_habil           Decimal?         @db.Decimal(12, 2)
   valor_inhabil         Decimal?         @db.Decimal(12, 2)
   url_respaldo          String?          @db.LongText
+  programa_id           Int?             @default(1)
   consolidado           Consolidado      @relation(fields: [consolidado_id], references: [id])
   funcionario           Funcionario      @relation(fields: [funcionario_rut], references: [rut])
+  programa              Programa?        @relation(fields: [programa_id], references: [id])
 
   @@index([consolidado_id], map: "TurnosUrgencia_consolidado_id_fkey")
   @@index([funcionario_rut], map: "TurnosUrgencia_funcionario_rut_fkey")
+  @@index([programa_id], map: "TurnosUrgencia_programa_id_fkey")
 }
 
 model Viaticos {

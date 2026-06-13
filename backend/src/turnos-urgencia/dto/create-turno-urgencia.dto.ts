@@ -1,4 +1,4 @@
-import { IsInt, IsString, IsNotEmpty, IsNumber, IsDateString } from 'class-validator';
+import { IsInt, IsString, IsNotEmpty, IsNumber, IsDateString, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateTurnoUrgenciaDto {
@@ -30,4 +30,9 @@ export class CreateTurnoUrgenciaDto {
   @ApiProperty({ example: 150000, description: 'Monto calculado' })
   @IsNumber()
   monto_calculado: number;
+
+  @ApiProperty({ example: 1, required: false })
+  @IsInt()
+  @IsOptional()
+  programa_id?: number;
 }
