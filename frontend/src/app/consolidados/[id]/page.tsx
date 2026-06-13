@@ -169,7 +169,19 @@ export default function ConsolidadoDetailPage() {
         const key = type === 'horas' ? 'horas_extras' : type === 'viaticos' ? 'viaticos' : type === 'atrasos' ? 'atrasos' : type === 'procedimientos' ? 'procedimientos' : 'turnos_urgencia';
         return {
           ...prev,
-          [key]: (prev as any)[key].map((t: any) => t.id === editingRecord.id ? { ...t, ...payload } : t)
+          [key]: (prev as any)[key].map((t: any) => {
+            if (t.id === editingRecord.id) {
+              const updatedObj = { ...t, ...payload };
+              if (payload.programa_id) {
+                const matchedProg = programas.find(p => p.id === payload.programa_id);
+                if (matchedProg) {
+                  updatedObj.programa = matchedProg;
+                }
+              }
+              return updatedObj;
+            }
+            return t;
+          })
         };
       });
       
@@ -928,26 +940,38 @@ export default function ConsolidadoDetailPage() {
 
                 <div className="space-y-8">
                   {activeTab === 'horas' && (
-                    <div className="grid grid-cols-2 gap-8">
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Horas 25%</label>
-                        <input 
-                          type="number"
-                          defaultValue={editingRecord.cantidad_25}
-                          id="edit_cantidad_25"
-                          className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
-                        />
+                    <>
+                      <div className="space-y-3 mb-6">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Programa</label>
+                        <select 
+                          id="edit_programa_id" 
+                          defaultValue={editingRecord.programa_id || editingRecord.programa?.id}
+                          className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                        >
+                          {programas.map((p: any) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                        </select>
                       </div>
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Horas 50%</label>
-                        <input 
-                          type="number"
-                          defaultValue={editingRecord.cantidad_50}
-                          id="edit_cantidad_50"
-                          className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
-                        />
+                      <div className="grid grid-cols-2 gap-8">
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Horas 25%</label>
+                          <input 
+                            type="number"
+                            defaultValue={editingRecord.cantidad_25}
+                            id="edit_cantidad_25"
+                            className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
+                          />
+                        </div>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Horas 50%</label>
+                          <input 
+                            type="number"
+                            defaultValue={editingRecord.cantidad_50}
+                            id="edit_cantidad_50"
+                            className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
+                          />
+                        </div>
                       </div>
-                    </div>
+                    </>
                   )}
 
                   {activeTab === 'procedimientos' && (
@@ -963,26 +987,38 @@ export default function ConsolidadoDetailPage() {
                   )}
 
                   {activeTab === 'turnos' && (
-                    <div className="grid grid-cols-2 gap-8">
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Cant. Hábiles</label>
-                        <input 
-                          type="number"
-                          defaultValue={editingRecord.cant_turnos_habiles}
-                          id="edit_cant_turnos_habiles"
-                          className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
-                        />
+                    <>
+                      <div className="space-y-3 mb-6">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Programa</label>
+                        <select 
+                          id="edit_programa_id" 
+                          defaultValue={editingRecord.programa_id || editingRecord.programa?.id}
+                          className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                        >
+                          {programas.map((p: any) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                        </select>
                       </div>
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Cant. Inhábiles</label>
-                        <input 
-                          type="number"
-                          defaultValue={editingRecord.cant_turnos_inhabiles}
-                          id="edit_cant_turnos_inhabiles"
-                          className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
-                        />
+                      <div className="grid grid-cols-2 gap-8">
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Cant. Hábiles</label>
+                          <input 
+                            type="number"
+                            defaultValue={editingRecord.cant_turnos_habiles}
+                            id="edit_cant_turnos_habiles"
+                            className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
+                          />
+                        </div>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Cant. Inhábiles</label>
+                          <input 
+                            type="number"
+                            defaultValue={editingRecord.cant_turnos_inhabiles}
+                            id="edit_cant_turnos_inhabiles"
+                            className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all"
+                          />
+                        </div>
                       </div>
-                    </div>
+                    </>
                   )}
 
                   {activeTab === 'viaticos' && (
@@ -1075,6 +1111,7 @@ export default function ConsolidadoDetailPage() {
                     onClick={() => {
                       const payload: any = {};
                       if (activeTab === 'horas') {
+                        payload.programa_id = Number((document.getElementById('edit_programa_id') as HTMLSelectElement).value);
                         payload.cantidad_25 = Number((document.getElementById('edit_cantidad_25') as HTMLInputElement).value);
                         payload.cantidad_50 = Number((document.getElementById('edit_cantidad_50') as HTMLInputElement).value);
                       } else if (activeTab === 'viaticos') {
@@ -1085,6 +1122,7 @@ export default function ConsolidadoDetailPage() {
                       } else if (activeTab === 'procedimientos') {
                         payload.total_procedimientos = Number((document.getElementById('edit_total_procedimientos') as HTMLInputElement).value);
                       } else if (activeTab === 'turnos') {
+                        payload.programa_id = Number((document.getElementById('edit_programa_id') as HTMLSelectElement).value);
                         payload.cant_turnos_habiles = Number((document.getElementById('edit_cant_turnos_habiles') as HTMLInputElement).value);
                         payload.cant_turnos_inhabiles = Number((document.getElementById('edit_cant_turnos_inhabiles') as HTMLInputElement).value);
                       }
