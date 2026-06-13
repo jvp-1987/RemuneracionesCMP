@@ -822,18 +822,18 @@ export default function ConsolidadoDetailPage() {
             <table className="w-full text-left border-separate border-spacing-y-2">
               <thead>
                 <tr className="bg-surface-container-low/50">
-                  <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">Funcionario Clínico</th>
-                  <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">RUT / Clasificación</th>
-                  <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">
+                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">Funcionario Clínico</th>
+                  <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">RUT / Clasificación</th>
+                  <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">
                     {activeTab === 'horas' ? 'Horas 25%' : activeTab === 'atrasos' ? 'N/A' : activeTab === 'viaticos' ? 'Destino' : activeTab === 'procedimientos' ? 'Cantidad' : 'Hábiles'}
                   </th>
-                  <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">
+                  <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">
                     {activeTab === 'horas' ? 'Horas 50%' : activeTab === 'atrasos' ? 'Concepto' : activeTab === 'viaticos' ? 'Estado' : activeTab === 'procedimientos' ? 'Estado' : 'Inhábiles'}
                   </th>
-                  <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">
+                  <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">
                     {activeTab === 'atrasos' ? 'Total Tiempo' : 'Total Validado'}
                   </th>
-                  <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Acciones</th>
+                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/5">
@@ -865,7 +865,7 @@ export default function ConsolidadoDetailPage() {
         </div>
       </section>
 
-      <footer className="fixed bottom-0 right-0 left-64 h-20 bg-on-background/95 backdrop-blur-2xl px-12 z-50 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+      <footer className="fixed bottom-0 right-0 left-72 h-20 bg-on-background/95 backdrop-blur-2xl px-12 z-50 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
         <div className="flex flex-col">
           <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Auditoría Remuneración Salud CMP</span>
           <span className="text-[9px] font-bold text-outline-variant uppercase tracking-widest mt-1">Estado: {auditProgress()}% Auditado</span>
@@ -1365,11 +1365,8 @@ const EmployeeTableRow = React.memo(({
   return (
     <>
       <tr className={cn("hover:bg-primary/5 transition-all duration-300 group cursor-pointer border-l-4 border-transparent", expanded && "bg-surface-container-low border-l-primary shadow-inner")}>
-        <td className="px-10 py-7" onClick={onToggle}>
-          <div className="flex items-center gap-5">
-            <div className="h-12 w-12 rounded-[1rem] bg-secondary-container flex items-center justify-center text-on-secondary-container font-black text-[14px] shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
-              {initials}
-            </div>
+        <td className="px-6 py-5" onClick={onToggle}>
+          <div className="flex items-center">
             <div>
               <div className="font-black text-on-surface text-[15px] uppercase tracking-tight leading-none mb-1.5 group-hover:text-primary transition-colors">{item.funcionario.nombre_completo}</div>
               <div className="text-[10px] font-bold text-secondary uppercase tracking-widest leading-none">
@@ -1378,11 +1375,11 @@ const EmployeeTableRow = React.memo(({
             </div>
           </div>
         </td>
-        <td className="px-10 py-7" onClick={onToggle}>
+        <td className="px-4 py-5" onClick={onToggle}>
           <div className="text-[14px] font-black text-on-surface tracking-tighter mb-1">{item.funcionario.rut}</div>
           <div className="text-[10px] font-black uppercase text-primary tracking-widest bg-primary/5 px-2 py-0.5 rounded-md w-fit">Cat. {item.funcionario.categoria_aps || '-'} • Niv. {item.funcionario.nivel_aps || '-'}</div>
         </td>
-        <td className="px-10 py-7 text-center" onClick={onToggle}>
+        <td className="px-4 py-5 text-center" onClick={onToggle}>
           <div className="flex flex-col items-center gap-2">
             {activeTab === 'horas' ? (
               <>
@@ -1398,7 +1395,7 @@ const EmployeeTableRow = React.memo(({
             ) : <span className="text-outline/30 font-black text-[10px] uppercase">N/A</span>}
           </div>
         </td>
-        <td className="px-10 py-7 text-center" onClick={onToggle}>
+        <td className="px-4 py-5 text-center" onClick={onToggle}>
           <div className="flex flex-col items-center gap-2">
              {activeTab === 'horas' ? (
                <>
@@ -1419,10 +1416,10 @@ const EmployeeTableRow = React.memo(({
              )}
           </div>
         </td>
-        <td className="px-10 py-7 font-black text-[16px] text-on-surface tracking-tighter" onClick={onToggle}>
+        <td className="px-4 py-5 font-black text-[16px] text-on-surface tracking-tighter" onClick={onToggle}>
           {activeTab === 'atrasos' ? item.tiempo_descuento : `$${totalAmount.toLocaleString('es-CL')}`}
         </td>
-        <td className="px-10 py-7 text-right">
+        <td className="px-6 py-5 text-right">
           <div className="flex items-center justify-end gap-3">
             {attendanceLogs && (
               <button 
@@ -1529,7 +1526,7 @@ const EmployeeTableRow = React.memo(({
       <AnimatePresence>
         {expanded && (
           <tr>
-            <td colSpan={6} className="px-10 py-0">
+            <td colSpan={6} className="px-6 py-0">
               <motion.div 
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
@@ -1616,7 +1613,7 @@ const EmployeeTableRow = React.memo(({
       <AnimatePresence>
         {showLogs && attendanceLogs && (
           <tr>
-            <td colSpan={6} className="px-10 py-0">
+            <td colSpan={6} className="px-6 py-0">
               <motion.div 
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}

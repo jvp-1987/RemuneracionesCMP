@@ -540,7 +540,7 @@ export default function Dashboard() {
       </section>
 
       {/* Footer */}
-      <footer className="fixed bottom-0 right-0 left-64 bg-white/90 backdrop-blur-sm px-12 py-3 border-t border-outline-variant/10 z-40 flex justify-between items-center">
+      <footer className="fixed bottom-0 right-0 left-72 bg-white/90 backdrop-blur-sm px-12 py-3 border-t border-outline-variant/10 z-40 flex justify-between items-center">
         <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em]">
           Corporación Municipal Panguipulli • Salud APS
         </span>
