@@ -165,11 +165,14 @@ export class IngresosService {
               const subtotal = (cantHab * valHab) + (cantInh * valInh);
 
               let programa_id = 1;
-              const checkProg = await tx.programa.findUnique({ where: { id: 1 } });
-              if (!checkProg) {
-                await tx.programa.create({
-                  data: { id: 1, nombre: 'PRESUPUESTARIO', categoria_enum: 'PRESUPUESTARIO' }
+              const checkProg = await tx.programa.findFirst({ where: { nombre: 'PROGRAMA DE TURNO' } });
+              if (checkProg) {
+                programa_id = checkProg.id;
+              } else {
+                const newProg = await tx.programa.create({
+                  data: { nombre: 'PROGRAMA DE TURNO', categoria_enum: 'PROGRAMAS_TURNO' }
                 });
+                programa_id = newProg.id;
               }
 
               const progName = trx.programa_nombre || trx.programa;

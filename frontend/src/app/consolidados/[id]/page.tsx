@@ -1379,7 +1379,7 @@ const EmployeeTableRow = React.memo(({
               <div className="text-[10px] font-bold text-secondary uppercase tracking-widest leading-none">
                 {item.funcionario.centro_salud?.nombre || 'Personal de Planta • APS'}
                 {activeTab === 'horas' && item.programa && ` • ${item.programa.nombre}`}
-                {activeTab === 'turnos' && (item as any).programa && ` • ${(item as any).programa.nombre}`}
+                {activeTab === 'turnos' && (item as any).programa && ` • ${(item as any).programa.nombre === 'PRESUPUESTARIO' ? 'PROGRAMA DE TURNO' : (item as any).programa.nombre}`}
               </div>
             </div>
           </div>
