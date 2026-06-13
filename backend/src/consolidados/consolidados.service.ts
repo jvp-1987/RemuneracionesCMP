@@ -623,5 +623,49 @@ export class ConsolidadosService {
 
     return xlsx.write(wb, { type: 'buffer', bookType: 'xlsx' }) as Buffer;
   }
+
+  async fixAllTurnosPrograms() {
+    const turnos = await this.prisma.turnosUrgencia.findMany({
+      include: { funcionario: { include: { centro_salud: true } } }
+    });
+
+    let updatedCount = 0;
+    for (const t of turnos) {
+      const centroNombre = t.funcionario?.centro_salud?.nombre?.toUpperCase() || '';
+      let progName = 'PROGRAMA DE TURNO';
+      
+      if (centroNombre.includes('LIQUIÑE')) {
+        progName = 'PROG. SUR LIQUIÑE';
+      } else if (centroNombre.includes('CHOSHUENCO')) {
+        progName = 'PROG. SUR CHOSHUENCO';
+      } else if (centroNombre.includes('NELTUME')) {
+        progName = 'PROG. SUR NELTUME';
+      } else if (centroNombre.includes('COÑARIPE')) {
+        progName = 'PROG. SUR COÑARIPE';
+      } else if (centroNombre.includes('SAR') || centroNombre.includes('PANGUIPULLI')) {
+        progName = 'TURNO SAR';
+      }
+
+      let programa = await this.prisma.programa.findFirst({
+        where: { nombre: progName }
+      });
+      if (!programa) {
+        programa = await this.prisma.programa.create({
+          data: {
+            nombre: progName,
+            categoria_enum: 'PROGRAMAS_TURNO'
+          }
+        });
+      }
+
+      await this.prisma.turnosUrgencia.update({
+        where: { id: t.id },
+        data: { programa_id: programa.id }
+      });
+      updatedCount++;
+    }
+
+    return { success: true, message: `Se actualizaron ${updatedCount} turnos con sus programas correspondientes.` };
+  }
 }
 
