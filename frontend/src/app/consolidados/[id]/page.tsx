@@ -1669,12 +1669,12 @@ const EmployeeTableRow = React.memo(({
                   )}
 
                   {/* Historial de Comentarios y Auditoría */}
-                  {auditLogs && auditLogs.length > 0 && (
-                    <div className="pt-8 border-t border-outline-variant/10 space-y-4">
-                      <div className="flex items-center gap-2 text-[10px] font-black text-indigo-900 uppercase tracking-widest">
-                        <span className="material-symbols-outlined text-[16px] text-indigo-600">history</span>
-                        Historial de Comentarios y Auditoría
-                      </div>
+                  <div className="pt-8 border-t border-outline-variant/10 space-y-4">
+                    <div className="flex items-center gap-2 text-[10px] font-black text-indigo-900 uppercase tracking-widest">
+                      <span className="material-symbols-outlined text-[16px] text-indigo-600">history</span>
+                      Historial de Comentarios y Auditoría
+                    </div>
+                    {auditLogs && auditLogs.length > 0 ? (
                       <div className="space-y-3">
                         {auditLogs.map((log) => {
                           const isObs = ['observaciones', 'observaciones_25', 'observaciones_50', 'justificacion', 'concepto'].includes(log.campo_afectado);
@@ -1697,8 +1697,10 @@ const EmployeeTableRow = React.memo(({
                           );
                         })}
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <p className="text-[11px] font-bold text-outline italic pl-6">No hay registros de comentarios ni cambios históricos aún para este registro.</p>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             </td>
