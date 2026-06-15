@@ -130,7 +130,17 @@ export class IngresosService {
                 const prog = await tx.programa.findFirst({
                   where: { nombre: { contains: String(trx.programa_nombre).substring(0, 15) } }
                 });
-                if (prog) programa_id = prog.id;
+                if (prog) {
+                  programa_id = prog.id;
+                } else {
+                  const newProg = await tx.programa.create({
+                    data: {
+                      nombre: String(trx.programa_nombre).substring(0, 100),
+                      categoria_enum: 'Programas APS'
+                    }
+                  });
+                  programa_id = newProg.id;
+                }
               }
 
               const existingHE = realId 
@@ -144,7 +154,7 @@ export class IngresosService {
                 cantidad_50: parseFloat(trx.cantidad_50 || 0) || 0,
                 fecha_inicio: trx.fecha_inicio ? new Date(trx.fecha_inicio) : new Date(),
                 fecha_termino: trx.fecha_termino ? new Date(trx.fecha_termino) : new Date(),
-                observaciones_25: trx.observaciones || trx.programa_nombre || '',
+                observaciones_25: trx.observaciones || '',
                 url_respaldo: urlRespaldo,
               };
 
