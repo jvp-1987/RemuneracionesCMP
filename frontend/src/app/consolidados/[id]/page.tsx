@@ -1389,6 +1389,23 @@ const EmployeeTableRow = React.memo(({
   const [obs25, setObs25] = useState(item.observaciones_25 || '');
   const [obs50, setObs50] = useState(item.observaciones_50 || '');
   const [obs, setObs] = useState(item.observaciones || '');
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (expanded) {
+      const fetchAuditLogs = async () => {
+        try {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
+          const modulo = activeTab === 'horas' ? 'HE' : activeTab === 'viaticos' ? 'VIATICO' : activeTab === 'atrasos' ? 'ATRASO' : activeTab === 'procedimientos' ? 'PROCEDIMIENTO' : 'TURNO_URGENCIA';
+          const res = await axios.get(`${apiUrl}/audit?tipo=${modulo}&id=${item.id}`);
+          setAuditLogs(res.data || []);
+        } catch (err) {
+          console.error('Error fetching audit logs:', err);
+        }
+      };
+      fetchAuditLogs();
+    }
+  }, [expanded, activeTab, item.id]);
 
   const initials = (item.funcionario?.nombre_completo || '')
     .split(' ')
@@ -1648,6 +1665,38 @@ const EmployeeTableRow = React.memo(({
                             <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-primary/20", item.estado === 'APROBADO' ? "bg-primary text-white" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
                           </div>
                         )}
+                    </div>
+                  )}
+
+                  {/* Historial de Comentarios y Auditoría */}
+                  {auditLogs && auditLogs.length > 0 && (
+                    <div className="pt-8 border-t border-outline-variant/10 space-y-4">
+                      <div className="flex items-center gap-2 text-[10px] font-black text-indigo-900 uppercase tracking-widest">
+                        <span className="material-symbols-outlined text-[16px] text-indigo-600">history</span>
+                        Historial de Comentarios y Auditoría
+                      </div>
+                      <div className="space-y-3">
+                        {auditLogs.map((log) => {
+                          const isObs = ['observaciones', 'observaciones_25', 'observaciones_50', 'justificacion', 'concepto'].includes(log.campo_afectado);
+                          return (
+                            <div key={log.id} className="text-xs bg-white border border-slate-100 p-4 rounded-2xl flex flex-col gap-1">
+                              <div className="flex justify-between items-center text-[10px]">
+                                <span className="font-black text-slate-700 uppercase tracking-wider">{log.usuario_nombre}</span>
+                                <span className="text-slate-400 font-medium">{new Date(log.fecha).toLocaleString('es-CL')}</span>
+                              </div>
+                              <p className="text-slate-600 font-bold mt-1">
+                                {isObs ? (
+                                  log.valor_anterior 
+                                    ? `Modificó la justificación/hallazgo de "${log.valor_anterior}" a "${log.valor_nuevo}"`
+                                    : `Ingresó justificación/observación original: "${log.valor_nuevo}"`
+                                ) : (
+                                  `Cambió ${log.campo_afectado} de "${log.valor_anterior || 'vacío'}" a "${log.valor_nuevo}"`
+                                )}
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>
