@@ -33,4 +33,9 @@ export class CreateAtrasoDto {
   @IsOptional()
   @IsEnum(EstadoValidacion)
   estado?: EstadoValidacion;
+
+  @ApiPropertyOptional({ example: 'Notas de atraso' })
+  @IsOptional()
+  @IsString()
+  observaciones?: string;
 }

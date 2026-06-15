@@ -35,4 +35,9 @@ export class CreateTurnoUrgenciaDto {
   @IsInt()
   @IsOptional()
   programa_id?: number;
+
+  @ApiProperty({ example: 'Notas de turno', required: false })
+  @IsString()
+  @IsOptional()
+  observaciones?: string;
 }

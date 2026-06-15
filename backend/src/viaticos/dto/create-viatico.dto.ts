@@ -43,4 +43,9 @@ export class CreateViaticoDto {
   @IsOptional()
   @IsEnum(EstadoValidacion)
   estado?: EstadoValidacion;
+
+  @ApiPropertyOptional({ example: 'Notas de viatico' })
+  @IsOptional()
+  @IsString()
+  observaciones?: string;
 }

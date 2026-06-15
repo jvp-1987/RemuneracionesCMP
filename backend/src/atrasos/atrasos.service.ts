@@ -32,21 +32,27 @@ export class AtrasosService {
       throw new ForbiddenException('Edición bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 
+    const updateData = { ...dto } as any;
+    if (dto.observaciones !== undefined) {
+      updateData.concepto = dto.observaciones;
+      delete updateData.observaciones;
+    }
+
     const fieldsToTrack = ['minutos', 'monto_descuento', 'estado', 'concepto', 'tiempo_descuento'];
     for (const field of fieldsToTrack) {
-      if ((dto as any)[field] !== undefined && String((dto as any)[field]) !== String((current as any)[field])) {
+      if (updateData[field] !== undefined && String(updateData[field]) !== String((current as any)[field])) {
         await this.auditService.createLog({
           tipo_modulo: 'ATRASO',
           registro_id: id,
           usuario_nombre: user.nombre || 'Sistema',
           campo_afectado: field,
           valor_anterior: String((current as any)[field] || ''),
-          valor_nuevo: String((dto as any)[field] || ''),
+          valor_nuevo: String(updateData[field] || ''),
         });
       }
     }
 
-    return this.prisma.atrasos.update({ where: { id }, data: dto });
+    return this.prisma.atrasos.update({ where: { id }, data: updateData });
   }
 
   async remove(user: any, id: number) {

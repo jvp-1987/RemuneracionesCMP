@@ -32,21 +32,27 @@ export class ViaticosService {
       throw new ForbiddenException('Edición bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 
+    const updateData = { ...dto } as any;
+    if (dto.observaciones !== undefined) {
+      updateData.justificacion = dto.observaciones;
+      delete updateData.observaciones;
+    }
+
     const fieldsToTrack = ['monto_calculado', 'rendicion_pasajes', 'tipo_destino', 'estado', 'justificacion', 'concepto'];
     for (const field of fieldsToTrack) {
-      if ((dto as any)[field] !== undefined && String((dto as any)[field]) !== String((current as any)[field])) {
+      if (updateData[field] !== undefined && String(updateData[field]) !== String((current as any)[field])) {
         await this.auditService.createLog({
           tipo_modulo: 'VIATICO',
           registro_id: id,
           usuario_nombre: user.nombre || 'Sistema',
           campo_afectado: field,
           valor_anterior: String((current as any)[field] || ''),
-          valor_nuevo: String((dto as any)[field] || ''),
+          valor_nuevo: String(updateData[field] || ''),
         });
       }
     }
 
-    return this.prisma.viaticos.update({ where: { id }, data: dto });
+    return this.prisma.viaticos.update({ where: { id }, data: updateData });
   }
 
   async remove(user: any, id: number) {
