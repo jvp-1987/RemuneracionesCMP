@@ -148,11 +148,25 @@ export class IngresosService {
                 url_respaldo: urlRespaldo,
               };
 
+              let heRecord;
               if (existingHE) {
-                await tx.horasExtras.update({ where: { id: existingHE.id }, data: heData });
+                heRecord = await tx.horasExtras.update({ where: { id: existingHE.id }, data: heData });
               } else {
-                await tx.horasExtras.create({
+                heRecord = await tx.horasExtras.create({
                   data: { consolidado_id: consolidado.id, funcionario_rut: trx.rut, programa_id, ...heData }
+                });
+              }
+
+              if (trx.observaciones && String(trx.observaciones).trim() !== '') {
+                await tx.historialAuditoria.create({
+                  data: {
+                    tipo_modulo: 'HE',
+                    registro_id: heRecord.id,
+                    usuario_nombre: user?.nombre || 'Sistema (Novedades)',
+                    campo_afectado: 'observaciones_25',
+                    valor_anterior: existingHE ? String(existingHE.observaciones_25 || '') : '',
+                    valor_nuevo: String(trx.observaciones),
+                  }
                 });
               }
               count++;
@@ -213,11 +227,25 @@ export class IngresosService {
                 programa_id,
               };
 
+              let turnoRecord;
               if (existingTurno) {
-                await tx.turnosUrgencia.update({ where: { id: existingTurno.id }, data: turnoData });
+                turnoRecord = await tx.turnosUrgencia.update({ where: { id: existingTurno.id }, data: turnoData });
               } else {
-                await tx.turnosUrgencia.create({
+                turnoRecord = await tx.turnosUrgencia.create({
                   data: { consolidado_id: consolidado.id, funcionario_rut: trx.rut, ...turnoData }
+                });
+              }
+
+              if (trx.observaciones && String(trx.observaciones).trim() !== '') {
+                await tx.historialAuditoria.create({
+                  data: {
+                    tipo_modulo: 'TURNO_URGENCIA',
+                    registro_id: turnoRecord.id,
+                    usuario_nombre: user?.nombre || 'Sistema (Novedades)',
+                    campo_afectado: 'observaciones',
+                    valor_anterior: '',
+                    valor_nuevo: String(trx.observaciones),
+                  }
                 });
               }
               count++;
@@ -249,11 +277,25 @@ export class IngresosService {
                 url_respaldo: urlRespaldo,
               };
 
+              let viaticoRecord;
               if (existingViatico) {
-                await tx.viaticos.update({ where: { id: existingViatico.id }, data: viaticoData });
+                viaticoRecord = await tx.viaticos.update({ where: { id: existingViatico.id }, data: viaticoData });
               } else {
-                await tx.viaticos.create({
+                viaticoRecord = await tx.viaticos.create({
                   data: { consolidado_id: consolidado.id, funcionario_rut: trx.rut, ...viaticoData }
+                });
+              }
+
+              if (trx.observaciones && String(trx.observaciones).trim() !== '') {
+                await tx.historialAuditoria.create({
+                  data: {
+                    tipo_modulo: 'VIATICO',
+                    registro_id: viaticoRecord.id,
+                    usuario_nombre: user?.nombre || 'Sistema (Novedades)',
+                    campo_afectado: 'justificacion',
+                    valor_anterior: existingViatico ? String(existingViatico.justificacion || '') : '',
+                    valor_nuevo: String(trx.observaciones),
+                  }
                 });
               }
               count++;
@@ -276,11 +318,25 @@ export class IngresosService {
                 url_respaldo: urlRespaldo,
               };
 
+              let atrasoRecord;
               if (existingAtraso) {
-                await tx.atrasos.update({ where: { id: existingAtraso.id }, data: atrasoData });
+                atrasoRecord = await tx.atrasos.update({ where: { id: existingAtraso.id }, data: atrasoData });
               } else {
-                await tx.atrasos.create({
+                atrasoRecord = await tx.atrasos.create({
                   data: { consolidado_id: consolidado.id, funcionario_rut: trx.rut, ...atrasoData }
+                });
+              }
+
+              if (trx.observaciones && String(trx.observaciones).trim() !== '') {
+                await tx.historialAuditoria.create({
+                  data: {
+                    tipo_modulo: 'ATRASO',
+                    registro_id: atrasoRecord.id,
+                    usuario_nombre: user?.nombre || 'Sistema (Novedades)',
+                    campo_afectado: 'concepto',
+                    valor_anterior: existingAtraso ? String(existingAtraso.concepto || '') : '',
+                    valor_nuevo: String(trx.observaciones),
+                  }
                 });
               }
               count++;
