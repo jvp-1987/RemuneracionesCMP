@@ -154,7 +154,8 @@ export class IngresosService {
                 cantidad_50: parseFloat(trx.cantidad_50 || 0) || 0,
                 fecha_inicio: trx.fecha_inicio ? new Date(trx.fecha_inicio) : new Date(),
                 fecha_termino: trx.fecha_termino ? new Date(trx.fecha_termino) : new Date(),
-                observaciones_25: trx.observaciones || '',
+                observaciones_25: existingHE ? existingHE.observaciones_25 : '',
+                observaciones_50: existingHE ? existingHE.observaciones_50 : '',
                 url_respaldo: urlRespaldo,
               };
 
@@ -283,7 +284,7 @@ export class IngresosService {
                 rendicion_pasajes: parseFloat(trx.rendicion_pasajes || 0) || 0,
                 fecha_inicio: startVal,
                 fecha_termino: endVal,
-                justificacion: trx.observaciones || '',
+                justificacion: existingViatico ? existingViatico.justificacion : '',
                 url_respaldo: urlRespaldo,
               };
 
@@ -322,7 +323,7 @@ export class IngresosService {
               const atrasoData = {
                 tiempo_descuento: trx.tiempo || `${minutosRaw} min`,
                 minutos: minutosRaw,
-                concepto: trx.observaciones || trx.concepto || '',
+                concepto: existingAtraso ? existingAtraso.concepto : (trx.concepto || ''),
                 fecha_inicio: trx.fecha_inicio ? new Date(trx.fecha_inicio) : new Date(),
                 fecha_termino: trx.fecha_termino ? new Date(trx.fecha_termino) : new Date(),
                 url_respaldo: urlRespaldo,
