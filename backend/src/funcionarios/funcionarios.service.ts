@@ -303,11 +303,16 @@ export class FuncionariosService {
   }
 
   async search(user: any, query: string, includeInactive: boolean = false) {
-    const where: any = {
+    const words = query.trim().split(/\s+/).filter(Boolean);
+    const conditions = words.map(word => ({
       OR: [
-        { rut: { contains: query } },
-        { nombre_completo: { contains: query } }
+        { rut: { contains: word } },
+        { nombre_completo: { contains: word } }
       ]
+    }));
+
+    const where: any = {
+      AND: conditions
     };
     
     if (!includeInactive) {
