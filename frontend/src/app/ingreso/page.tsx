@@ -1479,7 +1479,9 @@ export default function IngresoPage() {
 
                   {activeTab === 'viaticos' && (<>
                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Destino</th>
-                    <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">$ Base</th>
+                    <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Cant. Días</th>
+                    <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">$ Valor Día</th>
+                    <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Cant. Pj.</th>
                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">$ Rendición</th>
                   </>)}
 
@@ -1576,7 +1578,9 @@ export default function IngresoPage() {
 
                       {activeTab === 'viaticos' && (<>
                         <td className="px-4 py-3"><select value={row.tipo_destino} onChange={e => updateRow(row.id, 'tipo_destino', e.target.value as any)} className="w-36 bg-slate-50 rounded-lg py-2 px-2 text-[10px] font-black text-slate-600 outline-none border border-slate-200"><option value="DENTRO COMUNA">Dentro Comuna</option><option value="FUERA COMUNA">Fuera Comuna</option></select></td>
+                        <td className="px-4 py-3"><input type="number" value={row.cantidad_dias || 1} onChange={e => updateRow(row.id, 'cantidad_dias', e.target.value)} className="w-14 bg-slate-50 rounded-lg py-2 text-center text-[11px] font-black border border-slate-200" min="1" /></td>
                         <td className="px-4 py-3"><input type="number" value={row.monto} onChange={e => updateRow(row.id, 'monto', e.target.value)} className="w-20 bg-slate-50 rounded-lg py-2 text-center text-[11px] font-black text-emerald-600 border border-slate-200" /></td>
+                        <td className="px-4 py-3"><input type="number" value={row.cantidad_pasajes || 1} onChange={e => updateRow(row.id, 'cantidad_pasajes', e.target.value)} className="w-14 bg-slate-50 rounded-lg py-2 text-center text-[11px] font-black border border-slate-200" min="0" /></td>
                         <td className="px-4 py-3"><input type="number" value={row.rendicion_pasajes} onChange={e => updateRow(row.id, 'rendicion_pasajes', e.target.value)} onKeyDown={e => e.key === 'Enter' && addRow()} className="w-20 bg-slate-50 rounded-lg py-2 text-center text-[11px] font-black text-amber-600 border border-slate-200" placeholder="0" /></td>
                       </>)}
 
