@@ -319,6 +319,8 @@ export default function IngresoPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
+  const today = new Date().toISOString().split('T')[0];
+
   // ─── Persistencia Local (Borradores) ──────────────────────────────────────────
   useEffect(() => {
     if (!user) return;
@@ -330,12 +332,56 @@ export default function IngresoPage() {
         if (Array.isArray(parsed) && parsed.length > 0) {
           setRows(parsed);
         } else {
-            setRows([]);
+          setRows([{
+            id: Math.random().toString(36).substring(7),
+            rut: '',
+            nombre: '',
+            categoria_aps: '',
+            nivel_aps: '',
+            fecha_inicio: today,
+            fecha_termino: today,
+            observaciones: '',
+            cantidad_25: '',
+            cantidad_50: '',
+            programa_nombre: '',
+            tipo_destino: 'DENTRO COMUNA',
+            monto: '7000',
+            tiempo: '',
+            cant_habil: '0',
+            valor_habil: '0',
+            cant_inhabil: '0',
+            valor_inhabil: '0',
+            rendicion_pasajes: '0',
+            cantidad_dias: '1',
+            cantidad_pasajes: '1'
+          }]);
         }
       } catch (e) { console.error("Error loading draft:", e); }
     } else {
-        setRows([]); 
-      }
+      setRows([{
+        id: Math.random().toString(36).substring(7),
+        rut: '',
+        nombre: '',
+        categoria_aps: '',
+        nivel_aps: '',
+        fecha_inicio: today,
+        fecha_termino: today,
+        observaciones: '',
+        cantidad_25: '',
+        cantidad_50: '',
+        programa_nombre: '',
+        tipo_destino: 'DENTRO COMUNA',
+        monto: '7000',
+        tiempo: '',
+        cant_habil: '0',
+        valor_habil: '0',
+        cant_inhabil: '0',
+        valor_inhabil: '0',
+        rendicion_pasajes: '0',
+        cantidad_dias: '1',
+        cantidad_pasajes: '1'
+      }]);
+    }
     
     // Default center to user's assigned center if they are CENTRO_SALUD or SECRETARIA
     if (['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '') && user?.centro_salud_id) {
@@ -344,8 +390,7 @@ export default function IngresoPage() {
 
     const fetchCentros = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-        const res = await axios.get(`${apiUrl}/centro-salud`);
+        const res = await axios.get('/centro-salud');
         setCentros(res.data.filter((c: any) => 
           !c.parent_id && (
             c.nombre.toUpperCase().includes('CESFAM PANGUIPULLI') || 
@@ -379,7 +424,15 @@ export default function IngresoPage() {
       }
     }, 1000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      try {
+        const storageKey = `draft_ingreso_${user.id}_${activeTab}_${periodoId}`;
+        localStorage.setItem(storageKey, JSON.stringify(rows));
+      } catch (e) {
+        console.error("Error saving draft in cleanup:", e);
+      }
+    };
   }, [rows, user, activeTab, periodoId]);
   
   // Maestro Upload States
@@ -409,7 +462,7 @@ export default function IngresoPage() {
     return Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
   };
 
-  const today = new Date().toISOString().split('T')[0];
+  // today is now defined at the top of the component functions
 
   const addRow = () => {
     const lastRow = rows[rows.length - 1];
@@ -438,10 +491,7 @@ export default function IngresoPage() {
     }]);
   };
 
-  useEffect(() => {
-    if (rows.length === 0) addRow();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab]);
+
 
   const removeRow = (id: string) => {
     setRows(prev => prev.filter(r => r.id !== id));
@@ -471,8 +521,7 @@ export default function IngresoPage() {
       if (searchQuery.length < 2) { setSearchResults([]); setSearchError(null); return; }
       try {
         setSearchError(null);
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-        const res = await axios.get(`${apiUrl}/funcionarios/search?q=${searchQuery}`);
+        const res = await axios.get(`/funcionarios/search?q=${searchQuery}`);
         setSearchResults(res.data);
       } catch (e: any) { 
         console.error(e);
@@ -525,8 +574,7 @@ export default function IngresoPage() {
       }
     } else {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-        const res = await axios.post(`${apiUrl}/consolidados/respaldo/presigned-url`, { key: url });
+        const res = await axios.post('/consolidados/respaldo/presigned-url', { key: url });
         if (res.data && res.data.url) {
           window.open(res.data.url, '_blank');
         } else {
@@ -546,6 +594,17 @@ export default function IngresoPage() {
       alert('Agregue al menos un funcionario antes de guardar.');
       return;
     }
+
+    const hasOutOfPeriod = validRows.some(r => isOutOfPeriod(r.fecha_inicio, r.fecha_termino));
+    if (hasOutOfPeriod) {
+      const confirmSend = window.confirm(
+        'Atención: Hay registros con fechas que están fuera del período de medición activo. ¿Está seguro de que desea enviar este lote con información desfasada?'
+      );
+      if (!confirmSend) {
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const transacciones = validRows.map(r => {
@@ -566,7 +625,7 @@ export default function IngresoPage() {
       };
 
       console.log('[Guardar] Enviando payload:', payload);
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com'}/ingresos/manual`, payload);
+      const response = await axios.post('/ingresos/manual', payload);
       console.log('[Guardar] Respuesta:', response.data);
 
       const { consolidado_id } = response.data;
@@ -579,8 +638,30 @@ export default function IngresoPage() {
         localStorage.removeItem(storageKey);
       }
 
-      setRows([]);
-      addRow();
+      setRows([{
+        id: Math.random().toString(36).substring(7),
+        rut: '',
+        nombre: '',
+        categoria_aps: '',
+        nivel_aps: '',
+        fecha_inicio: today,
+        fecha_termino: today,
+        observaciones: '',
+        cantidad_25: '',
+        cantidad_50: '',
+        programa_nombre: '',
+        tipo_destino: 'DENTRO COMUNA',
+        monto: '7000',
+        tiempo: '',
+        cant_habil: '0',
+        valor_habil: '0',
+        cant_inhabil: '0',
+        valor_inhabil: '0',
+        rendicion_pasajes: '0',
+        cantidad_dias: '1',
+        cantidad_pasajes: '1'
+      }]);
+
       // Redirigir al consolidado específico después de 1.5 segundos
       setTimeout(() => {
         setShowSuccess(false);
@@ -689,8 +770,7 @@ export default function IngresoPage() {
       const formData = new FormData();
       formData.append('file', maestroFile);
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
-      await axios.post(`${apiUrl}/remuneraciones/importar-maestro-mensual?periodoId=${periodoId}`, formData, {
+      await axios.post(`/remuneraciones/importar-maestro-mensual?periodoId=${periodoId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
@@ -1491,6 +1571,11 @@ export default function IngresoPage() {
                     <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tiempo</th>
                   )}
 
+                  {(activeTab === 'viaticos' || activeTab === 'programas_turno') && (
+                    <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Total</th>
+                  )}
+
+                  <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest w-64">Observaciones</th>
                   <th className="px-4 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Respaldo</th>
                   <th className="px-4 py-5 w-12"></th>
                 </tr>
@@ -1589,6 +1674,22 @@ export default function IngresoPage() {
                       {activeTab === 'atrasos' && (
                         <td className="px-4 py-3"><input type="text" value={row.tiempo} onChange={e => updateRow(row.id, 'tiempo', e.target.value)} onKeyDown={e => e.key === 'Enter' && addRow()} className="w-20 bg-slate-50 rounded-lg py-2 text-center text-[11px] font-black border border-slate-200" /></td>
                       )}
+
+                      {(activeTab === 'viaticos' || activeTab === 'programas_turno') && (
+                        <td className="px-4 py-3 text-center text-xs font-black text-slate-700">
+                          ${getRowTotal(row).toLocaleString('es-CL')}
+                        </td>
+                      )}
+
+                      <td className="px-4 py-3">
+                        <input
+                          type="text"
+                          value={row.observaciones}
+                          onChange={e => updateRow(row.id, 'observaciones', e.target.value)}
+                          placeholder="Observaciones..."
+                          className="w-full bg-slate-50 rounded-lg py-1.5 px-3 text-[11px] font-bold border border-slate-200 outline-none focus:border-slate-300 transition-colors"
+                        />
+                      </td>
 
                       <td className="px-4 py-3 text-center">
                         <div className="flex items-center justify-center gap-2">
