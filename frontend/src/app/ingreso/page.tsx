@@ -305,9 +305,11 @@ export default function IngresoPage() {
   const [loading, setLoading] = useState(false);
   const [centroId, setCentroId] = useState('1');
   const [periodoId, setPeriodoId] = useState(() => {
-    const todayStr = new Date().toISOString().split('T')[0];
-    const found = PERIODOS.find(p => todayStr >= p.inicio && todayStr <= p.fin);
-    return found ? found.id : '5';
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1; // 1-12
+    const currentYear = today.getFullYear();
+    const found = PERIODOS.find(p => p.mes === currentMonth && p.anio === currentYear);
+    return found ? found.id : '6';
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
