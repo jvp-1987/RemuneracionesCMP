@@ -28,26 +28,27 @@ async function run() {
     const nombreCompleto = String(row.nombre || '').trim();
 
     // Mapeo: Buscar el centro de salud por nombre aproximado
-    let nombreEst = String(row.establecimiento || '').trim().toUpperCase();
-    if (nombreEst.includes('SAR')) nombreEst = 'SAR PANGUIPULLI';
-    if (nombreEst.includes('COÑARIPE') && nombreEst.includes('CESFAM')) nombreEst = 'CESFAM COÑARIPE';
-    if (nombreEst.includes('CHOSHUENCO') && nombreEst.includes('CESFAM')) nombreEst = 'CESFAM CHOSHUENCO';
-    if (nombreEst.includes('NELTUME') && !nombreEst.includes('LAGO')) nombreEst = 'CECOSF NELTUME';
-    if (nombreEst.includes('LAGO NELTUME')) nombreEst = 'POSTA RURAL LAGONELTUME';
-    if (nombreEst.includes('PIREHEUICO') || nombreEst.includes('PIRIHUEICO')) nombreEst = 'POSTA RURAL PIREHEUICO';
-    if (nombreEst.includes('LIQUIÑE')) nombreEst = 'CECOSF LIQUIÑE';
-    if (nombreEst.includes('BOCATOMA')) nombreEst = 'POSTA RURAL BOCATOMA';
-    if (nombreEst.includes('CAYUMAPU')) nombreEst = 'POSTA RURAL CAYUMAPU';
-    if (nombreEst.includes('MELEFQUEN')) nombreEst = 'POSTA RURAL MELEFQUEN';
-    if (nombreEst.includes('HUITAG')) nombreEst = 'POSTA RURAL HUITAG';
-    
-    // Admin Central dependents
-    if (nombreEst.includes('RRHH') || nombreEst.includes('PERSONAL')) nombreEst = 'DEPARTAMENTO DE PERSONAL (RRHH)';
-    if (nombreEst.includes('FARMACIA')) nombreEst = 'FARMACIA COMUNAL';
-    if (nombreEst.includes('CENTRAL') && !nombreEst.includes('CESFAM')) nombreEst = 'CENTRAL';
+    let nombreEst = String(row.establecimiento || '').trim().toLowerCase();
+    let mappedEst = 'CESFAM PANGUIPULLI';
+    if (nombreEst.includes('neltume') && !nombreEst.includes('lago')) mappedEst = 'CECOSF NELTUME';
+    else if (nombreEst.includes('pireheuico') || nombreEst.includes('pirihueico')) mappedEst = 'POSTA RURAL PIREHEUICO';
+    else if (nombreEst.includes('lago neltume')) mappedEst = 'POSTA RURAL LAGONELTUME';
+    else if (nombreEst.includes('choshuenco')) mappedEst = 'CESFAM CHOSHUENCO';
+    else if (nombreEst.includes('liquiñe') || nombreEst.includes('liquine')) mappedEst = 'CECOSF LIQUIÑE';
+    else if (nombreEst.includes('coñaripe') || nombreEst.includes('conaripe')) mappedEst = 'CESFAM COÑARIPE';
+    else if (nombreEst.includes('melefquen')) mappedEst = 'POSTA RURAL MELEFQUEN';
+    else if (nombreEst.includes('bocatoma')) mappedEst = 'POSTA RURAL BOCATOMA';
+    else if (nombreEst.includes('huitag')) mappedEst = 'POSTA RURAL HUITAG';
+    else if (nombreEst.includes('cayumapu')) mappedEst = 'POSTA RURAL CAYUMAPU';
+    else if (nombreEst.includes('sar')) mappedEst = 'SAR PANGUIPULLI';
+    else if (nombreEst.includes('personal') || nombreEst.includes('rrhh')) mappedEst = 'DEPARTAMENTO DE PERSONAL (RRHH)';
+    else if (nombreEst.includes('farmacia')) mappedEst = 'FARMACIA COMUNAL';
+    else if (nombreEst.includes('central') || nombreEst.includes('adm central') || nombreEst.includes('depsa') || nombreEst.includes('eleam')) {
+      mappedEst = 'CENTRAL';
+    }
 
     const centro = await prisma.centroSalud.findFirst({
-      where: { nombre: { startsWith: nombreEst } }
+      where: { nombre: { startsWith: mappedEst } }
     });
 
     // Actualizar o crear funcionario
