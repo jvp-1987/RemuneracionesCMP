@@ -219,17 +219,26 @@ export class ConsolidadosService {
     const extension = file.originalname.split('.').pop();
     const uniqueName = `respaldos/consolidados/${id}/${crypto.randomUUID()}.${extension}`;
     
-    await this.s3.send(new PutObjectCommand({
-      Bucket: process.env.R2_BUCKET_NAME || '',
-      Key: uniqueName,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    }));
-    
-    return this.prisma.consolidado.update({
-      where: { id },
-      data: { url_respaldo: uniqueName }
-    });
+    try {
+      await this.s3.send(new PutObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME || '',
+        Key: uniqueName,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      }));
+      
+      return this.prisma.consolidado.update({
+        where: { id },
+        data: { url_respaldo: uniqueName }
+      });
+    } catch (s3Error) {
+      console.warn(`[ConsolidadosService] Error al subir a R2, usando fallback a Base64: ${s3Error.message}`);
+      const base64Str = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      return this.prisma.consolidado.update({
+        where: { id },
+        data: { url_respaldo: base64Str }
+      });
+    }
   }
 
   async uploadRecordRespaldo(consolidadoId: number, type: string, recordId: number, file: any) {
@@ -238,13 +247,6 @@ export class ConsolidadosService {
     const extension = file.originalname.split('.').pop();
     const uniqueName = `respaldos/records/${type}/${recordId}/${crypto.randomUUID()}.${extension}`;
     
-    await this.s3.send(new PutObjectCommand({
-      Bucket: process.env.R2_BUCKET_NAME || '',
-      Key: uniqueName,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    }));
-
     let model: any;
     switch (type) {
       case 'horas': model = this.prisma.horasExtras; break;
@@ -255,10 +257,26 @@ export class ConsolidadosService {
       default: throw new BadRequestException(`Tipo de registro '${type}' no válido`);
     }
 
-    return model.update({
-      where: { id: recordId },
-      data: { url_respaldo: uniqueName }
-    });
+    try {
+      await this.s3.send(new PutObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME || '',
+        Key: uniqueName,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      }));
+
+      return model.update({
+        where: { id: recordId },
+        data: { url_respaldo: uniqueName }
+      });
+    } catch (s3Error) {
+      console.warn(`[ConsolidadosService] Error al subir respaldo de registro a R2, usando fallback a Base64: ${s3Error.message}`);
+      const base64Str = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      return model.update({
+        where: { id: recordId },
+        data: { url_respaldo: base64Str }
+      });
+    }
   }
 
   async getPresignedUrl(key: string) {

@@ -88,22 +88,27 @@ export class IngresosService {
             let urlRespaldo = trx.url_respaldo || trx.documento_respaldo || trx.respaldo || trx.archivo || null;
 
             if (urlRespaldo && urlRespaldo.startsWith('data:')) {
-              const matches = urlRespaldo.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
-              if (matches) {
-                const mimeType = matches[1];
-                const base64Data = matches[2];
-                const buffer = Buffer.from(base64Data, 'base64');
-                let extension = mimeType.split('/')[1] || 'pdf';
-                if (extension === 'jpeg') extension = 'jpg';
-                const uniqueName = `respaldos/ingresos/${crypto.randomUUID()}.${extension}`;
-                
-                await this.s3.send(new PutObjectCommand({
-                  Bucket: process.env.R2_BUCKET_NAME || '',
-                  Key: uniqueName,
-                  Body: buffer,
-                  ContentType: mimeType,
-                }));
-                urlRespaldo = uniqueName;
+              try {
+                const matches = urlRespaldo.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
+                if (matches) {
+                  const mimeType = matches[1];
+                  const base64Data = matches[2];
+                  const buffer = Buffer.from(base64Data, 'base64');
+                  let extension = mimeType.split('/')[1] || 'pdf';
+                  if (extension === 'jpeg') extension = 'jpg';
+                  const uniqueName = `respaldos/ingresos/${crypto.randomUUID()}.${extension}`;
+                  
+                  await this.s3.send(new PutObjectCommand({
+                    Bucket: process.env.R2_BUCKET_NAME || '',
+                    Key: uniqueName,
+                    Body: buffer,
+                    ContentType: mimeType,
+                  }));
+                  urlRespaldo = uniqueName;
+                }
+              } catch (s3Error) {
+                console.warn(`[IngresosService] Error al subir a R2, se usará fallback de Base64 directamente: ${s3Error.message}`);
+                // Conservar valor Data URI base64 original en urlRespaldo
               }
             }
 
@@ -156,7 +161,7 @@ export class IngresosService {
                 fecha_termino: trx.fecha_termino ? new Date(trx.fecha_termino) : new Date(),
                 observaciones_25: existingHE ? existingHE.observaciones_25 : '',
                 observaciones_50: existingHE ? existingHE.observaciones_50 : '',
-                url_respaldo: urlRespaldo,
+                url_respaldo: urlRespaldo || (existingHE ? existingHE.url_respaldo : null),
               };
 
               let heRecord;
@@ -234,7 +239,7 @@ export class IngresosService {
                 monto_calculado: parseFloat(subtotal.toString()),
                 fecha_inicio: trx.fecha_inicio ? new Date(trx.fecha_inicio) : new Date(),
                 fecha_termino: trx.fecha_termino ? new Date(trx.fecha_termino) : new Date(),
-                url_respaldo: urlRespaldo,
+                url_respaldo: urlRespaldo || (existingTurno ? existingTurno.url_respaldo : null),
                 programa_id,
               };
 
@@ -285,7 +290,7 @@ export class IngresosService {
                 fecha_inicio: startVal,
                 fecha_termino: endVal,
                 justificacion: existingViatico ? existingViatico.justificacion : '',
-                url_respaldo: urlRespaldo,
+                url_respaldo: urlRespaldo || (existingViatico ? existingViatico.url_respaldo : null),
               };
 
               let viaticoRecord;
@@ -326,7 +331,7 @@ export class IngresosService {
                 concepto: existingAtraso ? existingAtraso.concepto : (trx.concepto || ''),
                 fecha_inicio: trx.fecha_inicio ? new Date(trx.fecha_inicio) : new Date(),
                 fecha_termino: trx.fecha_termino ? new Date(trx.fecha_termino) : new Date(),
-                url_respaldo: urlRespaldo,
+                url_respaldo: urlRespaldo || (existingAtraso ? existingAtraso.url_respaldo : null),
               };
 
               let atrasoRecord;
