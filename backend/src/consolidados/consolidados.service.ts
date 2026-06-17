@@ -552,7 +552,57 @@ export class ConsolidadosService {
     const xlsx = require('xlsx');
     const wb = xlsx.utils.book_new();
 
-    // 1. Sheet Resumen
+    // --- 1. Calcular Totales para Tabla Resumen Financiero ---
+    let heAprobado = 0;
+    let hePendiente = 0;
+    let heRechazado = 0;
+    for (const he of consolidado.horas_extras) {
+      if (he.estado_25 === 'APROBADO') heAprobado += Number(he.monto_25 || 0);
+      else if (he.estado_25 === 'PENDIENTE') hePendiente += Number(he.monto_25 || 0);
+      else if (he.estado_25 === 'RECHAZADO') heRechazado += Number(he.monto_25 || 0);
+
+      if (he.estado_50 === 'APROBADO') heAprobado += Number(he.monto_50 || 0);
+      else if (he.estado_50 === 'PENDIENTE') hePendiente += Number(he.monto_50 || 0);
+      else if (he.estado_50 === 'RECHAZADO') heRechazado += Number(he.monto_50 || 0);
+    }
+
+    let turnosAprobado = 0;
+    let turnosPendiente = 0;
+    let turnosRechazado = 0;
+    for (const t of consolidado.turnos_urgencia) {
+      if (t.estado === 'APROBADO') turnosAprobado += Number(t.monto_calculado || 0);
+      else if (t.estado === 'PENDIENTE') turnosPendiente += Number(t.monto_calculado || 0);
+      else if (t.estado === 'RECHAZADO') turnosRechazado += Number(t.monto_calculado || 0);
+    }
+
+    let viaticosAprobado = 0;
+    let viaticosPendiente = 0;
+    let viaticosRechazado = 0;
+    for (const v of consolidado.viaticos) {
+      const total = Number(v.monto_calculado || 0) + Number(v.rendicion_pasajes || 0);
+      if (v.estado === 'APROBADO') viaticosAprobado += total;
+      else if (v.estado === 'PENDIENTE') viaticosPendiente += total;
+      else if (v.estado === 'RECHAZADO') viaticosRechazado += total;
+    }
+
+    let atrasosAprobado = 0;
+    let atrasosPendiente = 0;
+    let atrasosRechazado = 0;
+    for (const a of consolidado.atrasos) {
+      if (a.estado === 'APROBADO') atrasosAprobado += Number(a.monto_descuento || 0);
+      else if (a.estado === 'PENDIENTE') atrasosPendiente += Number(a.monto_descuento || 0);
+      else if (a.estado === 'RECHAZADO') atrasosRechazado += Number(a.monto_descuento || 0);
+    }
+
+    let procsAprobado = 0;
+    let procsPendiente = 0;
+    let procsRechazado = 0;
+    for (const p of consolidado.procedimientos) {
+      if (p.estado === 'APROBADO') procsAprobado += Number(p.monto_calculado || 0);
+      else if (p.estado === 'PENDIENTE') procsPendiente += Number(p.monto_calculado || 0);
+      else if (p.estado === 'RECHAZADO') procsRechazado += Number(p.monto_calculado || 0);
+    }
+
     const resumenData = [
       { Campo: 'Establecimiento / CESFAM', Valor: consolidado.centro_salud.nombre },
       { Campo: 'Período', Valor: `${consolidado.periodo.mes}/${consolidado.periodo.anio}` },
@@ -566,8 +616,134 @@ export class ConsolidadosService {
       { Campo: 'Usuario Gestor', Valor: consolidado.usuario_gestor?.nombre || 'Sincronización Automática' },
       { Campo: 'Fecha Exportación', Valor: new Date().toISOString() },
     ];
-    const wsResumen = xlsx.utils.json_to_sheet(resumenData);
+
+    const resumenFinanciero = [
+      { Sección: 'Horas Extras (25% + 50%)', Aprobado: heAprobado, Pendiente: hePendiente, Rechazado: heRechazado, Total: heAprobado + hePendiente + heRechazado },
+      { Sección: 'Turnos de Urgencia', Aprobado: turnosAprobado, Pendiente: turnosPendiente, Rechazado: turnosRechazado, Total: turnosAprobado + turnosPendiente + turnosRechazado },
+      { Sección: 'Viáticos y Pasajes', Aprobado: viaticosAprobado, Pendiente: viaticosPendiente, Rechazado: viaticosRechazado, Total: viaticosAprobado + viaticosPendiente + viaticosRechazado },
+      { Sección: 'Procedimientos APS', Aprobado: procsAprobado, Pendiente: procsPendiente, Rechazado: procsRechazado, Total: procsAprobado + procsPendiente + procsRechazado },
+      { Sección: 'Descuento Atrasos (-)', Aprobado: -atrasosAprobado, Pendiente: -atrasosPendiente, Rechazado: -atrasosRechazado, Total: -(atrasosAprobado + atrasosPendiente + atrasosRechazado) },
+      {
+        Sección: 'TOTAL NETO CONSOLIDADO',
+        Aprobado: heAprobado + turnosAprobado + viaticosAprobado + procsAprobado - atrasosAprobado,
+        Pendiente: hePendiente + turnosPendiente + viaticosPendiente + procsPendiente - atrasosPendiente,
+        Rechazado: heRechazado + turnosRechazado + viaticosRechazado + procsRechazado - atrasosRechazado,
+        Total: (heAprobado + turnosAprobado + viaticosAprobado + procsAprobado - atrasosAprobado) +
+               (hePendiente + turnosPendiente + viaticosPendiente + procsPendiente - atrasosPendiente) +
+               (heRechazado + turnosRechazado + viaticosRechazado + procsRechazado - atrasosRechazado)
+      }
+    ];
+
+    const aoaResumen: any[][] = [];
+    aoaResumen.push(['METADATOS DEL CONSOLIDADO', '']);
+    for (const item of resumenData) {
+      aoaResumen.push([item.Campo, item.Valor]);
+    }
+    aoaResumen.push(['', '']);
+    aoaResumen.push(['RESUMEN FINANCIERO DEL MES (PROYECTADO)', 'Aprobado', 'Pendiente', 'Rechazado', 'Total']);
+    for (const row of resumenFinanciero) {
+      aoaResumen.push([row.Sección, row.Aprobado, row.Pendiente, row.Rechazado, row.Total]);
+    }
+
+    const wsResumen = xlsx.utils.aoa_to_sheet(aoaResumen);
+
+    // Formatear columnas B, C, D, E de la tabla financiera (filas 15 a 20)
+    for (let r = 15; r <= 20; r++) {
+      for (const col of ['B', 'C', 'D', 'E']) {
+        const cellRef = `${col}${r}`;
+        if (wsResumen[cellRef] !== undefined) {
+          wsResumen[cellRef].t = 'n';
+          wsResumen[cellRef].z = '$#,##0;($#,##0);"-"';
+        }
+      }
+    }
+
+    wsResumen['!cols'] = [
+      { wch: 40 },
+      { wch: 30 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+    ];
     xlsx.utils.book_append_sheet(wb, wsResumen, 'Resumen');
+
+    // --- Función Helper para Generar Hojas con Filtros, Totales Dinámicos (SUBTOTAL) y Formatos ---
+    const createDetailSheet = (
+      sheetName: string,
+      headers: string[],
+      rows: any[],
+      numericCols: { index: number; isCurrency?: boolean }[],
+      totalCols: { index: number; isCurrency?: boolean }[]
+    ) => {
+      const aoa: any[][] = [headers];
+      for (const r of rows) {
+        const rowArr = headers.map(h => r[h]);
+        aoa.push(rowArr);
+      }
+
+      const hasData = rows.length > 0;
+      if (hasData) {
+        const totalRow: any[] = Array(headers.length).fill(null);
+        totalRow[0] = 'TOTAL FILTRADO';
+        aoa.push(totalRow);
+      }
+
+      const ws = xlsx.utils.aoa_to_sheet(aoa);
+      const N = rows.length;
+
+      if (hasData) {
+        const totalRowIndex = N + 2;
+
+        // Formatear filas de datos
+        for (let r = 2; r <= N + 1; r++) {
+          for (const col of numericCols) {
+            const colLetter = xlsx.utils.encode_col(col.index);
+            const cellRef = `${colLetter}${r}`;
+            if (ws[cellRef] !== undefined) {
+              ws[cellRef].t = 'n';
+              if (col.isCurrency) {
+                ws[cellRef].z = '$#,##0;($#,##0);"-"';
+              }
+            }
+          }
+        }
+
+        // Agregar fórmulas SUBTOTAL
+        for (const col of totalCols) {
+          const colLetter = xlsx.utils.encode_col(col.index);
+          const cellRef = `${colLetter}${totalRowIndex}`;
+          ws[cellRef] = {
+            t: 'n',
+            f: `SUBTOTAL(9,${colLetter}2:${colLetter}${N+1})`,
+            z: col.isCurrency ? '$#,##0;($#,##0);"-"' : undefined
+          };
+        }
+
+        // Habilitar Autofilter en Excel
+        const lastColLetter = xlsx.utils.encode_col(headers.length - 1);
+        ws['!autofilter'] = { ref: `A1:${lastColLetter}${N+1}` };
+      }
+
+      // Autoajustar anchos de columna
+      const colWidths = headers.map((header, colIdx) => {
+        let maxLen = header.length;
+        for (let r = 0; r < aoa.length; r++) {
+          const val = aoa[r][colIdx];
+          if (val !== null && val !== undefined) {
+            let valStr = String(val);
+            const isCurrCol = numericCols.some(c => c.index === colIdx && c.isCurrency);
+            if (isCurrCol) valStr = '$' + valStr + '.000';
+            if (valStr.length > maxLen) {
+              maxLen = valStr.length;
+            }
+          }
+        }
+        return { wch: Math.max(maxLen + 4, 12) };
+      });
+      ws['!cols'] = colWidths;
+
+      xlsx.utils.book_append_sheet(wb, ws, sheetName);
+    };
 
     // 2. Sheet Horas Extras
     const heData = consolidado.horas_extras.map(he => ({
@@ -583,22 +759,32 @@ export class ConsolidadosService {
       'Estado 50%': he.estado_50,
       'Observaciones 50%': he.observaciones_50 || '',
     }));
-    const wsHE = xlsx.utils.json_to_sheet(heData);
-    xlsx.utils.book_append_sheet(wb, wsHE, 'Horas Extras');
+    createDetailSheet(
+      'Horas Extras',
+      ['RUT', 'Nombre', 'Programa', 'Cantidad 25%', 'Monto 25%', 'Estado 25%', 'Observaciones 25%', 'Cantidad 50%', 'Monto 50%', 'Estado 50%', 'Observaciones 50%'],
+      heData,
+      [{ index: 3 }, { index: 4, isCurrency: true }, { index: 7 }, { index: 8, isCurrency: true }],
+      [{ index: 3 }, { index: 4, isCurrency: true }, { index: 7 }, { index: 8, isCurrency: true }]
+    );
 
     // 3. Sheet Viáticos
     const viaticosData = consolidado.viaticos.map(v => ({
       RUT: v.funcionario.rut,
       Nombre: v.funcionario.nombre_completo,
       Destino: v.tipo_destino,
-      Justificacion: v.justificacion || '',
+      Justificación: v.justificacion || '',
       Concepto: v.concepto || '',
       'Monto Calculado': Number(v.monto_calculado),
-      'Rendicion Pasajes': Number(v.rendicion_pasajes),
+      'Rendición Pasajes': Number(v.rendicion_pasajes),
       Estado: v.estado,
     }));
-    const wsViaticos = xlsx.utils.json_to_sheet(viaticosData);
-    xlsx.utils.book_append_sheet(wb, wsViaticos, 'Viáticos');
+    createDetailSheet(
+      'Viáticos',
+      ['RUT', 'Nombre', 'Destino', 'Justificación', 'Concepto', 'Monto Calculado', 'Rendición Pasajes', 'Estado'],
+      viaticosData,
+      [{ index: 5, isCurrency: true }, { index: 6, isCurrency: true }],
+      [{ index: 5, isCurrency: true }, { index: 6, isCurrency: true }]
+    );
 
     // 4. Sheet Atrasos
     const atrasosData = consolidado.atrasos.map(a => ({
@@ -610,8 +796,13 @@ export class ConsolidadosService {
       Estado: a.estado,
       Concepto: a.concepto || '',
     }));
-    const wsAtrasos = xlsx.utils.json_to_sheet(atrasosData);
-    xlsx.utils.book_append_sheet(wb, wsAtrasos, 'Atrasos');
+    createDetailSheet(
+      'Atrasos',
+      ['RUT', 'Nombre', 'Minutos', 'Tiempo Descuento', 'Monto Descuento', 'Estado', 'Concepto'],
+      atrasosData,
+      [{ index: 2 }, { index: 4, isCurrency: true }],
+      [{ index: 2 }, { index: 4, isCurrency: true }]
+    );
 
     // 5. Sheet Procedimientos
     const procData = consolidado.procedimientos.map(p => ({
@@ -621,8 +812,13 @@ export class ConsolidadosService {
       'Monto Calculado': Number(p.monto_calculado),
       Estado: p.estado,
     }));
-    const wsProcedimientos = xlsx.utils.json_to_sheet(procData);
-    xlsx.utils.book_append_sheet(wb, wsProcedimientos, 'Procedimientos');
+    createDetailSheet(
+      'Procedimientos',
+      ['RUT', 'Nombre', 'Total Procedimientos', 'Monto Calculado', 'Estado'],
+      procData,
+      [{ index: 2 }, { index: 3, isCurrency: true }],
+      [{ index: 2 }, { index: 3, isCurrency: true }]
+    );
 
     // 6. Sheet Turnos de Urgencia
     const turnosData = consolidado.turnos_urgencia.map(t => ({
@@ -636,8 +832,13 @@ export class ConsolidadosService {
       'Monto Calculado': Number(t.monto_calculado),
       Estado: t.estado,
     }));
-    const wsTurnos = xlsx.utils.json_to_sheet(turnosData);
-    xlsx.utils.book_append_sheet(wb, wsTurnos, 'Turnos Urgencia');
+    createDetailSheet(
+      'Turnos Urgencia',
+      ['RUT', 'Nombre', 'Programa', 'Cant. Turnos Hábiles', 'Cant. Turnos Inhábiles', 'Valor Hábil', 'Valor Inhábil', 'Monto Calculado', 'Estado'],
+      turnosData,
+      [{ index: 3 }, { index: 4 }, { index: 5, isCurrency: true }, { index: 6, isCurrency: true }, { index: 7, isCurrency: true }],
+      [{ index: 3 }, { index: 4 }, { index: 7, isCurrency: true }]
+    );
 
     return xlsx.write(wb, { type: 'buffer', bookType: 'xlsx' }) as Buffer;
   }
