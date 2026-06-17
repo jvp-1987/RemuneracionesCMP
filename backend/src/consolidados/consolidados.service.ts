@@ -603,19 +603,22 @@ export class ConsolidadosService {
       else if (p.estado === 'RECHAZADO') procsRechazado += Number(p.monto_calculado || 0);
     }
 
-    const resumenData = [
-      { Campo: 'Establecimiento / CESFAM', Valor: consolidado.centro_salud.nombre },
-      { Campo: 'Período', Valor: `${consolidado.periodo.mes}/${consolidado.periodo.anio}` },
-      { Campo: 'Estado actual', Valor: consolidado.estado_actual_enum },
-      { Campo: 'V°B° Control Interno', Valor: consolidado.vb_control_interno ? 'Sí' : 'No' },
-      { Campo: 'Fecha V°B° Control Interno', Valor: consolidado.fecha_vb_control_interno ? consolidado.fecha_vb_control_interno.toISOString() : 'N/A' },
-      { Campo: 'Firma V°B° Control Interno', Valor: consolidado.firma_vb_control_interno || 'N/A' },
-      { Campo: 'V°B° Finanzas', Valor: consolidado.vb_finanzas ? 'Sí' : 'No' },
-      { Campo: 'Fecha V°B° Finanzas', Valor: consolidado.fecha_vb_finanzas ? consolidado.fecha_vb_finanzas.toISOString() : 'N/A' },
-      { Campo: 'Firma V°B° Finanzas', Valor: consolidado.firma_vb_finanzas || 'N/A' },
-      { Campo: 'Usuario Gestor', Valor: consolidado.usuario_gestor?.nombre || 'Sincronización Automática' },
-      { Campo: 'Fecha Exportación', Valor: new Date().toISOString() },
-    ];
+    // Helper formatters
+    const formatDate = (date: Date | null | undefined): string => {
+      if (!date) return 'N/A';
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return 'N/A';
+      const pad = (num: number) => String(num).padStart(2, '0');
+      return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+    };
+
+    const formatDateTime = (date: Date | null | undefined): string => {
+      if (!date) return 'N/A';
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return 'N/A';
+      const pad = (num: number) => String(num).padStart(2, '0');
+      return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    };
 
     const resumenFinanciero = [
       { Sección: 'Horas Extras (25% + 50%)', Aprobado: heAprobado, Pendiente: hePendiente, Rechazado: heRechazado, Total: heAprobado + hePendiente + heRechazado },
@@ -635,20 +638,33 @@ export class ConsolidadosService {
     ];
 
     const aoaResumen: any[][] = [];
-    aoaResumen.push(['METADATOS DEL CONSOLIDADO', '']);
-    for (const item of resumenData) {
-      aoaResumen.push([item.Campo, item.Valor]);
-    }
+    aoaResumen.push(['=== REPORTE CONSOLIDADO DE REMUNERACIONES APS ===', '']);
+    aoaResumen.push(['Establecimiento / CESFAM', consolidado.centro_salud.nombre]);
+    aoaResumen.push(['Período', `${consolidado.periodo.mes}/${consolidado.periodo.anio}`]);
+    aoaResumen.push(['Estado Actual', consolidado.estado_actual_enum]);
     aoaResumen.push(['', '']);
-    aoaResumen.push(['RESUMEN FINANCIERO DEL MES (PROYECTADO)', 'Aprobado', 'Pendiente', 'Rechazado', 'Total']);
+    
+    aoaResumen.push(['=== CONTROL DE FIRMAS Y VISTOS BUENOS ===', '']);
+    aoaResumen.push(['V°B° Control Interno', consolidado.vb_control_interno ? 'Sí' : 'No']);
+    aoaResumen.push(['Fecha V°B° Control Interno', consolidado.fecha_vb_control_interno ? formatDateTime(consolidado.fecha_vb_control_interno) : 'Pendiente']);
+    aoaResumen.push(['Firma Electrónica Control', consolidado.firma_vb_control_interno || 'N/A']);
+    aoaResumen.push(['V°B° Finanzas', consolidado.vb_finanzas ? 'Sí' : 'No']);
+    aoaResumen.push(['Fecha V°B° Finanzas', consolidado.fecha_vb_finanzas ? formatDateTime(consolidado.fecha_vb_finanzas) : 'Pendiente']);
+    aoaResumen.push(['Firma Electrónica Finanzas', consolidado.firma_vb_finanzas || 'N/A']);
+    aoaResumen.push(['Gestor del Consolidado', consolidado.usuario_gestor?.nombre || 'Sincronización Automática']);
+    aoaResumen.push(['Fecha de Exportación', formatDateTime(new Date())]);
+    aoaResumen.push(['', '']);
+    
+    aoaResumen.push(['=== RESUMEN FINANCIERO MENSUAL (PROYECTADO) ===', '', '', '', '']);
+    aoaResumen.push(['CONCEPTO / SECCIÓN', 'APROBADO', 'PENDIENTE', 'RECHAZADO', 'TOTAL PROYECTADO']);
     for (const row of resumenFinanciero) {
       aoaResumen.push([row.Sección, row.Aprobado, row.Pendiente, row.Rechazado, row.Total]);
     }
 
     const wsResumen = xlsx.utils.aoa_to_sheet(aoaResumen);
 
-    // Formatear columnas B, C, D, E de la tabla financiera (filas 15 a 20)
-    for (let r = 15; r <= 20; r++) {
+    // Formatear columnas B, C, D, E de la tabla financiera (filas 18 a 23 en Excel)
+    for (let r = 18; r <= 23; r++) {
       for (const col of ['B', 'C', 'D', 'E']) {
         const cellRef = `${col}${r}`;
         if (wsResumen[cellRef] !== undefined) {
@@ -659,11 +675,11 @@ export class ConsolidadosService {
     }
 
     wsResumen['!cols'] = [
-      { wch: 40 },
-      { wch: 30 },
+      { wch: 45 },
+      { wch: 20 },
       { wch: 15 },
       { wch: 15 },
-      { wch: 15 },
+      { wch: 20 },
     ];
     xlsx.utils.book_append_sheet(wb, wsResumen, 'Resumen');
 
@@ -675,27 +691,36 @@ export class ConsolidadosService {
       numericCols: { index: number; isCurrency?: boolean }[],
       totalCols: { index: number; isCurrency?: boolean }[]
     ) => {
-      const aoa: any[][] = [headers];
-      for (const r of rows) {
-        const rowArr = headers.map(h => r[h]);
-        aoa.push(rowArr);
-      }
+      const aoa: any[][] = [];
+      aoa.push([`=== DETALLE DE ${sheetName.toUpperCase()} ===`, '']);
+      aoa.push([`Establecimiento: ${consolidado.centro_salud.nombre} | Período: ${consolidado.periodo.mes}/${consolidado.periodo.anio}`, '']);
+      aoa.push(['', '']);
+      aoa.push(headers); // Fila 4 (índice 3 en AOA)
 
-      const hasData = rows.length > 0;
-      if (hasData) {
+      const N = rows.length;
+      if (N > 0) {
+        for (const r of rows) {
+          const rowArr = headers.map(h => r[h]);
+          aoa.push(rowArr);
+        }
         const totalRow: any[] = Array(headers.length).fill(null);
         totalRow[0] = 'TOTAL FILTRADO';
         aoa.push(totalRow);
+      } else {
+        const emptyRow: any[] = Array(headers.length).fill(null);
+        emptyRow[0] = '(Sin registros para este establecimiento en el período)';
+        aoa.push(emptyRow);
       }
 
       const ws = xlsx.utils.aoa_to_sheet(aoa);
-      const N = rows.length;
 
-      if (hasData) {
-        const totalRowIndex = N + 2;
+      if (N > 0) {
+        const dataStartRow = 5;
+        const dataEndRow = 5 + N - 1;
+        const totalRowIndex = 5 + N;
 
         // Formatear filas de datos
-        for (let r = 2; r <= N + 1; r++) {
+        for (let r = dataStartRow; r <= dataEndRow; r++) {
           for (const col of numericCols) {
             const colLetter = xlsx.utils.encode_col(col.index);
             const cellRef = `${colLetter}${r}`;
@@ -714,20 +739,22 @@ export class ConsolidadosService {
           const cellRef = `${colLetter}${totalRowIndex}`;
           ws[cellRef] = {
             t: 'n',
-            f: `SUBTOTAL(9,${colLetter}2:${colLetter}${N+1})`,
+            f: `SUBTOTAL(9,${colLetter}${dataStartRow}:${colLetter}${dataEndRow})`,
             z: col.isCurrency ? '$#,##0;($#,##0);"-"' : undefined
           };
         }
 
-        // Habilitar Autofilter en Excel
+        // Habilitar Autofilter en Excel (en la fila de headers, que es la fila 4)
         const lastColLetter = xlsx.utils.encode_col(headers.length - 1);
-        ws['!autofilter'] = { ref: `A1:${lastColLetter}${N+1}` };
+        ws['!autofilter'] = { ref: `A4:${lastColLetter}${dataEndRow}` };
       }
 
       // Autoajustar anchos de columna
       const colWidths = headers.map((header, colIdx) => {
         let maxLen = header.length;
         for (let r = 0; r < aoa.length; r++) {
+          // Omitir las primeras tres filas de títulos en el cálculo de anchos
+          if (r < 3) continue;
           const val = aoa[r][colIdx];
           if (val !== null && val !== undefined) {
             let valStr = String(val);
@@ -745,99 +772,124 @@ export class ConsolidadosService {
       xlsx.utils.book_append_sheet(wb, ws, sheetName);
     };
 
-    // 2. Sheet Horas Extras
-    const heData = consolidado.horas_extras.map(he => ({
+    // 2. Sheet Horas Extras (Ordenado por Nombre)
+    const sortedHe = [...consolidado.horas_extras].sort((a, b) =>
+      (a.funcionario?.nombre_completo || '').localeCompare(b.funcionario?.nombre_completo || '')
+    );
+    const heData = sortedHe.map(he => ({
       RUT: he.funcionario.rut,
-      Nombre: he.funcionario.nombre_completo,
-      Programa: he.programa.nombre,
-      'Cantidad 25%': Number(he.cantidad_25),
-      'Monto 25%': Number(he.monto_25),
-      'Estado 25%': he.estado_25,
-      'Observaciones 25%': he.observaciones_25 || '',
-      'Cantidad 50%': Number(he.cantidad_50),
-      'Monto 50%': Number(he.monto_50),
-      'Estado 50%': he.estado_50,
-      'Observaciones 50%': he.observaciones_50 || '',
+      NOMBRE: he.funcionario.nombre_completo,
+      PROGRAMA: he.programa.nombre,
+      'FECHA INICIO': formatDate(he.fecha_inicio),
+      'FECHA TERMINO': formatDate(he.fecha_termino),
+      'CANTIDAD 25%': Number(he.cantidad_25),
+      'MONTO 25%': Number(he.monto_25),
+      'ESTADO 25%': he.estado_25,
+      'OBSERVACIONES 25%': he.observaciones_25 || '',
+      'CANTIDAD 50%': Number(he.cantidad_50),
+      'MONTO 50%': Number(he.monto_50),
+      'ESTADO 50%': he.estado_50,
+      'OBSERVACIONES 50%': he.observaciones_50 || '',
     }));
     createDetailSheet(
       'Horas Extras',
-      ['RUT', 'Nombre', 'Programa', 'Cantidad 25%', 'Monto 25%', 'Estado 25%', 'Observaciones 25%', 'Cantidad 50%', 'Monto 50%', 'Estado 50%', 'Observaciones 50%'],
+      ['RUT', 'NOMBRE', 'PROGRAMA', 'FECHA INICIO', 'FECHA TERMINO', 'CANTIDAD 25%', 'MONTO 25%', 'ESTADO 25%', 'OBSERVACIONES 25%', 'CANTIDAD 50%', 'MONTO 50%', 'ESTADO 50%', 'OBSERVACIONES 50%'],
       heData,
-      [{ index: 3 }, { index: 4, isCurrency: true }, { index: 7 }, { index: 8, isCurrency: true }],
-      [{ index: 3 }, { index: 4, isCurrency: true }, { index: 7 }, { index: 8, isCurrency: true }]
+      [{ index: 5 }, { index: 6, isCurrency: true }, { index: 9 }, { index: 10, isCurrency: true }],
+      [{ index: 5 }, { index: 6, isCurrency: true }, { index: 9 }, { index: 10, isCurrency: true }]
     );
 
-    // 3. Sheet Viáticos
-    const viaticosData = consolidado.viaticos.map(v => ({
+    // 3. Sheet Viáticos (Ordenado por Nombre)
+    const sortedViaticos = [...consolidado.viaticos].sort((a, b) =>
+      (a.funcionario?.nombre_completo || '').localeCompare(b.funcionario?.nombre_completo || '')
+    );
+    const viaticosData = sortedViaticos.map(v => ({
       RUT: v.funcionario.rut,
-      Nombre: v.funcionario.nombre_completo,
-      Destino: v.tipo_destino,
-      Justificación: v.justificacion || '',
-      Concepto: v.concepto || '',
-      'Monto Calculado': Number(v.monto_calculado),
-      'Rendición Pasajes': Number(v.rendicion_pasajes),
-      Estado: v.estado,
+      NOMBRE: v.funcionario.nombre_completo,
+      DESTINO: v.tipo_destino,
+      'FECHA INICIO': formatDate(v.fecha_inicio),
+      'FECHA TERMINO': formatDate(v.fecha_termino),
+      JUSTIFICACION: v.justificacion || '',
+      CONCEPTO: v.concepto || '',
+      'MONTO CALCULADO': Number(v.monto_calculado),
+      'RENDICION PASAJES': Number(v.rendicion_pasajes),
+      ESTADO: v.estado,
     }));
     createDetailSheet(
       'Viáticos',
-      ['RUT', 'Nombre', 'Destino', 'Justificación', 'Concepto', 'Monto Calculado', 'Rendición Pasajes', 'Estado'],
+      ['RUT', 'NOMBRE', 'DESTINO', 'FECHA INICIO', 'FECHA TERMINO', 'JUSTIFICACION', 'CONCEPTO', 'MONTO CALCULADO', 'RENDICION PASAJES', 'ESTADO'],
       viaticosData,
-      [{ index: 5, isCurrency: true }, { index: 6, isCurrency: true }],
-      [{ index: 5, isCurrency: true }, { index: 6, isCurrency: true }]
+      [{ index: 7, isCurrency: true }, { index: 8, isCurrency: true }],
+      [{ index: 7, isCurrency: true }, { index: 8, isCurrency: true }]
     );
 
-    // 4. Sheet Atrasos
-    const atrasosData = consolidado.atrasos.map(a => ({
+    // 4. Sheet Atrasos (Ordenado por Nombre)
+    const sortedAtrasos = [...consolidado.atrasos].sort((a, b) =>
+      (a.funcionario?.nombre_completo || '').localeCompare(b.funcionario?.nombre_completo || '')
+    );
+    const atrasosData = sortedAtrasos.map(a => ({
       RUT: a.funcionario.rut,
-      Nombre: a.funcionario.nombre_completo,
-      Minutos: a.minutos,
-      'Tiempo Descuento': a.tiempo_descuento,
-      'Monto Descuento': Number(a.monto_descuento),
-      Estado: a.estado,
-      Concepto: a.concepto || '',
+      NOMBRE: a.funcionario.nombre_completo,
+      'FECHA INICIO': formatDate(a.fecha_inicio),
+      'FECHA TERMINO': formatDate(a.fecha_termino),
+      MINUTOS: a.minutos,
+      'TIEMPO DESCUENTO': a.tiempo_descuento,
+      'MONTO DESCUENTO': Number(a.monto_descuento),
+      ESTADO: a.estado,
+      CONCEPTO: a.concepto || '',
     }));
     createDetailSheet(
       'Atrasos',
-      ['RUT', 'Nombre', 'Minutos', 'Tiempo Descuento', 'Monto Descuento', 'Estado', 'Concepto'],
+      ['RUT', 'NOMBRE', 'FECHA INICIO', 'FECHA TERMINO', 'MINUTOS', 'TIEMPO DESCUENTO', 'MONTO DESCUENTO', 'ESTADO', 'CONCEPTO'],
       atrasosData,
-      [{ index: 2 }, { index: 4, isCurrency: true }],
-      [{ index: 2 }, { index: 4, isCurrency: true }]
+      [{ index: 4 }, { index: 6, isCurrency: true }],
+      [{ index: 4 }, { index: 6, isCurrency: true }]
     );
 
-    // 5. Sheet Procedimientos
-    const procData = consolidado.procedimientos.map(p => ({
+    // 5. Sheet Procedimientos (Ordenado por Nombre)
+    const sortedProcedimientos = [...consolidado.procedimientos].sort((a, b) =>
+      (a.funcionario?.nombre_completo || '').localeCompare(b.funcionario?.nombre_completo || '')
+    );
+    const procData = sortedProcedimientos.map(p => ({
       RUT: p.funcionario.rut,
-      Nombre: p.funcionario.nombre_completo,
-      'Total Procedimientos': p.total_procedimientos,
-      'Monto Calculado': Number(p.monto_calculado),
-      Estado: p.estado,
+      NOMBRE: p.funcionario.nombre_completo,
+      'FECHA INICIO': formatDate(p.fecha_inicio),
+      'FECHA TERMINO': formatDate(p.fecha_termino),
+      'TOTAL PROCEDIMIENTOS': p.total_procedimientos,
+      'MONTO CALCULADO': Number(p.monto_calculado),
+      ESTADO: p.estado,
     }));
     createDetailSheet(
       'Procedimientos',
-      ['RUT', 'Nombre', 'Total Procedimientos', 'Monto Calculado', 'Estado'],
+      ['RUT', 'NOMBRE', 'FECHA INICIO', 'FECHA TERMINO', 'TOTAL PROCEDIMIENTOS', 'MONTO CALCULADO', 'ESTADO'],
       procData,
-      [{ index: 2 }, { index: 3, isCurrency: true }],
-      [{ index: 2 }, { index: 3, isCurrency: true }]
+      [{ index: 4 }, { index: 5, isCurrency: true }],
+      [{ index: 4 }, { index: 5, isCurrency: true }]
     );
 
-    // 6. Sheet Turnos de Urgencia
-    const turnosData = consolidado.turnos_urgencia.map(t => ({
+    // 6. Sheet Turnos de Urgencia (Ordenado por Nombre)
+    const sortedTurnos = [...consolidado.turnos_urgencia].sort((a, b) =>
+      (a.funcionario?.nombre_completo || '').localeCompare(b.funcionario?.nombre_completo || '')
+    );
+    const turnosData = sortedTurnos.map(t => ({
       RUT: t.funcionario.rut,
-      Nombre: t.funcionario.nombre_completo,
-      Programa: t.programa?.nombre || 'PRESUPUESTARIO',
-      'Cant. Turnos Hábiles': t.cant_turnos_habiles,
-      'Cant. Turnos Inhábiles': t.cant_turnos_inhabiles,
-      'Valor Hábil': Number(t.valor_habil || 0),
-      'Valor Inhábil': Number(t.valor_inhabil || 0),
-      'Monto Calculado': Number(t.monto_calculado),
-      Estado: t.estado,
+      NOMBRE: t.funcionario.nombre_completo,
+      PROGRAMA: t.programa?.nombre || 'PRESUPUESTARIO',
+      'FECHA INICIO': formatDate(t.fecha_inicio),
+      'FECHA TERMINO': formatDate(t.fecha_termino),
+      'CANT. TURNOS HABILES': t.cant_turnos_habiles,
+      'CANT. TURNOS INHABILES': t.cant_turnos_inhabiles,
+      'VALOR HABIL': Number(t.valor_habil || 0),
+      'VALOR INHABIL': Number(t.valor_inhabil || 0),
+      'MONTO CALCULADO': Number(t.monto_calculado),
+      ESTADO: t.estado,
     }));
     createDetailSheet(
       'Turnos Urgencia',
-      ['RUT', 'Nombre', 'Programa', 'Cant. Turnos Hábiles', 'Cant. Turnos Inhábiles', 'Valor Hábil', 'Valor Inhábil', 'Monto Calculado', 'Estado'],
+      ['RUT', 'NOMBRE', 'PROGRAMA', 'FECHA INICIO', 'FECHA TERMINO', 'CANT. TURNOS HABILES', 'CANT. TURNOS INHABILES', 'VALOR HABIL', 'VALOR INHABIL', 'MONTO CALCULADO', 'ESTADO'],
       turnosData,
-      [{ index: 3 }, { index: 4 }, { index: 5, isCurrency: true }, { index: 6, isCurrency: true }, { index: 7, isCurrency: true }],
-      [{ index: 3 }, { index: 4 }, { index: 7, isCurrency: true }]
+      [{ index: 5 }, { index: 6 }, { index: 7, isCurrency: true }, { index: 8, isCurrency: true }, { index: 9, isCurrency: true }],
+      [{ index: 5 }, { index: 6 }, { index: 9, isCurrency: true }]
     );
 
     return xlsx.write(wb, { type: 'buffer', bookType: 'xlsx' }) as Buffer;
