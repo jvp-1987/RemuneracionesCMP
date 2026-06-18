@@ -150,9 +150,7 @@ export class IngresosService {
 
               const existingHE = realId 
                 ? await tx.horasExtras.findUnique({ where: { id: realId } }) 
-                : await tx.horasExtras.findFirst({
-                    where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut, programa_id }
-                  });
+                : null;
 
               const heData = {
                 cantidad_25: parseFloat(trx.cantidad_25 || 0) || 0,
@@ -227,9 +225,7 @@ export class IngresosService {
 
               const existingTurno = realId 
                 ? await tx.turnosUrgencia.findUnique({ where: { id: realId } }) 
-                : await tx.turnosUrgencia.findFirst({
-                    where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut, programa_id }
-                  });
+                : null;
 
               const turnoData = {
                 cant_turnos_habiles: cantHab,
@@ -273,15 +269,7 @@ export class IngresosService {
 
               const existingViatico = realId 
                 ? await tx.viaticos.findUnique({ where: { id: realId } }) 
-                : await tx.viaticos.findFirst({
-                    where: { 
-                      consolidado_id: consolidado.id, 
-                      funcionario_rut: trx.rut,
-                      tipo_destino: destVal,
-                      fecha_inicio: startVal,
-                      fecha_termino: endVal,
-                    }
-                  });
+                : null;
 
               const viaticoData = {
                 tipo_destino: destVal,
@@ -319,9 +307,7 @@ export class IngresosService {
             } else if (tipo === 'atrasos') {
               const existingAtraso = realId 
                 ? await tx.atrasos.findUnique({ where: { id: realId } }) 
-                : await tx.atrasos.findFirst({
-                    where: { consolidado_id: consolidado.id, funcionario_rut: trx.rut }
-                  });
+                : null;
 
               const minutosRaw = parseInt(String(trx.minutos || trx.tiempo || '0').replace(/[^0-9]/g, '')) || 0;
 
