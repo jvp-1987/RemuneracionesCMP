@@ -966,5 +966,239 @@ export class ConsolidadosService {
 
     return { success: true, message: `Se actualizaron ${updatedCount} turnos con sus programas correspondientes.` };
   }
+
+  async migrateBase64ToR2() {
+    const stats = {
+      consolidado: { total: 0, migrated: 0, failed: 0 },
+      horas: { total: 0, migrated: 0, failed: 0 },
+      turnos: { total: 0, migrated: 0, failed: 0 },
+      viaticos: { total: 0, migrated: 0, failed: 0 },
+      atrasos: { total: 0, migrated: 0, failed: 0 },
+      procedimientos: { total: 0, migrated: 0, failed: 0 },
+      totalBytes: 0,
+      errors: [] as string[]
+    };
+
+    // 1. Migrate Consolidado
+    const consolidados = await this.prisma.consolidado.findMany({
+      where: { url_respaldo: { startsWith: 'data:' } }
+    });
+    stats.consolidado.total = consolidados.length;
+    for (const item of consolidados) {
+      try {
+        const parsed = this.parseBase64(item.url_respaldo!);
+        if (parsed) {
+          const extension = parsed.mimeType.split('/').pop() || 'pdf';
+          const uniqueName = `respaldos/consolidados/${item.id}/${crypto.randomUUID()}.${extension}`;
+          
+          await this.s3.send(new PutObjectCommand({
+            Bucket: process.env.R2_BUCKET_NAME || '',
+            Key: uniqueName,
+            Body: parsed.buffer,
+            ContentType: parsed.mimeType,
+          }));
+
+          await this.prisma.consolidado.update({
+            where: { id: item.id },
+            data: { url_respaldo: uniqueName }
+          });
+          stats.consolidado.migrated++;
+          stats.totalBytes += parsed.buffer.length;
+        } else {
+          stats.consolidado.failed++;
+          stats.errors.push(`Consolidado #${item.id}: Invalid base64 pattern`);
+        }
+      } catch (err: any) {
+        stats.consolidado.failed++;
+        stats.errors.push(`Consolidado #${item.id}: ${err.message}`);
+      }
+    }
+
+    // 2. Migrate HorasExtras
+    const horas = await this.prisma.horasExtras.findMany({
+      where: { url_respaldo: { startsWith: 'data:' } }
+    });
+    stats.horas.total = horas.length;
+    for (const item of horas) {
+      try {
+        const parsed = this.parseBase64(item.url_respaldo!);
+        if (parsed) {
+          const extension = parsed.mimeType.split('/').pop() || 'pdf';
+          const uniqueName = `respaldos/records/horas/${item.id}/${crypto.randomUUID()}.${extension}`;
+          
+          await this.s3.send(new PutObjectCommand({
+            Bucket: process.env.R2_BUCKET_NAME || '',
+            Key: uniqueName,
+            Body: parsed.buffer,
+            ContentType: parsed.mimeType,
+          }));
+
+          await this.prisma.horasExtras.update({
+            where: { id: item.id },
+            data: { url_respaldo: uniqueName }
+          });
+          stats.horas.migrated++;
+          stats.totalBytes += parsed.buffer.length;
+        } else {
+          stats.horas.failed++;
+          stats.errors.push(`HorasExtras #${item.id}: Invalid base64 pattern`);
+        }
+      } catch (err: any) {
+        stats.horas.failed++;
+        stats.errors.push(`HorasExtras #${item.id}: ${err.message}`);
+      }
+    }
+
+    // 3. Migrate TurnosUrgencia
+    const turnosList = await this.prisma.turnosUrgencia.findMany({
+      where: { url_respaldo: { startsWith: 'data:' } }
+    });
+    stats.turnos.total = turnosList.length;
+    for (const item of turnosList) {
+      try {
+        const parsed = this.parseBase64(item.url_respaldo!);
+        if (parsed) {
+          const extension = parsed.mimeType.split('/').pop() || 'pdf';
+          const uniqueName = `respaldos/records/turnos/${item.id}/${crypto.randomUUID()}.${extension}`;
+          
+          await this.s3.send(new PutObjectCommand({
+            Bucket: process.env.R2_BUCKET_NAME || '',
+            Key: uniqueName,
+            Body: parsed.buffer,
+            ContentType: parsed.mimeType,
+          }));
+
+          await this.prisma.turnosUrgencia.update({
+            where: { id: item.id },
+            data: { url_respaldo: uniqueName }
+          });
+          stats.turnos.migrated++;
+          stats.totalBytes += parsed.buffer.length;
+        } else {
+          stats.turnos.failed++;
+          stats.errors.push(`TurnosUrgencia #${item.id}: Invalid base64 pattern`);
+        }
+      } catch (err: any) {
+        stats.turnos.failed++;
+        stats.errors.push(`TurnosUrgencia #${item.id}: ${err.message}`);
+      }
+    }
+
+    // 4. Migrate Viaticos
+    const viaticosList = await this.prisma.viaticos.findMany({
+      where: { url_respaldo: { startsWith: 'data:' } }
+    });
+    stats.viaticos.total = viaticosList.length;
+    for (const item of viaticosList) {
+      try {
+        const parsed = this.parseBase64(item.url_respaldo!);
+        if (parsed) {
+          const extension = parsed.mimeType.split('/').pop() || 'pdf';
+          const uniqueName = `respaldos/records/viaticos/${item.id}/${crypto.randomUUID()}.${extension}`;
+          
+          await this.s3.send(new PutObjectCommand({
+            Bucket: process.env.R2_BUCKET_NAME || '',
+            Key: uniqueName,
+            Body: parsed.buffer,
+            ContentType: parsed.mimeType,
+          }));
+
+          await this.prisma.viaticos.update({
+            where: { id: item.id },
+            data: { url_respaldo: uniqueName }
+          });
+          stats.viaticos.migrated++;
+          stats.totalBytes += parsed.buffer.length;
+        } else {
+          stats.viaticos.failed++;
+          stats.errors.push(`Viaticos #${item.id}: Invalid base64 pattern`);
+        }
+      } catch (err: any) {
+        stats.viaticos.failed++;
+        stats.errors.push(`Viaticos #${item.id}: ${err.message}`);
+      }
+    }
+
+    // 5. Migrate Atrasos
+    const atrasosList = await this.prisma.atrasos.findMany({
+      where: { url_respaldo: { startsWith: 'data:' } }
+    });
+    stats.atrasos.total = atrasosList.length;
+    for (const item of atrasosList) {
+      try {
+        const parsed = this.parseBase64(item.url_respaldo!);
+        if (parsed) {
+          const extension = parsed.mimeType.split('/').pop() || 'pdf';
+          const uniqueName = `respaldos/records/atrasos/${item.id}/${crypto.randomUUID()}.${extension}`;
+          
+          await this.s3.send(new PutObjectCommand({
+            Bucket: process.env.R2_BUCKET_NAME || '',
+            Key: uniqueName,
+            Body: parsed.buffer,
+            ContentType: parsed.mimeType,
+          }));
+
+          await this.prisma.atrasos.update({
+            where: { id: item.id },
+            data: { url_respaldo: uniqueName }
+          });
+          stats.atrasos.migrated++;
+          stats.totalBytes += parsed.buffer.length;
+        } else {
+          stats.atrasos.failed++;
+          stats.errors.push(`Atrasos #${item.id}: Invalid base64 pattern`);
+        }
+      } catch (err: any) {
+        stats.atrasos.failed++;
+        stats.errors.push(`Atrasos #${item.id}: ${err.message}`);
+      }
+    }
+
+    // 6. Migrate Procedimientos
+    const procedimientosList = await this.prisma.procedimientos.findMany({
+      where: { url_respaldo: { startsWith: 'data:' } }
+    });
+    stats.procedimientos.total = procedimientosList.length;
+    for (const item of procedimientosList) {
+      try {
+        const parsed = this.parseBase64(item.url_respaldo!);
+        if (parsed) {
+          const extension = parsed.mimeType.split('/').pop() || 'pdf';
+          const uniqueName = `respaldos/records/procedimientos/${item.id}/${crypto.randomUUID()}.${extension}`;
+          
+          await this.s3.send(new PutObjectCommand({
+            Bucket: process.env.R2_BUCKET_NAME || '',
+            Key: uniqueName,
+            Body: parsed.buffer,
+            ContentType: parsed.mimeType,
+          }));
+
+          await this.prisma.procedimientos.update({
+            where: { id: item.id },
+            data: { url_respaldo: uniqueName }
+          });
+          stats.procedimientos.migrated++;
+          stats.totalBytes += parsed.buffer.length;
+        } else {
+          stats.procedimientos.failed++;
+          stats.errors.push(`Procedimientos #${item.id}: Invalid base64 pattern`);
+        }
+      } catch (err: any) {
+        stats.procedimientos.failed++;
+        stats.errors.push(`Procedimientos #${item.id}: ${err.message}`);
+      }
+    }
+
+    return stats;
+  }
+
+  private parseBase64(dataStr: string) {
+    const match = dataStr.match(/^data:([^;]+);base64,(.+)$/);
+    if (!match) return null;
+    return {
+      mimeType: match[1],
+      buffer: Buffer.from(match[2], 'base64')
+    };
+  }
 }
 
