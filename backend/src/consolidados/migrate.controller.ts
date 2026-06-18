@@ -12,4 +12,12 @@ export class MigrateController {
     }
     return this.consolidadosService.migrateBase64ToR2();
   }
+
+  @Get('status')
+  async status(@Query('secret') secret: string) {
+    if (secret !== 'remuneraciones_cmp_secret_migration_2026') {
+      throw new ForbiddenException('Código secreto incorrecto');
+    }
+    return this.consolidadosService.getMigrationStatus();
+  }
 }

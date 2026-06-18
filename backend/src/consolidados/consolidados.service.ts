@@ -1192,6 +1192,28 @@ export class ConsolidadosService {
     return stats;
   }
 
+  async getMigrationStatus() {
+    const base64Counts = {
+      consolidado: await this.prisma.consolidado.count({ where: { url_respaldo: { startsWith: 'data:' } } }),
+      horas: await this.prisma.horasExtras.count({ where: { url_respaldo: { startsWith: 'data:' } } }),
+      turnos: await this.prisma.turnosUrgencia.count({ where: { url_respaldo: { startsWith: 'data:' } } }),
+      viaticos: await this.prisma.viaticos.count({ where: { url_respaldo: { startsWith: 'data:' } } }),
+      atrasos: await this.prisma.atrasos.count({ where: { url_respaldo: { startsWith: 'data:' } } }),
+      procedimientos: await this.prisma.procedimientos.count({ where: { url_respaldo: { startsWith: 'data:' } } }),
+    };
+
+    const r2Counts = {
+      consolidado: await this.prisma.consolidado.count({ where: { url_respaldo: { startsWith: 'respaldos/' } } }),
+      horas: await this.prisma.horasExtras.count({ where: { url_respaldo: { startsWith: 'respaldos/' } } }),
+      turnos: await this.prisma.turnosUrgencia.count({ where: { url_respaldo: { startsWith: 'respaldos/' } } }),
+      viaticos: await this.prisma.viaticos.count({ where: { url_respaldo: { startsWith: 'respaldos/' } } }),
+      atrasos: await this.prisma.atrasos.count({ where: { url_respaldo: { startsWith: 'respaldos/' } } }),
+      procedimientos: await this.prisma.procedimientos.count({ where: { url_respaldo: { startsWith: 'respaldos/' } } }),
+    };
+
+    return { base64Counts, r2Counts };
+  }
+
   private parseBase64(dataStr: string) {
     const match = dataStr.match(/^data:([^;]+);base64,(.+)$/);
     if (!match) return null;
