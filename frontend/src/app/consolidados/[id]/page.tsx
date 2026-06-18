@@ -490,7 +490,7 @@ export default function ConsolidadoDetailPage() {
     
     list = list.filter(item => {
       if (activeTab === 'horas') return (Number(item.cantidad_25 || 0) > 0 || Number(item.cantidad_50 || 0) > 0);
-      if (activeTab === 'viaticos') return Number(item.monto_calculado || 0) > 0;
+      if (activeTab === 'viaticos') return Number(item.monto_calculado || 0) > 0 || Number(item.rendicion_pasajes || 0) > 0;
       if (activeTab === 'atrasos') return Number(item.minutos || 0) > 0 || (item.tiempo_descuento && item.tiempo_descuento !== '0 min');
       if (activeTab === 'procedimientos') return Number(item.total_procedimientos || 0) > 0;
       if (activeTab === 'turnos') return (Number(item.cant_turnos_habiles || 0) > 0 || Number(item.cant_turnos_inhabiles || 0) > 0);
@@ -520,7 +520,7 @@ export default function ConsolidadoDetailPage() {
 
   const approvedSum = () => {
     if (activeTab === 'horas') return data.horas_extras.reduce((acc, h) => acc + (h.estado_25 === 'APROBADO' ? Number(h.monto_25) : 0) + (h.estado_50 === 'APROBADO' ? Number(h.monto_50) : 0), 0);
-    if (activeTab === 'viaticos') return data.viaticos.reduce((acc, v) => acc + (v.estado === 'APROBADO' ? Number(v.monto_calculado) : 0), 0);
+    if (activeTab === 'viaticos') return data.viaticos.reduce((acc, v) => acc + (v.estado === 'APROBADO' ? (Number(v.monto_calculado || 0) + Number(v.rendicion_pasajes || 0)) : 0), 0);
     if (activeTab === 'procedimientos') return data.procedimientos.reduce((acc, p) => acc + (p.estado === 'APROBADO' ? Number(p.monto_calculado) : 0), 0);
     if (activeTab === 'turnos') return data.turnos_urgencia.reduce((acc, t) => acc + (t.estado === 'APROBADO' ? (Number(t.cant_turnos_habiles || 0) * Number(t.valor_habil || 0) + Number(t.cant_turnos_inhabiles || 0) * Number(t.valor_inhabil || 0)) : 0), 0);
     return 0;
@@ -535,7 +535,7 @@ export default function ConsolidadoDetailPage() {
 
     list = list.filter(item => {
       if (activeTab === 'horas') return (Number(item.cantidad_25 || 0) > 0 || Number(item.cantidad_50 || 0) > 0);
-      if (activeTab === 'viaticos') return Number(item.monto_calculado || 0) > 0;
+      if (activeTab === 'viaticos') return Number(item.monto_calculado || 0) > 0 || Number(item.rendicion_pasajes || 0) > 0;
       if (activeTab === 'atrasos') return Number(item.minutos || 0) > 0 || (item.tiempo_descuento && item.tiempo_descuento !== '0 min');
       if (activeTab === 'procedimientos') return Number(item.total_procedimientos || 0) > 0;
       if (activeTab === 'turnos') return (Number(item.cant_turnos_habiles || 0) > 0 || Number(item.cant_turnos_inhabiles || 0) > 0);
@@ -566,7 +566,7 @@ export default function ConsolidadoDetailPage() {
     };
 
     const horasList = data.horas_extras.filter(item => Number(item.cantidad_25 || 0) > 0 || Number(item.cantidad_50 || 0) > 0);
-    const viaticosList = data.viaticos.filter(item => Number(item.monto_calculado || 0) > 0);
+    const viaticosList = data.viaticos.filter(item => Number(item.monto_calculado || 0) > 0 || Number(item.rendicion_pasajes || 0) > 0);
     const atrasosList = data.atrasos.filter(item => Number(item.minutos || 0) > 0 || (item.tiempo_descuento && item.tiempo_descuento !== '0 min'));
     const procedimientosList = data.procedimientos.filter(item => Number(item.total_procedimientos || 0) > 0);
     const turnosList = data.turnos_urgencia.filter(item => Number(item.cant_turnos_habiles || 0) > 0 || Number(item.cant_turnos_inhabiles || 0) > 0);
