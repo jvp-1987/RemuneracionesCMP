@@ -1227,6 +1227,144 @@ export class ConsolidadosService {
     return { configStatus, base64Counts, r2Counts };
   }
 
+  async revertMigration() {
+    const stats = {
+      consolidado: { total: 0, reverted: 0, failed: 0 },
+      horas: { total: 0, reverted: 0, failed: 0 },
+      turnos: { total: 0, reverted: 0, failed: 0 },
+      viaticos: { total: 0, reverted: 0, failed: 0 },
+      atrasos: { total: 0, reverted: 0, failed: 0 },
+      procedimientos: { total: 0, reverted: 0, failed: 0 },
+      totalBytes: 0,
+      errors: [] as string[]
+    };
+
+    const revertRecord = async (key: string) => {
+      const response = await this.s3.send(new GetObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME || '',
+        Key: key,
+      }));
+      const base64Body = await (response.Body as any).transformToString('base64');
+      return `data:${response.ContentType || 'application/pdf'};base64,${base64Body}`;
+    };
+
+    // 1. Revert Consolidado
+    const consolidados = await this.prisma.consolidado.findMany({
+      where: { url_respaldo: { startsWith: 'respaldos/' } }
+    });
+    stats.consolidado.total = consolidados.length;
+    for (const item of consolidados) {
+      try {
+        const base64Str = await revertRecord(item.url_respaldo!);
+        await this.prisma.consolidado.update({
+          where: { id: item.id },
+          data: { url_respaldo: base64Str }
+        });
+        stats.consolidado.reverted++;
+      } catch (err: any) {
+        stats.consolidado.failed++;
+        stats.errors.push(`Consolidado #${item.id}: ${err.message}`);
+      }
+    }
+
+    // 2. Revert HorasExtras
+    const horas = await this.prisma.horasExtras.findMany({
+      where: { url_respaldo: { startsWith: 'respaldos/' } }
+    });
+    stats.horas.total = horas.length;
+    for (const item of horas) {
+      try {
+        const base64Str = await revertRecord(item.url_respaldo!);
+        await this.prisma.horasExtras.update({
+          where: { id: item.id },
+          data: { url_respaldo: base64Str }
+        });
+        stats.horas.reverted++;
+      } catch (err: any) {
+        stats.horas.failed++;
+        stats.errors.push(`HorasExtras #${item.id}: ${err.message}`);
+      }
+    }
+
+    // 3. Revert TurnosUrgencia
+    const turnosList = await this.prisma.turnosUrgencia.findMany({
+      where: { url_respaldo: { startsWith: 'respaldos/' } }
+    });
+    stats.turnos.total = turnosList.length;
+    for (const item of turnosList) {
+      try {
+        const base64Str = await revertRecord(item.url_respaldo!);
+        await this.prisma.turnosUrgencia.update({
+          where: { id: item.id },
+          data: { url_respaldo: base64Str }
+        });
+        stats.turnos.reverted++;
+      } catch (err: any) {
+        stats.turnos.failed++;
+        stats.errors.push(`TurnosUrgencia #${item.id}: ${err.message}`);
+      }
+    }
+
+    // 4. Revert Viaticos
+    const viaticosList = await this.prisma.viaticos.findMany({
+      where: { url_respaldo: { startsWith: 'respaldos/' } }
+    });
+    stats.viaticos.total = viaticosList.length;
+    for (const item of viaticosList) {
+      try {
+        const base64Str = await revertRecord(item.url_respaldo!);
+        await this.prisma.viaticos.update({
+          where: { id: item.id },
+          data: { url_respaldo: base64Str }
+        });
+        stats.viaticos.reverted++;
+      } catch (err: any) {
+        stats.viaticos.failed++;
+        stats.errors.push(`Viaticos #${item.id}: ${err.message}`);
+      }
+    }
+
+    // 5. Revert Atrasos
+    const atrasosList = await this.prisma.atrasos.findMany({
+      where: { url_respaldo: { startsWith: 'respaldos/' } }
+    });
+    stats.atrasos.total = atrasosList.length;
+    for (const item of atrasosList) {
+      try {
+        const base64Str = await revertRecord(item.url_respaldo!);
+        await this.prisma.atrasos.update({
+          where: { id: item.id },
+          data: { url_respaldo: base64Str }
+        });
+        stats.atrasos.reverted++;
+      } catch (err: any) {
+        stats.atrasos.failed++;
+        stats.errors.push(`Atrasos #${item.id}: ${err.message}`);
+      }
+    }
+
+    // 6. Revert Procedimientos
+    const procedimientosList = await this.prisma.procedimientos.findMany({
+      where: { url_respaldo: { startsWith: 'respaldos/' } }
+    });
+    stats.procedimientos.total = procedimientosList.length;
+    for (const item of procedimientosList) {
+      try {
+        const base64Str = await revertRecord(item.url_respaldo!);
+        await this.prisma.procedimientos.update({
+          where: { id: item.id },
+          data: { url_respaldo: base64Str }
+        });
+        stats.procedimientos.reverted++;
+      } catch (err: any) {
+        stats.procedimientos.failed++;
+        stats.errors.push(`Procedimientos #${item.id}: ${err.message}`);
+      }
+    }
+
+    return stats;
+  }
+
   private parseBase64(dataStr: string) {
     const match = dataStr.match(/^data:([^;]+);base64,(.+)$/);
     if (!match) return null;
