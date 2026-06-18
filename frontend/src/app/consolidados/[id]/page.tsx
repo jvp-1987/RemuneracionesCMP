@@ -372,9 +372,10 @@ export default function ConsolidadoDetailPage() {
       }
       
       alert('Respaldo actualizado con éxito');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error uploading respaldo:', err);
-      alert('Error al subir el respaldo');
+      const serverMessage = err.response?.data?.message || err.message || 'Error desconocido';
+      alert(`Error al subir el respaldo: ${serverMessage}`);
     }
   };
 
@@ -411,9 +412,10 @@ export default function ConsolidadoDetailPage() {
       }
       
       alert('Respaldo de registro actualizado');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error uploading record respaldo:', err);
-      alert('Error al subir el respaldo del registro');
+      const serverMessage = err.response?.data?.message || err.message || 'Error desconocido';
+      alert(`Error al subir el respaldo: ${serverMessage}`);
     }
   };
 

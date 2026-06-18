@@ -227,17 +227,31 @@ export class ConsolidadosService {
         ContentType: file.mimetype,
       }));
       
-      return this.prisma.consolidado.update({
-        where: { id },
-        data: { url_respaldo: uniqueName }
-      });
-    } catch (s3Error) {
+      try {
+        return await this.prisma.consolidado.update({
+          where: { id },
+          data: { url_respaldo: uniqueName }
+        });
+      } catch (dbError: any) {
+        console.error(`[ConsolidadosService] Error al guardar la ruta de R2 en consolidado: ${dbError.message}`);
+        throw new BadRequestException('Error en la base de datos al guardar la referencia del consolidado. Verifica el esquema en producción.');
+      }
+    } catch (s3Error: any) {
       console.warn(`[ConsolidadosService] Error al subir a R2, usando fallback a Base64: ${s3Error.message}`);
       const base64Str = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
-      return this.prisma.consolidado.update({
-        where: { id },
-        data: { url_respaldo: base64Str }
-      });
+      
+      try {
+        return await this.prisma.consolidado.update({
+          where: { id },
+          data: { url_respaldo: base64Str }
+        });
+      } catch (dbError: any) {
+        console.error(`[ConsolidadosService] Error al guardar Base64 en consolidado: ${dbError.message}`);
+        throw new BadRequestException(
+          `La base de datos rechazó el almacenamiento del archivo del consolidado. ` +
+          `Esto ocurre si el archivo es demasiado grande (límite max_allowed_packet excedido) o si el esquema de la base de datos no está sincronizado en producción.`
+        );
+      }
     }
   }
 
@@ -265,17 +279,31 @@ export class ConsolidadosService {
         ContentType: file.mimetype,
       }));
 
-      return model.update({
-        where: { id: recordId },
-        data: { url_respaldo: uniqueName }
-      });
-    } catch (s3Error) {
+      try {
+        return await model.update({
+          where: { id: recordId },
+          data: { url_respaldo: uniqueName }
+        });
+      } catch (dbError: any) {
+        console.error(`[ConsolidadosService] Error al guardar la ruta de R2 en la base de datos: ${dbError.message}`);
+        throw new BadRequestException('Error en la base de datos al guardar la referencia. Verifica si el esquema de la base de datos está actualizado en producción.');
+      }
+    } catch (s3Error: any) {
       console.warn(`[ConsolidadosService] Error al subir respaldo de registro a R2, usando fallback a Base64: ${s3Error.message}`);
       const base64Str = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
-      return model.update({
-        where: { id: recordId },
-        data: { url_respaldo: base64Str }
-      });
+      
+      try {
+        return await model.update({
+          where: { id: recordId },
+          data: { url_respaldo: base64Str }
+        });
+      } catch (dbError: any) {
+        console.error(`[ConsolidadosService] Error al guardar Base64 en la base de datos: ${dbError.message}`);
+        throw new BadRequestException(
+          `La base de datos rechazó el almacenamiento del archivo. ` +
+          `Esto ocurre si el archivo es demasiado grande (límite max_allowed_packet excedido) o si el esquema de la base de datos no está sincronizado en producción.`
+        );
+      }
     }
   }
 
