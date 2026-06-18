@@ -969,6 +969,12 @@ export class ConsolidadosService {
 
   async migrateBase64ToR2() {
     const stats = {
+      configStatus: {
+        R2_BUCKET_NAME: !!process.env.R2_BUCKET_NAME,
+        R2_ENDPOINT_URL: !!process.env.R2_ENDPOINT_URL,
+        R2_ACCESS_KEY_ID: !!process.env.R2_ACCESS_KEY_ID,
+        R2_SECRET_ACCESS_KEY: !!process.env.R2_SECRET_ACCESS_KEY,
+      },
       consolidado: { total: 0, migrated: 0, failed: 0 },
       horas: { total: 0, migrated: 0, failed: 0 },
       turnos: { total: 0, migrated: 0, failed: 0 },
@@ -1211,7 +1217,14 @@ export class ConsolidadosService {
       procedimientos: await this.prisma.procedimientos.count({ where: { url_respaldo: { startsWith: 'respaldos/' } } }),
     };
 
-    return { base64Counts, r2Counts };
+    const configStatus = {
+      R2_BUCKET_NAME: !!process.env.R2_BUCKET_NAME,
+      R2_ENDPOINT_URL: !!process.env.R2_ENDPOINT_URL,
+      R2_ACCESS_KEY_ID: !!process.env.R2_ACCESS_KEY_ID,
+      R2_SECRET_ACCESS_KEY: !!process.env.R2_SECRET_ACCESS_KEY,
+    };
+
+    return { configStatus, base64Counts, r2Counts };
   }
 
   private parseBase64(dataStr: string) {
