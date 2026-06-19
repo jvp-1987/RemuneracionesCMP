@@ -1038,13 +1038,13 @@ export default function ConsolidadoDetailPage() {
                 <table className="w-full text-left border-separate border-spacing-y-2">
                   <thead>
                     <tr className="bg-surface-container-low/50">
-                      <th className="px-6 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">Programa / Fuente de Financiamiento</th>
-                      <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Horas Extras</th>
-                      <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Turnos de Urgencia</th>
-                      <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Procedimientos APS</th>
-                      <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Total Aprobado</th>
-                      <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">Alertas / Estado</th>
-                      <th className="px-6 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Acción</th>
+                      <th className="px-6 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">Programa / Fuente de Financiamiento</th>
+                      <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Horas Extras</th>
+                      <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Turnos de Urgencia</th>
+                      <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Procedimientos APS</th>
+                      <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Total Aprobado</th>
+                      <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">Alertas / Estado</th>
+                      <th className="px-6 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Acción</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant/5">
@@ -1057,44 +1057,44 @@ export default function ConsolidadoDetailPage() {
                           selectedProgramId === row.id ? "bg-primary/[0.03] font-bold" : ""
                         )}
                       >
-                        <td className="px-6 py-4 text-xs font-black uppercase tracking-wider text-primary">
+                        <td className="px-6 py-2.5 text-xs font-black uppercase tracking-wider text-primary">
                           {row.nombre}
                         </td>
-                        <td className="px-4 py-4 text-xs text-right text-on-surface">
+                        <td className="px-4 py-2.5 text-xs text-right text-on-surface">
                           ${row.horasExtras.toLocaleString('es-CL')}
                         </td>
-                        <td className="px-4 py-4 text-xs text-right text-on-surface">
+                        <td className="px-4 py-2.5 text-xs text-right text-on-surface">
                           ${row.turnos.toLocaleString('es-CL')}
                         </td>
-                        <td className="px-4 py-4 text-xs text-right text-on-surface">
+                        <td className="px-4 py-2.5 text-xs text-right text-on-surface">
                           ${row.procedimientos.toLocaleString('es-CL')}
                         </td>
-                        <td className="px-4 py-4 text-xs text-right text-primary font-black">
+                        <td className="px-4 py-2.5 text-xs text-right text-primary font-black">
                           ${row.total.toLocaleString('es-CL')}
                         </td>
-                        <td className="px-4 py-4 text-center">
-                          <div className="flex justify-center gap-2">
+                        <td className="px-4 py-2.5 text-center">
+                          <div className="flex justify-center gap-1.5">
                             {row.pendingCount > 0 && (
-                              <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-black uppercase tracking-wider flex items-center gap-1" title={`${row.pendingCount} registros pendientes de validación`}>
-                                <span className="material-symbols-outlined text-[10px]">warning</span>
+                              <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-black uppercase tracking-wider flex items-center gap-1" title={`${row.pendingCount} registros pendientes de validación`}>
+                                <span className="material-symbols-outlined" style={{ fontSize: '10px' }}>warning</span>
                                 {row.pendingCount} PEND
                               </span>
                             )}
                             {row.rejectedCount > 0 && (
-                              <span className="px-2 py-0.5 rounded bg-red-100 text-red-800 text-[9px] font-black uppercase tracking-wider flex items-center gap-1" title={`${row.rejectedCount} hallazgos / rechazados`}>
-                                <span className="material-symbols-outlined text-[10px]">error</span>
+                              <span className="px-1.5 py-0.5 rounded bg-red-100 text-red-800 text-[9px] font-black uppercase tracking-wider flex items-center gap-1" title={`${row.rejectedCount} hallazgos / rechazados`}>
+                                <span className="material-symbols-outlined" style={{ fontSize: '10px' }}>error</span>
                                 {row.rejectedCount} RECH
                               </span>
                             )}
                             {row.pendingCount === 0 && row.rejectedCount === 0 && (
-                              <span className="px-2 py-0.5 rounded bg-green-100 text-green-800 text-[9px] font-black uppercase tracking-wider flex items-center gap-1">
-                                <span className="material-symbols-outlined text-[10px]">check_circle</span>
+                              <span className="px-1.5 py-0.5 rounded bg-green-100 text-green-800 text-[9px] font-black uppercase tracking-wider flex items-center gap-1">
+                                <span className="material-symbols-outlined" style={{ fontSize: '10px' }}>check_circle</span>
                                 COMPLETO
                               </span>
                             )}
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="px-6 py-2.5 text-right">
                           <button className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-1 ml-auto">
                             {selectedProgramId === row.id ? 'Ocultar Detalle' : 'Ver Detalle'}
                             <span className="material-symbols-outlined text-xs">
@@ -1107,21 +1107,21 @@ export default function ConsolidadoDetailPage() {
                   </tbody>
                   <tfoot>
                     <tr className="bg-surface-container-lowest font-black border-t border-outline-variant/20">
-                      <td className="px-6 py-5 text-xs font-black uppercase tracking-wider text-on-surface">Total General</td>
-                      <td className="px-4 py-5 text-xs text-right text-on-surface">
+                      <td className="px-6 py-3 text-xs font-black uppercase tracking-wider text-on-surface">Total General</td>
+                      <td className="px-4 py-3 text-xs text-right text-on-surface">
                         ${getRevisionContableRows().reduce((s, r) => s + r.horasExtras, 0).toLocaleString('es-CL')}
                       </td>
-                      <td className="px-4 py-5 text-xs text-right text-on-surface">
+                      <td className="px-4 py-3 text-xs text-right text-on-surface">
                         ${getRevisionContableRows().reduce((s, r) => s + r.turnos, 0).toLocaleString('es-CL')}
                       </td>
-                      <td className="px-4 py-5 text-xs text-right text-on-surface">
+                      <td className="px-4 py-3 text-xs text-right text-on-surface">
                         ${getRevisionContableRows().reduce((s, r) => s + r.procedimientos, 0).toLocaleString('es-CL')}
                       </td>
-                      <td className="px-4 py-5 text-sm text-right text-primary font-black">
+                      <td className="px-4 py-3 text-sm text-right text-primary font-black">
                         ${getRevisionContableRows().reduce((s, r) => s + r.total, 0).toLocaleString('es-CL')}
                       </td>
-                      <td className="px-4 py-5"></td>
-                      <td className="px-6 py-5"></td>
+                      <td className="px-4 py-3"></td>
+                      <td className="px-6 py-3"></td>
                     </tr>
                   </tfoot>
                 </table>
@@ -1155,12 +1155,12 @@ export default function ConsolidadoDetailPage() {
                     <table className="w-full text-left border-separate border-spacing-y-1">
                       <thead>
                         <tr className="bg-surface-container-low/40">
-                          <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface">Funcionario</th>
-                          <th className="px-4 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface">RUT</th>
-                          <th className="px-4 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface">Tipo Haber</th>
-                          <th className="px-4 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface">Detalle de Cantidad</th>
-                          <th className="px-4 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Monto</th>
-                          <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface text-center">Estado Auditoría</th>
+                          <th className="px-6 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface">Funcionario</th>
+                          <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface">RUT</th>
+                          <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface">Tipo Haber</th>
+                          <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface">Detalle de Cantidad</th>
+                          <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Monto</th>
+                          <th className="px-6 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface text-center">Estado Auditoría</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-outline-variant/5">
@@ -1173,29 +1173,29 @@ export default function ConsolidadoDetailPage() {
                         ) : (
                           getSelectedProgramRecords().map((rec, index) => (
                             <tr key={rec.id + '-' + rec.tipo + '-' + index} className="hover:bg-slate-50 transition-colors">
-                              <td className="px-6 py-3.5 text-xs font-bold uppercase tracking-wide text-on-surface">
+                              <td className="px-6 py-2 text-xs font-bold uppercase tracking-wide text-on-surface">
                                 {rec.funcionario}
                               </td>
-                              <td className="px-4 py-3.5 text-xs text-on-surface">
+                              <td className="px-4 py-2 text-xs text-on-surface">
                                 {rec.rut}
                               </td>
-                              <td className="px-4 py-3.5 text-xs font-bold text-secondary uppercase tracking-widest text-[10px]">
+                              <td className="px-4 py-2 text-xs font-bold text-secondary uppercase tracking-widest text-[9px]">
                                 {rec.tipo}
                               </td>
-                              <td className="px-4 py-3.5 text-xs text-outline font-medium">
+                              <td className="px-4 py-2 text-xs text-outline font-medium">
                                 {rec.detalles}
                               </td>
-                              <td className="px-4 py-3.5 text-xs text-right font-bold text-on-surface">
+                              <td className="px-4 py-2 text-xs text-right font-bold text-on-surface">
                                 ${rec.monto.toLocaleString('es-CL')}
                               </td>
-                              <td className="px-6 py-3.5 text-center">
+                              <td className="px-6 py-2 text-center">
                                 <span className={cn(
-                                  "px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1",
+                                  "px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-0.5",
                                   rec.estado === 'APROBADO' ? "bg-green-100 text-green-800" :
                                   rec.estado === 'RECHAZADO' ? "bg-red-100 text-red-800" :
                                   "bg-amber-100 text-amber-800"
                                 )}>
-                                  <span className="material-symbols-outlined text-[10px]">
+                                  <span className="material-symbols-outlined" style={{ fontSize: '10px' }}>
                                     {rec.estado === 'APROBADO' ? 'done' : rec.estado === 'RECHAZADO' ? 'close' : 'hourglass_empty'}
                                   </span>
                                   {rec.estado}
@@ -1244,18 +1244,18 @@ export default function ConsolidadoDetailPage() {
               <table className="w-full text-left border-separate border-spacing-y-2">
                 <thead>
                   <tr className="bg-surface-container-low/50">
-                    <th className="px-6 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">Funcionario Clínico</th>
-                    <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">RUT / Clasificación</th>
-                    <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">
+                    <th className="px-6 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">Funcionario Clínico</th>
+                    <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">RUT / Clasificación</th>
+                    <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">
                       {activeTab === 'horas' ? 'Horas 25%' : activeTab === 'atrasos' ? 'N/A' : activeTab === 'viaticos' ? 'Destino' : activeTab === 'procedimientos' ? 'Cantidad' : 'Hábiles'}
                     </th>
-                    <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">
+                    <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">
                       {activeTab === 'horas' ? 'Horas 50%' : activeTab === 'atrasos' ? 'Concepto' : activeTab === 'viaticos' ? 'Estado' : activeTab === 'procedimientos' ? 'Estado' : 'Inhábiles'}
                     </th>
-                    <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">
+                    <th className="px-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">
                       {activeTab === 'atrasos' ? 'Total Tiempo' : 'Total Validado'}
                     </th>
-                    <th className="px-6 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Acciones</th>
+                    <th className="px-6 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/5">
@@ -1758,9 +1758,13 @@ function StatusBadge({ status }: { status?: EstadoValidacion }) {
   };
   const active = config[status || 'PENDIENTE'];
   return (
-    <div className={cn("inline-flex items-center gap-2 px-3 py-1.5 rounded-full transition-all overflow-hidden", active.bg)}>
-      <span className={cn("material-symbols-outlined text-[14px] select-none", active.text)} dangerouslySetInnerHTML={{ __html: active.icon === 'pending' ? '&#xef64;' : active.icon === 'check_circle' ? '&#xe86c;' : '&#xe5c9;' }} />
-      <span className={cn("text-[10px] font-black uppercase tracking-widest", active.text)}>{active.label}</span>
+    <div className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-md transition-all overflow-hidden border border-outline-variant/10 shadow-sm", active.bg)}>
+      <span 
+        className={cn("material-symbols-outlined select-none", active.text)} 
+        style={{ fontSize: '11px' }}
+        dangerouslySetInnerHTML={{ __html: active.icon === 'pending' ? '&#xef64;' : active.icon === 'check_circle' ? '&#xe86c;' : '&#xe5c9;' }} 
+      />
+      <span className={cn("text-[9px] font-black uppercase tracking-wider", active.text)}>{active.label}</span>
     </div>
   );
 }
@@ -1838,133 +1842,138 @@ const EmployeeTableRow = React.memo(({
   return (
     <>
       <tr className={cn("hover:bg-primary/5 transition-all duration-300 group cursor-pointer border-l-4 border-transparent", expanded && "bg-surface-container-low border-l-primary shadow-inner")}>
-        <td className="px-6 py-5" onClick={onToggle}>
+        <td className="px-6 py-2.5" onClick={onToggle}>
           <div className="flex items-center">
             <div>
-              <div className="font-black text-on-surface text-[15px] uppercase tracking-tight leading-none mb-1.5 group-hover:text-primary transition-colors">{item.funcionario.nombre_completo}</div>
-              <div className="text-[10px] font-bold text-secondary uppercase tracking-widest leading-none">
+              <div className="font-black text-on-surface text-[12px] uppercase tracking-tight leading-none mb-1 group-hover:text-primary transition-colors">{item.funcionario.nombre_completo}</div>
+              <div className="text-[9px] font-bold text-secondary uppercase tracking-widest leading-none">
                 {item.funcionario.centro_salud?.nombre || 'Personal de Planta • APS'}
               </div>
               {((activeTab === 'horas' && item.programa) || (activeTab === 'turnos' && (item as any).programa)) && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-indigo-50 border border-indigo-100 text-indigo-700 shadow-sm transition-all hover:bg-indigo-100">
-                    <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: "'FILL' 1" }}>payments</span>
-                    {activeTab === 'horas' 
-                      ? item.programa.nombre 
-                      : ((item as any).programa.nombre === 'PRESUPUESTARIO' ? 'PROGRAMA DE TURNO' : (item as any).programa.nombre)
-                    }
+                <div className="flex flex-wrap gap-1 mt-1.5">
+                  <span 
+                    title={activeTab === 'horas' ? item.programa.nombre : ((item as any).programa.nombre === 'PRESUPUESTARIO' ? 'PROGRAMA DE TURNO' : (item as any).programa.nombre)}
+                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider bg-indigo-50 border border-indigo-100 text-indigo-700 shadow-sm transition-all hover:bg-indigo-100 max-w-[200px]"
+                  >
+                    <span className="material-symbols-outlined text-[9px]" style={{ fontVariationSettings: "'FILL' 1", fontSize: '9px' }}>payments</span>
+                    <span className="truncate">
+                      {activeTab === 'horas' 
+                        ? item.programa.nombre 
+                        : ((item as any).programa.nombre === 'PRESUPUESTARIO' ? 'PROGRAMA DE TURNO' : (item as any).programa.nombre)
+                      }
+                    </span>
                   </span>
                 </div>
               )}
             </div>
           </div>
         </td>
-        <td className="px-4 py-5" onClick={onToggle}>
-          <div className="text-[14px] font-black text-on-surface tracking-tighter mb-1">{item.funcionario.rut}</div>
-          <div className="text-[10px] font-black uppercase text-primary tracking-widest bg-primary/5 px-2 py-0.5 rounded-md w-fit">Cat. {item.funcionario.categoria_aps || '-'} • Niv. {item.funcionario.nivel_aps || '-'}</div>
+        <td className="px-4 py-2.5" onClick={onToggle}>
+          <div className="text-[12px] font-black text-on-surface tracking-tighter mb-0.5">{item.funcionario.rut}</div>
+          <div className="text-[9px] font-black uppercase text-primary tracking-widest bg-primary/5 px-1.5 py-0.5 rounded-md w-fit">Cat. {item.funcionario.categoria_aps || '-'} • Niv. {item.funcionario.nivel_aps || '-'}</div>
         </td>
-        <td className="px-4 py-5 text-center" onClick={onToggle}>
-          <div className="flex flex-col items-center gap-2">
+        <td className="px-4 py-2.5 text-center" onClick={onToggle}>
+          <div className="flex flex-col items-center gap-1">
             {activeTab === 'horas' ? (
               <>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-amber-50 border border-amber-100 text-amber-700 shadow-sm">
-                  <span className="material-symbols-outlined text-[10px]">schedule</span>
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-amber-50 border border-amber-100 text-amber-700 shadow-sm">
+                  <span className="material-symbols-outlined" style={{ fontSize: '10px' }}>schedule</span>
                   {item.cantidad_25 || 0} HRS (25%)
                 </span>
                 {Number(item.cantidad_25 || 0) > 0 ? (
                   <StatusBadge status={item.estado_25} />
                 ) : (
-                  <span className="text-[9px] font-black text-outline/40 uppercase tracking-widest bg-outline/5 px-2 py-0.5 rounded border border-outline/10">N/A</span>
+                  <span className="text-[8px] font-black text-outline/40 uppercase tracking-widest bg-outline/5 px-1.5 py-0.5 rounded border border-outline/10">N/A</span>
                 )}
               </>
             ) : activeTab === 'viaticos' ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-teal-50 border border-teal-100 text-teal-700 shadow-sm">
-                <span className="material-symbols-outlined text-[10px]">flight_takeoff</span>
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-teal-50 border border-teal-100 text-teal-700 shadow-sm">
+                <span className="material-symbols-outlined" style={{ fontSize: '10px' }}>flight_takeoff</span>
                 {item.tipo_destino || 'NACIONAL'}
               </span>
             ) : activeTab === 'procedimientos' ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-emerald-50 border border-emerald-100 text-emerald-700 shadow-sm">
-                <span className="material-symbols-outlined text-[10px]">medical_services</span>
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-emerald-50 border border-emerald-100 text-emerald-700 shadow-sm">
+                <span className="material-symbols-outlined" style={{ fontSize: '10px' }}>medical_services</span>
                 {item.total_procedimientos || 0} PROCS
               </span>
             ) : activeTab === 'turnos' ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-sky-50 border border-sky-100 text-sky-700 shadow-sm">
-                <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: "'FILL' 1" }}>calendar_today</span>
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-sky-50 border border-sky-100 text-sky-700 shadow-sm">
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1'", fontSize: '10px' }}>calendar_today</span>
                 {item.cant_turnos_habiles || 0} HÁB
               </span>
-            ) : <span className="text-outline/30 font-black text-[10px] uppercase">N/A</span>}
+            ) : <span className="text-outline/30 font-black text-[9px] uppercase">N/A</span>}
           </div>
         </td>
-        <td className="px-4 py-5 text-center" onClick={onToggle}>
-          <div className="flex flex-col items-center gap-2">
+        <td className="px-4 py-2.5 text-center" onClick={onToggle}>
+          <div className="flex flex-col items-center gap-1">
              {activeTab === 'horas' ? (
-               <>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-orange-50 border border-orange-100 text-orange-700 shadow-sm">
-                  <span className="material-symbols-outlined text-[10px]">bolt</span>
-                  {item.cantidad_50 || 0} HRS (50%)
-                </span>
-                {Number(item.cantidad_50 || 0) > 0 ? (
-                  <StatusBadge status={item.estado_50} />
-                ) : (
-                  <span className="text-[9px] font-black text-outline/40 uppercase tracking-widest bg-outline/5 px-2 py-0.5 rounded border border-outline/10">N/A</span>
-                )}
-               </>
-             ) : activeTab === 'viaticos' ? (
-               <StatusBadge status={item.estado} />
-             ) : activeTab === 'procedimientos' ? (
-               <StatusBadge status={item.estado} />
-             ) : activeTab === 'turnos' ? (
-               <>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-purple-50 border border-purple-100 text-purple-700 shadow-sm">
-                  <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: "'FILL' 1" }}>nights_stay</span>
-                  {item.cant_turnos_inhabiles || 0} INH
-                </span>
+                <>
+                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-orange-50 border border-orange-100 text-orange-700 shadow-sm">
+                   <span className="material-symbols-outlined" style={{ fontSize: '10px' }}>bolt</span>
+                   {item.cantidad_50 || 0} HRS (50%)
+                 </span>
+                 {Number(item.cantidad_50 || 0) > 0 ? (
+                   <StatusBadge status={item.estado_50} />
+                 ) : (
+                   <span className="text-[8px] font-black text-outline/40 uppercase tracking-widest bg-outline/5 px-1.5 py-0.5 rounded border border-outline/10">N/A</span>
+                 )}
+                </>
+              ) : activeTab === 'viaticos' ? (
                 <StatusBadge status={item.estado} />
-               </>
-             ) : (
-                <div className="text-[11px] font-black text-secondary tracking-widest uppercase">{item.concept || 'General'}</div>
-             )}
+              ) : activeTab === 'procedimientos' ? (
+                <StatusBadge status={item.estado} />
+              ) : activeTab === 'turnos' ? (
+                <>
+                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-purple-50 border border-purple-100 text-purple-700 shadow-sm">
+                   <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1'", fontSize: '10px' }}>nights_stay</span>
+                   {item.cant_turnos_inhabiles || 0} INH
+                 </span>
+                 <StatusBadge status={item.estado} />
+                </>
+              ) : (
+                 <div className="text-[10px] font-black text-secondary tracking-widest uppercase">{item.concept || 'General'}</div>
+              )}
           </div>
         </td>
-        <td className="px-4 py-5 font-black text-[16px] text-on-surface tracking-tighter" onClick={onToggle}>
+        <td className="px-4 py-2.5 font-black text-[13px] text-on-surface tracking-tighter" onClick={onToggle}>
           {activeTab === 'atrasos' ? item.tiempo_descuento : `$${totalAmount.toLocaleString('es-CL')}`}
         </td>
-        <td className="px-6 py-5 text-right">
-          <div className="flex items-center justify-end gap-3">
+        <td className="px-6 py-2.5 text-right">
+          <div className="flex items-center justify-end gap-1.5">
             {attendanceLogs && (
               <button 
                 onClick={(e) => { e.stopPropagation(); setShowLogs(!showLogs); }}
                 className={cn(
-                  "flex items-center gap-2 p-1.5 rounded-lg transition-all",
+                  "flex items-center gap-1 p-1 rounded-lg transition-all",
                   showLogs ? "bg-indigo-100 text-indigo-700" : "text-indigo-600 hover:bg-indigo-50"
                 )}
                 title="Ver Asistencia Real (Reloj)"
               >
-                <span className="material-symbols-outlined text-[20px] select-none">history</span>
+                <span className="material-symbols-outlined text-[18px] select-none">history</span>
               </button>
             )}
 
             {item.url_respaldo ? (
               <button 
                 onClick={(e) => { e.stopPropagation(); onViewRespaldo(); }}
-                className="flex items-center gap-2 text-[10px] font-black text-emerald-600 hover:text-emerald-700 transition-all uppercase tracking-widest"
+                className="flex items-center gap-1 text-[9px] font-black text-emerald-600 hover:text-emerald-700 transition-all uppercase tracking-widest"
                 title="Ver Respaldo"
               >
-                <span className="material-symbols-outlined text-[18px] select-none" dangerouslySetInnerHTML={{ __html: '&#xe873;' }} />
+                <span className="material-symbols-outlined text-[16px] select-none" dangerouslySetInnerHTML={{ __html: '&#xe873;' }} />
               </button>
             ) : null}
 
             <label 
               onClick={(e) => e.stopPropagation()}
               className={cn(
-                "p-2 rounded-xl transition-all shadow-sm flex items-center justify-center cursor-pointer",
+                "p-1.5 rounded-lg transition-all shadow-sm flex items-center justify-center cursor-pointer",
                 isLocked 
                   ? "bg-surface-container text-outline/20 cursor-not-allowed border border-outline-variant/5" 
                   : "bg-white border border-outline-variant/20 text-primary hover:bg-primary/5 hover:border-primary/40 active:scale-95"
               )}
               title={item.url_respaldo ? "Cambiar Respaldo" : "Subir Respaldo"}
             >
-              <span className="material-symbols-outlined text-[16px] select-none">{item.url_respaldo ? 'refresh' : 'upload_file'}</span>
+              <span className="material-symbols-outlined text-[14px] select-none">{item.url_respaldo ? 'refresh' : 'upload_file'}</span>
               <input type="file" className="hidden" onChange={onRespaldoUpload} accept=".pdf,.jpg,.jpeg,.png" />
             </label>
             
@@ -1972,28 +1981,28 @@ const EmployeeTableRow = React.memo(({
               disabled={isLocked}
               onClick={(e) => { e.stopPropagation(); onDelete(); }}
               className={cn(
-                "p-2 rounded-xl transition-all shadow-sm flex items-center justify-center",
+                "p-1.5 rounded-lg transition-all shadow-sm flex items-center justify-center",
                 isLocked 
                   ? "bg-surface-container text-outline/20 cursor-not-allowed border border-outline-variant/5" 
                   : "bg-white border border-error/20 text-error hover:bg-error/5 hover:border-error/40 active:scale-95"
               )}
               title={isLocked ? "Eliminación bloqueada" : "Eliminar registro"}
             >
-              <span className="material-symbols-outlined text-[16px] select-none" dangerouslySetInnerHTML={{ __html: '&#xe872;' }} />
+              <span className="material-symbols-outlined text-[14px] select-none" dangerouslySetInnerHTML={{ __html: '&#xe872;' }} />
             </button>
 
             <button 
               disabled={isLocked}
               onClick={(e) => { e.stopPropagation(); onEdit(); }}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm",
+                "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all shadow-sm",
                 isLocked 
                   ? "bg-surface-container text-outline/40 cursor-not-allowed border border-outline-variant/10" 
                   : "bg-white border border-outline-variant/20 text-primary hover:bg-primary/5 hover:border-primary/40 active:scale-95"
               )}
               title={isLocked ? "Edición bloqueada por Control Interno" : "Editar registro"}
             >
-              <span className="material-symbols-outlined text-sm select-none" dangerouslySetInnerHTML={{ __html: isLocked ? '&#xf033;' : '&#xe3c9;' }} />
+              <span className="material-symbols-outlined text-xs select-none" dangerouslySetInnerHTML={{ __html: isLocked ? '&#xf033;' : '&#xe3c9;' }} />
               {isLocked ? 'Bloqueado' : 'Editar'}
             </button>
 
@@ -2011,7 +2020,7 @@ const EmployeeTableRow = React.memo(({
                   }
                 }}
                 className={cn(
-                  "p-2 rounded-xl transition-all shadow-sm flex items-center justify-center border",
+                  "p-1.5 rounded-lg transition-all shadow-sm flex items-center justify-center border",
                   isLocked 
                     ? "bg-surface-container text-outline/20 border-outline-variant/5 cursor-not-allowed" 
                     : isFullyApproved 
@@ -2020,13 +2029,13 @@ const EmployeeTableRow = React.memo(({
                 )}
                 title={isLocked ? "Validación bloqueada" : isFullyApproved ? "Validado" : "Validar Rápido"}
               >
-                <span className="material-symbols-outlined text-[16px] select-none">check_circle</span>
+                <span className="material-symbols-outlined text-[14px] select-none">check_circle</span>
               </button>
             )}
 
             <button 
               onClick={(e) => { e.stopPropagation(); onToggle(); }}
-              className="p-2.5 bg-surface-container-low hover:bg-primary/10 hover:text-primary rounded-xl transition-all"
+              className="p-1.5 bg-surface-container-low hover:bg-primary/10 hover:text-primary rounded-lg transition-all"
             >
               <span className={cn("material-symbols-outlined transition-transform select-none", expanded && "rotate-180")} dangerouslySetInnerHTML={{ __html: '&#xe5cf;' }} />
             </button>

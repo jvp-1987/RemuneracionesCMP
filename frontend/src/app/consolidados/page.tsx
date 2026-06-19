@@ -163,82 +163,82 @@ export default function ConsolidadosPage() {
         <table className="w-full text-left">
           <thead className="bg-surface-container/30 border-b border-outline-variant/10">
             <tr>
-              <th className="px-8 py-6 text-[10px] font-black text-outline uppercase tracking-[0.2em]">Unidad de Salud</th>
-              <th className="px-8 py-6 text-[10px] font-black text-outline uppercase tracking-[0.2em]">Estado Auditoría</th>
-              <th className="px-8 py-6 text-[10px] font-black text-outline uppercase tracking-[0.2em] text-center">Control / Finanzas</th>
-              <th className="px-8 py-6 text-[10px] font-black text-outline uppercase tracking-[0.2em] text-center">Registros</th>
-              <th className="px-8 py-6 text-[10px] font-black text-outline uppercase tracking-[0.2em] text-right">Acciones</th>
+              <th className="px-6 py-3.5 text-[10px] font-black text-outline uppercase tracking-[0.2em]">Unidad de Salud</th>
+              <th className="px-6 py-3.5 text-[10px] font-black text-outline uppercase tracking-[0.2em]">Estado Auditoría</th>
+              <th className="px-6 py-3.5 text-[10px] font-black text-outline uppercase tracking-[0.2em] text-center">Control / Finanzas</th>
+              <th className="px-6 py-3.5 text-[10px] font-black text-outline uppercase tracking-[0.2em] text-center">Registros</th>
+              <th className="px-6 py-3.5 text-[10px] font-black text-outline uppercase tracking-[0.2em] text-right">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-outline-variant/5">
             {loading ? (
               <tr>
-                <td colSpan={5} className="px-8 py-32 text-center animate-pulse text-outline font-black uppercase tracking-widest text-xs">
+                <td colSpan={5} className="px-6 py-20 text-center animate-pulse text-outline font-black uppercase tracking-widest text-xs">
                   Sincronizando matriz de auditoría...
                 </td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-8 py-32 text-center text-outline font-black uppercase tracking-widest text-xs italic">
+                <td colSpan={5} className="px-6 py-20 text-center text-outline font-black uppercase tracking-widest text-xs italic">
                   No se encontraron unidades para este periodo
                 </td>
               </tr>
             ) : filtered.map((c) => (
               <tr key={c.id} className="group hover:bg-white hover:scale-[1.01] hover:shadow-lg transition-all duration-300 cursor-pointer relative z-0 hover:z-10" onClick={() => router.push(`/consolidados/${c.id}`)}>
-                <td className="px-8 py-6">
-                  <div className="flex items-center gap-4">
+                <td className="px-6 py-3.5">
+                  <div className="flex items-center gap-3">
                     <HealthCenterLogo name={c.centro_salud.nombre} className="group-hover:border-primary/30" />
                     <div>
-                      <p className="font-black text-[15px] group-hover:text-primary transition-colors flex items-center gap-2">
+                      <p className="font-black text-[14px] group-hover:text-primary transition-colors flex items-center gap-2">
                         {c.centro_salud.nombre}
                         {c.periodo.tipo === 'SUPLEMENTARIO' && (
                           <span className="text-[9px] bg-amber-500 text-white px-2 py-0.5 rounded font-black tracking-normal uppercase">Supl.</span>
                         )}
                       </p>
-                      <p className="text-[10px] font-bold text-outline uppercase tracking-widest mt-1">Audit-ID: CMP-{c.id}</p>
+                      <p className="text-[9px] font-bold text-outline uppercase tracking-widest mt-0.5">Audit-ID: CMP-{c.id}</p>
                     </div>
                   </div>
                 </td>
-                <td className="px-8 py-6">
+                <td className="px-6 py-3.5">
                   <div className="flex items-center gap-2">
-                    <div className={cn("w-2 h-2 rounded-full", c.estado_actual_enum === 'Aprobado' ? "bg-primary" : "bg-warning")} />
+                    <div className={cn("w-1.5 h-1.5 rounded-full", c.estado_actual_enum === 'Aprobado' ? "bg-primary" : "bg-warning")} />
                     <span className={cn(
-                      "text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full",
-                      c.estado_actual_enum === 'Aprobado' ? "bg-primary/10 text-primary" : "bg-surface-container text-secondary"
+                       "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full",
+                       c.estado_actual_enum === 'Aprobado' ? "bg-primary/10 text-primary" : "bg-surface-container text-secondary"
                     )}>
                       {c.estado_actual_enum === 'Aprobado' ? 'Certificado' : 'En Cierre'}
                     </span>
                   </div>
                 </td>
-                <td className="px-8 py-6">
-                  <div className="flex justify-center items-center gap-4">
-                    <div className={cn("flex items-center gap-1.5 opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all", c.vb_control_interno && "opacity-100 grayscale-0")}>
-                      <span className={cn("material-symbols-outlined text-sm select-none", c.vb_control_interno ? "text-primary" : "text-outline")} dangerouslySetInnerHTML={{ __html: c.vb_control_interno ? '&#xe86c;' : '&#xef64;' }} />
+                <td className="px-6 py-3.5">
+                  <div className="flex justify-center items-center gap-3">
+                    <div className={cn("flex items-center gap-1 opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all", c.vb_control_interno && "opacity-100 grayscale-0")}>
+                      <span className={cn("material-symbols-outlined text-[13px] select-none", c.vb_control_interno ? "text-primary" : "text-outline")} dangerouslySetInnerHTML={{ __html: c.vb_control_interno ? '&#xe86c;' : '&#xef64;' }} />
                       <span className="text-[9px] font-black text-outline uppercase">CI</span>
                     </div>
-                    <div className={cn("flex items-center gap-1.5 opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all", c.vb_finanzas && "opacity-100 grayscale-0")}>
-                      <span className={cn("material-symbols-outlined text-sm select-none", c.vb_finanzas ? "text-primary" : "text-outline")} dangerouslySetInnerHTML={{ __html: c.vb_finanzas ? '&#xe86c;' : '&#xef64;' }} />
+                    <div className={cn("flex items-center gap-1 opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all", c.vb_finanzas && "opacity-100 grayscale-0")}>
+                      <span className={cn("material-symbols-outlined text-[13px] select-none", c.vb_finanzas ? "text-primary" : "text-outline")} dangerouslySetInnerHTML={{ __html: c.vb_finanzas ? '&#xe86c;' : '&#xef64;' }} />
                       <span className="text-[9px] font-black text-outline uppercase">FI</span>
                     </div>
                   </div>
                 </td>
-                <td className="px-8 py-6 text-center">
-                  <span className="text-sm font-black text-on-surface">
+                <td className="px-6 py-3.5 text-center">
+                  <span className="text-xs font-black text-on-surface">
                     {(c._count?.horas_extras || 0) + (c._count?.viaticos || 0)}
                   </span>
-                  <span className="text-[10px] font-bold text-outline uppercase tracking-widest ml-1.5">Regs</span>
+                  <span className="text-[9px] font-bold text-outline uppercase tracking-widest ml-1">Regs</span>
                 </td>
-                 <td className="px-8 py-6 text-right">
-                  <div className="flex justify-end gap-2">
+                <td className="px-6 py-3.5 text-right">
+                  <div className="flex justify-end gap-1.5">
                     <button 
                       onClick={(e) => handleDownloadExcelList(e, c.id, c.centro_salud.nombre, c.periodo.mes, c.periodo.anio, c.periodo.tipo)}
-                      className="p-2 border border-emerald-200/50 rounded-xl text-emerald-600 bg-emerald-50 hover:bg-emerald-600 hover:text-white transition-all shadow-sm flex items-center justify-center"
+                      className="p-1.5 border border-emerald-200/50 rounded-lg text-emerald-600 bg-emerald-50 hover:bg-emerald-600 hover:text-white transition-all shadow-sm flex items-center justify-center"
                       title="Descargar Excel Consolidado"
                     >
-                      <span className="material-symbols-outlined text-lg select-none">download</span>
+                      <span className="material-symbols-outlined text-base select-none">download</span>
                     </button>
-                    <button className="p-2 border border-outline-variant/10 rounded-xl text-primary hover:bg-primary hover:text-white transition-all shadow-sm flex items-center justify-center">
-                      <span className="material-symbols-outlined text-lg select-none" dangerouslySetInnerHTML={{ __html: '&#xe5cc;' }} />
+                    <button className="p-1.5 border border-outline-variant/10 rounded-lg text-primary hover:bg-primary hover:text-white transition-all shadow-sm flex items-center justify-center">
+                      <span className="material-symbols-outlined text-base select-none" dangerouslySetInnerHTML={{ __html: '&#xe5cc;' }} />
                     </button>
                   </div>
                 </td>
