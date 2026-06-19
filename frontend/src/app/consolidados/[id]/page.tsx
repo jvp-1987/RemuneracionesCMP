@@ -835,26 +835,26 @@ export default function ConsolidadoDetailPage() {
               V°B° CONTROL
             </button>
             <button 
-              disabled={(!canValidateContabilidad) || (!data.vb_contabilidad && (!allAudited || !data.vb_control_interno))}
+              disabled={!canValidateContabilidad}
               onClick={() => handleToggleValidation('vb_contabilidad', !data.vb_contabilidad)}
               className={cn(
                 "px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all shadow-sm",
                 data.vb_contabilidad ? "bg-primary text-white border-primary shadow-primary/20" : "bg-white border-outline-variant/20 text-outline hover:border-primary/50",
-                (!canValidateContabilidad || (!data.vb_contabilidad && (!allAudited || !data.vb_control_interno))) && "opacity-40 cursor-not-allowed grayscale"
+                (!canValidateContabilidad) && "opacity-40 cursor-not-allowed grayscale"
               )}
-              title={!canValidateContabilidad ? "Solo perfil CONTABILIDAD puede validar" : (!data.vb_contabilidad && !data.vb_control_interno) ? "Debe contar con el V°B° de Control Interno primero" : (!data.vb_contabilidad && !allAudited) ? "Debe auditar (validar o rechazar) todos los registros antes de dar el visto bueno" : ""}
+              title={!canValidateContabilidad ? "Solo perfil CONTABILIDAD puede validar" : ""}
             >
               V°B° CONTABILIDAD
             </button>
             <button 
-              disabled={(!canValidateFinanzas) || (!data.vb_finanzas && (!allAudited || !data.vb_contabilidad))}
+              disabled={(!canValidateFinanzas) || (!data.vb_finanzas && (!allAudited || !data.vb_control_interno || !data.vb_contabilidad))}
               onClick={() => handleToggleValidation('vb_finanzas', !data.vb_finanzas)}
               className={cn(
                 "px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all shadow-sm",
                 data.vb_finanzas ? "bg-primary text-white border-primary shadow-primary/20" : "bg-white border-outline-variant/20 text-outline hover:border-primary/50",
-                (!canValidateFinanzas || (!data.vb_finanzas && (!allAudited || !data.vb_contabilidad))) && "opacity-40 cursor-not-allowed grayscale"
+                (!canValidateFinanzas || (!data.vb_finanzas && (!allAudited || !data.vb_control_interno || !data.vb_contabilidad))) && "opacity-40 cursor-not-allowed grayscale"
               )}
-              title={!canValidateFinanzas ? "Solo perfil FINANZAS puede validar" : (!data.vb_finanzas && !data.vb_contabilidad) ? "Debe contar con el V°B° de Contabilidad primero" : (!data.vb_finanzas && !allAudited) ? "Debe auditar (validar o rechazar) todos los registros antes de dar el visto bueno" : ""}
+              title={!canValidateFinanzas ? "Solo perfil FINANZAS puede validar" : (!data.vb_finanzas && !data.vb_control_interno) ? "Debe contar con el V°B° de Control Interno primero" : (!data.vb_finanzas && !data.vb_contabilidad) ? "Debe contar con el V°B° de Contabilidad primero" : (!data.vb_finanzas && !allAudited) ? "Debe auditar (validar o rechazar) todos los registros antes de dar el visto bueno" : ""}
             >
               V°B° FINANZAS
             </button>
