@@ -387,23 +387,33 @@ export default function FuncionarioDetailPage() {
                       </div>
                     )}
                   </div>
-                  <h1 className="text-3xl font-black text-on-surface tracking-tighter uppercase mb-2">
+                  <h1 className="text-3xl font-black text-on-surface tracking-tighter uppercase mb-1">
                     {funcionario.nombre_completo}
                   </h1>
-                  <div className="flex items-center gap-2">
-                    <span className="px-5 py-1.5 bg-primary/10 text-primary font-black text-[10px] uppercase tracking-[0.2em] rounded-full">
-                      {(() => {
-                        switch (funcionario.categoria_aps?.toUpperCase()) {
-                          case 'A': return 'Médicos, Químicos y Dentistas';
-                          case 'B': return 'Otros profesionales';
-                          case 'C': return 'Técnicos de nivel superior';
-                          case 'D': return 'Técnicos de Salud';
-                          case 'E': return 'Administrativos de Salud';
-                          case 'F': return 'Auxiliares de servicios de Salud';
-                          default: return funcionario.profesion_enum || 'Sin Asignar';
-                        }
-                      })()}
-                    </span>
+                  <div className="text-xs font-black text-outline uppercase tracking-widest mb-4">
+                    RUT: {funcionario.rut}
+                  </div>
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="flex flex-wrap justify-center gap-2">
+                      <span className="px-5 py-1.5 bg-primary/10 text-primary font-black text-[10px] uppercase tracking-[0.2em] rounded-full">
+                        {(() => {
+                          switch (funcionario.categoria_aps?.toUpperCase()) {
+                            case 'A': return 'Médicos, Químicos y Dentistas';
+                            case 'B': return 'Otros profesionales';
+                            case 'C': return 'Técnicos de nivel superior';
+                            case 'D': return 'Técnicos de Salud';
+                            case 'E': return 'Administrativos de Salud';
+                            case 'F': return 'Auxiliares de servicios de Salud';
+                            default: return 'Sin Categoría APS';
+                          }
+                        })()}
+                      </span>
+                      {funcionario.profesion_enum && funcionario.profesion_enum !== 'POR_CLASIFICAR' && (
+                        <span className="px-5 py-1.5 bg-indigo-50 text-indigo-600 border border-indigo-100 font-black text-[10px] uppercase tracking-[0.2em] rounded-full">
+                          {funcionario.profesion_enum.replace(/_/g, ' ')}
+                        </span>
+                      )}
+                    </div>
                     {!funcionario.activo && (
                       <span className="px-5 py-1.5 bg-rose-100 text-rose-700 font-black text-[10px] uppercase tracking-[0.2em] rounded-full">INACTIVO</span>
                     )}
