@@ -1275,8 +1275,8 @@ export default function ConsolidadoDetailPage() {
                       onRespaldoUpload={(e) => handleRecordRespaldoUpload(item.id, e)}
                       onViewRespaldo={() => handleOpenRespaldo(item.url_respaldo!)}
                       attendanceLogs={relojData ? relojData[item.funcionario.rut.replace(/\./g, '').replace(/^0+/, '')] : undefined}
-                      canEdit={((canValidateControl || canValidateFinanzas) || ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '')) && !isLocked}
-                      canAudit={canValidateControl || canValidateFinanzas}
+                      canEdit={((canValidateControl || canValidateContabilidad || canValidateFinanzas) || ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '')) && !isLocked}
+                      canAudit={canValidateControl || canValidateContabilidad || canValidateFinanzas}
                       isLocked={!!isLocked}
                     />
                   ))}
