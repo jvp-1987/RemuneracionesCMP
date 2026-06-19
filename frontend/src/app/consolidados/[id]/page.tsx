@@ -1995,15 +1995,14 @@ const EmployeeTableRow = React.memo(({
               disabled={isLocked}
               onClick={(e) => { e.stopPropagation(); onEdit(); }}
               className={cn(
-                "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all shadow-sm",
+                "p-1.5 rounded-lg transition-all shadow-sm flex items-center justify-center border",
                 isLocked 
-                  ? "bg-surface-container text-outline/40 cursor-not-allowed border border-outline-variant/10" 
+                  ? "bg-surface-container text-outline/20 border-outline-variant/5 cursor-not-allowed" 
                   : "bg-white border border-outline-variant/20 text-primary hover:bg-primary/5 hover:border-primary/40 active:scale-95"
               )}
               title={isLocked ? "Edición bloqueada por Control Interno" : "Editar registro"}
             >
-              <span className="material-symbols-outlined text-xs select-none" dangerouslySetInnerHTML={{ __html: isLocked ? '&#xf033;' : '&#xe3c9;' }} />
-              {isLocked ? 'Bloqueado' : 'Editar'}
+              <span className="material-symbols-outlined text-[14px] select-none" dangerouslySetInnerHTML={{ __html: isLocked ? '&#xf033;' : '&#xe3c9;' }} />
             </button>
 
             {canAudit && (
