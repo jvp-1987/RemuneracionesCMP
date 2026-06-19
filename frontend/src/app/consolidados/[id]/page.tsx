@@ -1450,7 +1450,11 @@ const EmployeeTableRow = React.memo(({
             {activeTab === 'horas' ? (
               <>
                 <div className="text-[16px] font-black text-primary tracking-tighter">{item.cantidad_25 || 0} <span className="text-[10px] text-secondary">HRS</span></div>
-                <StatusBadge status={item.estado_25} />
+                {Number(item.cantidad_25 || 0) > 0 ? (
+                  <StatusBadge status={item.estado_25} />
+                ) : (
+                  <span className="text-[10px] font-black text-outline/40 uppercase tracking-widest bg-outline/5 px-2.5 py-1 rounded-full border border-outline/10">N/A</span>
+                )}
               </>
             ) : activeTab === 'viaticos' ? (
               <div className="text-[12px] font-black text-on-surface uppercase tracking-widest">{item.tipo_destino || 'NACIONAL'}</div>
@@ -1466,7 +1470,11 @@ const EmployeeTableRow = React.memo(({
              {activeTab === 'horas' ? (
                <>
                 <div className="text-[16px] font-black text-primary tracking-tighter">{item.cantidad_50 || 0} <span className="text-[10px] text-secondary">HRS</span></div>
-                <StatusBadge status={item.estado_50} />
+                {Number(item.cantidad_50 || 0) > 0 ? (
+                  <StatusBadge status={item.estado_50} />
+                ) : (
+                  <span className="text-[10px] font-black text-outline/40 uppercase tracking-widest bg-outline/5 px-2.5 py-1 rounded-full border border-outline/10">N/A</span>
+                )}
                </>
              ) : activeTab === 'viaticos' ? (
                <StatusBadge status={item.estado} />
@@ -1558,11 +1566,12 @@ const EmployeeTableRow = React.memo(({
                 disabled={isLocked}
                 onClick={(e) => { 
                   e.stopPropagation(); 
+                  const targetStatus = isFullyApproved ? 'PENDIENTE' : 'APROBADO';
                   if (activeTab === 'horas') {
-                    if (Number(item.cantidad_25 || 0) > 0) onUpdateStatus('horas', item.id, 'estado_25', 'APROBADO');
-                    if (Number(item.cantidad_50 || 0) > 0) onUpdateStatus('horas', item.id, 'estado_50', 'APROBADO');
+                    if (Number(item.cantidad_25 || 0) > 0) onUpdateStatus('horas', item.id, 'estado_25', targetStatus);
+                    if (Number(item.cantidad_50 || 0) > 0) onUpdateStatus('horas', item.id, 'estado_50', targetStatus);
                   } else {
-                    onUpdateStatus(activeTab, item.id, 'estado', 'APROBADO');
+                    onUpdateStatus(activeTab, item.id, 'estado', targetStatus);
                   }
                 }}
                 className={cn(
@@ -1609,20 +1618,29 @@ const EmployeeTableRow = React.memo(({
                           </div>
                           <span className="font-manrope font-black text-primary text-4xl tracking-tighter">{item.cantidad_25 || 0} <span className="text-xl">HRS</span></span>
                         </div>
-                        <div className="space-y-4">
-                          <textarea 
-                            disabled={!canAudit}
-                            className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold h-24 min-h-[80px] resize-y" 
-                            placeholder={canAudit ? "Ingrese hallazgos..." : "Notas de auditoría (Solo lectura)"}
-                            value={obs25}
-                            onChange={(e) => setObs25(e.target.value)}
-                            onBlur={() => onObs(obs25, '25')}
-                          />
-                        </div>
-                        {canAudit && (
-                          <div className="flex gap-4">
-                            <button onClick={() => onUpdateStatus('horas', item.id, 'estado_25', 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all", item.estado_25 === 'RECHAZADO' ? "bg-error text-white shadow-xl shadow-error/20" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
-                            <button onClick={() => onUpdateStatus('horas', item.id, 'estado_25', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado_25 === 'APROBADO' ? "bg-primary text-white shadow-primary/20" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
+                        {Number(item.cantidad_25 || 0) > 0 ? (
+                          <>
+                            <div className="space-y-4">
+                              <textarea 
+                                disabled={!canAudit}
+                                className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold h-24 min-h-[80px] resize-y" 
+                                placeholder={canAudit ? "Ingrese hallazgos..." : "Notas de auditoría (Solo lectura)"}
+                                value={obs25}
+                                onChange={(e) => setObs25(e.target.value)}
+                                onBlur={() => onObs(obs25, '25')}
+                              />
+                            </div>
+                            {canAudit && (
+                              <div className="flex gap-4">
+                                <button onClick={() => onUpdateStatus('horas', item.id, 'estado_25', item.estado_25 === 'RECHAZADO' ? 'PENDIENTE' : 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all", item.estado_25 === 'RECHAZADO' ? "bg-error text-white shadow-xl shadow-error/20" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
+                                <button onClick={() => onUpdateStatus('horas', item.id, 'estado_25', item.estado_25 === 'APROBADO' ? 'PENDIENTE' : 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado_25 === 'APROBADO' ? "bg-primary text-white shadow-primary/20" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center py-8 bg-surface-container/30 rounded-3xl border border-outline-variant/5 text-center">
+                            <span className="material-symbols-outlined text-[24px] text-outline/30 mb-2 select-none">block</span>
+                            <p className="text-xs font-bold text-outline/40 italic">No registra horas en este tramo</p>
                           </div>
                         )}
                       </div>
@@ -1633,20 +1651,29 @@ const EmployeeTableRow = React.memo(({
                           </div>
                           <span className="font-manrope font-black text-primary text-4xl tracking-tighter">{item.cantidad_50 || 0} <span className="text-xl">HRS</span></span>
                         </div>
-                        <div className="space-y-4">
-                          <textarea 
-                            disabled={!canAudit}
-                            className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold h-24 min-h-[80px] resize-y" 
-                            placeholder={canAudit ? "Ingrese hallazgos..." : "Notas de auditoría (Solo lectura)"}
-                            value={obs50}
-                            onChange={(e) => setObs50(e.target.value)}
-                            onBlur={() => onObs(obs50, '50')}
-                          />
-                        </div>
-                        {canAudit && (
-                          <div className="flex gap-4">
-                            <button onClick={() => onUpdateStatus('horas', item.id, 'estado_50', 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all", item.estado_50 === 'RECHAZADO' ? "bg-error text-white shadow-xl shadow-error/20" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
-                            <button onClick={() => onUpdateStatus('horas', item.id, 'estado_50', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado_50 === 'APROBADO' ? "bg-primary text-white shadow-primary/20" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
+                        {Number(item.cantidad_50 || 0) > 0 ? (
+                          <>
+                            <div className="space-y-4">
+                              <textarea 
+                                disabled={!canAudit}
+                                className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold h-24 min-h-[80px] resize-y" 
+                                placeholder={canAudit ? "Ingrese hallazgos..." : "Notas de auditoría (Solo lectura)"}
+                                value={obs50}
+                                onChange={(e) => setObs50(e.target.value)}
+                                onBlur={() => onObs(obs50, '50')}
+                              />
+                            </div>
+                            {canAudit && (
+                              <div className="flex gap-4">
+                                <button onClick={() => onUpdateStatus('horas', item.id, 'estado_50', item.estado_50 === 'RECHAZADO' ? 'PENDIENTE' : 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all", item.estado_50 === 'RECHAZADO' ? "bg-error text-white shadow-xl shadow-error/20" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
+                                <button onClick={() => onUpdateStatus('horas', item.id, 'estado_50', item.estado_50 === 'APROBADO' ? 'PENDIENTE' : 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado_50 === 'APROBADO' ? "bg-primary text-white shadow-primary/20" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center py-8 bg-surface-container/30 rounded-3xl border border-outline-variant/5 text-center">
+                            <span className="material-symbols-outlined text-[24px] text-outline/30 mb-2 select-none">block</span>
+                            <p className="text-xs font-bold text-outline/40 italic">No registra horas en este tramo</p>
                           </div>
                         )}
                       </div>
@@ -1663,8 +1690,8 @@ const EmployeeTableRow = React.memo(({
                         />
                         {canAudit && (activeTab === 'viaticos' || activeTab === 'atrasos' || activeTab === 'procedimientos' || activeTab === 'turnos') && (
                           <div className="flex gap-6 pt-4 pb-8">
-                            <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado === 'RECHAZADO' ? "bg-error text-white" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
-                            <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-primary/20", item.estado === 'APROBADO' ? "bg-primary text-white" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
+                            <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', item.estado === 'RECHAZADO' ? 'PENDIENTE' : 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado === 'RECHAZADO' ? "bg-error text-white" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
+                            <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', item.estado === 'APROBADO' ? 'PENDIENTE' : 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-primary/20", item.estado === 'APROBADO' ? "bg-primary text-white" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
                           </div>
                         )}
                     </div>
