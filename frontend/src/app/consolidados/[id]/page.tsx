@@ -1944,22 +1944,22 @@ const EmployeeTableRow = React.memo(({
               <button 
                 onClick={(e) => { e.stopPropagation(); setShowLogs(!showLogs); }}
                 className={cn(
-                  "flex items-center gap-1 p-1 rounded-lg transition-all",
+                  "flex items-center justify-center p-1.5 rounded-lg transition-all",
                   showLogs ? "bg-indigo-100 text-indigo-700" : "text-indigo-600 hover:bg-indigo-50"
                 )}
                 title="Ver Asistencia Real (Reloj)"
               >
-                <span className="material-symbols-outlined text-[18px] select-none">history</span>
+                <span className="text-[12px] select-none">🕒</span>
               </button>
             )}
 
             {item.url_respaldo ? (
               <button 
                 onClick={(e) => { e.stopPropagation(); onViewRespaldo(); }}
-                className="flex items-center gap-1 text-[9px] font-black text-emerald-600 hover:text-emerald-700 transition-all uppercase tracking-widest"
+                className="flex items-center justify-center p-1.5 rounded-lg hover:bg-emerald-50 transition-all"
                 title="Ver Respaldo"
               >
-                <span className="material-symbols-outlined text-[16px] select-none" dangerouslySetInnerHTML={{ __html: '&#xe873;' }} />
+                <span className="text-[12px] select-none">📄</span>
               </button>
             ) : null}
 
@@ -1973,7 +1973,7 @@ const EmployeeTableRow = React.memo(({
               )}
               title={item.url_respaldo ? "Cambiar Respaldo" : "Subir Respaldo"}
             >
-              <span className="material-symbols-outlined text-[14px] select-none">{item.url_respaldo ? 'refresh' : 'upload_file'}</span>
+              <span className="text-[12px] select-none">{item.url_respaldo ? '🔄' : '📤'}</span>
               <input type="file" className="hidden" onChange={onRespaldoUpload} accept=".pdf,.jpg,.jpeg,.png" />
             </label>
             
@@ -1988,7 +1988,7 @@ const EmployeeTableRow = React.memo(({
               )}
               title={isLocked ? "Eliminación bloqueada" : "Eliminar registro"}
             >
-              <span className="material-symbols-outlined text-[14px] select-none" dangerouslySetInnerHTML={{ __html: '&#xe872;' }} />
+              <span className="text-[12px] select-none">🗑️</span>
             </button>
 
             <button 
@@ -2002,7 +2002,7 @@ const EmployeeTableRow = React.memo(({
               )}
               title={isLocked ? "Edición bloqueada por Control Interno" : "Editar registro"}
             >
-              <span className="material-symbols-outlined text-[14px] select-none" dangerouslySetInnerHTML={{ __html: isLocked ? '&#xf033;' : '&#xe3c9;' }} />
+              <span className="text-[12px] select-none">{isLocked ? '🔒' : '✏️'}</span>
             </button>
 
             {canAudit && (
@@ -2028,15 +2028,15 @@ const EmployeeTableRow = React.memo(({
                 )}
                 title={isLocked ? "Validación bloqueada" : isFullyApproved ? "Validado" : "Validar Rápido"}
               >
-                <span className="material-symbols-outlined text-[14px] select-none">check_circle</span>
+                <span className="text-[12px] select-none">{isFullyApproved ? '✅' : '✔️'}</span>
               </button>
             )}
 
             <button 
               onClick={(e) => { e.stopPropagation(); onToggle(); }}
-              className="p-1.5 bg-surface-container-low hover:bg-primary/10 hover:text-primary rounded-lg transition-all"
+              className="p-1.5 bg-surface-container-low hover:bg-primary/10 hover:text-primary rounded-lg transition-all flex items-center justify-center"
             >
-              <span className={cn("material-symbols-outlined transition-transform select-none", expanded && "rotate-180")} dangerouslySetInnerHTML={{ __html: '&#xe5cf;' }} />
+              <span className="text-[12px] select-none">{expanded ? '🔼' : '🔽'}</span>
             </button>
           </div>
         </td>
