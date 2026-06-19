@@ -104,6 +104,9 @@ model Consolidado {
   vb_finanzas              Boolean          @default(false)
   fecha_vb_finanzas        DateTime?
   firma_vb_finanzas        String?
+  vb_contabilidad          Boolean          @default(false)
+  fecha_vb_contabilidad    DateTime?
+  firma_vb_contabilidad    String?
   usuario_gestor_id        Int?
   url_respaldo             String?          @db.LongText
   reloj_data               Json?

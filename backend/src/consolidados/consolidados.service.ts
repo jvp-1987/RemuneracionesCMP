@@ -187,6 +187,20 @@ export class ConsolidadosService {
       }
     }
 
+    // Logic for CONTABILIDAD role
+    if (user.rol_enum === 'CONTABILIDAD' || user.rol_enum === 'ADMIN' || user.rol_enum === 'ADMIN_MAESTRO') {
+      if (dto.vb_contabilidad !== undefined) {
+        updateData.vb_contabilidad = dto.vb_contabilidad;
+        if (dto.vb_contabilidad === true) {
+          updateData.fecha_vb_contabilidad = new Date();
+          updateData.firma_vb_contabilidad = `Validado por: ${user.nombre} (Contabilidad)`;
+        } else {
+          updateData.fecha_vb_contabilidad = null;
+          updateData.firma_vb_contabilidad = null;
+        }
+      }
+    }
+
     // General updates
     if (user.rol_enum === 'ADMIN' || user.rol_enum === 'ADMIN_MAESTRO' || ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol_enum)) {
       if (dto.estado_actual_enum) updateData.estado_actual_enum = dto.estado_actual_enum;
@@ -676,6 +690,9 @@ export class ConsolidadosService {
     aoaResumen.push(['V°B° Control Interno', consolidado.vb_control_interno ? 'Sí' : 'No']);
     aoaResumen.push(['Fecha V°B° Control Interno', consolidado.fecha_vb_control_interno ? formatDateTime(consolidado.fecha_vb_control_interno) : 'Pendiente']);
     aoaResumen.push(['Firma Electrónica Control', consolidado.firma_vb_control_interno || 'N/A']);
+    aoaResumen.push(['V°B° Contabilidad', consolidado.vb_contabilidad ? 'Sí' : 'No']);
+    aoaResumen.push(['Fecha V°B° Contabilidad', consolidado.fecha_vb_contabilidad ? formatDateTime(consolidado.fecha_vb_contabilidad) : 'Pendiente']);
+    aoaResumen.push(['Firma Electrónica Contabilidad', consolidado.firma_vb_contabilidad || 'N/A']);
     aoaResumen.push(['V°B° Finanzas', consolidado.vb_finanzas ? 'Sí' : 'No']);
     aoaResumen.push(['Fecha V°B° Finanzas', consolidado.fecha_vb_finanzas ? formatDateTime(consolidado.fecha_vb_finanzas) : 'Pendiente']);
     aoaResumen.push(['Firma Electrónica Finanzas', consolidado.firma_vb_finanzas || 'N/A']);

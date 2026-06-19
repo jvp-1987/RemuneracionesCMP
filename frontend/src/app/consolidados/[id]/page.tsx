@@ -52,6 +52,9 @@ interface ConsolidadoDetail {
   estado_actual_enum: string;
   vb_control_interno: boolean;
   vb_finanzas: boolean;
+  vb_contabilidad?: boolean;
+  fecha_vb_contabilidad?: string | Date;
+  firma_vb_contabilidad?: string;
   centro_salud: { nombre: string; id: number };
   periodo: { mes: number; anio: number };
   horas_extras: Transaction[];
@@ -68,7 +71,8 @@ export default function ConsolidadoDetailPage() {
   const router = useRouter();
   const { user } = useAuth();
   const [data, setData] = useState<ConsolidadoDetail | null>(null);
-  const [activeTab, setActiveTab] = useState<'horas' | 'viaticos' | 'atrasos' | 'procedimientos' | 'turnos'>('horas');
+  const [activeTab, setActiveTab] = useState<'horas' | 'viaticos' | 'atrasos' | 'procedimientos' | 'turnos' | 'revision_contable'>('horas');
+  const [selectedProgramId, setSelectedProgramId] = useState<number | 'procedimientos_aps' | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'TODOS' | 'PENDIENTE' | 'APROBADO' | 'RECHAZADO'>('TODOS');
@@ -86,6 +90,7 @@ export default function ConsolidadoDetailPage() {
   const [newFileBase64, setNewFileBase64] = useState<string | null>(null);
 
   const canValidateControl = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'CONTROL';
+  const canValidateContabilidad = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'CONTABILIDAD';
   const canValidateFinanzas = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'FINANZAS';
   const canFinalize = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO';
   
@@ -337,8 +342,8 @@ export default function ConsolidadoDetailPage() {
   };
 
 
-  const handleToggleValidation = async (field: 'vb_control_interno' | 'vb_finanzas', value: boolean) => {
-    const fieldName = field === 'vb_control_interno' ? 'V°B° CONTROL INTERNO' : 'V°B° FINANZAS';
+  const handleToggleValidation = async (field: 'vb_control_interno' | 'vb_finanzas' | 'vb_contabilidad', value: boolean) => {
+    const fieldName = field === 'vb_control_interno' ? 'V°B° CONTROL INTERNO' : field === 'vb_contabilidad' ? 'V°B° CONTABILIDAD' : 'V°B° FINANZAS';
     const action = value ? 'activar' : 'quitar';
     
     if (!window.confirm(`¿Estás seguro de que deseas ${action} el ${fieldName}?`)) {
@@ -482,6 +487,7 @@ export default function ConsolidadoDetailPage() {
   if (!data) return <div className="p-20 text-center text-error font-extrabold">ERROR DE CARGA</div>;
 
   const filteredData = () => {
+    if (activeTab === 'revision_contable') return [];
     let list = activeTab === 'horas' ? data.horas_extras : 
                activeTab === 'viaticos' ? data.viaticos : 
                activeTab === 'atrasos' ? data.atrasos :
@@ -519,6 +525,13 @@ export default function ConsolidadoDetailPage() {
   };
 
   const approvedSum = () => {
+    if (activeTab === 'revision_contable') {
+      const horasSum = data.horas_extras.reduce((acc, h) => acc + (h.estado_25 === 'APROBADO' ? Number(h.monto_25 || 0) : 0) + (h.estado_50 === 'APROBADO' ? Number(h.monto_50 || 0) : 0), 0);
+      const viaticosSum = data.viaticos.reduce((acc, v) => acc + (v.estado === 'APROBADO' ? (Number(v.monto_calculado || 0) + Number(v.rendicion_pasajes || 0)) : 0), 0);
+      const procedimientosSum = data.procedimientos.reduce((acc, p) => acc + (p.estado === 'APROBADO' ? Number(p.monto_calculado || 0) : 0), 0);
+      const turnosSum = data.turnos_urgencia.reduce((acc, t) => acc + (t.estado === 'APROBADO' ? (Number(t.cant_turnos_habiles || 0) * Number(t.valor_habil || 0) + Number(t.cant_turnos_inhabiles || 0) * Number(t.valor_inhabil || 0)) : 0), 0);
+      return horasSum + viaticosSum + procedimientosSum + turnosSum;
+    }
     if (activeTab === 'horas') return data.horas_extras.reduce((acc, h) => acc + (h.estado_25 === 'APROBADO' ? Number(h.monto_25) : 0) + (h.estado_50 === 'APROBADO' ? Number(h.monto_50) : 0), 0);
     if (activeTab === 'viaticos') return data.viaticos.reduce((acc, v) => acc + (v.estado === 'APROBADO' ? (Number(v.monto_calculado || 0) + Number(v.rendicion_pasajes || 0)) : 0), 0);
     if (activeTab === 'procedimientos') return data.procedimientos.reduce((acc, p) => acc + (p.estado === 'APROBADO' ? Number(p.monto_calculado) : 0), 0);
@@ -527,6 +540,33 @@ export default function ConsolidadoDetailPage() {
   };
 
   const auditProgress = () => {
+    if (activeTab === 'revision_contable') {
+      let totalItems = 0;
+      let totalReviewed = 0;
+      
+      const countReviewed = (items: any[], isHoras = false) => {
+        items.forEach(t => {
+          totalItems++;
+          if (isHoras) {
+            const ok25 = Number(t.cantidad_25 || 0) === 0 || t.estado_25 !== 'PENDIENTE';
+            const ok50 = Number(t.cantidad_50 || 0) === 0 || t.estado_50 !== 'PENDIENTE';
+            if (ok25 && ok50) totalReviewed++;
+          } else {
+            if (t.estado !== 'PENDIENTE') totalReviewed++;
+          }
+        });
+      };
+      
+      countReviewed(data.horas_extras.filter(item => Number(item.cantidad_25 || 0) > 0 || Number(item.cantidad_50 || 0) > 0), true);
+      countReviewed(data.viaticos.filter(item => Number(item.monto_calculado || 0) > 0 || Number(item.rendicion_pasajes || 0) > 0));
+      countReviewed(data.atrasos.filter(item => Number(item.minutos || 0) > 0 || (item.tiempo_descuento && item.tiempo_descuento !== '0 min')));
+      countReviewed(data.procedimientos.filter(item => Number(item.total_procedimientos || 0) > 0));
+      countReviewed(data.turnos_urgencia.filter(item => Number(item.cant_turnos_habiles || 0) > 0 || Number(item.cant_turnos_inhabiles || 0) > 0));
+      
+      if (totalItems === 0) return 100;
+      return Math.round((totalReviewed / totalItems) * 100);
+    }
+
     let list = activeTab === 'horas' ? data.horas_extras : 
                  activeTab === 'viaticos' ? data.viaticos : 
                  activeTab === 'atrasos' ? data.atrasos :
@@ -597,7 +637,139 @@ export default function ConsolidadoDetailPage() {
       },
     };
   };
+  const getRevisionContableRows = () => {
+    if (!data) return [];
+    
+    const rows = programas.map(prog => {
+      const horasExtrasSum = data.horas_extras
+        .filter(h => h.programa?.id === prog.id && h.estado_25 === 'APROBADO')
+        .reduce((sum, h) => sum + Number(h.monto_25 || 0), 0) +
+        data.horas_extras
+        .filter(h => h.programa?.id === prog.id && h.estado_50 === 'APROBADO')
+        .reduce((sum, h) => sum + Number(h.monto_50 || 0), 0);
+      
+      const turnosSum = data.turnos_urgencia
+        .filter(t => t.programa?.id === prog.id && t.estado === 'APROBADO')
+        .reduce((sum, t) => sum + (Number(t.cant_turnos_habiles || 0) * Number(t.valor_habil || 0) + Number(t.cant_turnos_inhabiles || 0) * Number(t.valor_inhabil || 0)), 0);
 
+      const procedimientosSum = 0;
+      const total = horasExtrasSum + turnosSum + procedimientosSum;
+
+      const pendingCount = data.horas_extras.filter(h => h.programa?.id === prog.id && (h.estado_25 === 'PENDIENTE' || h.estado_50 === 'PENDIENTE')).length +
+        data.turnos_urgencia.filter(t => t.programa?.id === prog.id && t.estado === 'PENDIENTE').length;
+      
+      const rejectedCount = data.horas_extras.filter(h => h.programa?.id === prog.id && (h.estado_25 === 'RECHAZADO' || h.estado_50 === 'RECHAZADO')).length +
+        data.turnos_urgencia.filter(t => t.programa?.id === prog.id && t.estado === 'RECHAZADO').length;
+
+      return {
+        id: prog.id,
+        nombre: prog.nombre,
+        horasExtras: horasExtrasSum,
+        turnos: turnosSum,
+        procedimientos: procedimientosSum,
+        total,
+        pendingCount,
+        rejectedCount
+      };
+    });
+
+    const approvedProcedimientos = data.procedimientos
+      .filter(p => p.estado === 'APROBADO')
+      .reduce((sum, p) => sum + Number(p.monto_calculado || 0), 0);
+
+    const pendingProcedimientos = data.procedimientos.filter(p => p.estado === 'PENDIENTE').length;
+    const rejectedProcedimientos = data.procedimientos.filter(p => p.estado === 'RECHAZADO').length;
+
+    rows.push({
+      id: 'procedimientos_aps' as any,
+      nombre: 'Procedimientos APS (Virtual)',
+      horasExtras: 0,
+      turnos: 0,
+      procedimientos: approvedProcedimientos,
+      total: approvedProcedimientos,
+      pendingCount: pendingProcedimientos,
+      rejectedCount: rejectedProcedimientos
+    });
+
+    return rows.filter(r => r.total > 0 || r.pendingCount > 0 || r.rejectedCount > 0);
+  };
+
+  const getSelectedProgramRecords = () => {
+    if (!data || selectedProgramId === null) return [];
+
+    const records: {
+      id: number;
+      funcionario: string;
+      rut: string;
+      tipo: 'Horas Extras 25%' | 'Horas Extras 50%' | 'Turnos de Urgencia' | 'Procedimiento';
+      monto: number;
+      estado: EstadoValidacion;
+      detalles: string;
+    }[] = [];
+
+    if (selectedProgramId === 'procedimientos_aps') {
+      data.procedimientos.forEach(p => {
+        records.push({
+          id: p.id,
+          funcionario: p.funcionario.nombre_completo,
+          rut: p.funcionario.rut,
+          tipo: 'Procedimiento',
+          monto: Number(p.monto_calculado || 0),
+          estado: p.estado || 'PENDIENTE',
+          detalles: `Cantidad: ${p.total_procedimientos || 0} procedimiento(s)`
+        });
+      });
+    } else {
+      const pId = Number(selectedProgramId);
+      
+      data.horas_extras.forEach(h => {
+        if (h.programa?.id === pId) {
+          if (Number(h.cantidad_25 || 0) > 0) {
+            records.push({
+              id: h.id,
+              funcionario: h.funcionario.nombre_completo,
+              rut: h.funcionario.rut,
+              tipo: 'Horas Extras 25%',
+              monto: Number(h.monto_25 || 0),
+              estado: h.estado_25 || 'PENDIENTE',
+              detalles: `${h.cantidad_25} hrs @ $${(Number(h.monto_25 || 0) / Number(h.cantidad_25 || 1)).toFixed(0)}`
+            });
+          }
+          if (Number(h.cantidad_50 || 0) > 0) {
+            records.push({
+              id: h.id,
+              funcionario: h.funcionario.nombre_completo,
+              rut: h.funcionario.rut,
+              tipo: 'Horas Extras 50%',
+              monto: Number(h.monto_50 || 0),
+              estado: h.estado_50 || 'PENDIENTE',
+              detalles: `${h.cantidad_50} hrs @ $${(Number(h.monto_50 || 0) / Number(h.cantidad_50 || 1)).toFixed(0)}`
+            });
+          }
+        }
+      });
+
+      data.turnos_urgencia.forEach(t => {
+        if (t.programa?.id === pId) {
+          const detList: string[] = [];
+          if (Number(t.cant_turnos_habiles || 0) > 0) detList.push(`${t.cant_turnos_habiles} hábiles`);
+          if (Number(t.cant_turnos_inhabiles || 0) > 0) detList.push(`${t.cant_turnos_inhabiles} inhábiles`);
+          
+          records.push({
+            id: t.id,
+            funcionario: t.funcionario.nombre_completo,
+            rut: t.funcionario.rut,
+            tipo: 'Turnos de Urgencia',
+            monto: Number(t.cant_turnos_habiles || 0) * Number(t.valor_habil || 0) + Number(t.cant_turnos_inhabiles || 0) * Number(t.valor_inhabil || 0),
+            estado: t.estado || 'PENDIENTE',
+            detalles: detList.join(', ')
+          });
+        }
+      });
+    }
+
+    return records;
+  };
 
   const stats = getTabStats();
   const allAudited = (stats.horas.count === 0 || stats.horas.complete) &&
@@ -663,14 +835,26 @@ export default function ConsolidadoDetailPage() {
               V°B° CONTROL
             </button>
             <button 
-              disabled={(!canValidateFinanzas) || (!data.vb_finanzas && !allAudited)}
+              disabled={(!canValidateContabilidad) || (!data.vb_contabilidad && (!allAudited || !data.vb_control_interno))}
+              onClick={() => handleToggleValidation('vb_contabilidad', !data.vb_contabilidad)}
+              className={cn(
+                "px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all shadow-sm",
+                data.vb_contabilidad ? "bg-primary text-white border-primary shadow-primary/20" : "bg-white border-outline-variant/20 text-outline hover:border-primary/50",
+                (!canValidateContabilidad || (!data.vb_contabilidad && (!allAudited || !data.vb_control_interno))) && "opacity-40 cursor-not-allowed grayscale"
+              )}
+              title={!canValidateContabilidad ? "Solo perfil CONTABILIDAD puede validar" : (!data.vb_contabilidad && !data.vb_control_interno) ? "Debe contar con el V°B° de Control Interno primero" : (!data.vb_contabilidad && !allAudited) ? "Debe auditar (validar o rechazar) todos los registros antes de dar el visto bueno" : ""}
+            >
+              V°B° CONTABILIDAD
+            </button>
+            <button 
+              disabled={(!canValidateFinanzas) || (!data.vb_finanzas && (!allAudited || !data.vb_contabilidad))}
               onClick={() => handleToggleValidation('vb_finanzas', !data.vb_finanzas)}
               className={cn(
                 "px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all shadow-sm",
                 data.vb_finanzas ? "bg-primary text-white border-primary shadow-primary/20" : "bg-white border-outline-variant/20 text-outline hover:border-primary/50",
-                (!canValidateFinanzas || (!data.vb_finanzas && !allAudited)) && "opacity-40 cursor-not-allowed grayscale"
+                (!canValidateFinanzas || (!data.vb_finanzas && (!allAudited || !data.vb_contabilidad))) && "opacity-40 cursor-not-allowed grayscale"
               )}
-              title={!canValidateFinanzas ? "Solo perfil FINANZAS puede validar" : (!data.vb_finanzas && !allAudited) ? "Debe auditar (validar o rechazar) todos los registros antes de dar el visto bueno" : ""}
+              title={!canValidateFinanzas ? "Solo perfil FINANZAS puede validar" : (!data.vb_finanzas && !data.vb_contabilidad) ? "Debe contar con el V°B° de Contabilidad primero" : (!data.vb_finanzas && !allAudited) ? "Debe auditar (validar o rechazar) todos los registros antes de dar el visto bueno" : ""}
             >
               V°B° FINANZAS
             </button>
@@ -766,7 +950,7 @@ export default function ConsolidadoDetailPage() {
 
         <div className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-4 border-t border-outline-variant/10">
           <div className="flex gap-2 p-1.5 bg-surface-container rounded-[1.5rem] border border-outline-variant/5 shadow-inner overflow-x-auto no-scrollbar w-full lg:w-auto">
-            {(['horas', 'viaticos', 'atrasos', 'procedimientos', 'turnos'] as const).map(tab => (
+            {(['horas', 'viaticos', 'atrasos', 'procedimientos', 'turnos', 'revision_contable'] as const).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -777,106 +961,330 @@ export default function ConsolidadoDetailPage() {
                     : "text-secondary hover:text-primary hover:bg-white/40"
                 )}
               >
-                {tab === 'horas' ? 'Horas Extras' : tab === 'viaticos' ? 'Viáticos' : tab === 'atrasos' ? 'Atrasos' : tab === 'procedimientos' ? 'Procedimientos' : 'Turnos'}
-                <span className={cn(
-                  "px-2.5 py-1 rounded-lg text-[10px] font-black transition-all",
-                  stats[tab].complete 
-                    ? "bg-green-500 text-white shadow-lg shadow-green-200" 
-                    : activeTab === tab ? "bg-primary/10 text-primary" : "bg-outline-variant/10 text-outline px-1.5"
-                )}>
-                  {stats[tab].complete ? (
-                    <div className="flex items-center gap-1">
-                      <span>{stats[tab].count}</span>
-                      <span className="material-symbols-outlined text-[12px]" dangerouslySetInnerHTML={{ __html: '&#xe876;' }} />
-                    </div>
-                  ) : stats[tab].count}
-                </span>
+                {tab === 'horas' ? 'Horas Extras' : 
+                 tab === 'viaticos' ? 'Viáticos' : 
+                 tab === 'atrasos' ? 'Atrasos' : 
+                 tab === 'procedimientos' ? 'Procedimientos' : 
+                 tab === 'turnos' ? 'Turnos' : 'Revisión Contable'}
+                
+                {tab !== 'revision_contable' && (
+                  <span className={cn(
+                    "px-2.5 py-1 rounded-lg text-[10px] font-black transition-all",
+                    stats[tab as 'horas' | 'viaticos' | 'atrasos' | 'procedimientos' | 'turnos'].complete 
+                      ? "bg-green-500 text-white shadow-lg shadow-green-200" 
+                      : activeTab === tab ? "bg-primary/10 text-primary" : "bg-outline-variant/10 text-outline px-1.5"
+                  )}>
+                    {stats[tab as 'horas' | 'viaticos' | 'atrasos' | 'procedimientos' | 'turnos'].complete ? (
+                      <div className="flex items-center gap-1">
+                        <span>{stats[tab as 'horas' | 'viaticos' | 'atrasos' | 'procedimientos' | 'turnos'].count}</span>
+                        <span className="material-symbols-outlined text-[12px]" dangerouslySetInnerHTML={{ __html: '&#xe876;' }} />
+                      </div>
+                    ) : stats[tab as 'horas' | 'viaticos' | 'atrasos' | 'procedimientos' | 'turnos'].count}
+                  </span>
+                )}
               </button>
             ))}
           </div>
-          <div className="flex gap-3 w-full lg:w-auto justify-end">
-            <button 
-              disabled={!canValidateControl && !canValidateFinanzas}
-              onClick={() => handleBulkUpdate('APROBADO')}
-              className={cn(
-                "group flex items-center gap-2 px-6 py-3 text-[10px] font-black bg-white text-primary border border-primary/20 shadow-md shadow-slate-200/40 rounded-full hover:bg-primary hover:text-white transition-all uppercase tracking-widest active:scale-95 overflow-hidden",
-                (!canValidateControl && !canValidateFinanzas) && "opacity-40 cursor-not-allowed"
-              )}
-            >
-              <span className="material-symbols-outlined text-base group-hover:rotate-12 transition-transform select-none" dangerouslySetInnerHTML={{ __html: '&#xe877;' }} />
-              Certificar Lote
-            </button>
+          {activeTab !== 'revision_contable' && (
+            <div className="flex gap-3 w-full lg:w-auto justify-end">
+              <button 
+                disabled={!canValidateControl && !canValidateFinanzas}
+                onClick={() => handleBulkUpdate('APROBADO')}
+                className={cn(
+                  "group flex items-center gap-2 px-6 py-3 text-[10px] font-black bg-white text-primary border border-primary/20 shadow-md shadow-slate-200/40 rounded-full hover:bg-primary hover:text-white transition-all uppercase tracking-widest active:scale-95 overflow-hidden",
+                  (!canValidateControl && !canValidateFinanzas) && "opacity-40 cursor-not-allowed"
+                )}
+              >
+                <span className="material-symbols-outlined text-base group-hover:rotate-12 transition-transform select-none" dangerouslySetInnerHTML={{ __html: '&#xe877;' }} />
+                Certificar Lote
+              </button>
 
-            <button 
-              disabled={isLocked}
-              onClick={() => {
-                setSelectedFuncionario(null);
-                setAddSearchQuery('');
-                setIsAddModalOpen(true);
-              }}
-              className={cn(
-                "group flex items-center gap-2 px-6 py-3 text-[10px] font-black bg-primary text-white shadow-md shadow-primary/30 rounded-full hover:brightness-110 transition-all uppercase tracking-widest active:scale-95",
-                isLocked && "opacity-40 cursor-not-allowed"
-              )}
-            >
-              <span className="material-symbols-outlined text-base group-hover:rotate-90 transition-transform select-none" dangerouslySetInnerHTML={{ __html: '&#xe145;' }} />
-              Agregar Registro
-            </button>
-          </div>
+              <button 
+                disabled={isLocked}
+                onClick={() => {
+                  setSelectedFuncionario(null);
+                  setAddSearchQuery('');
+                  setIsAddModalOpen(true);
+                }}
+                className={cn(
+                  "group flex items-center gap-2 px-6 py-3 text-[10px] font-black bg-primary text-white shadow-md shadow-primary/30 rounded-full hover:brightness-110 transition-all uppercase tracking-widest active:scale-95",
+                  isLocked && "opacity-40 cursor-not-allowed"
+                )}
+              >
+                <span className="material-symbols-outlined text-base group-hover:rotate-90 transition-transform select-none" dangerouslySetInnerHTML={{ __html: '&#xe145;' }} />
+                Agregar Registro
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 overflow-hidden border border-outline-variant/5">
-          <div className="p-6 border-b border-outline-variant/5 flex items-center justify-between bg-surface-container-lowest/30">
-            <div className="flex items-center gap-3">
-              <div className="w-1.5 h-6 bg-primary rounded-full" />
-              <h3 className="font-black text-on-surface text-lg tracking-tight uppercase font-headline">Matriz de Validación Clínica</h3>
+        {activeTab === 'revision_contable' ? (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            {/* Tarjeta de información del rol */}
+            <div className="bg-surface-container-low p-6 rounded-[2rem] border border-outline-variant/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div className="space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary">Panel de Auditoría de Financiamiento</span>
+                <h3 className="text-xl font-black text-on-surface tracking-tight uppercase">Resumen por Fuentes de Financiamiento</h3>
+                <p className="text-xs text-outline font-medium">
+                  Este cuadro consolida los montos de haberes validados por Control Interno según su respectivo Programa o Fuente de Financiamiento.
+                </p>
+              </div>
+              <div className="flex flex-col items-end text-right">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary">Firma Electrónica Contabilidad</span>
+                {data.vb_contabilidad ? (
+                  <div className="mt-1 flex items-center gap-2 text-primary">
+                    <span className="material-symbols-outlined text-base select-none animate-bounce">verified_user</span>
+                    <span className="text-xs font-black uppercase tracking-wider">{data.firma_vb_contabilidad}</span>
+                  </div>
+                ) : (
+                  <div className="mt-1 flex items-center gap-2 text-outline">
+                    <span className="material-symbols-outlined text-base select-none">hourglass_empty</span>
+                    <span className="text-xs font-black uppercase tracking-wider">Pendiente de V°B° Contable</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Tabla Resumen */}
+            <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 overflow-hidden border border-outline-variant/5">
+              <div className="p-6 border-b border-outline-variant/5 flex items-center justify-between bg-surface-container-lowest/30">
+                <div className="flex items-center gap-3">
+                  <div className="w-1.5 h-6 bg-primary rounded-full" />
+                  <h3 className="font-black text-on-surface text-lg tracking-tight uppercase font-headline">Distribución Presupuestaria Aprobada</h3>
+                </div>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-separate border-spacing-y-2">
+                  <thead>
+                    <tr className="bg-surface-container-low/50">
+                      <th className="px-6 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">Programa / Fuente de Financiamiento</th>
+                      <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Horas Extras</th>
+                      <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Turnos de Urgencia</th>
+                      <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Procedimientos APS</th>
+                      <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Total Aprobado</th>
+                      <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">Alertas / Estado</th>
+                      <th className="px-6 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-outline-variant/5">
+                    {getRevisionContableRows().map((row) => (
+                      <tr 
+                        key={row.id} 
+                        onClick={() => setSelectedProgramId(selectedProgramId === row.id ? null : row.id)}
+                        className={cn(
+                          "hover:bg-primary/5 cursor-pointer transition-colors rounded-xl",
+                          selectedProgramId === row.id ? "bg-primary/[0.03] font-bold" : ""
+                        )}
+                      >
+                        <td className="px-6 py-4 text-xs font-black uppercase tracking-wider text-primary">
+                          {row.nombre}
+                        </td>
+                        <td className="px-4 py-4 text-xs text-right text-on-surface">
+                          ${row.horasExtras.toLocaleString('es-CL')}
+                        </td>
+                        <td className="px-4 py-4 text-xs text-right text-on-surface">
+                          ${row.turnos.toLocaleString('es-CL')}
+                        </td>
+                        <td className="px-4 py-4 text-xs text-right text-on-surface">
+                          ${row.procedimientos.toLocaleString('es-CL')}
+                        </td>
+                        <td className="px-4 py-4 text-xs text-right text-primary font-black">
+                          ${row.total.toLocaleString('es-CL')}
+                        </td>
+                        <td className="px-4 py-4 text-center">
+                          <div className="flex justify-center gap-2">
+                            {row.pendingCount > 0 && (
+                              <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-black uppercase tracking-wider flex items-center gap-1" title={`${row.pendingCount} registros pendientes de validación`}>
+                                <span className="material-symbols-outlined text-[10px]">warning</span>
+                                {row.pendingCount} PEND
+                              </span>
+                            )}
+                            {row.rejectedCount > 0 && (
+                              <span className="px-2 py-0.5 rounded bg-red-100 text-red-800 text-[9px] font-black uppercase tracking-wider flex items-center gap-1" title={`${row.rejectedCount} hallazgos / rechazados`}>
+                                <span className="material-symbols-outlined text-[10px]">error</span>
+                                {row.rejectedCount} RECH
+                              </span>
+                            )}
+                            {row.pendingCount === 0 && row.rejectedCount === 0 && (
+                              <span className="px-2 py-0.5 rounded bg-green-100 text-green-800 text-[9px] font-black uppercase tracking-wider flex items-center gap-1">
+                                <span className="material-symbols-outlined text-[10px]">check_circle</span>
+                                COMPLETO
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-1 ml-auto">
+                            {selectedProgramId === row.id ? 'Ocultar Detalle' : 'Ver Detalle'}
+                            <span className="material-symbols-outlined text-xs">
+                              {selectedProgramId === row.id ? 'keyboard_arrow_up' : 'keyboard_arrow_down'}
+                            </span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="bg-surface-container-lowest font-black border-t border-outline-variant/20">
+                      <td className="px-6 py-5 text-xs font-black uppercase tracking-wider text-on-surface">Total General</td>
+                      <td className="px-4 py-5 text-xs text-right text-on-surface">
+                        ${getRevisionContableRows().reduce((s, r) => s + r.horasExtras, 0).toLocaleString('es-CL')}
+                      </td>
+                      <td className="px-4 py-5 text-xs text-right text-on-surface">
+                        ${getRevisionContableRows().reduce((s, r) => s + r.turnos, 0).toLocaleString('es-CL')}
+                      </td>
+                      <td className="px-4 py-5 text-xs text-right text-on-surface">
+                        ${getRevisionContableRows().reduce((s, r) => s + r.procedimientos, 0).toLocaleString('es-CL')}
+                      </td>
+                      <td className="px-4 py-5 text-sm text-right text-primary font-black">
+                        ${getRevisionContableRows().reduce((s, r) => s + r.total, 0).toLocaleString('es-CL')}
+                      </td>
+                      <td className="px-4 py-5"></td>
+                      <td className="px-6 py-5"></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            {/* Panel de Drill-down */}
+            <AnimatePresence>
+              {selectedProgramId !== null && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 15 }}
+                  className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 overflow-hidden border border-outline-variant/5"
+                >
+                  <div className="p-6 border-b border-outline-variant/5 flex items-center justify-between bg-surface-container-lowest/30">
+                    <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-primary">search</span>
+                      <h3 className="font-black text-on-surface text-base tracking-tight uppercase font-headline">
+                        Detalle de Asignaciones: {getRevisionContableRows().find(r => r.id === selectedProgramId)?.nombre}
+                      </h3>
+                    </div>
+                    <button 
+                      onClick={() => setSelectedProgramId(null)}
+                      className="p-1 hover:bg-surface-container rounded-lg transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-secondary text-sm">close</span>
+                    </button>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-separate border-spacing-y-1">
+                      <thead>
+                        <tr className="bg-surface-container-low/40">
+                          <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface">Funcionario</th>
+                          <th className="px-4 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface">RUT</th>
+                          <th className="px-4 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface">Tipo Haber</th>
+                          <th className="px-4 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface">Detalle de Cantidad</th>
+                          <th className="px-4 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Monto</th>
+                          <th className="px-6 py-4 text-[9px] font-black uppercase tracking-[0.2em] text-on-surface text-center">Estado Auditoría</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-outline-variant/5">
+                        {getSelectedProgramRecords().length === 0 ? (
+                          <tr>
+                            <td colSpan={6} className="px-6 py-8 text-center text-xs text-outline font-bold uppercase tracking-wider">
+                              No hay registros asociados
+                            </td>
+                          </tr>
+                        ) : (
+                          getSelectedProgramRecords().map((rec, index) => (
+                            <tr key={rec.id + '-' + rec.tipo + '-' + index} className="hover:bg-slate-50 transition-colors">
+                              <td className="px-6 py-3.5 text-xs font-bold uppercase tracking-wide text-on-surface">
+                                {rec.funcionario}
+                              </td>
+                              <td className="px-4 py-3.5 text-xs text-on-surface">
+                                {rec.rut}
+                              </td>
+                              <td className="px-4 py-3.5 text-xs font-bold text-secondary uppercase tracking-widest text-[10px]">
+                                {rec.tipo}
+                              </td>
+                              <td className="px-4 py-3.5 text-xs text-outline font-medium">
+                                {rec.detalles}
+                              </td>
+                              <td className="px-4 py-3.5 text-xs text-right font-bold text-on-surface">
+                                ${rec.monto.toLocaleString('es-CL')}
+                              </td>
+                              <td className="px-6 py-3.5 text-center">
+                                <span className={cn(
+                                  "px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1",
+                                  rec.estado === 'APROBADO' ? "bg-green-100 text-green-800" :
+                                  rec.estado === 'RECHAZADO' ? "bg-red-100 text-red-800" :
+                                  "bg-amber-100 text-amber-800"
+                                )}>
+                                  <span className="material-symbols-outlined text-[10px]">
+                                    {rec.estado === 'APROBADO' ? 'done' : rec.estado === 'RECHAZADO' ? 'close' : 'hourglass_empty'}
+                                  </span>
+                                  {rec.estado}
+                                </span>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        ) : (
+          <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 overflow-hidden border border-outline-variant/5">
+            <div className="p-6 border-b border-outline-variant/5 flex items-center justify-between bg-surface-container-lowest/30">
+              <div className="flex items-center gap-3">
+                <div className="w-1.5 h-6 bg-primary rounded-full" />
+                <h3 className="font-black text-on-surface text-lg tracking-tight uppercase font-headline">Matriz de Validación Clínica</h3>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-separate border-spacing-y-2">
+                <thead>
+                  <tr className="bg-surface-container-low/50">
+                    <th className="px-6 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">Funcionario Clínico</th>
+                    <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">RUT / Clasificación</th>
+                    <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">
+                      {activeTab === 'horas' ? 'Horas 25%' : activeTab === 'atrasos' ? 'N/A' : activeTab === 'viaticos' ? 'Destino' : activeTab === 'procedimientos' ? 'Cantidad' : 'Hábiles'}
+                    </th>
+                    <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">
+                      {activeTab === 'horas' ? 'Horas 50%' : activeTab === 'atrasos' ? 'Concepto' : activeTab === 'viaticos' ? 'Estado' : activeTab === 'procedimientos' ? 'Estado' : 'Inhábiles'}
+                    </th>
+                    <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">
+                      {activeTab === 'atrasos' ? 'Total Tiempo' : 'Total Validado'}
+                    </th>
+                    <th className="px-6 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant/5">
+                  {filteredData().map((item) => (
+                    <EmployeeTableRow 
+                      key={item.id}
+                      item={item}
+                      activeTab={activeTab as any}
+                      onUpdateStatus={handleUpdateStatus}
+                      expanded={expandedId === item.id}
+                      onToggle={() => setExpandedId(expandedId === item.id ? null : item.id)}
+                      onObs={(t, sub) => handleUpdateObservation(activeTab as any, item.id, t, sub)}
+                      onEdit={() => {
+                        setEditingRecord(item);
+                        setIsEditModalOpen(true);
+                      }}
+                      onDelete={() => handleDeleteRecord(item)}
+                      onRespaldoUpload={(e) => handleRecordRespaldoUpload(item.id, e)}
+                      onViewRespaldo={() => handleOpenRespaldo(item.url_respaldo!)}
+                      attendanceLogs={relojData ? relojData[item.funcionario.rut.replace(/\./g, '').replace(/^0+/, '')] : undefined}
+                      canEdit={((canValidateControl || canValidateFinanzas) || ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '')) && !isLocked}
+                      canAudit={canValidateControl || canValidateFinanzas}
+                      isLocked={!!isLocked}
+                    />
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-separate border-spacing-y-2">
-              <thead>
-                <tr className="bg-surface-container-low/50">
-                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">Funcionario Clínico</th>
-                  <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">RUT / Clasificación</th>
-                  <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">
-                    {activeTab === 'horas' ? 'Horas 25%' : activeTab === 'atrasos' ? 'N/A' : activeTab === 'viaticos' ? 'Destino' : activeTab === 'procedimientos' ? 'Cantidad' : 'Hábiles'}
-                  </th>
-                  <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-center">
-                    {activeTab === 'horas' ? 'Horas 50%' : activeTab === 'atrasos' ? 'Concepto' : activeTab === 'viaticos' ? 'Estado' : activeTab === 'procedimientos' ? 'Estado' : 'Inhábiles'}
-                  </th>
-                  <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface">
-                    {activeTab === 'atrasos' ? 'Total Tiempo' : 'Total Validado'}
-                  </th>
-                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-outline-variant/5">
-                {filteredData().map((item) => (
-                  <EmployeeTableRow 
-                    key={item.id}
-                    item={item}
-                    activeTab={activeTab}
-                    onUpdateStatus={handleUpdateStatus}
-                    expanded={expandedId === item.id}
-                    onToggle={() => setExpandedId(expandedId === item.id ? null : item.id)}
-                    onObs={(t, sub) => handleUpdateObservation(activeTab, item.id, t, sub)}
-                    onEdit={() => {
-                      setEditingRecord(item);
-                      setIsEditModalOpen(true);
-                    }}
-                    onDelete={() => handleDeleteRecord(item)}
-                    onRespaldoUpload={(e) => handleRecordRespaldoUpload(item.id, e)}
-                    onViewRespaldo={() => handleOpenRespaldo(item.url_respaldo!)}
-                    attendanceLogs={relojData ? relojData[item.funcionario.rut.replace(/\./g, '').replace(/^0+/, '')] : undefined}
-                    canEdit={((canValidateControl || canValidateFinanzas) || ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '')) && !isLocked}
-                    canAudit={canValidateControl || canValidateFinanzas}
-                    isLocked={!!isLocked}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        )}
       </section>
 
       <footer className="fixed bottom-0 right-0 left-72 h-20 bg-on-background/95 backdrop-blur-2xl px-12 z-50 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">

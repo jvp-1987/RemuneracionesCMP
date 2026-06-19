@@ -41,4 +41,15 @@ export class CreateConsolidadoDto {
 
   @IsOptional()
   firma_vb_finanzas?: string;
+
+  @ApiPropertyOptional({ example: true })
+  @IsOptional()
+  @IsBoolean()
+  vb_contabilidad?: boolean;
+
+  @IsOptional()
+  fecha_vb_contabilidad?: Date;
+
+  @IsOptional()
+  firma_vb_contabilidad?: string;
 }

@@ -26,19 +26,19 @@ export class ConsolidadosController {
   }
 
   @Get('dashboard')
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CONTABILIDAD', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
   getDashboardKpis(@Req() req: any, @Query('periodoId') periodoId?: string, @Query('fuente') fuente?: string, @Query('centroId') centroId?: string) {
     return this.consolidadosService.getDashboardKpis(req.user, periodoId ? +periodoId : undefined, fuente, centroId ? +centroId : undefined);
   }
 
   @Get()
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CONTABILIDAD', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
   findAll(@Req() req: any, @Query('centroId') centroId?: string) {
     return this.consolidadosService.findAll(req.user, centroId ? +centroId : undefined);
   }
 
   @Get(':id/export')
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CONTABILIDAD', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
   async exportExcel(@Param('id') id: string, @Req() req: any, @Res() res: any) {
     const buffer = await this.consolidadosService.exportExcel(+id, req.user);
     // Fetch info for filename
@@ -53,14 +53,14 @@ export class ConsolidadosController {
   }
 
   @Get(':id')
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CONTABILIDAD', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
   findOne(@Param('id') id: string, @Req() req: any) {
     return this.consolidadosService.findOne(+id, req.user);
   }
 
 
   @Patch(':id')
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CONTABILIDAD', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
   update(@Param('id') id: string, @Body() dto: UpdateConsolidadoDto, @Request() req: any) {
     return this.consolidadosService.update(+id, dto, req.user);
   }
@@ -88,7 +88,7 @@ export class ConsolidadosController {
   }
 
   @Post('respaldo/presigned-url')
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CONTABILIDAD', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
   getPresignedUrl(@Body('key') key: string) {
     return this.consolidadosService.getPresignedUrl(key);
   }

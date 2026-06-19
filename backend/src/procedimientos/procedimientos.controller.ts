@@ -29,13 +29,13 @@ export class ProcedimientosController {
   }
 
   @Patch(':id')
-  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA')
+  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CONTABILIDAD', 'CENTRO_SALUD', 'SECRETARIA')
   update(@Param('id') id: string, @Body() dto: UpdateProcedimientoDto, @Req() req: any) {
     return this.procedimientosService.update(+id, dto, req.user);
   }
 
   @Delete(':id')
-  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA')
+  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CONTABILIDAD', 'CENTRO_SALUD', 'SECRETARIA')
   remove(@Param('id') id: string, @Req() req: any) {
     return this.procedimientosService.remove(+id, req.user);
   }
