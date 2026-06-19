@@ -1949,7 +1949,7 @@ const EmployeeTableRow = React.memo(({
                 )}
                 title="Ver Asistencia Real (Reloj)"
               >
-                <span className="text-[12px] select-none">🕒</span>
+                <span className="text-[15px] select-none">🕒</span>
               </button>
             )}
 
@@ -1959,7 +1959,7 @@ const EmployeeTableRow = React.memo(({
                 className="flex items-center justify-center p-1.5 rounded-lg hover:bg-emerald-50 transition-all"
                 title="Ver Respaldo"
               >
-                <span className="text-[12px] select-none">📄</span>
+                <span className="text-[15px] select-none">📄</span>
               </button>
             ) : null}
 
@@ -1973,7 +1973,7 @@ const EmployeeTableRow = React.memo(({
               )}
               title={item.url_respaldo ? "Cambiar Respaldo" : "Subir Respaldo"}
             >
-              <span className="text-[12px] select-none">{item.url_respaldo ? '🔄' : '📤'}</span>
+              <span className="text-[15px] select-none">{item.url_respaldo ? '🔄' : '📤'}</span>
               <input type="file" className="hidden" onChange={onRespaldoUpload} accept=".pdf,.jpg,.jpeg,.png" />
             </label>
             
@@ -1988,7 +1988,7 @@ const EmployeeTableRow = React.memo(({
               )}
               title={isLocked ? "Eliminación bloqueada" : "Eliminar registro"}
             >
-              <span className="text-[12px] select-none">🗑️</span>
+              <span className="text-[15px] select-none">🗑️</span>
             </button>
 
             <button 
@@ -2002,7 +2002,7 @@ const EmployeeTableRow = React.memo(({
               )}
               title={isLocked ? "Edición bloqueada por Control Interno" : "Editar registro"}
             >
-              <span className="text-[12px] select-none">{isLocked ? '🔒' : '✏️'}</span>
+              <span className="text-[15px] select-none">{isLocked ? '🔒' : '✏️'}</span>
             </button>
 
             {canAudit && (
@@ -2028,7 +2028,7 @@ const EmployeeTableRow = React.memo(({
                 )}
                 title={isLocked ? "Validación bloqueada" : isFullyApproved ? "Validado" : "Validar Rápido"}
               >
-                <span className="text-[12px] select-none">{isFullyApproved ? '✅' : '✔️'}</span>
+                <span className="text-[13px] font-black select-none">✔</span>
               </button>
             )}
 
@@ -2036,7 +2036,7 @@ const EmployeeTableRow = React.memo(({
               onClick={(e) => { e.stopPropagation(); onToggle(); }}
               className="p-1.5 bg-surface-container-low hover:bg-primary/10 hover:text-primary rounded-lg transition-all flex items-center justify-center"
             >
-              <span className="text-[12px] select-none">{expanded ? '🔼' : '🔽'}</span>
+              <span className="text-[15px] select-none">{expanded ? '🔼' : '🔽'}</span>
             </button>
           </div>
         </td>
