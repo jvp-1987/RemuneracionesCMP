@@ -801,26 +801,6 @@ export default function ConsolidadoDetailPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="relative group w-36 transition-all duration-300 focus-within:w-48">
-            <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface text-base select-none" dangerouslySetInnerHTML={{ __html: '&#xe8b6;' }} />
-            <input 
-              className="bg-surface-container-low border border-outline rounded-lg pl-9 pr-3 py-2 text-[11px] w-full focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-on-surface font-bold placeholder:text-outline/50"
-              placeholder="Buscar..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="bg-surface-container-low border border-outline rounded-lg px-3 py-2 text-[11px] focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-on-surface font-bold outline-none cursor-pointer"
-          >
-            <option value="TODOS">Todos los Estados</option>
-            <option value="PENDIENTE">Pendientes</option>
-            <option value="APROBADO">Validados</option>
-            <option value="RECHAZADO">Hallazgos</option>
-          </select>
-          <div className="h-6 w-[1px] bg-outline-variant/15 mx-1" />
           <div className="flex gap-2">
             <button 
               disabled={(!canValidateControl) || (!data.vb_control_interno && !allAudited)}
@@ -1233,10 +1213,31 @@ export default function ConsolidadoDetailPage() {
           </div>
         ) : (
           <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 overflow-hidden border border-outline-variant/5">
-            <div className="p-6 border-b border-outline-variant/5 flex items-center justify-between bg-surface-container-lowest/30">
+            <div className="p-6 border-b border-outline-variant/5 flex flex-col md:flex-row items-start md:items-center justify-between bg-surface-container-lowest/30 gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-1.5 h-6 bg-primary rounded-full" />
                 <h3 className="font-black text-on-surface text-lg tracking-tight uppercase font-headline">Matriz de Validación Clínica</h3>
+              </div>
+              <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                <div className="relative group w-36 transition-all duration-300 focus-within:w-48">
+                  <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface text-base select-none" dangerouslySetInnerHTML={{ __html: '&#xe8b6;' }} />
+                  <input 
+                    className="bg-surface-container-low border border-outline rounded-lg pl-9 pr-3 py-2 text-[11px] w-full focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-on-surface font-bold placeholder:text-outline/50"
+                    placeholder="Buscar..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as any)}
+                  className="bg-surface-container-low border border-outline rounded-lg px-3 py-2 text-[11px] focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-on-surface font-bold outline-none cursor-pointer"
+                >
+                  <option value="TODOS">Todos los Estados</option>
+                  <option value="PENDIENTE">Pendientes</option>
+                  <option value="APROBADO">Validados</option>
+                  <option value="RECHAZADO">Hallazgos</option>
+                </select>
               </div>
             </div>
             <div className="overflow-x-auto">
