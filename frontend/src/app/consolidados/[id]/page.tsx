@@ -1844,9 +1844,18 @@ const EmployeeTableRow = React.memo(({
               <div className="font-black text-on-surface text-[15px] uppercase tracking-tight leading-none mb-1.5 group-hover:text-primary transition-colors">{item.funcionario.nombre_completo}</div>
               <div className="text-[10px] font-bold text-secondary uppercase tracking-widest leading-none">
                 {item.funcionario.centro_salud?.nombre || 'Personal de Planta • APS'}
-                {activeTab === 'horas' && item.programa && ` • ${item.programa.nombre}`}
-                {activeTab === 'turnos' && (item as any).programa && ` • ${(item as any).programa.nombre === 'PRESUPUESTARIO' ? 'PROGRAMA DE TURNO' : (item as any).programa.nombre}`}
               </div>
+              {((activeTab === 'horas' && item.programa) || (activeTab === 'turnos' && (item as any).programa)) && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-indigo-50 border border-indigo-100 text-indigo-700 shadow-sm transition-all hover:bg-indigo-100">
+                    <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: "'FILL' 1" }}>payments</span>
+                    {activeTab === 'horas' 
+                      ? item.programa.nombre 
+                      : ((item as any).programa.nombre === 'PRESUPUESTARIO' ? 'PROGRAMA DE TURNO' : (item as any).programa.nombre)
+                    }
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </td>
@@ -1858,19 +1867,31 @@ const EmployeeTableRow = React.memo(({
           <div className="flex flex-col items-center gap-2">
             {activeTab === 'horas' ? (
               <>
-                <div className="text-[16px] font-black text-primary tracking-tighter">{item.cantidad_25 || 0} <span className="text-[10px] text-secondary">HRS</span></div>
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-amber-50 border border-amber-100 text-amber-700 shadow-sm">
+                  <span className="material-symbols-outlined text-[10px]">schedule</span>
+                  {item.cantidad_25 || 0} HRS (25%)
+                </span>
                 {Number(item.cantidad_25 || 0) > 0 ? (
                   <StatusBadge status={item.estado_25} />
                 ) : (
-                  <span className="text-[10px] font-black text-outline/40 uppercase tracking-widest bg-outline/5 px-2.5 py-1 rounded-full border border-outline/10">N/A</span>
+                  <span className="text-[9px] font-black text-outline/40 uppercase tracking-widest bg-outline/5 px-2 py-0.5 rounded border border-outline/10">N/A</span>
                 )}
               </>
             ) : activeTab === 'viaticos' ? (
-              <div className="text-[12px] font-black text-on-surface uppercase tracking-widest">{item.tipo_destino || 'NACIONAL'}</div>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-teal-50 border border-teal-100 text-teal-700 shadow-sm">
+                <span className="material-symbols-outlined text-[10px]">flight_takeoff</span>
+                {item.tipo_destino || 'NACIONAL'}
+              </span>
             ) : activeTab === 'procedimientos' ? (
-              <div className="text-[16px] font-black text-primary tracking-tighter">{item.total_procedimientos || 0} <span className="text-[10px] text-secondary">PROCS</span></div>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-emerald-50 border border-emerald-100 text-emerald-700 shadow-sm">
+                <span className="material-symbols-outlined text-[10px]">medical_services</span>
+                {item.total_procedimientos || 0} PROCS
+              </span>
             ) : activeTab === 'turnos' ? (
-              <div className="text-[16px] font-black text-primary tracking-tighter">{item.cant_turnos_habiles || 0} <span className="text-[10px] text-secondary">HAB</span></div>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-sky-50 border border-sky-100 text-sky-700 shadow-sm">
+                <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: "'FILL' 1" }}>calendar_today</span>
+                {item.cant_turnos_habiles || 0} HÁB
+              </span>
             ) : <span className="text-outline/30 font-black text-[10px] uppercase">N/A</span>}
           </div>
         </td>
@@ -1878,11 +1899,14 @@ const EmployeeTableRow = React.memo(({
           <div className="flex flex-col items-center gap-2">
              {activeTab === 'horas' ? (
                <>
-                <div className="text-[16px] font-black text-primary tracking-tighter">{item.cantidad_50 || 0} <span className="text-[10px] text-secondary">HRS</span></div>
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-orange-50 border border-orange-100 text-orange-700 shadow-sm">
+                  <span className="material-symbols-outlined text-[10px]">bolt</span>
+                  {item.cantidad_50 || 0} HRS (50%)
+                </span>
                 {Number(item.cantidad_50 || 0) > 0 ? (
                   <StatusBadge status={item.estado_50} />
                 ) : (
-                  <span className="text-[10px] font-black text-outline/40 uppercase tracking-widest bg-outline/5 px-2.5 py-1 rounded-full border border-outline/10">N/A</span>
+                  <span className="text-[9px] font-black text-outline/40 uppercase tracking-widest bg-outline/5 px-2 py-0.5 rounded border border-outline/10">N/A</span>
                 )}
                </>
              ) : activeTab === 'viaticos' ? (
@@ -1891,7 +1915,10 @@ const EmployeeTableRow = React.memo(({
                <StatusBadge status={item.estado} />
              ) : activeTab === 'turnos' ? (
                <>
-                <div className="text-[16px] font-black text-primary tracking-tighter">{item.cant_turnos_inhabiles || 0} <span className="text-[10px] text-secondary">INH</span></div>
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider bg-purple-50 border border-purple-100 text-purple-700 shadow-sm">
+                  <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: "'FILL' 1" }}>nights_stay</span>
+                  {item.cant_turnos_inhabiles || 0} INH
+                </span>
                 <StatusBadge status={item.estado} />
                </>
              ) : (
