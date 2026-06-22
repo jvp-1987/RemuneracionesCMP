@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('token');
   };
 
-  const isAdmin = user?.rol === 'ADMIN' || user?.rol_enum === 'ADMIN';
+  const isAdmin = user?.rol === 'ADMIN' || user?.rol_enum === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol_enum === 'ADMIN_MAESTRO';
   const isReadOnly = user?.rol === 'INVITADO' || user?.rol_enum === 'INVITADO';
 
   return (
