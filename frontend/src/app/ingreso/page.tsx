@@ -513,6 +513,11 @@ export default function IngresoPage() {
           if (activeTab === 'programas_turno') updated.programa_nombre = PROGRAMAS_TURNO_LIST[0];
           if (activeTab === 'programas_he') updated.programa_nombre = PROGRAMAS_HE_LIST[0];
         }
+        if (field === 'programa_nombre') {
+          if (!value.toUpperCase().startsWith('PROG. SUR')) {
+            updated.tipo_tens = '';
+          }
+        }
         return updated;
       }
       return r;
@@ -1357,7 +1362,7 @@ export default function IngresoPage() {
                             </div>
                           </div>
 
-                          {row.programa_nombre?.toUpperCase().startsWith('PROG. SUR') && (
+                          {((row.programa_nombre || PROGRAMAS_TURNO_LIST[0])?.toUpperCase().startsWith('PROG. SUR')) && (
                             <div className="flex flex-col gap-2 bg-gradient-to-br from-slate-50 to-white p-4 rounded-3xl border border-slate-200/60 shadow-sm relative overflow-hidden group/tipo_tens">
                               <label className="text-[9px] font-black text-slate-500 uppercase tracking-wider block">Función TENS</label>
                               <div className="relative">
@@ -1682,7 +1687,7 @@ export default function IngresoPage() {
                             <select value={row.programa_nombre} onChange={e => updateRow(row.id, 'programa_nombre', e.target.value)} className="w-48 bg-slate-50 rounded-lg py-2 px-2 text-[10px] font-black text-slate-600 outline-none uppercase border border-slate-200">
                               {PROGRAMAS_TURNO_LIST.map(p => <option key={p} value={p}>{p}</option>)}
                             </select>
-                            {row.programa_nombre?.toUpperCase().startsWith('PROG. SUR') && (
+                            {((row.programa_nombre || PROGRAMAS_TURNO_LIST[0])?.toUpperCase().startsWith('PROG. SUR')) && (
                               <select value={row.tipo_tens || ''} onChange={e => updateRow(row.id, 'tipo_tens', e.target.value)} className="w-48 bg-slate-50 rounded-lg py-1 px-2 text-[9px] font-black text-slate-500 outline-none uppercase border border-slate-200 mt-1">
                                 <option value="">[SIN FUNCIÓN TENS]</option>
                                 <option value="RESIDENTE">TENS RESIDENTE</option>
