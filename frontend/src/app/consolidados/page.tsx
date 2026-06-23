@@ -46,9 +46,9 @@ export default function ConsolidadosPage() {
   const [selectedMonth, setSelectedMonth] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = sessionStorage.getItem('consolidados_month');
-      return saved ? parseInt(saved) : 5;
+      return saved ? parseInt(saved) : (new Date().getMonth() + 1);
     }
-    return 5;
+    return (new Date().getMonth() + 1);
   });
   
   const [search, setSearch] = useState(() => {
@@ -73,6 +73,19 @@ export default function ConsolidadosPage() {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-remuneracion.apscolab.com';
         const res = await axios.get(`${apiUrl}/consolidados`);
         setConsolidados(res.data);
+
+        // Si no hay un mes guardado en la sesión y hay registros, autoseleccionamos el del periodo más reciente
+        if (typeof window !== 'undefined' && !sessionStorage.getItem('consolidados_month') && res.data.length > 0) {
+          const latest = res.data.reduce((max: any, c: any) => {
+            if (!max) return c;
+            const maxVal = max.periodo.anio * 12 + max.periodo.mes;
+            const cVal = c.periodo.anio * 12 + c.periodo.mes;
+            return cVal > maxVal ? c : max;
+          }, null);
+          if (latest) {
+            setSelectedMonth(latest.periodo.mes);
+          }
+        }
       } catch (err) {
         console.error('Error fetching consolidados:', err);
       } finally {

@@ -432,6 +432,14 @@ export class ConsolidadosService {
         select: { periodo_id: true },
       });
       targetPeriodoId = ultimaLiq?.periodo_id ?? undefined;
+
+      if (!targetPeriodoId) {
+        const ultimoPeriodo = await this.prisma.periodo.findFirst({
+          orderBy: [{ anio: 'desc' }, { mes: 'desc' }],
+          select: { id: true }
+        });
+        targetPeriodoId = ultimoPeriodo?.id ?? undefined;
+      }
     }
 
     // ── Paso 2: Determinar filtros de Rol & Centro ────────────────────────────
@@ -471,9 +479,21 @@ export class ConsolidadosService {
       // Gasto total por Centro de Salud desde el maestro
       // Si es un centro específico, agrupamos por funcionario para ver el detalle de ese centro
       // pero para el gráfico de barras del dashboard general, mantenemos la lógica de centro
+      // Optimización: Solo seleccionamos monto_liquido y centro_salud para evitar el pesado detalle_json
       this.prisma.liquidacionMensual.findMany({
         where: whereMaestro,
-        include: { funcionario: { include: { centro_salud: true } } },
+        select: {
+          monto_liquido: true,
+          funcionario: {
+            select: {
+              centro_salud: {
+                select: {
+                  nombre: true
+                }
+              }
+            }
+          }
+        }
       }),
 
       // Contadores operativos

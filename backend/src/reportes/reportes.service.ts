@@ -31,14 +31,19 @@ export class ReportesService {
 
     const liquidaciones = await this.prisma.liquidacionMensual.findMany({
       where: { periodo_id: periodFilter },
-      include: {
+      select: {
+        funcionario_rut: true,
+        detalle_json: true,
         funcionario: {
-          include: {
-            contratos: true,
-            liquidaciones: {
-              take: 6,
-              orderBy: [{ periodo: { anio: 'desc' } }, { periodo: { mes: 'desc' } }],
-              include: { periodo: true }
+          select: {
+            rut: true,
+            nombre_completo: true,
+            profesion_enum: true,
+            categoria_aps: true,
+            contratos: {
+              select: {
+                tipo_contrato: true
+              }
             }
           }
         }
@@ -48,7 +53,11 @@ export class ReportesService {
     const distinctFuncionariosMap = new Map();
     liquidaciones.forEach(l => {
       if (!distinctFuncionariosMap.has(l.funcionario_rut)) {
-        distinctFuncionariosMap.set(l.funcionario_rut, { ...l.funcionario, latest_detalle_json: l.detalle_json });
+        distinctFuncionariosMap.set(l.funcionario_rut, {
+          ...l.funcionario,
+          latest_detalle_json: l.detalle_json,
+          liquidaciones: [{ detalle_json: l.detalle_json }]
+        });
       }
     });
 
@@ -174,10 +183,17 @@ export class ReportesService {
 
     const liquidaciones = await this.prisma.liquidacionMensual.findMany({
       where: { periodo_id: periodFilter },
-      include: {
+      select: {
+        funcionario_rut: true,
+        total_haberes: true,
         funcionario: {
-          include: {
-            centro_salud: true
+          select: {
+            centro_salud: {
+              select: {
+                id: true,
+                nombre: true
+              }
+            }
           }
         }
       }
@@ -214,10 +230,17 @@ export class ReportesService {
 
     const liquidaciones = await this.prisma.liquidacionMensual.findMany({
       where: { periodo_id: periodFilter },
-      include: {
+      select: {
+        funcionario_rut: true,
+        detalle_json: true,
         funcionario: {
-          include: {
-            centro_salud: true
+          select: {
+            nombre_completo: true,
+            centro_salud: {
+              select: {
+                nombre: true
+              }
+            }
           }
         }
       }
