@@ -1,5 +1,6 @@
-import { IsInt, IsNumber, IsString, IsNotEmpty, IsDateString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsInt, IsNumber, IsString, IsNotEmpty, IsDateString, IsOptional, IsEnum } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { EstadoValidacion } from '@prisma/client';
 
 export class CreateProcedimientoDto {
   @ApiProperty({ example: 1 })
@@ -26,4 +27,9 @@ export class CreateProcedimientoDto {
   @ApiProperty({ example: 125000, description: 'Monto calculado' })
   @IsNumber()
   monto_calculado: number;
+
+  @ApiPropertyOptional({ enum: EstadoValidacion, example: EstadoValidacion.PENDIENTE })
+  @IsOptional()
+  @IsEnum(EstadoValidacion)
+  estado?: EstadoValidacion;
 }

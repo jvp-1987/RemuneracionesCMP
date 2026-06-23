@@ -1,5 +1,6 @@
-import { IsInt, IsString, IsNotEmpty, IsNumber, IsDateString, IsOptional } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsInt, IsString, IsNotEmpty, IsNumber, IsDateString, IsOptional, IsEnum } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { EstadoValidacion } from '@prisma/client';
 
 export class CreateTurnoUrgenciaDto {
   @ApiProperty({ example: 1 })
@@ -45,4 +46,9 @@ export class CreateTurnoUrgenciaDto {
   @IsString()
   @IsOptional()
   tipo_tens?: string;
+
+  @ApiPropertyOptional({ enum: EstadoValidacion, example: EstadoValidacion.PENDIENTE })
+  @IsOptional()
+  @IsEnum(EstadoValidacion)
+  estado?: EstadoValidacion;
 }
