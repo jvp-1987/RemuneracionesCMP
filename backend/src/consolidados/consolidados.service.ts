@@ -227,8 +227,15 @@ export class ConsolidadosService {
   }
 
 
-  async uploadRespaldo(id: number, file: any) {
+  async uploadRespaldo(id: number, file: any, user?: any) {
     if (!file) throw new BadRequestException('Archivo no proporcionado');
+    
+    const existing = await this.prisma.consolidado.findUnique({
+      where: { id },
+      select: { url_respaldo: true }
+    });
+    if (!existing) throw new NotFoundException('Consolidado no encontrado');
+    const valorAnterior = existing.url_respaldo || 'Ninguno';
     
     const extension = file.originalname.split('.').pop();
     const uniqueName = `respaldos/consolidados/${id}/${crypto.randomUUID()}.${extension}`;
@@ -242,10 +249,24 @@ export class ConsolidadosService {
       }));
       
       try {
-        return await this.prisma.consolidado.update({
+        const updated = await this.prisma.consolidado.update({
           where: { id },
           data: { url_respaldo: uniqueName }
         });
+
+        // Log in audit table
+        await this.prisma.historialAuditoria.create({
+          data: {
+            tipo_modulo: 'CONSOLIDADO',
+            registro_id: id,
+            usuario_nombre: user?.nombre || 'Sistema',
+            campo_afectado: 'url_respaldo',
+            valor_anterior: valorAnterior,
+            valor_nuevo: uniqueName,
+          }
+        });
+
+        return updated;
       } catch (dbError: any) {
         console.error(`[ConsolidadosService] Error al guardar la ruta de R2 en consolidado: ${dbError.message}`);
         throw new BadRequestException('Error en la base de datos al guardar la referencia del consolidado. Verifica el esquema en producción.');
@@ -255,10 +276,24 @@ export class ConsolidadosService {
       const base64Str = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
       
       try {
-        return await this.prisma.consolidado.update({
+        const updated = await this.prisma.consolidado.update({
           where: { id },
           data: { url_respaldo: base64Str }
         });
+
+        // Log in audit table
+        await this.prisma.historialAuditoria.create({
+          data: {
+            tipo_modulo: 'CONSOLIDADO',
+            registro_id: id,
+            usuario_nombre: user?.nombre || 'Sistema',
+            campo_afectado: 'url_respaldo',
+            valor_anterior: valorAnterior,
+            valor_nuevo: base64Str,
+          }
+        });
+
+        return updated;
       } catch (dbError: any) {
         console.error(`[ConsolidadosService] Error al guardar Base64 en consolidado: ${dbError.message}`);
         throw new BadRequestException(
@@ -269,22 +304,45 @@ export class ConsolidadosService {
     }
   }
 
-  async uploadRecordRespaldo(consolidadoId: number, type: string, recordId: number, file: any) {
+  async uploadRecordRespaldo(consolidadoId: number, type: string, recordId: number, file: any, user?: any) {
     if (!file) throw new BadRequestException('Archivo no proporcionado');
     
-    const extension = file.originalname.split('.').pop();
-    const uniqueName = `respaldos/records/${type}/${recordId}/${crypto.randomUUID()}.${extension}`;
-    
     let model: any;
+    let tipoModulo = '';
     switch (type) {
-      case 'horas': model = this.prisma.horasExtras; break;
-      case 'viaticos': model = this.prisma.viaticos; break;
-      case 'atrasos': model = this.prisma.atrasos; break;
-      case 'procedimientos': model = this.prisma.procedimientos; break;
-      case 'turnos': model = this.prisma.turnosUrgencia; break;
+      case 'horas': 
+        model = this.prisma.horasExtras; 
+        tipoModulo = 'HE';
+        break;
+      case 'viaticos': 
+        model = this.prisma.viaticos; 
+        tipoModulo = 'VIATICO';
+        break;
+      case 'atrasos': 
+        model = this.prisma.atrasos; 
+        tipoModulo = 'ATRASO';
+        break;
+      case 'procedimientos': 
+        model = this.prisma.procedimientos; 
+        tipoModulo = 'PROCEDIMIENTO';
+        break;
+      case 'turnos': 
+        model = this.prisma.turnosUrgencia; 
+        tipoModulo = 'TURNO_URGENCIA';
+        break;
       default: throw new BadRequestException(`Tipo de registro '${type}' no válido`);
     }
 
+    const existing = await model.findUnique({
+      where: { id: recordId },
+      select: { url_respaldo: true }
+    });
+    if (!existing) throw new NotFoundException(`Registro de tipo ${type} no encontrado`);
+    const valorAnterior = existing.url_respaldo || 'Ninguno';
+
+    const extension = file.originalname.split('.').pop();
+    const uniqueName = `respaldos/records/${type}/${recordId}/${crypto.randomUUID()}.${extension}`;
+    
     try {
       await this.s3.send(new PutObjectCommand({
         Bucket: process.env.R2_BUCKET_NAME || '',
@@ -294,10 +352,24 @@ export class ConsolidadosService {
       }));
 
       try {
-        return await model.update({
+        const updated = await model.update({
           where: { id: recordId },
           data: { url_respaldo: uniqueName }
         });
+
+        // Log in audit table
+        await this.prisma.historialAuditoria.create({
+          data: {
+            tipo_modulo: tipoModulo,
+            registro_id: recordId,
+            usuario_nombre: user?.nombre || 'Sistema',
+            campo_afectado: 'url_respaldo',
+            valor_anterior: valorAnterior,
+            valor_nuevo: uniqueName,
+          }
+        });
+
+        return updated;
       } catch (dbError: any) {
         console.error(`[ConsolidadosService] Error al guardar la ruta de R2 en la base de datos: ${dbError.message}`);
         throw new BadRequestException('Error en la base de datos al guardar la referencia. Verifica si el esquema de la base de datos está actualizado en producción.');
@@ -307,10 +379,24 @@ export class ConsolidadosService {
       const base64Str = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
       
       try {
-        return await model.update({
+        const updated = await model.update({
           where: { id: recordId },
           data: { url_respaldo: base64Str }
         });
+
+        // Log in audit table
+        await this.prisma.historialAuditoria.create({
+          data: {
+            tipo_modulo: tipoModulo,
+            registro_id: recordId,
+            usuario_nombre: user?.nombre || 'Sistema',
+            campo_afectado: 'url_respaldo',
+            valor_anterior: valorAnterior,
+            valor_nuevo: base64Str,
+          }
+        });
+
+        return updated;
       } catch (dbError: any) {
         console.error(`[ConsolidadosService] Error al guardar Base64 en la base de datos: ${dbError.message}`);
         throw new BadRequestException(

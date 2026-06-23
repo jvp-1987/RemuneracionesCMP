@@ -72,8 +72,8 @@ export class ConsolidadosController {
   
   @Post(':id/respaldo')
   @UseInterceptors(FileInterceptor('file'))
-  uploadRespaldo(@Param('id') id: string, @UploadedFile() file: any) {
-    return this.consolidadosService.uploadRespaldo(+id, file);
+  uploadRespaldo(@Param('id') id: string, @UploadedFile() file: any, @Req() req: any) {
+    return this.consolidadosService.uploadRespaldo(+id, file, req.user);
   }
 
   @Post(':id/respaldo/:type/:recordId')
@@ -82,9 +82,10 @@ export class ConsolidadosController {
     @Param('id') id: string,
     @Param('type') type: string,
     @Param('recordId') recordId: string,
-    @UploadedFile() file: any
+    @UploadedFile() file: any,
+    @Req() req: any
   ) {
-    return this.consolidadosService.uploadRecordRespaldo(+id, type, +recordId, file);
+    return this.consolidadosService.uploadRecordRespaldo(+id, type, +recordId, file, req.user);
   }
 
   @Post('respaldo/presigned-url')

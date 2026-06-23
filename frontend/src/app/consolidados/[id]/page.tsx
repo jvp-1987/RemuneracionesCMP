@@ -1843,7 +1843,7 @@ const EmployeeTableRow = React.memo(({
       };
       fetchAuditLogs();
     }
-  }, [expanded, activeTab, item.id]);
+  }, [expanded, activeTab, item.id, item.url_respaldo]);
 
   const initials = (item.funcionario?.nombre_completo || '')
     .split(' ')
@@ -2182,6 +2182,7 @@ const EmployeeTableRow = React.memo(({
                       <div className="space-y-3">
                         {auditLogs.map((log) => {
                           const isObs = ['observaciones', 'observaciones_25', 'observaciones_50', 'justificacion', 'concepto'].includes(log.campo_afectado);
+                          const isRespaldo = log.campo_afectado === 'url_respaldo';
                           return (
                             <div key={log.id} className="text-xs bg-white border border-slate-100 p-4 rounded-2xl flex flex-col gap-1">
                               <div className="flex justify-between items-center text-[10px]">
@@ -2193,6 +2194,10 @@ const EmployeeTableRow = React.memo(({
                                   log.valor_anterior 
                                     ? `Modificó la justificación/hallazgo de "${log.valor_anterior}" a "${log.valor_nuevo}"`
                                     : `Ingresó justificación/observación original: "${log.valor_nuevo}"`
+                                ) : isRespaldo ? (
+                                  log.valor_anterior && log.valor_anterior !== 'Ninguno' && log.valor_anterior !== 'null'
+                                    ? `Actualizó el archivo de respaldo adjunto.`
+                                    : `Subió el archivo de respaldo adjunto original.`
                                 ) : (
                                   `Cambió ${log.campo_afectado} de "${log.valor_anterior || 'vacío'}" a "${log.valor_nuevo}"`
                                 )}
