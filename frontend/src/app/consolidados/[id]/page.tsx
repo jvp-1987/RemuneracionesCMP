@@ -1550,8 +1550,10 @@ export default function ConsolidadoDetailPage() {
                         payload.cant_turnos_habiles = Number((document.getElementById('edit_cant_turnos_habiles') as HTMLInputElement).value);
                         payload.cant_turnos_inhabiles = Number((document.getElementById('edit_cant_turnos_inhabiles') as HTMLInputElement).value);
                         payload.tipo_tens = (document.getElementById('edit_tipo_tens') as HTMLSelectElement).value || null;
+                        payload.observaciones = (document.getElementById('edit_concepto') as HTMLTextAreaElement).value;
+                      } else {
+                        payload.concepto = (document.getElementById('edit_concepto') as HTMLTextAreaElement).value;
                       }
-                      payload.concepto = (document.getElementById('edit_concepto') as HTMLTextAreaElement).value;
                       handleSaveEdit(payload);
                     }}
                     className="flex-1 py-5 bg-primary text-white rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-xl shadow-primary/30 hover:brightness-110 active:scale-95 transition-all"

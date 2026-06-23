@@ -42,7 +42,7 @@ export class ProcedimientosService {
     for (const key of Object.keys(dto)) {
       const oldVal = (oldData as any)[key];
       const newVal = (dto as any)[key];
-      if (oldVal !== newVal) {
+      if (newVal !== undefined && String(oldVal ?? '') !== String(newVal ?? '')) {
         await this.audit.createLog({
           tipo_modulo: 'PROCEDIMIENTO',
           registro_id: id,
