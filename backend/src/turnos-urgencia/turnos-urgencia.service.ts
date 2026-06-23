@@ -36,12 +36,24 @@ export class TurnosUrgenciaService {
       throw new ForbiddenException('Edición bloqueada: El consolidado ya está en revisión por Control Interno');
     }
 
-    const updated = await this.prisma.turnosUrgencia.update({ where: { id }, data: dto });
+    let updatedDto = { ...dto } as any;
+
+    // Recalcular monto_calculado si se cambian las cantidades
+    if (updatedDto.cant_turnos_habiles !== undefined || updatedDto.cant_turnos_inhabiles !== undefined) {
+      const habiles = updatedDto.cant_turnos_habiles !== undefined ? Number(updatedDto.cant_turnos_habiles) : Number(oldData.cant_turnos_habiles || 0);
+      const inhabiles = updatedDto.cant_turnos_inhabiles !== undefined ? Number(updatedDto.cant_turnos_inhabiles) : Number(oldData.cant_turnos_inhabiles || 0);
+      const valorHabil = Number(oldData.valor_habil || 0);
+      const valorInhabil = Number(oldData.valor_inhabil || 0);
+      
+      updatedDto.monto_calculado = (habiles * valorHabil) + (inhabiles * valorInhabil);
+    }
+
+    const updated = await this.prisma.turnosUrgencia.update({ where: { id }, data: updatedDto });
 
     // Audit Log
-    for (const key of Object.keys(dto)) {
+    for (const key of Object.keys(updatedDto)) {
       const oldVal = (oldData as any)[key];
-      const newVal = (dto as any)[key];
+      const newVal = (updatedDto as any)[key];
       if (newVal !== undefined && String(oldVal ?? '') !== String(newVal ?? '')) {
         await this.audit.createLog({
           tipo_modulo: 'TURNO_URGENCIA',
