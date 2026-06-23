@@ -922,6 +922,7 @@ export class ConsolidadosService {
       PROGRAMA: t.programa?.nombre || 'PRESUPUESTARIO',
       'FECHA INICIO': formatDate(t.fecha_inicio),
       'FECHA TERMINO': formatDate(t.fecha_termino),
+      'TIPO TENS': (t as any).tipo_tens || '',
       'CANT. TURNOS HABILES': t.cant_turnos_habiles,
       'CANT. TURNOS INHABILES': t.cant_turnos_inhabiles,
       'VALOR HABIL': Number(t.valor_habil || 0),
@@ -931,10 +932,10 @@ export class ConsolidadosService {
     }));
     createDetailSheet(
       'Turnos Urgencia',
-      ['RUT', 'NOMBRE', 'PROGRAMA', 'FECHA INICIO', 'FECHA TERMINO', 'CANT. TURNOS HABILES', 'CANT. TURNOS INHABILES', 'VALOR HABIL', 'VALOR INHABIL', 'MONTO CALCULADO', 'ESTADO'],
+      ['RUT', 'NOMBRE', 'PROGRAMA', 'FECHA INICIO', 'FECHA TERMINO', 'TIPO TENS', 'CANT. TURNOS HABILES', 'CANT. TURNOS INHABILES', 'VALOR HABIL', 'VALOR INHABIL', 'MONTO CALCULADO', 'ESTADO'],
       turnosData,
-      [{ index: 5 }, { index: 6 }, { index: 7, isCurrency: true }, { index: 8, isCurrency: true }, { index: 9, isCurrency: true }],
-      [{ index: 5 }, { index: 6 }, { index: 9, isCurrency: true }]
+      [{ index: 6 }, { index: 7 }, { index: 8, isCurrency: true }, { index: 9, isCurrency: true }, { index: 10, isCurrency: true }],
+      [{ index: 6 }, { index: 7 }, { index: 10, isCurrency: true }]
     );
 
     return xlsx.write(wb, { type: 'buffer', bookType: 'xlsx' }) as Buffer;

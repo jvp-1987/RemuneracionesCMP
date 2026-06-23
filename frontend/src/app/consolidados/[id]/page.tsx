@@ -45,6 +45,7 @@ interface Transaction {
   cant_turnos_inhabiles?: number;
   valor_habil?: number;
   valor_inhabil?: number;
+  tipo_tens?: string;
 }
 
 interface ConsolidadoDetail {
@@ -1409,6 +1410,18 @@ export default function ConsolidadoDetailPage() {
                           {programas.map((p: any) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                         </select>
                       </div>
+                      <div className="space-y-3 mb-6">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Función TENS</label>
+                        <select 
+                          id="edit_tipo_tens" 
+                          defaultValue={editingRecord.tipo_tens || ''}
+                          className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                        >
+                          <option value="">No aplica</option>
+                          <option value="RESIDENTE">TENS RESIDENTE</option>
+                          <option value="CAMILLERO">TENS CAMILLERO</option>
+                        </select>
+                      </div>
                       <div className="grid grid-cols-2 gap-8">
                         <div className="space-y-3">
                           <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Cant. Hábiles</label>
@@ -1536,6 +1549,7 @@ export default function ConsolidadoDetailPage() {
                         payload.programa_id = Number((document.getElementById('edit_programa_id') as HTMLSelectElement).value);
                         payload.cant_turnos_habiles = Number((document.getElementById('edit_cant_turnos_habiles') as HTMLInputElement).value);
                         payload.cant_turnos_inhabiles = Number((document.getElementById('edit_cant_turnos_inhabiles') as HTMLInputElement).value);
+                        payload.tipo_tens = (document.getElementById('edit_tipo_tens') as HTMLSelectElement).value || null;
                       }
                       payload.concepto = (document.getElementById('edit_concepto') as HTMLTextAreaElement).value;
                       handleSaveEdit(payload);
@@ -1661,6 +1675,14 @@ export default function ConsolidadoDetailPage() {
                               {programas.map((p: any) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                             </select>
                           </div>
+                          <div className="col-span-2 space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Función TENS</label>
+                            <select id="add_tipo_tens" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 transition-all">
+                              <option value="">No aplica</option>
+                              <option value="RESIDENTE">TENS RESIDENTE</option>
+                              <option value="CAMILLERO">TENS CAMILLERO</option>
+                            </select>
+                          </div>
                           <div className="space-y-3">
                             <label className="text-[10px] font-black uppercase tracking-widest text-secondary ml-2">Cant. Hábiles</label>
                             <input type="number" id="add_cant_turnos_habiles" defaultValue="0" className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl px-6 py-4 text-sm font-bold focus:ring-2 focus:ring-primary/20 transition-all" />
@@ -1723,6 +1745,7 @@ export default function ConsolidadoDetailPage() {
                             payload.programa_id = Number((document.getElementById("add_programa_id") as any).value);
                             payload.cant_turnos_habiles = Number((document.getElementById("add_cant_turnos_habiles") as any).value);
                             payload.cant_turnos_inhabiles = Number((document.getElementById("add_cant_turnos_inhabiles") as any).value);
+                            payload.tipo_tens = (document.getElementById("add_tipo_tens") as any).value || null;
                           }
                           const conceptoValue = (document.getElementById("add_concepto") as any).value;
                           if (activeTab === "horas") {
@@ -1863,6 +1886,14 @@ const EmployeeTableRow = React.memo(({
                       }
                     </span>
                   </span>
+                  {activeTab === 'turnos' && item.tipo_tens && (
+                    <span 
+                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider bg-amber-50 border border-amber-100 text-amber-700 shadow-sm transition-all hover:bg-amber-100"
+                    >
+                      <span className="material-symbols-outlined text-[9px]" style={{ fontVariationSettings: "'FILL' 1", fontSize: '9px' }}>person</span>
+                      <span>TENS {item.tipo_tens}</span>
+                    </span>
+                  )}
                 </div>
               )}
             </div>

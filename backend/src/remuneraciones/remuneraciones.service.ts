@@ -529,6 +529,30 @@ export class RemuneracionesService {
               }
             });
           } else if (entry.category === 'PROGRAMA_TURNO') {
+            let programa_id = 1;
+            const progName = entry.concept;
+            if (progName) {
+              let prog = await this.prisma.programa.findFirst({
+                where: { nombre: String(progName) }
+              });
+              if (!prog) {
+                prog = await this.prisma.programa.findFirst({
+                  where: { nombre: { contains: String(progName).substring(0, 15) } }
+                });
+              }
+              if (prog) {
+                programa_id = prog.id;
+              } else {
+                const newProg = await this.prisma.programa.create({
+                  data: {
+                    nombre: String(progName).substring(0, 100),
+                    categoria_enum: 'PROGRAMAS_TURNO'
+                  }
+                });
+                programa_id = newProg.id;
+              }
+            }
+
             await this.prisma.turnosUrgencia.create({
               data: {
                 consolidado_id: consolidado.id,
@@ -538,6 +562,7 @@ export class RemuneracionesService {
                 fecha_inicio: new Date(),
                 fecha_termino: new Date(),
                 monto_calculado: 0,
+                programa_id,
               }
             });
           }

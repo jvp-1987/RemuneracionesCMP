@@ -132,9 +132,14 @@ export class IngresosService {
               }
 
               if (tipo === 'programas_he' && trx.programa_nombre) {
-                const prog = await tx.programa.findFirst({
-                  where: { nombre: { contains: String(trx.programa_nombre).substring(0, 15) } }
+                let prog = await tx.programa.findFirst({
+                  where: { nombre: String(trx.programa_nombre) }
                 });
+                if (!prog) {
+                  prog = await tx.programa.findFirst({
+                    where: { nombre: { contains: String(trx.programa_nombre).substring(0, 15) } }
+                  });
+                }
                 if (prog) {
                   programa_id = prog.id;
                 } else {
@@ -205,15 +210,20 @@ export class IngresosService {
 
               const progName = trx.programa_nombre || trx.programa;
               if (progName) {
-                const prog = await tx.programa.findFirst({
-                  where: { nombre: { contains: String(progName).substring(0, 15) } }
+                let prog = await tx.programa.findFirst({
+                  where: { nombre: String(progName) }
                 });
+                if (!prog) {
+                  prog = await tx.programa.findFirst({
+                    where: { nombre: { contains: String(progName).substring(0, 15) } }
+                  });
+                }
                 if (prog) {
                   programa_id = prog.id;
                 } else {
                   const newProg = await tx.programa.create({
                     data: {
-                      nombre: String(progName).substring(0, 50),
+                      nombre: String(progName).substring(0, 100),
                       categoria_enum: 'PROGRAMAS_TURNO'
                     }
                   });
@@ -237,6 +247,7 @@ export class IngresosService {
                 fecha_termino: trx.fecha_termino ? new Date(trx.fecha_termino) : new Date(),
                 url_respaldo: urlRespaldo || (existingTurno ? existingTurno.url_respaldo : null),
                 programa_id,
+                tipo_tens: trx.tipo_tens || null,
               };
 
               let turnoRecord;

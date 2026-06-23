@@ -57,6 +57,7 @@ interface RowData {
   rendicion_pasajes: string;
   cantidad_dias?: string;
   cantidad_pasajes?: string;
+  tipo_tens?: string;
 }
 
 interface PeriodoConfig {
@@ -353,7 +354,8 @@ export default function IngresoPage() {
             valor_inhabil: '0',
             rendicion_pasajes: '0',
             cantidad_dias: '1',
-            cantidad_pasajes: '1'
+            cantidad_pasajes: '1',
+            tipo_tens: ''
           }]);
         }
       } catch (e) { console.error("Error loading draft:", e); }
@@ -379,7 +381,8 @@ export default function IngresoPage() {
         valor_inhabil: '0',
         rendicion_pasajes: '0',
         cantidad_dias: '1',
-        cantidad_pasajes: '1'
+        cantidad_pasajes: '1',
+        tipo_tens: ''
       }]);
     }
     
@@ -487,7 +490,8 @@ export default function IngresoPage() {
       valor_inhabil: lastRow?.valor_inhabil || '0',
       rendicion_pasajes: lastRow?.rendicion_pasajes || '0',
       cantidad_dias: lastRow?.cantidad_dias || '1',
-      cantidad_pasajes: lastRow?.cantidad_pasajes || '1'
+      cantidad_pasajes: lastRow?.cantidad_pasajes || '1',
+      tipo_tens: ''
     }]);
   };
 
@@ -659,7 +663,8 @@ export default function IngresoPage() {
         valor_inhabil: '0',
         rendicion_pasajes: '0',
         cantidad_dias: '1',
-        cantidad_pasajes: '1'
+        cantidad_pasajes: '1',
+        tipo_tens: ''
       }]);
 
       // Redirigir al consolidado específico después de 1.5 segundos
@@ -1351,6 +1356,22 @@ export default function IngresoPage() {
                               </div>
                             </div>
                           </div>
+
+                          {row.programa_nombre?.toUpperCase().startsWith('PROG. SUR') && (
+                            <div className="flex flex-col gap-2 bg-gradient-to-br from-slate-50 to-white p-4 rounded-3xl border border-slate-200/60 shadow-sm relative overflow-hidden group/tipo_tens">
+                              <label className="text-[9px] font-black text-slate-500 uppercase tracking-wider block">Función TENS</label>
+                              <div className="relative">
+                                <select value={row.tipo_tens || ''} onChange={e => updateRow(row.id, 'tipo_tens', e.target.value)} className="w-full bg-white rounded-xl px-3 py-2 text-xs font-black text-slate-800 outline-none focus:ring-4 focus:ring-slate-100 uppercase shadow-sm border border-slate-200 transition-all cursor-pointer hover:border-slate-300 relative z-10 appearance-none">
+                                  <option value="">Seleccione Función...</option>
+                                  <option value="RESIDENTE">TENS RESIDENTE</option>
+                                  <option value="CAMILLERO">TENS CAMILLERO</option>
+                                </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-slate-400 z-10">
+                                  <span className="material-symbols-outlined text-base">expand_more</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                           
                           <div className="grid grid-cols-1 gap-3">
                             <div className="bg-gradient-to-br from-blue-50/80 to-blue-50/30 p-3 rounded-3xl border border-blue-200/50 shadow-sm relative overflow-hidden group/habil">
@@ -1656,7 +1677,20 @@ export default function IngresoPage() {
                       </>)}
 
                       {activeTab === 'programas_turno' && (<>
-                        <td className="px-4 py-3"><select value={row.programa_nombre} onChange={e => updateRow(row.id, 'programa_nombre', e.target.value)} className="w-48 bg-slate-50 rounded-lg py-2 px-2 text-[10px] font-black text-slate-600 outline-none uppercase border border-slate-200">{PROGRAMAS_TURNO_LIST.map(p => <option key={p} value={p}>{p}</option>)}</select></td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-col gap-1">
+                            <select value={row.programa_nombre} onChange={e => updateRow(row.id, 'programa_nombre', e.target.value)} className="w-48 bg-slate-50 rounded-lg py-2 px-2 text-[10px] font-black text-slate-600 outline-none uppercase border border-slate-200">
+                              {PROGRAMAS_TURNO_LIST.map(p => <option key={p} value={p}>{p}</option>)}
+                            </select>
+                            {row.programa_nombre?.toUpperCase().startsWith('PROG. SUR') && (
+                              <select value={row.tipo_tens || ''} onChange={e => updateRow(row.id, 'tipo_tens', e.target.value)} className="w-48 bg-slate-50 rounded-lg py-1 px-2 text-[9px] font-black text-slate-500 outline-none uppercase border border-slate-200 mt-1">
+                                <option value="">[SIN FUNCIÓN TENS]</option>
+                                <option value="RESIDENTE">TENS RESIDENTE</option>
+                                <option value="CAMILLERO">TENS CAMILLERO</option>
+                              </select>
+                            )}
+                          </div>
+                        </td>
                         <td className="px-4 py-3"><input type="number" value={row.cant_habil} onChange={e => updateRow(row.id, 'cant_habil', e.target.value)} className="w-14 bg-slate-50 rounded-lg py-2 text-center text-[11px] font-black border border-slate-200" /></td>
                         <td className="px-4 py-3"><input type="number" value={row.valor_habil} onChange={e => updateRow(row.id, 'valor_habil', e.target.value)} className="w-20 bg-slate-50 rounded-lg py-2 text-center text-[11px] font-black text-blue-600 border border-slate-200" /></td>
                         <td className="px-4 py-3"><input type="number" value={row.cant_inhabil} onChange={e => updateRow(row.id, 'cant_inhabil', e.target.value)} className="w-14 bg-slate-50 rounded-lg py-2 text-center text-[11px] font-black border border-slate-200" /></td>

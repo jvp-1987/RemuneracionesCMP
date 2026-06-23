@@ -40,4 +40,9 @@ export class CreateTurnoUrgenciaDto {
   @IsString()
   @IsOptional()
   observaciones?: string;
+
+  @ApiProperty({ example: 'RESIDENTE', required: false })
+  @IsString()
+  @IsOptional()
+  tipo_tens?: string;
 }

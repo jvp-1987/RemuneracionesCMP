@@ -164,6 +164,7 @@ model TurnosUrgencia {
   url_respaldo          String?          @db.LongText
   programa_id           Int?             @default(1)
   observaciones         String?          @db.LongText
+  tipo_tens             String?
   consolidado           Consolidado      @relation(fields: [consolidado_id], references: [id])
   funcionario           Funcionario      @relation(fields: [funcionario_rut], references: [rut])
   programa              Programa?        @relation(fields: [programa_id], references: [id])
