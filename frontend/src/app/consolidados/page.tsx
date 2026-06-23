@@ -16,9 +16,11 @@ interface Consolidado {
   centro_salud: { nombre: string };
   periodo: { mes: number; anio: number; tipo?: string };
   _count?: {
-    horas_extras: number;
-    viaticos: number;
-    atrasos: number;
+    horas_extras?: number;
+    viaticos?: number;
+    atrasos?: number;
+    turnos_urgencia?: number;
+    procedimientos?: number;
   };
 }
 
@@ -237,7 +239,11 @@ export default function ConsolidadosPage() {
                 </td>
                 <td className="px-6 py-3.5 text-center">
                   <span className="text-xs font-black text-on-surface">
-                    {(c._count?.horas_extras || 0) + (c._count?.viaticos || 0)}
+                    {(c._count?.horas_extras || 0) + 
+                     (c._count?.viaticos || 0) + 
+                     (c._count?.atrasos || 0) + 
+                     (c._count?.turnos_urgencia || 0) + 
+                     (c._count?.procedimientos || 0)}
                   </span>
                   <span className="text-[9px] font-bold text-outline uppercase tracking-widest ml-1">Regs</span>
                 </td>

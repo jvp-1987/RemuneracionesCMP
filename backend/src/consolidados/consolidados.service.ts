@@ -61,7 +61,20 @@ export class ConsolidadosService {
 
     return this.prisma.consolidado.findMany({
       where,
-      include: { centro_salud: true, periodo: true, usuario_gestor: true },
+      include: {
+        centro_salud: true,
+        periodo: true,
+        usuario_gestor: true,
+        _count: {
+          select: {
+            horas_extras: true,
+            viaticos: true,
+            atrasos: true,
+            turnos_urgencia: true,
+            procedimientos: true,
+          }
+        }
+      },
     });
   }
 
