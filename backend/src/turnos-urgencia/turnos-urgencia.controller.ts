@@ -34,6 +34,12 @@ export class TurnosUrgenciaController {
     return this.turnosUrgenciaService.update(+id, dto, req.user);
   }
 
+  @Patch('bulk/:consolidadoId')
+  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CONTABILIDAD', 'CENTRO_SALUD', 'SECRETARIA')
+  bulkUpdate(@Param('consolidadoId') consolidadoId: string, @Body() dto: UpdateTurnoUrgenciaDto, @Req() req: any) {
+    return this.turnosUrgenciaService.bulkUpdate(+consolidadoId, dto, req.user);
+  }
+
   @Delete(':id')
   @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CONTABILIDAD', 'CENTRO_SALUD', 'SECRETARIA')
   remove(@Param('id') id: string, @Req() req: any) {

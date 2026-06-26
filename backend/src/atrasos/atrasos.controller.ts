@@ -34,6 +34,13 @@ export class AtrasosController {
     return this.atrasosService.update(req.user, +id, dto);
   }
 
+  @Patch('bulk/:consolidadoId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')
+  bulkUpdate(@Req() req: any, @Param('consolidadoId') consolidadoId: string, @Body() dto: UpdateAtrasoDto) {
+    return this.atrasosService.bulkUpdate(req.user, +consolidadoId, dto);
+  }
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'CENTRO_SALUD', 'SECRETARIA', 'ADMIN_MAESTRO')

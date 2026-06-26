@@ -1048,10 +1048,11 @@ export class ConsolidadosService {
       'VALOR INHABIL': Number(t.valor_inhabil || 0),
       'MONTO CALCULADO': Number(t.monto_calculado),
       ESTADO: t.estado,
+      OBSERVACIONES: (t as any).observaciones || '',
     }));
     createDetailSheet(
       'Turnos Urgencia',
-      ['RUT', 'NOMBRE', 'PROGRAMA', 'FECHA INICIO', 'FECHA TERMINO', 'TIPO TENS', 'CANT. TURNOS HABILES', 'CANT. TURNOS INHABILES', 'VALOR HABIL', 'VALOR INHABIL', 'MONTO CALCULADO', 'ESTADO'],
+      ['RUT', 'NOMBRE', 'PROGRAMA', 'FECHA INICIO', 'FECHA TERMINO', 'TIPO TENS', 'CANT. TURNOS HABILES', 'CANT. TURNOS INHABILES', 'VALOR HABIL', 'VALOR INHABIL', 'MONTO CALCULADO', 'ESTADO', 'OBSERVACIONES'],
       turnosData,
       [{ index: 6 }, { index: 7 }, { index: 8, isCurrency: true }, { index: 9, isCurrency: true }, { index: 10, isCurrency: true }],
       [{ index: 6 }, { index: 7 }, { index: 10, isCurrency: true }]

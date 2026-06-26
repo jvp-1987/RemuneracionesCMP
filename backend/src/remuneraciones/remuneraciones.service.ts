@@ -455,12 +455,49 @@ export class RemuneracionesService {
       });
     }
 
-    // 3. Limpiar datos previos del consolidado (para evitar duplicados en re-importaciones)
+    // 3. Limpiar datos previos del consolidado (para evitar duplicados en re-importaciones, conservando hallazgos/observaciones)
     await this.prisma.$transaction([
-      this.prisma.horasExtras.deleteMany({ where: { consolidado_id: consolidado.id } }),
-      this.prisma.viaticos.deleteMany({ where: { consolidado_id: consolidado.id } }),
-      this.prisma.atrasos.deleteMany({ where: { consolidado_id: consolidado.id } }),
-      this.prisma.turnosUrgencia.deleteMany({ where: { consolidado_id: consolidado.id } }),
+      this.prisma.horasExtras.deleteMany({
+        where: {
+          consolidado_id: consolidado.id,
+          estado_25: { not: 'RECHAZADO' },
+          estado_50: { not: 'RECHAZADO' },
+          AND: [
+            { OR: [{ observaciones_25: null }, { observaciones_25: '' }] },
+            { OR: [{ observaciones_50: null }, { observaciones_50: '' }] }
+          ]
+        }
+      }),
+      this.prisma.viaticos.deleteMany({
+        where: {
+          consolidado_id: consolidado.id,
+          estado: { not: 'RECHAZADO' },
+          OR: [
+            { justificacion: null },
+            { justificacion: '' }
+          ]
+        }
+      }),
+      this.prisma.atrasos.deleteMany({
+        where: {
+          consolidado_id: consolidado.id,
+          estado: { not: 'RECHAZADO' },
+          OR: [
+            { concepto: null },
+            { concepto: '' }
+          ]
+        }
+      }),
+      this.prisma.turnosUrgencia.deleteMany({
+        where: {
+          consolidado_id: consolidado.id,
+          estado: { not: 'RECHAZADO' },
+          OR: [
+            { observaciones: null },
+            { observaciones: '' }
+          ]
+        }
+      }),
     ]);
 
     // 4. Ingesta Masiva de Datos (Batch Mode)
@@ -492,42 +529,100 @@ export class RemuneracionesService {
         // B. Poblar Tablas de Detalle (Workflow Finanzas/Control)
         for (const entry of entries) {
           if (entry.category === 'PRESUPUESTARIA' || entry.category === 'PROGRAMA_HE') {
-            await this.prisma.horasExtras.create({
-              data: {
+            const programaId = entry.category === 'PRESUPUESTARIA' ? 1 : parseInt(entry.concept.split(' ')[0]) || 1;
+            const existing = await this.prisma.horasExtras.findFirst({
+              where: {
                 consolidado_id: consolidado.id,
                 funcionario_rut: rut,
-                programa_id: entry.category === 'PRESUPUESTARIA' ? 1 : parseInt(entry.concept.split(' ')[0]) || 1,
-                cantidad_25: entry.cant_25 || 0,
-                cantidad_50: entry.cant_50 || 0,
-                fecha_inicio: new Date(),
-                fecha_termino: new Date(),
+                programa_id: programaId,
               }
             });
+
+            if (existing) {
+              await this.prisma.horasExtras.update({
+                where: { id: existing.id },
+                data: {
+                  cantidad_25: entry.cant_25 || 0,
+                  cantidad_50: entry.cant_50 || 0,
+                }
+              });
+            } else {
+              await this.prisma.horasExtras.create({
+                data: {
+                  consolidado_id: consolidado.id,
+                  funcionario_rut: rut,
+                  programa_id: programaId,
+                  cantidad_25: entry.cant_25 || 0,
+                  cantidad_50: entry.cant_50 || 0,
+                  fecha_inicio: new Date(),
+                  fecha_termino: new Date(),
+                }
+              });
+            }
           } else if (entry.category === 'VIATICOS') {
-            await this.prisma.viaticos.create({
-              data: {
+            const tipoDestino = entry.tipo_destino || 'DENTRO COMUNA';
+            const existing = await this.prisma.viaticos.findFirst({
+              where: {
                 consolidado_id: consolidado.id,
                 funcionario_rut: rut,
-                tipo_destino: entry.tipo_destino || 'DENTRO COMUNA',
-                fecha_inicio: entry.fecha_inicio || new Date(),
-                fecha_termino: entry.fecha_termino || new Date(),
-                monto_calculado: entry.viaticos || 0,
-                concepto: entry.concept,
+                tipo_destino: tipoDestino,
               }
             });
+
+            if (existing) {
+              await this.prisma.viaticos.update({
+                where: { id: existing.id },
+                data: {
+                  monto_calculado: entry.viaticos || 0,
+                  fecha_inicio: entry.fecha_inicio || new Date(),
+                  fecha_termino: entry.fecha_termino || new Date(),
+                  concepto: entry.concept,
+                }
+              });
+            } else {
+              await this.prisma.viaticos.create({
+                data: {
+                  consolidado_id: consolidado.id,
+                  funcionario_rut: rut,
+                  tipo_destino: tipoDestino,
+                  fecha_inicio: entry.fecha_inicio || new Date(),
+                  fecha_termino: entry.fecha_termino || new Date(),
+                  monto_calculado: entry.viaticos || 0,
+                  concepto: entry.concept,
+                }
+              });
+            }
           } else if (entry.category === 'ATRASOS') {
-             await this.prisma.atrasos.create({
-              data: {
+            const existing = await this.prisma.atrasos.findFirst({
+              where: {
                 consolidado_id: consolidado.id,
                 funcionario_rut: rut,
-                fecha_inicio: null,
-                fecha_termino: null,
-                minutos: entry.minutos_atraso || 0,
-                tiempo_descuento: `${entry.minutos_atraso} min`,
-                monto_descuento: 0,
-                concepto: entry.concept,
               }
             });
+
+            if (existing) {
+              await this.prisma.atrasos.update({
+                where: { id: existing.id },
+                data: {
+                  minutos: entry.minutos_atraso || 0,
+                  tiempo_descuento: `${entry.minutos_atraso} min`,
+                  concepto: entry.concept,
+                }
+              });
+            } else {
+              await this.prisma.atrasos.create({
+                data: {
+                  consolidado_id: consolidado.id,
+                  funcionario_rut: rut,
+                  fecha_inicio: null,
+                  fecha_termino: null,
+                  minutos: entry.minutos_atraso || 0,
+                  tiempo_descuento: `${entry.minutos_atraso} min`,
+                  monto_descuento: 0,
+                  concepto: entry.concept,
+                }
+              });
+            }
           } else if (entry.category === 'PROGRAMA_TURNO') {
             let programa_id = 1;
             const progName = entry.concept;
@@ -553,18 +648,38 @@ export class RemuneracionesService {
               }
             }
 
-            await this.prisma.turnosUrgencia.create({
-              data: {
+            const existing = await this.prisma.turnosUrgencia.findFirst({
+              where: {
                 consolidado_id: consolidado.id,
                 funcionario_rut: rut,
-                cant_turnos_habiles: entry.cant_habil || 0,
-                cant_turnos_inhabiles: entry.cant_inhabil || 0,
-                fecha_inicio: new Date(),
-                fecha_termino: new Date(),
-                monto_calculado: 0,
                 programa_id,
               }
             });
+
+            if (existing) {
+              await this.prisma.turnosUrgencia.update({
+                where: { id: existing.id },
+                data: {
+                  cant_turnos_habiles: entry.cant_habil || 0,
+                  cant_turnos_inhabiles: entry.cant_inhabil || 0,
+                  monto_calculado: (Number(entry.cant_habil || 0) * Number(existing.valor_habil || 0)) +
+                                   (Number(entry.cant_inhabil || 0) * Number(existing.valor_inhabil || 0)),
+                }
+              });
+            } else {
+              await this.prisma.turnosUrgencia.create({
+                data: {
+                  consolidado_id: consolidado.id,
+                  funcionario_rut: rut,
+                  cant_turnos_habiles: entry.cant_habil || 0,
+                  cant_turnos_inhabiles: entry.cant_inhabil || 0,
+                  fecha_inicio: new Date(),
+                  fecha_termino: new Date(),
+                  monto_calculado: 0,
+                  programa_id,
+                }
+              });
+            }
           }
         }
 

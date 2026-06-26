@@ -73,4 +73,53 @@ export class AtrasosService {
 
     return this.prisma.atrasos.delete({ where: { id } });
   }
+
+  async bulkUpdate(user: any, consolidadoId: number, dto: UpdateAtrasoDto) {
+    const consolidado = await this.prisma.consolidado.findUnique({ where: { id: consolidadoId } });
+    if (!consolidado) throw new NotFoundException(`Consolidado #${consolidadoId} no encontrado`);
+
+    if (consolidado.vb_control_interno && ['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol_enum)) {
+      throw new ForbiddenException('Edición masiva bloqueada: El consolidado ya está en revisión por Control Interno');
+    }
+
+    const records = await this.prisma.atrasos.findMany({
+      where: { consolidado_id: consolidadoId }
+    });
+
+    for (const record of records) {
+      const fields = Object.keys(dto);
+      const dataToUpdate: any = {};
+      let hasUpdates = false;
+
+      for (const field of fields) {
+        if ((dto as any)[field] !== undefined && String((dto as any)[field]) !== String((record as any)[field])) {
+          // Si es una actualización de estado, solo permitirla si el estado actual es PENDIENTE
+          if (field === 'estado' && (record as any)[field] !== 'PENDIENTE') {
+            continue;
+          }
+
+          dataToUpdate[field] = (dto as any)[field];
+          hasUpdates = true;
+
+          await this.auditService.createLog({
+            tipo_modulo: 'ATRASO',
+            registro_id: record.id,
+            usuario_nombre: user.nombre || 'Sistema (Acción Masiva)',
+            campo_afectado: field,
+            valor_anterior: String((record as any)[field] || ''),
+            valor_nuevo: String((dto as any)[field] || ''),
+          });
+        }
+      }
+
+      if (hasUpdates) {
+        await this.prisma.atrasos.update({
+          where: { id: record.id },
+          data: dataToUpdate
+        });
+      }
+    }
+
+    return { message: 'Actualización masiva completada' };
+  }
 }

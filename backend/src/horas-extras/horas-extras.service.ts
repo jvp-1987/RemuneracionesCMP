@@ -76,8 +76,19 @@ export class HorasExtrasService {
 
     for (const record of records) {
       const fields = Object.keys(dto);
+      const dataToUpdate: any = {};
+      let hasUpdates = false;
+
       for (const field of fields) {
         if ((dto as any)[field] !== undefined && String((dto as any)[field]) !== String((record as any)[field])) {
+          // Si es una actualización de estado, solo permitirla si el estado actual es PENDIENTE
+          if ((field === 'estado_25' || field === 'estado_50' || field === 'estado') && (record as any)[field] !== 'PENDIENTE') {
+            continue;
+          }
+
+          dataToUpdate[field] = (dto as any)[field];
+          hasUpdates = true;
+
           await this.auditService.createLog({
             tipo_modulo: 'HE',
             registro_id: record.id,
@@ -88,14 +99,16 @@ export class HorasExtrasService {
           });
         }
       }
+
+      if (hasUpdates) {
+        await this.prisma.horasExtras.update({
+          where: { id: record.id },
+          data: dataToUpdate
+        });
+      }
     }
 
-    return this.prisma.horasExtras.updateMany({
-      where: {
-        consolidado_id: consolidadoId,
-      },
-      data: dto,
-    });
+    return { message: 'Actualización masiva completada' };
   }
 
   async remove(user: any, id: number) {

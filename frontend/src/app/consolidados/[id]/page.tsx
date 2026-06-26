@@ -702,7 +702,7 @@ export default function ConsolidadoDetailPage() {
       id: number;
       funcionario: string;
       rut: string;
-      tipo: 'Horas Extras 25%' | 'Horas Extras 50%' | 'Turnos de Urgencia' | 'Procedimiento';
+      tipo: string;
       monto: number;
       estado: EstadoValidacion;
       detalles: string;
@@ -714,7 +714,7 @@ export default function ConsolidadoDetailPage() {
           id: p.id,
           funcionario: p.funcionario.nombre_completo,
           rut: p.funcionario.rut,
-          tipo: 'Procedimiento',
+          tipo: 'Procedimientos APS',
           monto: Number(p.monto_calculado || 0),
           estado: p.estado || 'PENDIENTE',
           detalles: `Cantidad: ${p.total_procedimientos || 0} procedimiento(s)`
@@ -730,7 +730,7 @@ export default function ConsolidadoDetailPage() {
               id: h.id,
               funcionario: h.funcionario.nombre_completo,
               rut: h.funcionario.rut,
-              tipo: 'Horas Extras 25%',
+              tipo: h.programa?.nombre ? `${h.programa.nombre} (HE 25%)` : 'Horas Extras 25%',
               monto: Number(h.monto_25 || 0),
               estado: h.estado_25 || 'PENDIENTE',
               detalles: `${h.cantidad_25} hrs @ $${(Number(h.monto_25 || 0) / Number(h.cantidad_25 || 1)).toFixed(0)}`
@@ -741,7 +741,7 @@ export default function ConsolidadoDetailPage() {
               id: h.id,
               funcionario: h.funcionario.nombre_completo,
               rut: h.funcionario.rut,
-              tipo: 'Horas Extras 50%',
+              tipo: h.programa?.nombre ? `${h.programa.nombre} (HE 50%)` : 'Horas Extras 50%',
               monto: Number(h.monto_50 || 0),
               estado: h.estado_50 || 'PENDIENTE',
               detalles: `${h.cantidad_50} hrs @ $${(Number(h.monto_50 || 0) / Number(h.cantidad_50 || 1)).toFixed(0)}`
@@ -760,7 +760,7 @@ export default function ConsolidadoDetailPage() {
             id: t.id,
             funcionario: t.funcionario.nombre_completo,
             rut: t.funcionario.rut,
-            tipo: 'Turnos de Urgencia',
+            tipo: t.programa?.nombre || 'Turnos de Urgencia',
             monto: Number(t.cant_turnos_habiles || 0) * Number(t.valor_habil || 0) + Number(t.cant_turnos_inhabiles || 0) * Number(t.valor_inhabil || 0),
             estado: t.estado || 'PENDIENTE',
             detalles: detList.join(', ')
