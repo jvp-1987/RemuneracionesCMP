@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import api from '@/lib/axios';
+import axios from 'axios';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line
@@ -15,7 +15,7 @@ export default function DashboardPage() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await api.get(`/dashboard/proyecciones?anio=${year}`);
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || ''}/dashboard/proyecciones?anio=${year}`);
         setData(res.data);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
