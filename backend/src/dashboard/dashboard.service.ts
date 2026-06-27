@@ -98,7 +98,7 @@ export class DashboardService {
       const reemplazosByCentro: Record<string, number> = {};
       let totalReemplazos = 0;
       for (const liq of liquidaciones) {
-        const tipoContrato = this.getContratoTipo(liq.detalle_json);
+        const tipoContrato = this.getContratoTipo(liq);
         if (tipoContrato.includes('REEMPLAZO')) {
           const mainCentroName = this.getMainCentroName(liq.funcionario?.centro_salud);
           const costo = Number(liq.total_haberes || 0);
