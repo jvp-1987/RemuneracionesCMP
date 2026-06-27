@@ -92,8 +92,20 @@ export class DashboardService {
       let totalReemplazos = 0;
       for (const req of contratos) {
         const centroName = req.funcionario?.centro_salud?.nombre || 'Sin Centro';
-        reemplazosByCentro[centroName] = (reemplazosByCentro[centroName] || 0) + 1;
-        totalReemplazos++;
+        
+        // Buscar liquidacion mensual del funcionario de reemplazo en este periodo
+        const liq = await this.prisma.liquidacionMensual.findUnique({
+          where: {
+            funcionario_rut_periodo_id: {
+              funcionario_rut: req.funcionario_rut,
+              periodo_id: p.id
+            }
+          }
+        });
+
+        const costo = liq ? Number(liq.total_haberes || 0) : 0;
+        reemplazosByCentro[centroName] = (reemplazosByCentro[centroName] || 0) + costo;
+        totalReemplazos += costo;
       }
 
       result.push({
