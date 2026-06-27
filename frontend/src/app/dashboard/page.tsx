@@ -31,14 +31,12 @@ export default function DashboardPage() {
     return <div className="flex h-screen items-center justify-center font-bold text-xl">Cargando proyecciones...</div>;
   }
 
-  // Extract all unique health centers
-  const allCentros = Array.from(new Set(
-    data.flatMap(d => [
-      ...Object.keys(d.horasExtrasPorCentro || {}),
-      ...Object.keys(d.sueldosPorCentro || {}),
-      ...Object.keys(d.reemplazosPorCentro || {})
-    ])
-  )).sort().filter(c => c !== 'Sin Centro' && c.trim() !== '');
+  // Los 3 establecimientos principales
+  const allCentros = [
+    'CESFAM PANGUIPULLI',
+    'CESFAM COÑARIPE',
+    'CESFAM CHOSHUENCO'
+  ];
 
   // Filter data based on selected health center
   const filteredData = data.map(d => {
