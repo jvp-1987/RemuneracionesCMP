@@ -7,12 +7,10 @@ import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('Dashboard')
 @Controller('dashboard')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 
   @Get('proyecciones')
-  @Roles('ADMIN', 'CONTROL', 'FINANZAS', 'ADMIN_MAESTRO', 'CENTRO_SALUD')
   getProyecciones(@Query('anio') anio?: string) {
     const year = anio ? parseInt(anio, 10) : new Date().getFullYear();
     return this.dashboardService.getProyecciones(year);

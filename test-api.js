@@ -23,12 +23,15 @@ async function run() {
       const cookie = loginRes.headers['set-cookie'][0].split(';')[0];
       console.log('Cookie obtained:', cookie);
 
-      console.log('Fetching dashboard...');
-      const dashRes = await client.get('/consolidados/dashboard', {
+      console.log('Fetching proyecciones...');
+      const statsRes = await client.get('/dashboard/proyecciones?anio=2026', {
         headers: { Cookie: cookie },
         validateStatus: () => true
       });
-      console.log('Dashboard status:', dashRes.status);
+      console.log('Proyecciones status:', statsRes.status);
+      if (statsRes.status === 200) {
+        console.log('Proyecciones Data:', JSON.stringify(statsRes.data, null, 2));
+      }
     }
   } catch (err) {
     console.error(err);
