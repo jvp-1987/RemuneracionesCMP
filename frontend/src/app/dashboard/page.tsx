@@ -40,7 +40,7 @@ export default function DashboardPage() {
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
             <XAxis dataKey="name" axisLine={false} tickLine={false} />
             <YAxis tickFormatter={(val) => `$${(val / 1000000).toFixed(1)}M`} axisLine={false} tickLine={false} />
-            <Tooltip formatter={(val: number) => [`$${val.toLocaleString('es-CL')}`, 'Horas Extras']} />
+            <Tooltip formatter={(val: any) => [val ? `$${Number(val).toLocaleString('es-CL')}` : '$0', 'Horas Extras']} />
             <Bar dataKey="horasExtrasTotal" fill="#3B82F6" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
@@ -57,7 +57,7 @@ export default function DashboardPage() {
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
             <XAxis dataKey="name" axisLine={false} tickLine={false} />
             <YAxis tickFormatter={(val) => `$${(val / 1000000).toFixed(1)}M`} axisLine={false} tickLine={false} />
-            <Tooltip formatter={(val: number) => [`$${val.toLocaleString('es-CL')}`, 'Total Sueldos']} />
+            <Tooltip formatter={(val: any) => [val ? `$${Number(val).toLocaleString('es-CL')}` : '$0', 'Total Sueldos']} />
             <Line type="monotone" dataKey="sueldosTotal" stroke="#10B981" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
           </LineChart>
         </ResponsiveContainer>
@@ -74,7 +74,7 @@ export default function DashboardPage() {
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
             <XAxis dataKey="name" axisLine={false} tickLine={false} />
             <YAxis allowDecimals={false} axisLine={false} tickLine={false} />
-            <Tooltip formatter={(val: number) => [val, 'Reemplazos']} />
+            <Tooltip formatter={(val: any) => [val || 0, 'Reemplazos']} />
             <Bar dataKey="reemplazosTotal" fill="#F59E0B" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
