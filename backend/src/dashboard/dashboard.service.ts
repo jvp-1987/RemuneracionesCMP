@@ -23,35 +23,7 @@ export class DashboardService {
     for (const p of periodos) {
       const mesName = mesesNombres[p.mes - 1];
 
-      // 1. Horas Extras por centro en este periodo
-      const heByCentro: Record<string, number> = {};
-      const consolidadosHE = await this.prisma.consolidado.findMany({
-        where: { periodo_id: p.id },
-        include: {
-          centro_salud: true,
-          horas_extras: {
-            where: {
-              OR: [
-                { estado_25: 'APROBADO' },
-                { estado_50: 'APROBADO' }
-              ]
-            }
-          }
-        }
-      });
-      let totalHe = 0;
-      for (const c of consolidadosHE) {
-        let sumCentro = 0;
-        for (const he of c.horas_extras) {
-          if (he.estado_25 === 'APROBADO') sumCentro += Number(he.monto_25 || 0);
-          if (he.estado_50 === 'APROBADO') sumCentro += Number(he.monto_50 || 0);
-        }
-        heByCentro[c.centro_salud.nombre] = (heByCentro[c.centro_salud.nombre] || 0) + sumCentro;
-        totalHe += sumCentro;
-      }
-
-      // 2. Sueldos por centro en este periodo
-      const sueldosByCentro: Record<string, number> = {};
+      // 1. Obtener liquidaciones del periodo (Maestro)
       const liquidaciones = await this.prisma.liquidacionMensual.findMany({
         where: { periodo_id: p.id },
         include: {
@@ -60,10 +32,23 @@ export class DashboardService {
           }
         }
       });
+
+      // 2. Horas Extras por centro y total (Maestro: LiquidacionMensual.monto_he_pagado)
+      const heByCentro: Record<string, number> = {};
+      let totalHe = 0;
+      for (const liq of liquidaciones) {
+        const centroName = liq.funcionario?.centro_salud?.nombre || 'Sin Centro';
+        const monto = Number(liq.monto_he_pagado || 0);
+        heByCentro[centroName] = (heByCentro[centroName] || 0) + monto;
+        totalHe += monto;
+      }
+
+      // 3. Sueldos por centro y total (Maestro: LiquidacionMensual.total_haberes)
+      const sueldosByCentro: Record<string, number> = {};
       let totalSueldos = 0;
       for (const liq of liquidaciones) {
         const centroName = liq.funcionario?.centro_salud?.nombre || 'Sin Centro';
-        const monto = Number(liq.total_haberes || 0); // O monto_liquido según definición
+        const monto = Number(liq.total_haberes || 0);
         sueldosByCentro[centroName] = (sueldosByCentro[centroName] || 0) + monto;
         totalSueldos += monto;
       }
