@@ -9,6 +9,7 @@ import { useAuth } from './AuthProvider';
 
 const navItems = [
   { name: 'Dashboard', href: '/', icon: '&#xe871;' },
+  { name: 'Proyecciones', href: '/dashboard', icon: '&#xe4fc;' },
   { name: 'Ingresar Novedades', href: '/ingreso', icon: '&#xe145;' },
   { name: 'Consolidados', href: '/consolidados', icon: '&#xea17;' },
   { name: 'Funcionarios', href: '/funcionarios', icon: '&#xe7ef;' },
@@ -28,23 +29,23 @@ export default function Sidebar() {
     if (user.rol === 'ADMIN' || user.rol === 'ADMIN_MAESTRO') return true;
     
     if (['CENTRO_SALUD', 'SECRETARIA'].includes(user.rol)) {
-      return ['Dashboard', 'Ingresar Novedades', 'Consolidados', 'Funcionarios', 'Asignaciones Fijas'].includes(item.name);
+      return ['Dashboard', 'Proyecciones', 'Ingresar Novedades', 'Consolidados', 'Funcionarios', 'Asignaciones Fijas'].includes(item.name);
     }
     
     if (user.rol === 'CONTROL') {
-      return ['Dashboard', 'Consolidados', 'Funcionarios', 'Asignaciones Fijas'].includes(item.name);
+      return ['Dashboard', 'Proyecciones', 'Consolidados', 'Funcionarios', 'Asignaciones Fijas'].includes(item.name);
     }
     
     if (user.rol === 'FINANZAS') {
-      return ['Dashboard', 'Consolidados', 'Funcionarios', 'Reportes', 'Asignaciones Fijas'].includes(item.name);
+      return ['Dashboard', 'Proyecciones', 'Consolidados', 'Funcionarios', 'Reportes', 'Asignaciones Fijas'].includes(item.name);
     }
 
     if (user.rol === 'INVITADO') {
-      return ['Dashboard', 'Consolidados', 'Funcionarios', 'Reportes', 'Asignaciones Fijas'].includes(item.name);
+      return ['Dashboard', 'Proyecciones', 'Consolidados', 'Funcionarios', 'Reportes', 'Asignaciones Fijas'].includes(item.name);
     }
 
     if (user.rol === 'CONTABILIDAD') {
-      return ['Dashboard', 'Consolidados', 'Funcionarios', 'Reportes'].includes(item.name);
+      return ['Dashboard', 'Proyecciones', 'Consolidados', 'Funcionarios', 'Reportes'].includes(item.name);
     }
     
     return false;

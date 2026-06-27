@@ -26,6 +26,8 @@ import { AlertasRrhhModule } from './alertas-rrhh/alertas-rrhh.module';
 import { RelojControlModule } from './reloj-control/reloj-control.module';
 import { AsignacionesModule } from './asignaciones/asignaciones.module';
 
+import { DashboardModule } from './dashboard/dashboard.module';
+
 @Module({
   imports: [
     AuthModule, 
@@ -49,7 +51,8 @@ import { AsignacionesModule } from './asignaciones/asignaciones.module';
     ContratosModule, 
     AusentismosModule, 
     AsignacionesEspecialesModule, 
-    AlertasRrhhModule, RelojControlModule, AsignacionesModule
+    AlertasRrhhModule, RelojControlModule, AsignacionesModule,
+    DashboardModule
   ],
   controllers: [AppController],
   providers: [AppService],
