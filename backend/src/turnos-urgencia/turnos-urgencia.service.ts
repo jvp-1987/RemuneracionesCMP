@@ -11,8 +11,53 @@ export class TurnosUrgenciaService {
     private readonly audit: AuditService,
   ) {}
 
-  create(dto: CreateTurnoUrgenciaDto) {
-    return this.prisma.turnosUrgencia.create({ data: dto });
+  async create(dto: CreateTurnoUrgenciaDto) {
+    const dataToCreate = { ...dto } as any;
+
+    const consolidado = await this.prisma.consolidado.findUnique({
+      where: { id: dto.consolidado_id }
+    });
+    const centroSaludId = consolidado?.centro_salud_id;
+
+    let valorHabil = 0;
+    let valorInhabil = 0;
+
+    if (centroSaludId) {
+      // Buscar tarifa de referencia para el tipo de TENS y establecimiento
+      const refRecord = await this.prisma.turnosUrgencia.findFirst({
+        where: {
+          tipo_tens: dto.tipo_tens || null,
+          consolidado: {
+            centro_salud_id: centroSaludId,
+          },
+          valor_habil: { gt: 0 }
+        },
+        orderBy: { id: 'desc' }
+      });
+      if (refRecord) {
+        valorHabil = Number(refRecord.valor_habil || 0);
+        valorInhabil = Number(refRecord.valor_inhabil || 0);
+      } else {
+        // Fallback global
+        const generalRef = await this.prisma.turnosUrgencia.findFirst({
+          where: {
+            tipo_tens: dto.tipo_tens || null,
+            valor_habil: { gt: 0 }
+          },
+          orderBy: { id: 'desc' }
+        });
+        if (generalRef) {
+          valorHabil = Number(generalRef.valor_habil || 0);
+          valorInhabil = Number(generalRef.valor_inhabil || 0);
+        }
+      }
+    }
+
+    dataToCreate.valor_habil = valorHabil;
+    dataToCreate.valor_inhabil = valorInhabil;
+    dataToCreate.monto_calculado = (Number(dto.cant_turnos_habiles || 0) * valorHabil) + (Number(dto.cant_turnos_inhabiles || 0) * valorInhabil);
+
+    return this.prisma.turnosUrgencia.create({ data: dataToCreate });
   }
 
   findAll() {
@@ -38,12 +83,49 @@ export class TurnosUrgenciaService {
 
     let updatedDto = { ...dto } as any;
 
-    // Recalcular monto_calculado si se cambian las cantidades
-    if (updatedDto.cant_turnos_habiles !== undefined || updatedDto.cant_turnos_inhabiles !== undefined) {
+    const targetTipoTens = updatedDto.tipo_tens !== undefined ? updatedDto.tipo_tens : oldData.tipo_tens;
+    let valorHabil = Number(oldData.valor_habil || 0);
+    let valorInhabil = Number(oldData.valor_inhabil || 0);
+
+    // Si el tipo de tens cambió o las tarifas actuales son cero, buscar tarifa de referencia
+    if ((updatedDto.tipo_tens !== undefined && updatedDto.tipo_tens !== oldData.tipo_tens) || (valorHabil === 0 && valorInhabil === 0)) {
+      const refRecord = await this.prisma.turnosUrgencia.findFirst({
+        where: {
+          tipo_tens: targetTipoTens || null,
+          consolidado: {
+            centro_salud_id: (oldData.consolidado as any).centro_salud_id,
+          },
+          valor_habil: { gt: 0 }
+        },
+        orderBy: { id: 'desc' }
+      });
+      if (refRecord) {
+        valorHabil = Number(refRecord.valor_habil || 0);
+        valorInhabil = Number(refRecord.valor_inhabil || 0);
+        updatedDto.valor_habil = valorHabil;
+        updatedDto.valor_inhabil = valorInhabil;
+      } else {
+        // Fallback global
+        const generalRef = await this.prisma.turnosUrgencia.findFirst({
+          where: {
+            tipo_tens: targetTipoTens || null,
+            valor_habil: { gt: 0 }
+          },
+          orderBy: { id: 'desc' }
+        });
+        if (generalRef) {
+          valorHabil = Number(generalRef.valor_habil || 0);
+          valorInhabil = Number(generalRef.valor_inhabil || 0);
+          updatedDto.valor_habil = valorHabil;
+          updatedDto.valor_inhabil = valorInhabil;
+        }
+      }
+    }
+
+    // Recalcular monto_calculado si se cambian las cantidades o si cambió el tipo_tens
+    if (updatedDto.cant_turnos_habiles !== undefined || updatedDto.cant_turnos_inhabiles !== undefined || (updatedDto.tipo_tens !== undefined && updatedDto.tipo_tens !== oldData.tipo_tens)) {
       const habiles = updatedDto.cant_turnos_habiles !== undefined ? Number(updatedDto.cant_turnos_habiles) : Number(oldData.cant_turnos_habiles || 0);
       const inhabiles = updatedDto.cant_turnos_inhabiles !== undefined ? Number(updatedDto.cant_turnos_inhabiles) : Number(oldData.cant_turnos_inhabiles || 0);
-      const valorHabil = Number(oldData.valor_habil || 0);
-      const valorInhabil = Number(oldData.valor_inhabil || 0);
       
       updatedDto.monto_calculado = (habiles * valorHabil) + (inhabiles * valorInhabil);
     }
