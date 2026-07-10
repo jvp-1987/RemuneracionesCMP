@@ -827,8 +827,8 @@ export class ConsolidadosService {
 
     const wsResumen = xlsx.utils.aoa_to_sheet(aoaResumen);
 
-    // Formatear columnas B, C, D, E de la tabla financiera (filas 18 a 23 en Excel)
-    for (let r = 18; r <= 23; r++) {
+    // Formatear columnas B, C, D, E de la tabla financiera (filas 21 a 26 en Excel)
+    for (let r = 21; r <= 26; r++) {
       for (const col of ['B', 'C', 'D', 'E']) {
         const cellRef = `${col}${r}`;
         if (wsResumen[cellRef] !== undefined) {
