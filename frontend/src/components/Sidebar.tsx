@@ -32,7 +32,7 @@ export default function Sidebar() {
       return ['Dashboard', 'Proyecciones', 'Ingresar Novedades', 'Consolidados', 'Funcionarios', 'Asignaciones Fijas'].includes(item.name);
     }
     
-    if (user.rol === 'CONTROL') {
+    if (user.rol === 'CONTROL' || user.rol === 'VALIDADOR_CONVENIOS') {
       return ['Dashboard', 'Proyecciones', 'Consolidados', 'Funcionarios', 'Asignaciones Fijas'].includes(item.name);
     }
     
