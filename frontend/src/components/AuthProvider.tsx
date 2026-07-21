@@ -88,6 +88,22 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   }, [router]);
 
   useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response && error.response.status === 401) {
+          logout();
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, [logout]);
+
+  useEffect(() => {
     if (!token) return;
 
     let timeoutId: NodeJS.Timeout;
