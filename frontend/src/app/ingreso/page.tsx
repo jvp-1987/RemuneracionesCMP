@@ -1382,7 +1382,7 @@ export default function IngresoPage() {
                             <div className="bg-gradient-to-br from-blue-50/80 to-blue-50/30 p-3 rounded-3xl border border-blue-200/50 shadow-sm relative overflow-hidden group/habil">
                               <label className="text-[9px] font-black text-blue-600 uppercase tracking-wider mb-2 flex items-center gap-2 relative z-10">
                                 <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
-                                Turnos Hábiles
+                                {(row.programa_nombre || '')?.toUpperCase().includes('CIRUGIA') ? 'Procedimientos Hábiles' : 'Turnos Hábiles'}
                               </label>
                               <div className="flex items-center gap-2 relative z-10">
                                 <div className="flex items-center justify-between w-full bg-white/60 p-1.5 rounded-xl border border-blue-100/50">
@@ -1399,7 +1399,7 @@ export default function IngresoPage() {
                             <div className="bg-gradient-to-br from-purple-50/80 to-purple-50/30 p-3 rounded-3xl border border-purple-200/50 shadow-sm relative overflow-hidden group/inhabil">
                               <label className="text-[9px] font-black text-purple-600 uppercase tracking-wider mb-2 flex items-center gap-2 relative z-10">
                                 <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"></span>
-                                Turnos Inhábiles
+                                {(row.programa_nombre || '')?.toUpperCase().includes('CIRUGIA') ? 'Procedimientos Inhábiles' : 'Turnos Inhábiles'}
                               </label>
                               <div className="flex items-center gap-2 relative z-10">
                                 <div className="flex items-center justify-between w-full bg-white/60 p-1.5 rounded-xl border border-purple-100/50">
@@ -1417,7 +1417,7 @@ export default function IngresoPage() {
                           <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-4 text-white flex justify-between items-center shadow-lg relative overflow-hidden mt-2">
                             <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl"></div>
                             <div className="relative z-10">
-                              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-400/80 mb-1">Total Turnos</p>
+                              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-400/80 mb-1">{(row.programa_nombre || '')?.toUpperCase().includes('CIRUGIA') ? 'Total Procedimientos' : 'Total Turnos'}</p>
                               <p className="text-xl font-black text-emerald-400 tracking-tight">${getRowTotal(row).toLocaleString('es-CL')}</p>
                             </div>
                             <DollarSign className="w-6 h-6 text-emerald-400/20 relative z-10" />
