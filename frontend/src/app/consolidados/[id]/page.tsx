@@ -817,26 +817,14 @@ export default function ConsolidadoDetailPage() {
               V°B° CONTROL
             </button>
             <button 
-              disabled={!canValidateContabilidad}
-              onClick={() => handleToggleValidation('vb_contabilidad', !data.vb_contabilidad)}
-              className={cn(
-                "px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all shadow-sm",
-                data.vb_contabilidad ? "bg-primary text-white border-primary shadow-primary/20" : "bg-white border-outline-variant/20 text-outline hover:border-primary/50",
-                (!canValidateContabilidad) && "opacity-40 cursor-not-allowed grayscale"
-              )}
-              title={!canValidateContabilidad ? "Solo perfil CONTABILIDAD puede validar" : ""}
-            >
-              V°B° CONTABILIDAD
-            </button>
-            <button 
-              disabled={(!canValidateFinanzas) || (!data.vb_finanzas && (!allAudited || !data.vb_control_interno || !data.vb_contabilidad))}
+              disabled={(!canValidateFinanzas) || (!data.vb_finanzas && (!allAudited || !data.vb_control_interno))}
               onClick={() => handleToggleValidation('vb_finanzas', !data.vb_finanzas)}
               className={cn(
                 "px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all shadow-sm",
                 data.vb_finanzas ? "bg-primary text-white border-primary shadow-primary/20" : "bg-white border-outline-variant/20 text-outline hover:border-primary/50",
-                (!canValidateFinanzas || (!data.vb_finanzas && (!allAudited || !data.vb_control_interno || !data.vb_contabilidad))) && "opacity-40 cursor-not-allowed grayscale"
+                (!canValidateFinanzas || (!data.vb_finanzas && (!allAudited || !data.vb_control_interno))) && "opacity-40 cursor-not-allowed grayscale"
               )}
-              title={!canValidateFinanzas ? "Solo perfil FINANZAS puede validar" : (!data.vb_finanzas && !data.vb_control_interno) ? "Debe contar con el V°B° de Control Interno primero" : (!data.vb_finanzas && !data.vb_contabilidad) ? "Debe contar con el V°B° de Contabilidad primero" : (!data.vb_finanzas && !allAudited) ? "Debe auditar (validar o rechazar) todos los registros antes de dar el visto bueno" : ""}
+              title={!canValidateFinanzas ? "Solo perfil FINANZAS puede validar" : (!data.vb_finanzas && !data.vb_control_interno) ? "Debe contar con el V°B° de Control Interno primero" : (!data.vb_finanzas && !allAudited) ? "Debe auditar (validar o rechazar) todos los registros antes de dar el visto bueno" : ""}
             >
               V°B° FINANZAS
             </button>
@@ -1279,7 +1267,8 @@ export default function ConsolidadoDetailPage() {
                       onViewRespaldo={() => handleOpenRespaldo(item.url_respaldo!)}
                       attendanceLogs={relojData ? relojData[item.funcionario.rut.replace(/\./g, '').replace(/^0+/, '')] : undefined}
                       canEdit={((canValidateControl || canValidateContabilidad || canValidateFinanzas || canValidateConvenios) || ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '')) && !isLocked}
-                      canAudit={canValidateControl || canValidateContabilidad || canValidateFinanzas || canValidateConvenios}
+                      canAudit={canValidateControl || canValidateFinanzas}
+                      canObserve={canValidateControl || canValidateContabilidad || canValidateFinanzas || canValidateConvenios}
                       isLocked={!!isLocked}
                     />
                   ))}
@@ -1809,6 +1798,7 @@ const EmployeeTableRow = React.memo(({
   attendanceLogs,
   canEdit,
   canAudit,
+  canObserve,
   isLocked
 }: { 
   item: Transaction, 
@@ -1824,6 +1814,7 @@ const EmployeeTableRow = React.memo(({
   attendanceLogs?: any[],
   canEdit: boolean,
   canAudit: boolean,
+  canObserve: boolean,
   isLocked: boolean
 }) => {
   const [showLogs, setShowLogs] = useState(false);
@@ -1847,6 +1838,8 @@ const EmployeeTableRow = React.memo(({
       fetchAuditLogs();
     }
   }, [expanded, activeTab, item.id, item.url_respaldo]);
+
+  const hasObservation = !!(item.observaciones_25 || item.observaciones_50 || item.observaciones);
 
   const initials = (item.funcionario?.nombre_completo || '')
     .split(' ')
@@ -1974,6 +1967,11 @@ const EmployeeTableRow = React.memo(({
         </td>
         <td className="px-6 py-2.5 text-right">
           <div className="flex items-center justify-end gap-1.5">
+            {hasObservation && (
+              <div className="flex items-center justify-center p-1.5 rounded-lg bg-amber-100 text-amber-700 mr-1" title="Contiene Observaciones">
+                <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
+              </div>
+            )}
             {attendanceLogs && (
               <button 
                 onClick={(e) => { e.stopPropagation(); setShowLogs(!showLogs); }}
@@ -2100,9 +2098,9 @@ const EmployeeTableRow = React.memo(({
                           <>
                             <div className="space-y-4">
                               <textarea 
-                                disabled={!canAudit}
+                                disabled={!canObserve}
                                 className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold h-24 min-h-[80px] resize-y" 
-                                placeholder={canAudit ? "Ingrese hallazgos..." : "Notas de auditoría (Solo lectura)"}
+                                placeholder={canObserve ? "Ingrese hallazgos..." : "Notas de auditoría (Solo lectura)"}
                                 value={obs25}
                                 onChange={(e) => setObs25(e.target.value)}
                                 onBlur={() => onObs(obs25, '25')}
@@ -2133,9 +2131,9 @@ const EmployeeTableRow = React.memo(({
                           <>
                             <div className="space-y-4">
                               <textarea 
-                                disabled={!canAudit}
+                                disabled={!canObserve}
                                 className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold h-24 min-h-[80px] resize-y" 
-                                placeholder={canAudit ? "Ingrese hallazgos..." : "Notas de auditoría (Solo lectura)"}
+                                placeholder={canObserve ? "Ingrese hallazgos..." : "Notas de auditoría (Solo lectura)"}
                                 value={obs50}
                                 onChange={(e) => setObs50(e.target.value)}
                                 onBlur={() => onObs(obs50, '50')}
@@ -2159,9 +2157,9 @@ const EmployeeTableRow = React.memo(({
                   ) : (
                     <div className="space-y-10 relative z-10 max-w-4xl mx-auto">
                         <textarea 
-                          disabled={!canAudit}
+                          disabled={!canObserve}
                           className="w-full bg-surface-container border border-outline-variant/5 rounded-3xl text-sm px-8 py-6 placeholder:text-outline/40 text-on-surface focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold min-h-[120px]" 
-                          placeholder={canAudit ? "Notas de auditoría..." : "Notas de auditoría (Solo lectura)"}
+                          placeholder={canObserve ? "Notas de auditoría..." : "Notas de auditoría (Solo lectura)"}
                           value={obs}
                           onChange={(e) => setObs(e.target.value)}
                           onBlur={() => onObs(obs)}
