@@ -93,6 +93,7 @@ export default function ConsolidadoDetailPage() {
   const canValidateControl = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'CONTROL';
   const canValidateContabilidad = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'CONTABILIDAD';
   const canValidateFinanzas = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'FINANZAS';
+  const canValidateConvenios = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO' || user?.rol === 'VALIDADOR_CONVENIOS';
   const canFinalize = user?.rol === 'ADMIN' || user?.rol === 'ADMIN_MAESTRO';
   
   // A record is locked for CENTRO_SALUD/SECRETARIA if Control Interno already gave V°B°, or if user is INVITADO
@@ -1277,8 +1278,8 @@ export default function ConsolidadoDetailPage() {
                       onRespaldoUpload={(e) => handleRecordRespaldoUpload(item.id, e)}
                       onViewRespaldo={() => handleOpenRespaldo(item.url_respaldo!)}
                       attendanceLogs={relojData ? relojData[item.funcionario.rut.replace(/\./g, '').replace(/^0+/, '')] : undefined}
-                      canEdit={((canValidateControl || canValidateContabilidad || canValidateFinanzas) || ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '')) && !isLocked}
-                      canAudit={canValidateControl || canValidateContabilidad || canValidateFinanzas}
+                      canEdit={((canValidateControl || canValidateContabilidad || canValidateFinanzas || canValidateConvenios) || ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '')) && !isLocked}
+                      canAudit={canValidateControl || canValidateContabilidad || canValidateFinanzas || canValidateConvenios}
                       isLocked={!!isLocked}
                     />
                   ))}
