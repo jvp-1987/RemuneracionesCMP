@@ -29,19 +29,19 @@ export class ProcedimientosController {
   }
 
   @Patch(':id')
-  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CONTABILIDAD', 'CENTRO_SALUD', 'SECRETARIA')
+  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CONTABILIDAD', 'CENTRO_SALUD', 'SECRETARIA', 'VALIDADOR_CONVENIOS')
   update(@Param('id') id: string, @Body() dto: UpdateProcedimientoDto, @Req() req: any) {
     return this.procedimientosService.update(+id, dto, req.user);
   }
 
   @Patch('bulk/:consolidadoId')
-  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CONTABILIDAD', 'CENTRO_SALUD', 'SECRETARIA')
+  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CONTABILIDAD', 'CENTRO_SALUD', 'SECRETARIA', 'VALIDADOR_CONVENIOS')
   bulkUpdate(@Param('consolidadoId') consolidadoId: string, @Body() dto: UpdateProcedimientoDto, @Req() req: any) {
     return this.procedimientosService.bulkUpdate(+consolidadoId, dto, req.user);
   }
 
   @Delete(':id')
-  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CONTABILIDAD', 'CENTRO_SALUD', 'SECRETARIA')
+  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CONTROL', 'FINANZAS', 'CONTABILIDAD', 'CENTRO_SALUD', 'SECRETARIA', 'VALIDADOR_CONVENIOS')
   remove(@Param('id') id: string, @Req() req: any) {
     return this.procedimientosService.remove(+id, req.user);
   }
