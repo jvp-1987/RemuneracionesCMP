@@ -455,50 +455,13 @@ export class RemuneracionesService {
       });
     }
 
-    // 3. Limpiar datos previos del consolidado (para evitar duplicados en re-importaciones, conservando hallazgos/observaciones)
-    await this.prisma.$transaction([
-      this.prisma.horasExtras.deleteMany({
-        where: {
-          consolidado_id: consolidado.id,
-          estado_25: { not: 'RECHAZADO' },
-          estado_50: { not: 'RECHAZADO' },
-          AND: [
-            { OR: [{ observaciones_25: null }, { observaciones_25: '' }] },
-            { OR: [{ observaciones_50: null }, { observaciones_50: '' }] }
-          ]
-        }
-      }),
-      this.prisma.viaticos.deleteMany({
-        where: {
-          consolidado_id: consolidado.id,
-          estado: { not: 'RECHAZADO' },
-          OR: [
-            { justificacion: null },
-            { justificacion: '' }
-          ]
-        }
-      }),
-      this.prisma.atrasos.deleteMany({
-        where: {
-          consolidado_id: consolidado.id,
-          estado: { not: 'RECHAZADO' },
-          OR: [
-            { concepto: null },
-            { concepto: '' }
-          ]
-        }
-      }),
-      this.prisma.turnosUrgencia.deleteMany({
-        where: {
-          consolidado_id: consolidado.id,
-          estado: { not: 'RECHAZADO' },
-          OR: [
-            { observaciones: null },
-            { observaciones: '' }
-          ]
-        }
-      }),
-    ]);
+    // 3. Inicializar colecciones para IDs procesados (evitar borrar datos vigentes)
+    const processedIds = {
+      horasExtras: new Set<number>(),
+      viaticos: new Set<number>(),
+      atrasos: new Set<number>(),
+      turnosUrgencia: new Set<number>(),
+    };
 
     // 4. Ingesta Masiva de Datos (Batch Mode)
     const CONCURRENCY = 20;
@@ -539,15 +502,16 @@ export class RemuneracionesService {
             });
 
             if (existing) {
-              await this.prisma.horasExtras.update({
+              const updated = await this.prisma.horasExtras.update({
                 where: { id: existing.id },
                 data: {
                   cantidad_25: entry.cant_25 || 0,
                   cantidad_50: entry.cant_50 || 0,
                 }
               });
+              processedIds.horasExtras.add(updated.id);
             } else {
-              await this.prisma.horasExtras.create({
+              const created = await this.prisma.horasExtras.create({
                 data: {
                   consolidado_id: consolidado.id,
                   funcionario_rut: rut,
@@ -558,6 +522,7 @@ export class RemuneracionesService {
                   fecha_termino: new Date(),
                 }
               });
+              processedIds.horasExtras.add(created.id);
             }
           } else if (entry.category === 'VIATICOS') {
             const tipoDestino = entry.tipo_destino || 'DENTRO COMUNA';
@@ -570,7 +535,7 @@ export class RemuneracionesService {
             });
 
             if (existing) {
-              await this.prisma.viaticos.update({
+              const updated = await this.prisma.viaticos.update({
                 where: { id: existing.id },
                 data: {
                   monto_calculado: entry.viaticos || 0,
@@ -579,8 +544,9 @@ export class RemuneracionesService {
                   concepto: entry.concept,
                 }
               });
+              processedIds.viaticos.add(updated.id);
             } else {
-              await this.prisma.viaticos.create({
+              const created = await this.prisma.viaticos.create({
                 data: {
                   consolidado_id: consolidado.id,
                   funcionario_rut: rut,
@@ -591,6 +557,7 @@ export class RemuneracionesService {
                   concepto: entry.concept,
                 }
               });
+              processedIds.viaticos.add(created.id);
             }
           } else if (entry.category === 'ATRASOS') {
             const existing = await this.prisma.atrasos.findFirst({
@@ -601,7 +568,7 @@ export class RemuneracionesService {
             });
 
             if (existing) {
-              await this.prisma.atrasos.update({
+              const updated = await this.prisma.atrasos.update({
                 where: { id: existing.id },
                 data: {
                   minutos: entry.minutos_atraso || 0,
@@ -609,8 +576,9 @@ export class RemuneracionesService {
                   concepto: entry.concept,
                 }
               });
+              processedIds.atrasos.add(updated.id);
             } else {
-              await this.prisma.atrasos.create({
+              const created = await this.prisma.atrasos.create({
                 data: {
                   consolidado_id: consolidado.id,
                   funcionario_rut: rut,
@@ -622,6 +590,7 @@ export class RemuneracionesService {
                   concepto: entry.concept,
                 }
               });
+              processedIds.atrasos.add(created.id);
             }
           } else if (entry.category === 'PROGRAMA_TURNO') {
             let programa_id = 1;
@@ -657,7 +626,7 @@ export class RemuneracionesService {
             });
 
             if (existing) {
-              await this.prisma.turnosUrgencia.update({
+              const updated = await this.prisma.turnosUrgencia.update({
                 where: { id: existing.id },
                 data: {
                   cant_turnos_habiles: entry.cant_habil || 0,
@@ -666,8 +635,9 @@ export class RemuneracionesService {
                                    (Number(entry.cant_inhabil || 0) * Number(existing.valor_inhabil || 0)),
                 }
               });
+              processedIds.turnosUrgencia.add(updated.id);
             } else {
-              await this.prisma.turnosUrgencia.create({
+              const created = await this.prisma.turnosUrgencia.create({
                 data: {
                   consolidado_id: consolidado.id,
                   funcionario_rut: rut,
@@ -679,6 +649,7 @@ export class RemuneracionesService {
                   programa_id,
                 }
               });
+              processedIds.turnosUrgencia.add(created.id);
             }
           }
         }
@@ -707,6 +678,55 @@ export class RemuneracionesService {
       }));
       count += chunk.length;
     }
+
+    // 5. Limpieza final de registros huérfanos que no estaban en el excel y no tienen observaciones
+    await this.prisma.$transaction([
+      this.prisma.horasExtras.deleteMany({
+        where: {
+          consolidado_id: consolidado.id,
+          id: { notIn: Array.from(processedIds.horasExtras) },
+          estado_25: { not: 'RECHAZADO' },
+          estado_50: { not: 'RECHAZADO' },
+          AND: [
+            { OR: [{ observaciones_25: null }, { observaciones_25: '' }] },
+            { OR: [{ observaciones_50: null }, { observaciones_50: '' }] }
+          ]
+        }
+      }),
+      this.prisma.viaticos.deleteMany({
+        where: {
+          consolidado_id: consolidado.id,
+          id: { notIn: Array.from(processedIds.viaticos) },
+          estado: { not: 'RECHAZADO' },
+          OR: [
+            { justificacion: null },
+            { justificacion: '' }
+          ]
+        }
+      }),
+      this.prisma.atrasos.deleteMany({
+        where: {
+          consolidado_id: consolidado.id,
+          id: { notIn: Array.from(processedIds.atrasos) },
+          estado: { not: 'RECHAZADO' },
+          OR: [
+            { concepto: null },
+            { concepto: '' }
+          ]
+        }
+      }),
+      this.prisma.turnosUrgencia.deleteMany({
+        where: {
+          consolidado_id: consolidado.id,
+          id: { notIn: Array.from(processedIds.turnosUrgencia) },
+          estado: { not: 'RECHAZADO' },
+          OR: [
+            { observaciones: null },
+            { observaciones: '' }
+          ]
+        }
+      }),
+    ]);
 
     return {
       message: 'Consolidación de Auditoría completada con éxito',
