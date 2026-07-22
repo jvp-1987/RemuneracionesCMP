@@ -958,11 +958,11 @@ export default function ConsolidadoDetailPage() {
           {activeTab !== 'revision_contable' && (
             <div className="flex gap-3 w-full lg:w-auto justify-end">
               <button 
-                disabled={!canValidateControl && !canValidateFinanzas}
+                disabled={!canValidateControl}
                 onClick={() => handleBulkUpdate('APROBADO')}
                 className={cn(
                   "group flex items-center gap-2 px-6 py-3 text-[10px] font-black bg-white text-primary border border-primary/20 shadow-md shadow-slate-200/40 rounded-full hover:bg-primary hover:text-white transition-all uppercase tracking-widest active:scale-95 overflow-hidden",
-                  (!canValidateControl && !canValidateFinanzas) && "opacity-40 cursor-not-allowed"
+                  !canValidateControl && "opacity-40 cursor-not-allowed"
                 )}
               >
                 <span className="material-symbols-outlined text-base group-hover:rotate-12 transition-transform select-none" dangerouslySetInnerHTML={{ __html: '&#xe877;' }} />
@@ -1267,8 +1267,8 @@ export default function ConsolidadoDetailPage() {
                       onViewRespaldo={() => handleOpenRespaldo(item.url_respaldo!)}
                       attendanceLogs={relojData ? relojData[item.funcionario.rut.replace(/\./g, '').replace(/^0+/, '')] : undefined}
                       canEdit={((canValidateControl || canValidateContabilidad || canValidateFinanzas || canValidateConvenios) || ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '')) && !isLocked}
-                      canAudit={canValidateControl || canValidateFinanzas}
-                      canObserve={canValidateControl || canValidateContabilidad || canValidateFinanzas || canValidateConvenios}
+                      canAudit={canValidateControl}
+                      canObserve={canValidateControl || canValidateContabilidad || canValidateFinanzas || canValidateConvenios || ['CENTRO_SALUD', 'SECRETARIA'].includes(user?.rol || '')}
                       isLocked={!!isLocked}
                     />
                   ))}
