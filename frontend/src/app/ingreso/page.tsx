@@ -726,8 +726,17 @@ export default function IngresoPage() {
           const observaciones = obsKey ? String(row[obsKey]).trim() : '';
 
           if (rut) {
-            let minutosNumber = minutos.replace(/[^0-9]/g, '');
+            let minutosNumber: number | string = 0;
+            if (minutos.includes(':')) {
+              const parts = minutos.split(':');
+              const h = parseInt(parts[0].replace(/[^0-9]/g, '')) || 0;
+              const m = parseInt(parts[1].replace(/[^0-9]/g, '')) || 0;
+              minutosNumber = (h * 60) + m;
+            } else {
+              minutosNumber = parseInt(minutos.replace(/[^0-9]/g, '')) || 0;
+            }
             if (!minutosNumber) minutosNumber = '0';
+            else minutosNumber = String(minutosNumber);
 
             const lastRow = rows[rows.length > 0 ? rows.length - 1 : 0];
             newRows.push({
