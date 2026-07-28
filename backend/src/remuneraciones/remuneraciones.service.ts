@@ -140,7 +140,17 @@ export class RemuneracionesService {
       current.total_descuentos = Number(row['TOTAL DESCUENTOS LEGALES'] || 0) + Number(row['TOTAL DESCUENTOS VARIOS'] || 0);
       current.monto_liquido = (current.total_haberes || 0) - (current.total_descuentos || 0);
       current.monto_atrasos_pagado = Number(row['5-HORAS DE ATRASOS'] || row['HORAS DE ATRASO'] || 0);
-      current.minutos_atraso_real = parseInt(String(row['MINUTOS ATRASO'] || 0)) || 0;
+      
+      const atrStr = String(row['MINUTOS ATRASO'] || 0).trim();
+      if (atrStr.includes(':')) {
+        const parts = atrStr.split(':');
+        const h = parseInt(parts[0].replace(/[^0-9]/g, '')) || 0;
+        const m = parseInt(parts[1].replace(/[^0-9]/g, '')) || 0;
+        current.minutos_atraso_real = (h * 60) + m;
+      } else {
+        current.minutos_atraso_real = parseInt(atrStr.replace(/[^0-9]/g, '')) || 0;
+      }
+      
       current.detalle = { ...current.detalle, ...row };
     });
 
@@ -379,11 +389,21 @@ export class RemuneracionesService {
               fecha_termino: endVal ? parseExcelDate(endVal) : null,
             });
           } else if (category === 'ATRASOS') {
-            const minutosRaw = String(findValue(row, ['MINUTOS', 'ATRASO']) || '0');
+            const timeStr = String(findValue(row, ['MINUTOS', 'ATRASO']) || '0').trim();
+            let minutosRaw = 0;
+            if (timeStr.includes(':')) {
+              const parts = timeStr.split(':');
+              const h = parseInt(parts[0].replace(/[^0-9]/g, '')) || 0;
+              const m = parseInt(parts[1].replace(/[^0-9]/g, '')) || 0;
+              minutosRaw = (h * 60) + m;
+            } else {
+              minutosRaw = parseInt(timeStr.replace(/[^0-9]/g, '')) || 0;
+            }
+            
             addEntry(rut, {
               category,
               concept,
-              minutos_atraso: parseInt(minutosRaw.replace(/[^0-9]/g, '')) || 0,
+              minutos_atraso: minutosRaw,
             });
           }
         });
