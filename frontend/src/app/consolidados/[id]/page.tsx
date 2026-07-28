@@ -1824,6 +1824,13 @@ const EmployeeTableRow = React.memo(({
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
 
   useEffect(() => {
+    setObs25(item.observaciones_25 || '');
+    setObs50(item.observaciones_50 || '');
+    setObs(item.observaciones || '');
+  }, [item.observaciones_25, item.observaciones_50, item.observaciones]);
+
+
+  useEffect(() => {
     if (expanded) {
       const fetchAuditLogs = async () => {
         try {
@@ -2108,8 +2115,14 @@ const EmployeeTableRow = React.memo(({
                             </div>
                             {canAudit && (
                               <div className="flex gap-4">
-                                <button onClick={() => onUpdateStatus('horas', item.id, 'estado_25', item.estado_25 === 'RECHAZADO' ? 'PENDIENTE' : 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all", item.estado_25 === 'RECHAZADO' ? "bg-error text-white shadow-xl shadow-error/20" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
-                                <button onClick={() => onUpdateStatus('horas', item.id, 'estado_25', item.estado_25 === 'APROBADO' ? 'PENDIENTE' : 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado_25 === 'APROBADO' ? "bg-primary text-white shadow-primary/20" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
+                                <button onClick={() => {
+                                  onObs(obs25, '25');
+                                  onUpdateStatus('horas', item.id, 'estado_25', item.estado_25 === 'RECHAZADO' ? 'PENDIENTE' : 'RECHAZADO');
+                                }} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all", item.estado_25 === 'RECHAZADO' ? "bg-error text-white shadow-xl shadow-error/20" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
+                                <button onClick={() => {
+                                  onObs(obs25, '25');
+                                  onUpdateStatus('horas', item.id, 'estado_25', item.estado_25 === 'APROBADO' ? 'PENDIENTE' : 'APROBADO');
+                                }} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado_25 === 'APROBADO' ? "bg-primary text-white shadow-primary/20" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
                               </div>
                             )}
                           </>
@@ -2141,8 +2154,14 @@ const EmployeeTableRow = React.memo(({
                             </div>
                             {canAudit && (
                               <div className="flex gap-4">
-                                <button onClick={() => onUpdateStatus('horas', item.id, 'estado_50', item.estado_50 === 'RECHAZADO' ? 'PENDIENTE' : 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all", item.estado_50 === 'RECHAZADO' ? "bg-error text-white shadow-xl shadow-error/20" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
-                                <button onClick={() => onUpdateStatus('horas', item.id, 'estado_50', item.estado_50 === 'APROBADO' ? 'PENDIENTE' : 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado_50 === 'APROBADO' ? "bg-primary text-white shadow-primary/20" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
+                                <button onClick={() => {
+                                  onObs(obs50, '50');
+                                  onUpdateStatus('horas', item.id, 'estado_50', item.estado_50 === 'RECHAZADO' ? 'PENDIENTE' : 'RECHAZADO');
+                                }} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all", item.estado_50 === 'RECHAZADO' ? "bg-error text-white shadow-xl shadow-error/20" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
+                                <button onClick={() => {
+                                  onObs(obs50, '50');
+                                  onUpdateStatus('horas', item.id, 'estado_50', item.estado_50 === 'APROBADO' ? 'PENDIENTE' : 'APROBADO');
+                                }} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado_50 === 'APROBADO' ? "bg-primary text-white shadow-primary/20" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
                               </div>
                             )}
                           </>
@@ -2166,8 +2185,14 @@ const EmployeeTableRow = React.memo(({
                         />
                         {canAudit && (activeTab === 'viaticos' || activeTab === 'atrasos' || activeTab === 'procedimientos' || activeTab === 'turnos') && (
                           <div className="flex gap-6 pt-4 pb-8">
-                            <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', item.estado === 'RECHAZADO' ? 'PENDIENTE' : 'RECHAZADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado === 'RECHAZADO' ? "bg-error text-white" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
-                            <button onClick={() => onUpdateStatus(activeTab, item.id, 'estado', item.estado === 'APROBADO' ? 'PENDIENTE' : 'APROBADO')} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-primary/20", item.estado === 'APROBADO' ? "bg-primary text-white" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
+                            <button onClick={() => {
+                              onObs(obs);
+                              onUpdateStatus(activeTab, item.id, 'estado', item.estado === 'RECHAZADO' ? 'PENDIENTE' : 'RECHAZADO');
+                            }} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg", item.estado === 'RECHAZADO' ? "bg-error text-white" : "bg-white border border-error/30 text-error hover:bg-error-container/20")}>Hallazgo</button>
+                            <button onClick={() => {
+                              onObs(obs);
+                              onUpdateStatus(activeTab, item.id, 'estado', item.estado === 'APROBADO' ? 'PENDIENTE' : 'APROBADO');
+                            }} className={cn("flex-1 py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-primary/20", item.estado === 'APROBADO' ? "bg-primary text-white" : "bg-primary/5 text-primary border border-primary/20 hover:bg-primary/10")}>Validar</button>
                           </div>
                         )}
                     </div>
