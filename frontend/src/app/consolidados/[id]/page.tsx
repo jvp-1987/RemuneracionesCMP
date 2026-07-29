@@ -2110,9 +2110,17 @@ const EmployeeTableRow = React.memo(({
                                 placeholder={canObserve ? "Ingrese hallazgos..." : "Notas de auditoría (Solo lectura)"}
                                 value={obs25}
                                 onChange={(e) => setObs25(e.target.value)}
-                                onBlur={() => onObs(obs25, '25')}
                               />
                             </div>
+                            {canAudit && (
+                              <div className="flex justify-end mt-2 mb-4">
+                                <button onClick={() => {
+                                  onObs(obs25, '25');
+                                }} className="flex items-center gap-1 px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                                  <span className="material-symbols-outlined text-[14px]">send</span> Enviar a Auditoría
+                                </button>
+                              </div>
+                            )}
                             {canAudit && (
                               <div className="flex gap-4">
                                 <button onClick={() => {
@@ -2149,9 +2157,17 @@ const EmployeeTableRow = React.memo(({
                                 placeholder={canObserve ? "Ingrese hallazgos..." : "Notas de auditoría (Solo lectura)"}
                                 value={obs50}
                                 onChange={(e) => setObs50(e.target.value)}
-                                onBlur={() => onObs(obs50, '50')}
                               />
                             </div>
+                            {canAudit && (
+                              <div className="flex justify-end mt-2 mb-4">
+                                <button onClick={() => {
+                                  onObs(obs50, '50');
+                                }} className="flex items-center gap-1 px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                                  <span className="material-symbols-outlined text-[14px]">send</span> Enviar a Auditoría
+                                </button>
+                              </div>
+                            )}
                             {canAudit && (
                               <div className="flex gap-4">
                                 <button onClick={() => {
@@ -2181,8 +2197,16 @@ const EmployeeTableRow = React.memo(({
                           placeholder={canObserve ? "Notas de auditoría..." : "Notas de auditoría (Solo lectura)"}
                           value={obs}
                           onChange={(e) => setObs(e.target.value)}
-                          onBlur={() => onObs(obs)}
                         />
+                        {canAudit && (
+                          <div className="flex justify-end mt-2 mb-4">
+                            <button onClick={() => {
+                              onObs(obs);
+                            }} className="flex items-center gap-1 px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                              <span className="material-symbols-outlined text-[14px]">send</span> Enviar a Auditoría
+                            </button>
+                          </div>
+                        )}
                         {canAudit && (activeTab === 'viaticos' || activeTab === 'atrasos' || activeTab === 'procedimientos' || activeTab === 'turnos') && (
                           <div className="flex gap-6 pt-4 pb-8">
                             <button onClick={() => {
