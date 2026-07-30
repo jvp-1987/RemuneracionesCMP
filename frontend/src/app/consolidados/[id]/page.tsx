@@ -663,6 +663,9 @@ export default function ConsolidadoDetailPage() {
       const rejectedCount = data.horas_extras.filter(h => h.programa?.id === prog.id && (h.estado_25 === 'RECHAZADO' || h.estado_50 === 'RECHAZADO')).length +
         data.turnos_urgencia.filter(t => t.programa?.id === prog.id && t.estado === 'RECHAZADO').length;
 
+      const resolvedCount = data.horas_extras.filter(h => h.programa?.id === prog.id && ((h.estado_25 === 'APROBADO' && h.observaciones_25) || (h.estado_50 === 'APROBADO' && h.observaciones_50))).length +
+        data.turnos_urgencia.filter(t => t.programa?.id === prog.id && t.estado === 'APROBADO' && t.observaciones).length;
+
       return {
         id: prog.id,
         nombre: prog.nombre,
@@ -671,7 +674,8 @@ export default function ConsolidadoDetailPage() {
         procedimientos: procedimientosSum,
         total,
         pendingCount,
-        rejectedCount
+        rejectedCount,
+        resolvedCount
       };
     });
 
@@ -681,6 +685,7 @@ export default function ConsolidadoDetailPage() {
 
     const pendingProcedimientos = data.procedimientos.filter(p => p.estado === 'PENDIENTE').length;
     const rejectedProcedimientos = data.procedimientos.filter(p => p.estado === 'RECHAZADO').length;
+    const resolvedProcedimientos = data.procedimientos.filter(p => p.estado === 'APROBADO' && p.observaciones).length;
 
     rows.push({
       id: 'procedimientos_aps' as any,
@@ -690,10 +695,11 @@ export default function ConsolidadoDetailPage() {
       procedimientos: approvedProcedimientos,
       total: approvedProcedimientos,
       pendingCount: pendingProcedimientos,
-      rejectedCount: rejectedProcedimientos
+      rejectedCount: rejectedProcedimientos,
+      resolvedCount: resolvedProcedimientos
     });
 
-    return rows.filter(r => r.total > 0 || r.pendingCount > 0 || r.rejectedCount > 0);
+    return rows.filter(r => r.total > 0 || r.pendingCount > 0 || r.rejectedCount > 0 || r.resolvedCount > 0);
   };
 
   const getSelectedProgramRecords = () => {
@@ -718,7 +724,7 @@ export default function ConsolidadoDetailPage() {
           tipo: 'Procedimientos APS',
           monto: Number(p.monto_calculado || 0),
           estado: p.estado || 'PENDIENTE',
-          detalles: `Cantidad: ${p.total_procedimientos || 0} procedimiento(s)`
+          detalles: `Cantidad: ${p.total_procedimientos || 0} procedimiento(s)${p.observaciones ? `\nAlerta: ${p.observaciones}` : ''}`
         });
       });
     } else {
@@ -734,7 +740,7 @@ export default function ConsolidadoDetailPage() {
               tipo: h.programa?.nombre ? `${h.programa.nombre} (HE 25%)` : 'Horas Extras 25%',
               monto: Number(h.monto_25 || 0),
               estado: h.estado_25 || 'PENDIENTE',
-              detalles: `${h.cantidad_25} hrs @ $${(Number(h.monto_25 || 0) / Number(h.cantidad_25 || 1)).toFixed(0)}`
+              detalles: `${h.cantidad_25} hrs @ $${(Number(h.monto_25 || 0) / Number(h.cantidad_25 || 1)).toFixed(0)}${h.observaciones_25 ? `\nAlerta: ${h.observaciones_25}` : ''}`
             });
           }
           if (Number(h.cantidad_50 || 0) > 0) {
@@ -745,7 +751,7 @@ export default function ConsolidadoDetailPage() {
               tipo: h.programa?.nombre ? `${h.programa.nombre} (HE 50%)` : 'Horas Extras 50%',
               monto: Number(h.monto_50 || 0),
               estado: h.estado_50 || 'PENDIENTE',
-              detalles: `${h.cantidad_50} hrs @ $${(Number(h.monto_50 || 0) / Number(h.cantidad_50 || 1)).toFixed(0)}`
+              detalles: `${h.cantidad_50} hrs @ $${(Number(h.monto_50 || 0) / Number(h.cantidad_50 || 1)).toFixed(0)}${h.observaciones_50 ? `\nAlerta: ${h.observaciones_50}` : ''}`
             });
           }
         }
@@ -764,7 +770,7 @@ export default function ConsolidadoDetailPage() {
             tipo: t.programa?.nombre || 'Turnos de Urgencia',
             monto: Number(t.cant_turnos_habiles || 0) * Number(t.valor_habil || 0) + Number(t.cant_turnos_inhabiles || 0) * Number(t.valor_inhabil || 0),
             estado: t.estado || 'PENDIENTE',
-            detalles: detList.join(', ')
+            detalles: detList.join(', ') + (t.observaciones ? `\nAlerta: ${t.observaciones}` : '')
           });
         }
       });
@@ -1074,6 +1080,12 @@ export default function ConsolidadoDetailPage() {
                               <span className="px-1.5 py-0.5 rounded bg-red-100 text-red-800 text-[9px] font-black uppercase tracking-wider flex items-center gap-1" title={`${row.rejectedCount} hallazgos / rechazados`}>
                                 <span className="material-symbols-outlined" style={{ fontSize: '10px' }}>error</span>
                                 {row.rejectedCount} RECH
+                              </span>
+                            )}
+                            {row.resolvedCount > 0 && (
+                              <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[9px] font-black uppercase tracking-wider flex items-center gap-1" title={`${row.resolvedCount} alertas resueltas (con validación)`}>
+                                <span className="material-symbols-outlined" style={{ fontSize: '10px' }}>info</span>
+                                {row.resolvedCount} RES
                               </span>
                             )}
                             {row.pendingCount === 0 && row.rejectedCount === 0 && (
