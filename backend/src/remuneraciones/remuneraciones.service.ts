@@ -513,11 +513,13 @@ export class RemuneracionesService {
         for (const entry of entries) {
           if (entry.category === 'PRESUPUESTARIA' || entry.category === 'PROGRAMA_HE') {
             const programaId = entry.category === 'PRESUPUESTARIA' ? 1 : parseInt(entry.concept.split(' ')[0]) || 1;
+            const entryFechaInicio = entry.fecha_inicio ? new Date(entry.fecha_inicio) : null;
             const existing = await this.prisma.horasExtras.findFirst({
               where: {
                 consolidado_id: consolidado.id,
                 funcionario_rut: rut,
                 programa_id: programaId,
+                ...(entryFechaInicio ? { fecha_inicio: entryFechaInicio } : {}),
               }
             });
 
@@ -527,6 +529,8 @@ export class RemuneracionesService {
                 data: {
                   cantidad_25: entry.cant_25 || 0,
                   cantidad_50: entry.cant_50 || 0,
+                  ...(entryFechaInicio ? { fecha_inicio: entryFechaInicio } : {}),
+                  ...(entry.fecha_termino ? { fecha_termino: new Date(entry.fecha_termino) } : {}),
                 }
               });
               processedIds.horasExtras.add(updated.id);
@@ -538,8 +542,8 @@ export class RemuneracionesService {
                   programa_id: programaId,
                   cantidad_25: entry.cant_25 || 0,
                   cantidad_50: entry.cant_50 || 0,
-                  fecha_inicio: new Date(),
-                  fecha_termino: new Date(),
+                  fecha_inicio: entryFechaInicio || new Date(),
+                  fecha_termino: entry.fecha_termino ? new Date(entry.fecha_termino) : (entryFechaInicio || new Date()),
                 }
               });
               processedIds.horasExtras.add(created.id);
