@@ -102,9 +102,9 @@ La seguridad se aplica a nivel de API mediante el decorador `@Roles()` y un guar
 
 Al momento de realizar el envío por lote de novedades (vía manual o importación de Excel) hacia el consolidado del mes, el backend aplica las siguientes reglas de negocio para evitar duplicidades innecesarias:
 
-* **Horas Extras**: El sistema comprueba si ya existe un registro en el consolidado con el mismo `RUT` y el mismo `programa_id`.
-  * *Si existe*: Se **sobrescriben** las horas con el nuevo valor ingresado en novedades.
-  * *Si no existe*: Se inserta un nuevo registro.
+* **Horas Extras**: El sistema comprueba si ya existe un registro en el consolidado con el mismo `RUT`, el mismo `programa_id` y la misma `fecha_inicio`.
+  * *Si existe (mismo programa y misma fecha)*: Se **sobrescriben** las horas con el nuevo valor ingresado en novedades.
+  * *Si no existe (diferente programa o diferente fecha)*: Se inserta un **nuevo registro** de horas extras para el funcionario.
 * **Turnos de Urgencia**: Un funcionario puede realizar más de un turno de urgencia en diferentes programas durante el mismo mes.
   * El sistema valida la clave única compuesta por: `consolidado_id` + `funcionario_rut` + `programa_id`.
   * Esto permite que si un funcionario tiene un turno asignado a un programa "A" y otro a un programa "B", **ambos registros se mantengan** en la base de datos de manera simultánea sin sobrescribirse.
