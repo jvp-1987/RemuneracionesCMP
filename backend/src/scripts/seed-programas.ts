@@ -17,7 +17,8 @@ async function main() {
     { nombre: 'SALUD MENTAL Y BIENESTAR PSICOSOCIAL - SALUD MENTAL EN LA ATENCIÓN PRIMARIA DE SALUD', categoria: 'Programas APS' },
     { nombre: 'SALUD RESPIRATORIA - VACUNACIÓN CONTRA LA INFLUENZA, VRS Y SARS-CoV-2', categoria: 'Programas APS' },
     { nombre: 'SALUD RESPIRATORIA - CAMPAÑA INVIERNO', categoria: 'Programas APS' },
-    { nombre: 'SERVICIO DE ATENCIÓN PRIMARIA DE URGENCIA DE ALTA RESOLUTIVIDAD (SAR)', categoria: 'Programas APS' }
+    { nombre: 'SERVICIO DE ATENCIÓN PRIMARIA DE URGENCIA DE ALTA RESOLUTIVIDAD (SAR)', categoria: 'Programas APS' },
+    { nombre: 'PROGRAMA SUR', categoria: 'Programas APS' }
   ];
 
   console.log('Iniciando carga de programas oficiales...');
