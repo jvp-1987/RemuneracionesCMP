@@ -14,11 +14,15 @@ export class FuncionariosController {
   constructor(private readonly funcionariosService: FuncionariosService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'ADMIN_MAESTRO')
   create(@Body() createFuncionarioDto: CreateFuncionarioDto) {
     return this.funcionariosService.create(createFuncionarioDto);
   }
 
   @Post('importar')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN', 'ADMIN_MAESTRO')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -64,7 +68,7 @@ export class FuncionariosController {
 
   @Patch(':rut')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN', 'ADMIN_MAESTRO')
+  @Roles('ADMIN', 'ADMIN_MAESTRO', 'CENTRO_SALUD')
   update(@Param('rut') rut: string, @Body() updateFuncionarioDto: UpdateFuncionarioDto) {
     return this.funcionariosService.update(rut, updateFuncionarioDto);
   }
