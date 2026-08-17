@@ -35,7 +35,7 @@ interface Funcionario {
 }
 
 export default function FuncionariosPage() {
-  const { isReadOnly } = useAuth();
+  const { isReadOnly, isAdmin, user } = useAuth();
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [centros, setCentros] = useState<{id: number, nombre: string}[]>([]);
   const [selectedEstablishment, setSelectedEstablishment] = useState<string | null>(null);
@@ -400,7 +400,7 @@ export default function FuncionariosPage() {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          {!isReadOnly && (
+          {isAdmin && (
             <>
               <input 
                 type="file" 
@@ -578,7 +578,7 @@ export default function FuncionariosPage() {
                             }
                           })()}
                         </span>
-                        {!f.centro_salud && !isReadOnly && (
+                        {!f.centro_salud && (isAdmin || user?.rol === 'CENTRO_SALUD') && (
                           <select 
                             className="text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-xl px-3 py-2 outline-none cursor-pointer hover:bg-emerald-100 transition-colors"
                             onClick={(e) => e.stopPropagation()}
