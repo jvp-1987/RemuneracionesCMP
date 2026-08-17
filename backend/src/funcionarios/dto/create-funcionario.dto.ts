@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsBoolean, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateFuncionarioDto {
@@ -19,17 +19,26 @@ export class CreateFuncionarioDto {
 
   @ApiProperty({ example: 'A', required: false })
   @IsString()
+  @IsOptional()
   categoria_aps?: string;
 
   @ApiProperty({ example: 1, required: false })
+  @IsNumber()
+  @IsOptional()
   nivel_aps?: number;
 
   @ApiProperty({ example: 44, required: false })
+  @IsNumber()
+  @IsOptional()
   jornada_horas?: number;
 
   @ApiProperty({ example: 1, required: false })
+  @IsNumber()
+  @IsOptional()
   centro_salud_id?: number;
 
   @ApiProperty({ example: true, required: false })
+  @IsBoolean()
+  @IsOptional()
   activo?: boolean;
 }
