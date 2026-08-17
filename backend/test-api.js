@@ -1,19 +1,18 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
-
-async function main() {
-  const f = await prisma.funcionario.findUnique({
-    where: { rut: '15293253-7' },
-    include: {
-      liquidaciones: {
-        take: 24,
-        orderBy: [{ periodo: { anio: 'desc' } }, { periodo: { mes: 'desc' } }],
-        include: { periodo: true }
-      }
-    }
-  });
-  console.log(f.liquidaciones.length > 0);
-  console.log(f.liquidaciones[0].detalle_json != null);
-  console.log(Object.keys(f.liquidaciones[0].detalle_json).find(k => k.toUpperCase().includes('TIPO CONTRATO EN PERSONAL')));
+const axios = require('axios');
+async function test() {
+  try {
+    const res = await axios.post('http://localhost:3001/funcionarios', {
+      rut: "1-9",
+      nombre_completo: "Test Func",
+      profesion_enum: "MEDICO",
+      categoria_aps: "A",
+      nivel_aps: 1,
+      jornada_horas: 44,
+      centro_salud_id: 1
+    });
+    console.log(res.data);
+  } catch (e) {
+    console.log("Error:", e.response?.status, e.response?.data);
+  }
 }
-main().finally(() => prisma.$disconnect());
+test();
