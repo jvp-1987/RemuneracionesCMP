@@ -22,9 +22,16 @@ export class FuncionariosService {
     return `${body}-${dv}`;
   }
 
-  create(dto: CreateFuncionarioDto) {
+  async create(dto: CreateFuncionarioDto) {
     dto.rut = this.normalizeRut(dto.rut);
-    return this.prisma.funcionario.create({ data: dto });
+    try {
+      return await this.prisma.funcionario.create({ data: dto });
+    } catch (error: any) {
+      if (error.code === 'P2002') {
+        throw new import('@nestjs/common').ConflictException('ALERTA DE FUNCIONARIO YA CREADO');
+      }
+      throw error;
+    }
   }
 
   private normalizeString(str: string): string {
