@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { CalculosService } from '../calculos/calculos.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateFuncionarioDto } from './dto/create-funcionario.dto';
@@ -28,7 +28,7 @@ export class FuncionariosService {
       return await this.prisma.funcionario.create({ data: dto });
     } catch (error: any) {
       if (error.code === 'P2002') {
-        throw new import('@nestjs/common').ConflictException('ALERTA DE FUNCIONARIO YA CREADO');
+        throw new ConflictException('ALERTA DE FUNCIONARIO YA CREADO');
       }
       throw error;
     }
