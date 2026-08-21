@@ -93,10 +93,32 @@ export default function FuncionariosPage() {
     e.preventDefault();
     setSaving(true);
     
-    // Normalizar RUT antes de enviar
+    // Validate RUT format and checksum
+    const isValidFormat = /^[0-9]+-[0-9kK]$/.test(formData.rut);
+    
+    const isChecksumValid = (rut: string): boolean => {
+      if (!rut.includes('-')) return false;
+      const [body, dv] = rut.split('-');
+      let sum = 0;
+      let multiplier = 2;
+      for (let i = body.length - 1; i >= 0; i--) {
+        sum += parseInt(body.charAt(i)) * multiplier;
+        multiplier = multiplier === 7 ? 2 : multiplier + 1;
+      }
+      const expectedDv = 11 - (sum % 11);
+      const dvString = expectedDv === 11 ? '0' : expectedDv === 10 ? 'K' : expectedDv.toString();
+      return dv.toUpperCase() === dvString;
+    };
+
+    if (!isValidFormat || !isChecksumValid(formData.rut)) {
+      alert('Error: El RUT debe ser ingresado sin puntos, con guion y un dígito verificador válido.');
+      setSaving(false);
+      return;
+    }
+
     const normalizedData = {
       ...formData,
-      rut: normalizeRut(formData.rut)
+      rut: formData.rut.toUpperCase()
     };
 
     try {
@@ -122,7 +144,7 @@ export default function FuncionariosPage() {
       const message = err.response?.data?.message || '';
       
       if (status === 409 || message.includes('Unique constraint')) {
-        alert('Ese RUT ya se encuentra registrado en el sistema.');
+        alert('ALERTA: FUNCIONARIO YA CREADO');
       } else if (status === 400) {
         alert('Datos inválidos. Por favor verifique el RUT y los campos obligatorios.');
       } else if (!status) {
